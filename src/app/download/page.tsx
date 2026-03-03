@@ -106,7 +106,7 @@ export default function DownloadPage() {
                         {/* Windows */}
                         <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
                             <div className="space-y-2 mb-8 text-center">
-                                <i className="fa-brands fa-windows text-[36px] mx-auto mb-4 opacity-80"></i>
+                                <i className="fa-brands fa-microsoft text-[36px] mx-auto mb-4 opacity-80"></i>
                                 <h3 className="text-3xl font-black tracking-tight">Windows</h3>
                                 <p className={`text-sm ${mutedText} font-medium`}>Windows 10/11 (64-bit)</p>
                             </div>
@@ -299,30 +299,30 @@ export default function DownloadPage() {
             {/* Video Modal */}
             {showVideoModal && (
                 <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity"
                     onClick={() => setShowVideoModal(false)}
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 rounded-3xl shadow-2xl border ${isDark ? "bg-[#0a0a0a] border-white/10" : "bg-white border-black/10"}`}
+                        className={`relative w-full max-w-md overflow-hidden p-5 sm:p-6 rounded-3xl shadow-2xl border ${isDark ? "bg-[#0a0a0a] border-white/10" : "bg-white border-black/10"}`}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-bold text-xl flex items-center gap-3">
-                                <Download className="w-6 h-6" />
+                        <div className="flex justify-between items-center mb-4 sm:mb-5">
+                            <h3 className="font-bold text-lg sm:text-xl flex items-center gap-3">
+                                <Download className="w-5 h-5 sm:w-6 sm:h-6" />
                                 Downloading ColorWall...
                             </h3>
                             <button
                                 onClick={() => setShowVideoModal(false)}
                                 className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 bg-white/5" : "hover:bg-black/10 bg-black/5"}`}
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                             </button>
                         </div>
 
-                        <div className="w-full rounded-2xl overflow-hidden relative border border-white/10 flex items-center justify-center bg-[#050505] mb-6 drop-shadow-2xl">
-                            <AnimatePresence mode="wait">
+                        <div className={`w-full rounded-2xl overflow-hidden relative border border-transparent mb-4 sm:mb-5 drop-shadow-2xl grid`}>
+                            <AnimatePresence mode="popLayout">
                                 <motion.img
                                     key={currentImage}
                                     initial={{ opacity: 0, scale: 0.98 }}
@@ -331,34 +331,39 @@ export default function DownloadPage() {
                                     transition={{ duration: 0.3 }}
                                     src={`/smartscreen${currentImage}.png`}
                                     alt={`SmartScreen Bypass Step ${currentImage}`}
-                                    className="w-full h-auto max-h-[45vh] object-contain p-2"
+                                    className="w-full h-auto block grid-area-1"
+                                    style={{ gridArea: '1 / 1 / 2 / 2' }}
                                 />
                             </AnimatePresence>
-
-                            {/* Overlay instructions */}
-                            <div className="absolute top-4 left-0 right-0 flex justify-center z-20 pointer-events-none">
-                                <motion.span
-                                    key={`text-${currentImage}`}
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-black/70 backdrop-blur-md px-5 py-2.5 rounded-full text-sm font-bold text-white border border-white/10 shadow-2xl select-none flex items-center gap-2"
-                                >
-                                    <AlertTriangle size={16} className="text-amber-500" />
-                                    {currentImage === 1 ? "Step 1: Click 'More info'" : "Step 2: Click 'Run anyway'"}
-                                </motion.span>
-                            </div>
                         </div>
 
-                        <div className="text-center space-y-2">
-                            <p className="text-sm md:text-base font-medium">Your download will begin automatically shortly.</p>
-                            <p className={`text-xs md:text-sm ${mutedText}`}>
-                                If it doesn't start,{" "}
-                                {downloadUrl ? (
-                                    <a href={downloadUrl} className={`${isDark ? "text-blue-400 hover:text-blue-300" : "text-[#394eff] hover:text-blue-800"} hover:underline font-semibold transition-colors`} target="_blank" rel="noopener noreferrer">click here to download</a>
-                                ) : (
-                                    <span>please wait...</span>
-                                )}
-                            </p>
+                        <div className="text-center space-y-3 sm:space-y-4">
+                            <div className={`p-3 rounded-xl border ${isDark ? "bg-emerald-500/10 border-emerald-500/20" : "bg-emerald-50 border-emerald-200"} flex items-start gap-3 text-left`}>
+                                <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                                <div className="space-y-1.5">
+                                    <p className={`text-sm font-bold ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>
+                                        Why am I seeing SmartScreen?
+                                    </p>
+                                    <p className={`text-xs ${isDark ? "text-emerald-400/80" : "text-emerald-600"} leading-relaxed`}>
+                                        Windows flags new, unsigned executable files that haven't built a long reputation yet. ColorWall is 100% clean.{" "}
+                                        <a href="https://www.virustotal.com/gui/file/bcc95f7886dd86dc268d8022f366a7c55747fed5ce4aaf9ac2f50a6868e6ae5a/detection" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:opacity-80 transition-opacity">
+                                            View our VirusTotal report (0 detections)
+                                        </a> to verify.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <p className="text-sm md:text-base font-medium">Your download will begin automatically shortly.</p>
+                                <p className={`text-xs md:text-sm ${mutedText}`}>
+                                    If it doesn't start,{" "}
+                                    {downloadUrl ? (
+                                        <a href={downloadUrl} className={`${isDark ? "text-blue-400 hover:text-blue-300" : "text-[#394eff] hover:text-blue-800"} hover:underline font-semibold transition-colors`} target="_blank" rel="noopener noreferrer">click here to download</a>
+                                    ) : (
+                                        <span>please wait...</span>
+                                    )}
+                                </p>
+                            </div>
                         </div>
                     </motion.div>
                 </div>

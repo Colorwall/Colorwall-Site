@@ -64,7 +64,7 @@ export const CommunityReviews = ({ theme }: { theme: "dark" | "light" }) => {
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="relative pb-16 lg:pb-0 lg:pl-10 flex justify-center lg:justify-end"
+                    className="relative flex flex-col sm:block lg:pl-10 items-center justify-center lg:justify-end gap-6 sm:gap-0"
                 >
                     {/* Main Review Card */}
                     <div className={`rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-[420px] relative z-10 border transform rotate-1 hover:rotate-0 transition-transform duration-300 ${isDark ? "bg-[#0f0f12] border-white/10" : "bg-white border-black/5"}`}>
@@ -98,7 +98,7 @@ export const CommunityReviews = ({ theme }: { theme: "dark" | "light" }) => {
                     </div>
 
                     {/* Secondary Metrics Card */}
-                    <div className={`absolute -left-4 sm:-left-16 bottom-0 sm:-bottom-8 rounded-2xl p-5 shadow-2xl w-full max-w-[320px] z-30 transform -rotate-1 hover:rotate-0 transition-transform duration-300 border
+                    <div className={`sm:absolute sm:-left-16 sm:-bottom-8 rounded-2xl p-5 shadow-2xl w-full max-w-[320px] z-30 transform sm:-rotate-1 sm:hover:rotate-0 transition-transform duration-300 border
                         ${isDark ? "bg-[#0f0f12] border-white/10" : "bg-white border-black/10"}`}
                     >
                         <div className="flex items-center gap-4">
