@@ -22,8 +22,10 @@ const geistMono = Geist_Mono({
   adjustFontFallback: true
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://laxenta.xyz";
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://github.com/colorwall/colorwall'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "ColorWall - Free Live Wallpaper Engine",
     template: "%s | ColorWall"
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
     "rust wallpaper app",
     "animated wallpapers windows",
   ],
-  authors: [{ name: "ColorWall Team", url: "https://github.com/colorwall/colorwall" }],
+  authors: [{ name: "ColorWall Team", url: SITE_URL }],
   creator: "ColorWall",
   publisher: "ColorWall",
   applicationName: "ColorWall",
@@ -51,33 +53,49 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon-32x32.png',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://github.com/colorwall/colorwall',
+    url: SITE_URL,
     siteName: 'ColorWall',
     title: 'ColorWall - Free Live Wallpaper Engine',
     description: 'ColorWall is a free, blazing fast live wallpaper engine built with Rust for Windows 10/11. Customize your desktop without slowing down your PC.',
     images: [
       {
-        url: '/LxColorWall.png',
+        // main landscape embed (discord, facebook, linkedin)
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'ColorWall Live Wallpaper Engine',
         type: 'image/png',
-      }
+      },
+      {
+        // square fallback (instagram dms, whatsapp, etc)
+        url: '/og-image-square.png',
+        width: 1200,
+        height: 1200,
+        alt: 'ColorWall Live Wallpaper Engine',
+        type: 'image/png',
+      },
     ],
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@colorwall_xyz',
+    creator: '@colorwall_xyz',
     title: 'ColorWall - Free Live Wallpaper Engine',
     description: 'A performance-focused, free live wallpaper engine for Windows. Customize your desktop without slowing down your PC.',
-    creator: '@colorwall_xyz',
-    images: ['/LxColorWall.png'],
+    images: ['/twitter-card.png'],
   },
   robots: {
     index: true,
@@ -91,7 +109,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://github.com/colorwall/colorwall',
+    canonical: SITE_URL,
   },
 };
 
