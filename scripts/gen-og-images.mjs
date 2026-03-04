@@ -1,67 +1,85 @@
-// generates all platform-required image formats from sitepfpthingy.PNG
+// generates all platform-required image formats from LxColorWall.png
 // run: node scripts/gen-og-images.mjs
 
 import sharp from "sharp";
-import { existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
-const src = join(root, "public", "sitepfpthingy.PNG");
+const logo = join(root, "public", "LxColorWall.png");
+const sitepfp = join(root, "public", "LxColorWall.png");
 const pub = join(root, "public");
 
-// ensure public exists
-if (!existsSync(pub)) mkdirSync(pub, { recursive: true });
+// -- og images: logo centered on a dark bg --
+// this is what discord/instagram/twitter etc show as embed
+async function genOG(outName, w, h) {
+    // create a dark gradient-ish background
+    const bg = await sharp({
+        create: {
+            width: w,
+            height: h,
+            channels: 4,
+            background: { r: 10, g: 10, b: 14, alpha: 1 },
+        }
+    }).png().toBuffer();
 
-const meta = await sharp(src).metadata();
-console.log(`source: ${meta.width}x${meta.height} ${meta.format}`);
+    // resize logo to fit nicely (60% of width, maintain aspect)
+    const logoW = Math.round(w * 0.6);
+    const resizedLogo = await sharp(logo)
+        .resize(logoW, null, { fit: "inside" })
+        .png()
+        .toBuffer();
 
-const jobs = [
-    // --- open graph / discord / facebook / linkedin ---
-    // must be exactly 1200x630 for best results
-    { out: "og-image.png", width: 1200, height: 630, fit: "cover", format: "png" },
-    // square version for platforms that crop to square (instagram dm links, etc)
-    { out: "og-image-square.png", width: 1200, height: 1200, fit: "cover", format: "png" },
-    // webp versions (faster load, same support)
-    { out: "og-image.webp", width: 1200, height: 630, fit: "cover", format: "webp", quality: 90 },
+    const logoMeta = await sharp(resizedLogo).metadata();
+    const left = Math.round((w - logoMeta.width) / 2);
+    const top = Math.round((h - logoMeta.height) / 2);
 
-    // --- twitter / x (needs 2:1 ratio for summary_large_image) ---
-    { out: "twitter-card.png", width: 1200, height: 600, fit: "cover", format: "png" },
+    await sharp(bg)
+        .composite([{ input: resizedLogo, left, top }])
+        .png({ compressionLevel: 8 })
+        .toFile(join(pub, outName));
 
-    // --- apple touch icon (180x180 square, no transparency) ---
-    { out: "apple-touch-icon.png", width: 180, height: 180, fit: "cover", format: "png", bg: { r: 10, g: 10, b: 10 } },
+    console.log(`✓ ${outName} (${w}x${h})`);
+}
 
-    // --- pwa / manifest icons ---
-    { out: "icon-192.png", width: 192, height: 192, fit: "cover", format: "png" },
-    { out: "icon-512.png", width: 512, height: 512, fit: "cover", format: "png" },
+// -- icon images: from sitepfpthingy (square crop) --
+async function genIcon(outName, size, format = "png") {
+    let pipeline = sharp(sitepfp)
+        .resize(size, size, { fit: "cover", position: "center" })
+        .flatten({ background: { r: 10, g: 10, b: 14 } });
 
-    // --- favicon sizes (stored as png, then use ico separately) ---
-    { out: "favicon-32x32.png", width: 32, height: 32, fit: "cover", format: "png" },
-    { out: "favicon-16x16.png", width: 16, height: 16, fit: "cover", format: "png" },
-];
-
-for (const job of jobs) {
-    const outPath = join(pub, job.out);
-    let pipeline = sharp(src).resize(job.width, job.height, {
-        fit: job.fit ?? "cover",
-        position: "center",
-    });
-
-    // flatten transparent bg if needed
-    if (job.bg) {
-        pipeline = pipeline.flatten({ background: job.bg });
-    }
-
-    if (job.format === "webp") {
-        pipeline = pipeline.webp({ quality: job.quality ?? 85 });
+    if (format === "webp") {
+        pipeline = pipeline.webp({ quality: 85 });
     } else {
         pipeline = pipeline.png({ compressionLevel: 8 });
     }
 
-    await pipeline.toFile(outPath);
-    console.log(`✓ ${job.out} (${job.width}x${job.height})`);
+    await pipeline.toFile(join(pub, outName));
+    console.log(`✓ ${outName} (${size}x${size})`);
 }
 
+// --- open graph / discord / facebook / linkedin (landscape 1200x630) ---
+await genOG("og-image.png", 1200, 630);
+
+// --- twitter / x (summary_large_image needs 2:1) ---
+await genOG("twitter-card.png", 1200, 600);
+
+// --- webp version for speed ---
+// copy the og-image and convert to webp
+await sharp(join(pub, "og-image.png"))
+    .webp({ quality: 90 })
+    .toFile(join(pub, "og-image.webp"));
+console.log("✓ og-image.webp (1200x630)");
+
+// --- square og fallback (whatsapp, instagram dms) ---
+await genOG("og-image-square.png", 1200, 1200);
+
+// --- favicons and app icons from the screenshot ---
+await genIcon("apple-touch-icon.png", 180);
+await genIcon("icon-192.png", 192);
+await genIcon("icon-512.png", 512);
+await genIcon("favicon-32x32.png", 32);
+await genIcon("favicon-16x16.png", 16);
+
 console.log("\ndone! all images written to /public");
-console.log("don't forget to set NEXT_PUBLIC_SITE_URL in your env.");
