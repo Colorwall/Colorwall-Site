@@ -1,19 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 
 export const HomeShowcase = ({ theme }: { theme: "dark" | "light" }) => {
     return (
         <section className="py-16 px-4 sm:px-8">
-            <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7 }}
-                className="max-w-7xl mx-auto"
-            >
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/5">
+            <div className="max-w-7xl mx-auto">
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/5 bg-black/5">
                     <Image
                         src="/HOME.PNG"
                         alt="colorwall full interface"
@@ -21,6 +14,7 @@ export const HomeShowcase = ({ theme }: { theme: "dark" | "light" }) => {
                         height={1080}
                         className="w-full h-auto"
                         quality={95}
+                        priority
                     />
                     <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none
                         ${theme === "dark" ? "from-black/30" : "from-white/20"}`}
@@ -31,7 +25,7 @@ export const HomeShowcase = ({ theme }: { theme: "dark" | "light" }) => {
                     Blazing fast cz it's in rust/tauri · live/static wallpapers · local wallpaper support <br />
                     <span className="text-xs text-white/20">more features coming soon... :3</span>
                 </p>
-            </motion.div>
+            </div>
         </section>
     );
 };

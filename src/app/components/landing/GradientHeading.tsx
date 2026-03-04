@@ -4,14 +4,14 @@ import { motion } from "framer-motion";
 import React from "react";
 
 interface GradientHeadingProps {
-    text: string | React.ReactNode;
+    text: string;
     theme: "dark" | "light";
     className?: string;
     as?: "h1" | "h2" | "h3" | "h4";
 }
 
 export const GradientHeading = ({ text, theme, className = "", as = "h2" }: GradientHeadingProps) => {
-    // Gradient colors: White/Black edges with Blue center
+    // gradient colors: white/black edges with blue center
     const gradient = theme === "dark"
         ? 'linear-gradient(90deg, #ffffff 0%, #0078d4 50%, #ffffff 100%)'
         : 'linear-gradient(90deg, #000000 0%, #0078d4 50%, #000000 100%)';

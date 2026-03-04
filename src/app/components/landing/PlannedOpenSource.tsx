@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Coffee, Star, Lock } from "lucide-react";
-import { GradientHeading } from "./GradientHeading";
+// gradientheading removed — using plain h2 with inline colors
 
 export const PlannedOpenSource = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
@@ -114,17 +114,10 @@ export const PlannedOpenSource = ({ theme }: { theme: "dark" | "light" }) => {
                     viewport={{ once: true }}
                     className="flex flex-col justify-center"
                 >
-                    <GradientHeading
-                        as="h2"
-                        text={
-                            <>
-                                Planned<br />
-                                <span className="text-[#00A4FF] drop-shadow-sm filter-none">Open Source</span>
-                            </>
-                        }
-                        theme={theme}
-                        className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.1] mb-6"
-                    />
+                    <h2 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.1] mb-6">
+                        <span className={isDark ? "text-white" : "text-black"}>Planned</span><br />
+                        <span className="text-[#00A4FF] drop-shadow-sm">Open Source</span>
+                    </h2>
 
                     <p className={`text-base leading-relaxed ${mutedText}`}>
                         ColorWall is currently closed-source to protect our unique optimization logic in the age of AI. We are self-funding the Microsoft Store developer license and distribution costs. Once our infrastructure is secured, we plan to open-source the project for the community.

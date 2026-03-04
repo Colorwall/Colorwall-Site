@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { Star, ShieldCheck } from "lucide-react";
 import Image from "next/image";
-import { GradientHeading } from "./GradientHeading";
 export const CommunityReviews = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
 
@@ -31,20 +30,14 @@ export const CommunityReviews = ({ theme }: { theme: "dark" | "light" }) => {
                     viewport={{ once: true }}
                     className="flex flex-col justify-center max-w-lg"
                 >
-                    <GradientHeading
-                        as="h2"
-                        text={
-                            <>
-                                What does our<br />
-                                <span className="text-[#00A4FF] drop-shadow-sm filter-none">community</span> think?
-                            </>
-                        }
-                        theme={theme}
-                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] mb-6"
-                    />
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] mb-6">
+                        <span className={theme === "dark" ? "text-white" : "text-black"}>What does our</span><br />
+                        <span className="text-[#00A4FF] drop-shadow-sm">community</span>{" "}
+                        <span className={theme === "dark" ? "text-white" : "text-black"}>think?</span>
+                    </h2>
 
                     <p className={`text-base sm:text-lg leading-relaxed mb-10 ${mutedText}`}>
-                        Our community is passionate and reviews us with a significant amount of positive feedback. We take great pride in our high rating, which reflects our commitment to improving ColorWall.
+                        Our community is passionate and reviews us with a significant amount of positive feedback. We take great pride in our high rating, which reflects our commitment to improving ColorWall. (we dont have a community, my friend wrote ts for glaze i swear)
                     </p>
 
                     <div className="flex items-center gap-4">

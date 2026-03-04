@@ -1,73 +1,54 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaDiscord } from "react-icons/fa";
+import { Download, Github } from "lucide-react";
 import { GradientHeading } from "./GradientHeading";
 
 export const BottomCTA = ({ theme }: { theme: "dark" | "light" }) => {
-    const isDark = theme === "dark";
-
     return (
-        <section className="py-24 px-4 sm:px-8 relative w-full flex justify-center overflow-hidden">
-            {/* Optional subtle grid background */}
-            <div className={`absolute inset-0 pointer-events-none ${isDark ? "opacity-10" : "opacity-[0.03]"}`}
-                style={{
-                    backgroundImage: `linear-gradient(${isDark ? 'white' : 'black'} 1px, transparent 1px), linear-gradient(90deg, ${isDark ? 'white' : 'black'} 1px, transparent 1px)`,
-                    backgroundSize: '40px 40px',
-                    maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)',
-                    WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)'
-                }}
-            />
-
+        <section className="py-24 px-4 sm:px-8">
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="relative z-10 max-w-4xl mx-auto text-center space-y-5 flex flex-col items-center"
+                className={`max-w-3xl mx-auto text-center space-y-8 p-10 sm:p-14 rounded-3xl border
+                    ${theme === "dark"
+                        ? "border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01]"
+                        : "border-black/10 bg-gradient-to-b from-black/[0.03] to-transparent"}`}
             >
-                <h3 className="text-[#00A4FF] font-bold tracking-[0.15em] text-[12px] uppercase mb-1">
-                    Join our community
-                </h3>
-
                 <GradientHeading
-                    as="h2"
-                    text={
-                        <>
-                            Be part of the <span className="text-[#00A4FF] drop-shadow-sm filter-none">Colorwall</span> community
-                        </>
-                    }
+                    text="Ready to upgrade your desktop?"
                     theme={theme}
-                    className="text-4xl sm:text-5xl md:text-[50px] font-black tracking-tight leading-[1.1]"
+                    className="text-3xl sm:text-4xl font-black"
                 />
-
-                <p className={`text-[15px] sm:text-[17px] leading-relaxed max-w-md mx-auto pt-3 pb-6 ${isDark ? "text-white/60" : "text-black/60"}`}>
-                    Join our thriving community of enthusiasts.<br />
-                    Connect, share, and stay updated.
+                <p className={`max-w-lg mx-auto ${theme === "dark" ? "text-white/50" : "text-black/50"}`}>
+                    free, soon to be open source, no signup. just download and start Configuring your desktop! Please make sure to report bugs! :D my discord/instagram @laxenta.me
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                     <a
                         href="/download"
-                      
-                        rel="noopener noreferrer"
-                        className={`inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-[15px] transition-all duration-300 hover:scale-105 
-                            ${isDark
-                                ? "bg-[#18181b] text-white hover:bg-[#27272a] border border-white/5"
-                                : "bg-gray-100 text-black hover:bg-gray-200 border border-black/5"}`}
+                        className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5
+                            ${theme === "dark"
+                                ? "bg-white text-black hover:shadow-[0_8px_30px_rgba(255,255,255,0.15)]"
+                                : "bg-black text-white hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)]"}`}
                     >
-                        Download
+                        <Download size={18} />
+                        Download for Windows
                     </a>
-                    <a
-                        href="https://discord.gg/cHVwPkBC7p"
+
+                    {/* <a
+                        href="https://github.com/shelleyloosespatience/WallpaperEngine"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2.5 px-7 py-3 rounded-full font-bold text-[15px] transition-all duration-300 hover:scale-105 bg-[#5865F2] text-white shadow-[0_0_20px_rgba(88,101,242,0.3)] hover:shadow-[0_0_30px_rgba(88,101,242,0.5)]"
+                        className={`inline-flex items-center gap-2 px-7 py-4 rounded-xl font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5
+                            ${theme === "dark"
+                                ? "border border-white/15 text-white/70 hover:border-white/30 hover:bg-white/5"
+                                : "border border-black/15 text-black/60 hover:border-black/30 hover:bg-black/5"}`}
                     >
-                        <FaDiscord size={20} />
-                        Join Discord
-                    </a>
-
-
+                        <Github size={16} />
+                        Source Code
+                    </a> */}
                 </div>
             </motion.div>
         </section>
