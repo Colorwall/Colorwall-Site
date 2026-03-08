@@ -189,7 +189,7 @@ export default function DownloadPage() {
                             </div>
 
                             <a
-                                href="https://www.virustotal.com/gui/file/bcc95f7886dd86dc268d8022f366a7c55747fed5ce4aaf9ac2f50a6868e6ae5a/detection"
+                                href="https://www.virustotal.com/gui/file/92068a14fadc46ddb597594c5cd01cf2a63fc8dbe408ec4ec2bf2745c1efcd53"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors
@@ -212,25 +212,25 @@ export default function DownloadPage() {
                                     <div>
                                         <div className="text-[10px] font-mono uppercase opacity-40 mb-1">SHA-256</div>
                                         <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer text-emerald-500/80`}
-                                            onClick={() => navigator.clipboard?.writeText("bcc95f7886dd86dc268d8022f366a7c55747fed5ce4aaf9ac2f50a6868e6ae5a")}
+                                            onClick={() => navigator.clipboard?.writeText("92068a14fadc46ddb597594c5cd01cf2a63fc8dbe408ec4ec2bf2745c1efcd53")}
                                             title="Click to copy">
-                                            bcc95f7886dd86dc268d8022f366a7c55747fed5ce4aaf9ac2f50a6868e6ae5a
+                                            92068a14fadc46ddb597594c5cd01cf2a63fc8dbe408ec4ec2bf2745c1efcd53
                                         </code>
                                     </div>
                                     <div>
                                         <div className="text-[10px] font-mono uppercase opacity-40 mb-1">MD5</div>
                                         <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer`}
-                                            onClick={() => navigator.clipboard?.writeText("eff22f19ba81db83eb3032cb7b9f2ae7")}
+                                            onClick={() => navigator.clipboard?.writeText("e0266e597eebbc8b998eeed30366d5e8")}
                                             title="Click to copy">
-                                            eff22f19ba81db83eb3032cb7b9f2ae7
+                                            e0266e597eebbc8b998eeed30366d5e8
                                         </code>
                                     </div>
                                     <div>
                                         <div className="text-[10px] font-mono uppercase opacity-40 mb-1">SHA-1</div>
                                         <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer`}
-                                            onClick={() => navigator.clipboard?.writeText("bc93d9401a7d165a27ab21ae8d531af6a24025ee")}
+                                            onClick={() => navigator.clipboard?.writeText("675caff8f812852aa7db8dec2e8918bf03592d0a")}
                                             title="Click to copy">
-                                            bc93d9401a7d165a27ab21ae8d531af6a24025ee
+                                            675caff8f812852aa7db8dec2e8918bf03592d0a
                                         </code>
                                     </div>
                                 </div>
@@ -246,7 +246,7 @@ export default function DownloadPage() {
                                 <dl className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <dt className={`text-xs ${mutedText}`}>File Name</dt>
-                                        <dd className="font-mono text-xs">ColorWall_3.6.5_x64-setup.exe</dd>
+                                        <dd className="font-mono text-xs">ColorWall_3.6.6_x64-setup.exe</dd>
                                     </div>
                                     <div>
                                         <dt className={`text-xs ${mutedText}`}>File Size</dt>
@@ -258,7 +258,7 @@ export default function DownloadPage() {
                                     </div>
                                     <div>
                                         <dt className={`text-xs ${mutedText}`}>Created</dt>
-                                        <dd className="font-mono text-xs">2021-09-25</dd>
+                                        <dd className="font-mono text-xs">2026-03-08</dd>
                                     </div>
                                     <div className="col-span-2">
                                         <dt className={`text-xs ${mutedText}`}>Compiler</dt>
