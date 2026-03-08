@@ -67,36 +67,10 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // stream the binary from github to the client
-        const binaryRes = await fetch(exeAsset.browser_download_url, {
-            headers: { "User-Agent": "Colorwall-Site" },
-            redirect: "follow",
-        });
-
-        if (!binaryRes.ok || !binaryRes.body) {
-            return NextResponse.json(
-                { error: "failed to download binary" },
-                { status: 502, headers: corsHeaders }
-            );
-        }
-
-        const filename = exeAsset.name || "ColorWall-setup.exe";
-
-        // pipe the response body stream directly — no buffering the entire file in memory
-        return new NextResponse(binaryRes.body as ReadableStream, {
-            status: 200,
-            headers: {
-                ...corsHeaders,
-                "Content-Type": "application/octet-stream",
-                "Content-Disposition": `attachment; filename="${filename}"`,
-                ...(exeAsset.size
-                    ? { "Content-Length": String(exeAsset.size) }
-                    : {}),
-                // prevent sniffing
-                "X-Content-Type-Options": "nosniff",
-                // no caching for binary downloads
-                "Cache-Control": "no-store",
-            },
+        // redirect to the github asset directly instead of proxying
+        // this saves server bandwidth and lets the client download directly from github
+        return NextResponse.redirect(exeAsset.browser_download_url, {
+            status: 302,
         });
     } catch {
         return NextResponse.json(
