@@ -1,12 +1,20 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Download, ShieldCheck, FileCheck, Hash, Terminal, AlertTriangle, ExternalLink, Monitor, Apple } from "lucide-react";
+import { Download, ShieldCheck, FileCheck, Hash, AlertTriangle, ExternalLink } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
 import { useTheme } from "@/app/contexts/ThemeContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+interface GitHubAsset {
+    name: string;
+    browser_download_url: string;
+}
+
+interface GitHubRelease {
+    assets: GitHubAsset[];
+}
 
 export default function DownloadPage() {
     const { theme } = useTheme();
@@ -14,17 +22,27 @@ export default function DownloadPage() {
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
     const [currentImage, setCurrentImage] = useState(1);
+    const prevShowVideoModal = useRef(showVideoModal);
 
     useEffect(() => {
+        const wasOpen = prevShowVideoModal.current;
+        prevShowVideoModal.current = showVideoModal;
+
         if (!showVideoModal) {
-            setCurrentImage(1);
+            if (wasOpen) {
+                // Only reset when modal closes, driven by external state
+                const timeout = setTimeout(() => setCurrentImage(1), 0);
+                return () => clearTimeout(timeout);
+            }
             return;
         }
+
         const interval = setInterval(() => {
             setCurrentImage((prev) => (prev === 1 ? 2 : 1));
         }, 2000);
         return () => clearInterval(interval);
     }, [showVideoModal]);
+
     const handleDownload = async (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         e.preventDefault();
         setShowVideoModal(true);
@@ -32,8 +50,8 @@ export default function DownloadPage() {
         setIsDownloading(true);
         try {
             const res = await fetch("https://api.github.com/repos/colorwall/colorwall/releases/latest");
-            const data = await res.json();
-            const exeAsset = data.assets?.find((a: any) => a.name.endsWith('.exe'));
+            const data: GitHubRelease = await res.json();
+            const exeAsset = data.assets?.find((a) => a.name.endsWith('.exe'));
             const url = exeAsset?.browser_download_url || "https://github.com/colorwall/colorwall/releases/latest";
             setDownloadUrl(url);
             setTimeout(() => {
@@ -54,6 +72,7 @@ export default function DownloadPage() {
             }, 2000);
         }
     };
+
     const isDark = theme === "dark";
 
     const bgColor = isDark ? "bg-[#0a0a0a]" : "bg-white";
@@ -64,9 +83,6 @@ export default function DownloadPage() {
 
     return (
         <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-blue-500/30`}>
-            {/* Header */}
-            {/* Header removed for global navbar */}
-
             <main className="pt-28 pb-20 px-6">
                 <div className="max-w-4xl mx-auto space-y-16">
 
@@ -131,7 +147,7 @@ export default function DownloadPage() {
 
                                 <div className="flex items-start gap-2 text-xs pt-4 opacity-70">
                                     <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-500" />
-                                    <span className="leading-snug">SmartScreen may appear. Select "Run anyway".</span>
+                                    <span className="leading-snug">SmartScreen may appear. Select &ldquo;Run anyway&rdquo;.</span>
                                 </div>
                             </div>
                         </div>
@@ -169,7 +185,6 @@ export default function DownloadPage() {
                         </div>
                     </motion.div>
 
-
                     {/* Security Report Section */}
                     <motion.section
                         initial={{ opacity: 0, y: 20 }}
@@ -189,7 +204,7 @@ export default function DownloadPage() {
                             </div>
 
                             <a
-                                href="https://www.virustotal.com/gui/file/92068a14fadc46ddb597594c5cd01cf2a63fc8dbe408ec4ec2bf2745c1efcd53"
+                                href="https://www.virustotal.com/gui/file/e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b?nocache=1"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors
@@ -212,25 +227,25 @@ export default function DownloadPage() {
                                     <div>
                                         <div className="text-[10px] font-mono uppercase opacity-40 mb-1">SHA-256</div>
                                         <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer text-emerald-500/80`}
-                                            onClick={() => navigator.clipboard?.writeText("92068a14fadc46ddb597594c5cd01cf2a63fc8dbe408ec4ec2bf2745c1efcd53")}
+                                            onClick={() => navigator.clipboard?.writeText("e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b")}
                                             title="Click to copy">
-                                            92068a14fadc46ddb597594c5cd01cf2a63fc8dbe408ec4ec2bf2745c1efcd53
+                                            e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b
                                         </code>
                                     </div>
                                     <div>
                                         <div className="text-[10px] font-mono uppercase opacity-40 mb-1">MD5</div>
                                         <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer`}
-                                            onClick={() => navigator.clipboard?.writeText("e0266e597eebbc8b998eeed30366d5e8")}
+                                            onClick={() => navigator.clipboard?.writeText("3e2329039b15c9cfe72c91aba40ff075")}
                                             title="Click to copy">
-                                            e0266e597eebbc8b998eeed30366d5e8
+                                            3e2329039b15c9cfe72c91aba40ff075
                                         </code>
                                     </div>
                                     <div>
                                         <div className="text-[10px] font-mono uppercase opacity-40 mb-1">SHA-1</div>
                                         <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer`}
-                                            onClick={() => navigator.clipboard?.writeText("675caff8f812852aa7db8dec2e8918bf03592d0a")}
+                                            onClick={() => navigator.clipboard?.writeText("a4575a4f6c43b0f6fd8258728a97d4af60eb662c")}
                                             title="Click to copy">
-                                            675caff8f812852aa7db8dec2e8918bf03592d0a
+                                            a4575a4f6c43b0f6fd8258728a97d4af60eb662c
                                         </code>
                                     </div>
                                 </div>
@@ -246,11 +261,11 @@ export default function DownloadPage() {
                                 <dl className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <dt className={`text-xs ${mutedText}`}>File Name</dt>
-                                        <dd className="font-mono text-xs">ColorWall_3.6.6_x64-setup.exe</dd>
+                                        <dd className="font-mono text-xs">ColorWall_3.7.71_x64-setup.exe</dd>
                                     </div>
                                     <div>
                                         <dt className={`text-xs ${mutedText}`}>File Size</dt>
-                                        <dd className="font-mono text-xs">7.69 MB (8,062,552 bytes)</dd>
+                                        <dd className="font-mono text-xs">Size 7.74 MB (8,062,552 bytes)</dd>
                                     </div>
                                     <div>
                                         <dt className={`text-xs ${mutedText}`}>File Type</dt>
@@ -276,7 +291,7 @@ export default function DownloadPage() {
                                 <div className={`p-4 rounded-xl border border-dashed ${borderColor} bg-transparent`}>
                                     <p className={`text-xs ${mutedText} leading-relaxed`}>
                                         <strong className="block mb-1 text-current">Why is it unsigned?</strong>
-                                        Code signing certificates are costly. As free & soon-to-be open-source software, we're transparent by providing direct VirusTotal verification. You may need to click "Run Anyway" on SmartScreen.
+                                        Code signing certificates are costly. As free &amp; soon-to-be open-source software, we&apos;re transparent by providing direct VirusTotal verification. You may need to click &ldquo;Run Anyway&rdquo; on SmartScreen.
                                     </p>
                                 </div>
                             </div>
@@ -345,7 +360,7 @@ export default function DownloadPage() {
                                         Why am I seeing SmartScreen?
                                     </p>
                                     <p className={`text-xs ${isDark ? "text-emerald-400/80" : "text-emerald-600"} leading-relaxed`}>
-                                        Windows flags new, unsigned executable files that haven't built a long reputation yet. ColorWall is 100% clean.{" "}
+                                        Windows flags new, unsigned executable files that haven&apos;t built a long reputation yet. ColorWall is 100% clean.{" "}
                                         <a href="https://www.virustotal.com/gui/file/bcc95f7886dd86dc268d8022f366a7c55747fed5ce4aaf9ac2f50a6868e6ae5a/detection" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:opacity-80 transition-opacity">
                                             View our VirusTotal report (0 detections)
                                         </a> to verify.
@@ -356,7 +371,7 @@ export default function DownloadPage() {
                             <div className="space-y-1">
                                 <p className="text-sm md:text-base font-medium">Your download will begin automatically shortly.</p>
                                 <p className={`text-xs md:text-sm ${mutedText}`}>
-                                    If it doesn't start,{" "}
+                                    If it doesn&apos;t start,{" "}
                                     {downloadUrl ? (
                                         <a href={downloadUrl} className={`${isDark ? "text-blue-400 hover:text-blue-300" : "text-[#394eff] hover:text-blue-800"} hover:underline font-semibold transition-colors`} target="_blank" rel="noopener noreferrer">click here to download</a>
                                     ) : (

@@ -11,7 +11,7 @@ export const PlannedOpenSource = ({ theme }: { theme: "dark" | "light" }) => {
     const bgHeader = isDark ? "bg-[#161618]" : "bg-slate-100";
     const bgFooter = isDark ? "bg-[#161618]" : "bg-slate-100";
     const borderColor = isDark ? "border-white/10" : "border-black/10";
-    const textColor = isDark ? "text-white" : "text-black";
+    // const textColor = isDark ? "text-white" : "text-black";
     const mutedText = isDark ? "text-white/60" : "text-black/60";
     const codeMuted = isDark ? "text-white/40" : "text-black/40";
 
@@ -66,7 +66,7 @@ export const PlannedOpenSource = ({ theme }: { theme: "dark" | "light" }) => {
                             {"\n"}
                             {"    "}gpu_accel: <span className={highlight.keyword}>true</span>,{"\n"}
                             {"\n"}
-                            {"    "}license: <span className={highlight.string}>"Closed-Source"</span>,{"\n"}
+                            {"    "}license: <span className={highlight.string}>`Closed-Source`</span>,{"\n"}
                             {"}\n"}
                             {"\n"}
                             <span className={highlight.keyword}>impl</span> <span className={highlight.type}>Performance</span>{"\n"}
@@ -76,7 +76,7 @@ export const PlannedOpenSource = ({ theme }: { theme: "dark" | "light" }) => {
                             {"\n"}
                             {"    "}<span className={highlight.keyword}>fn</span> <span className={highlight.string}>optimize</span>(&<span className={highlight.variable}>self</span>) {"{\n"}
                             {"\n"}
-                            {"        "}<span className={`${highlight.comment} italic`}>// Zero resource usage</span>{"\n"}
+                            {"        "}<span className={`${highlight.comment} italic`}>`// Zero resource usage`</span>{"\n"}
                             {"        "}<span className={highlight.type}>self</span>.render_native();{"\n"}
                             {"    }\n"}
                             {"}\n"}
