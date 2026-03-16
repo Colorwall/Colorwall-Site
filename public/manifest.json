@@ -1,7 +1,7 @@
 {
   "name": "Laxenta Inc",
-  "short_name": "Laxenta AI",
-  "description": "Dashboard for discord bot ayumi and portfolio for Laxenta Inc.'s services",
+  "short_name": "Laxenta Inc",
+  "description": "Colorwall by Laxenta inc.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

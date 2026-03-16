@@ -2,8 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Download, ShieldCheck, FileCheck, Hash, AlertTriangle, ExternalLink } from "lucide-react";
+import { Download, ShieldCheck, AlertTriangle } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
+import { SecurityReport } from "@/app/components/SecurityReport";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useState, useEffect, useRef } from "react";
 
@@ -15,6 +16,7 @@ interface GitHubAsset {
 interface GitHubRelease {
     assets: GitHubAsset[];
 }
+
 
 export default function DownloadPage() {
     const { theme } = useTheme();
@@ -186,117 +188,7 @@ export default function DownloadPage() {
                     </motion.div>
 
                     {/* Security Report Section */}
-                    <motion.section
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className={`rounded-3xl border ${borderColor} overflow-hidden`}
-                    >
-                        <div className={`p-6 border-b ${borderColor} flex items-center justify-between flex-wrap gap-4 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-                                    <ShieldCheck size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="font-bold text-lg">Security Report</h2>
-                                    <p className={`text-xs ${mutedText}`}>Community Score: <span className="text-emerald-500 font-bold">1</span> · No vendors flagged this file</p>
-                                </div>
-                            </div>
-
-                            <a
-                                href="https://www.virustotal.com/gui/file/e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b?nocache=1"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors
-                                    ${isDark ? "bg-[#394eff] text-white hover:bg-[#394eff]/80" : "bg-[#394eff] text-white hover:bg-[#394eff]/80"}`}
-                            >
-                                <ExternalLink size={14} />
-                                Open VirusTotal Report
-                            </a>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
-                            {/* Hashes Column */}
-                            <div className="p-6 space-y-6">
-                                <h3 className="text-sm font-bold uppercase tracking-wider opacity-50 flex items-center gap-2">
-                                    <Hash size={14} />
-                                    File Hashes
-                                </h3>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="text-[10px] font-mono uppercase opacity-40 mb-1">SHA-256</div>
-                                        <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer text-emerald-500/80`}
-                                            onClick={() => navigator.clipboard?.writeText("e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b")}
-                                            title="Click to copy">
-                                            e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b
-                                        </code>
-                                    </div>
-                                    <div>
-                                        <div className="text-[10px] font-mono uppercase opacity-40 mb-1">MD5</div>
-                                        <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer`}
-                                            onClick={() => navigator.clipboard?.writeText("3e2329039b15c9cfe72c91aba40ff075")}
-                                            title="Click to copy">
-                                            3e2329039b15c9cfe72c91aba40ff075
-                                        </code>
-                                    </div>
-                                    <div>
-                                        <div className="text-[10px] font-mono uppercase opacity-40 mb-1">SHA-1</div>
-                                        <code className={`block text-xs font-mono break-all p-3 rounded-lg ${cardBg} select-all cursor-pointer`}
-                                            onClick={() => navigator.clipboard?.writeText("a4575a4f6c43b0f6fd8258728a97d4af60eb662c")}
-                                            title="Click to copy">
-                                            a4575a4f6c43b0f6fd8258728a97d4af60eb662c
-                                        </code>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Details Column */}
-                            <div className="p-6 space-y-6">
-                                <h3 className="text-sm font-bold uppercase tracking-wider opacity-50 flex items-center gap-2">
-                                    <FileCheck size={14} />
-                                    Binary Details
-                                </h3>
-
-                                <dl className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <dt className={`text-xs ${mutedText}`}>File Name</dt>
-                                        <dd className="font-mono text-xs">ColorWall_3.7.71_x64-setup.exe</dd>
-                                    </div>
-                                    <div>
-                                        <dt className={`text-xs ${mutedText}`}>File Size</dt>
-                                        <dd className="font-mono text-xs">Size 7.74 MB (8,062,552 bytes)</dd>
-                                    </div>
-                                    <div>
-                                        <dt className={`text-xs ${mutedText}`}>File Type</dt>
-                                        <dd className="font-mono text-xs">Win32 EXE · Nullsoft Installer</dd>
-                                    </div>
-                                    <div>
-                                        <dt className={`text-xs ${mutedText}`}>Created</dt>
-                                        <dd className="font-mono text-xs">2026-03-08</dd>
-                                    </div>
-                                    <div className="col-span-2">
-                                        <dt className={`text-xs ${mutedText}`}>Compiler</dt>
-                                        <dd className="font-mono text-xs">Microsoft Visual C/C++ · Linker 6.0</dd>
-                                    </div>
-                                    <div className="col-span-2">
-                                        <dt className={`text-xs ${mutedText}`}>Signature</dt>
-                                        <dd className="font-mono text-xs flex items-center gap-2">
-                                            <span className="text-amber-500">●</span>
-                                            Not signed (development phase)
-                                        </dd>
-                                    </div>
-                                </dl>
-
-                                <div className={`p-4 rounded-xl border border-dashed ${borderColor} bg-transparent`}>
-                                    <p className={`text-xs ${mutedText} leading-relaxed`}>
-                                        <strong className="block mb-1 text-current">Why is it unsigned?</strong>
-                                        Code signing certificates are costly. As free &amp; soon-to-be open-source software, we&apos;re transparent by providing direct VirusTotal verification. You may need to click &ldquo;Run Anyway&rdquo; on SmartScreen.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.section>
+                    <SecurityReport theme={theme} />
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -361,8 +253,8 @@ export default function DownloadPage() {
                                     </p>
                                     <p className={`text-xs ${isDark ? "text-emerald-400/80" : "text-emerald-600"} leading-relaxed`}>
                                         Windows flags new, unsigned executable files that haven&apos;t built a long reputation yet. ColorWall is 100% clean.{" "}
-                                        <a href="https://www.virustotal.com/gui/file/bcc95f7886dd86dc268d8022f366a7c55747fed5ce4aaf9ac2f50a6868e6ae5a/detection" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:opacity-80 transition-opacity">
-                                            View our VirusTotal report (0 detections)
+                                        <a href="https://www.virustotal.com/gui/file/e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b/detection" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:opacity-80 transition-opacity">
+                                            View our VirusTotal report
                                         </a> to verify.
                                     </p>
                                 </div>

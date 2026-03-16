@@ -8,7 +8,7 @@ import { ShowcaseCard } from "@/app/components/landing/ShowcaseCard";
 import { HomeShowcase } from "@/app/components/landing/HomeShowcase";
 import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
 import { PlannedOpenSource } from "@/app/components/landing/PlannedOpenSource";
-import { CommunityReviews } from "@/app/components/landing/CommunityReviews";
+import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { BottomCTA } from "@/app/components/landing/BottomCTA";
 import { Footer } from "@/app/components/Footer";
@@ -50,7 +50,7 @@ export default function ColorWallLanding() {
                 title="CUSTOMIZATION"
                 description="Deep integration. Style your taskbar with blur/acrylic effects, configure auto-start behavior hidden in tray, and tweak performance settings."
                 badge="TASKBAR · AUTOSTART · TWEAKS"
-                imageSrcs={["/taskbardMod.PNG", "/Autostart.PNG", "/ADV.PNG"]}
+                imageSrcs={["/Video.PNG", "/multi.PNG", "/taskbar.PNG", "/ADV.PNG", "/perf.PNG"]}
                 index={2}
                 theme={theme}
                 layout="vertical"
@@ -61,13 +61,13 @@ export default function ColorWallLanding() {
 
             <ComparisonTable theme={theme} />
 
-            <CommunityReviews theme={theme} />
+            <SecurityReport theme={theme} className="py-24" />
 
             <PlannedOpenSource theme={theme} />
 
             <FAQSection theme={theme} />
 
-            <BottomCTA theme={theme} />
+            {/* <BottomCTA theme={theme} /> */}
 
             <Footer theme={theme} />
 
