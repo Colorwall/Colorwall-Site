@@ -30,7 +30,7 @@ export default function ColorWallLanding() {
 
             <ShowcaseCard
                 title="STORE"
-                description="Access thousands of wallpapers from 8+ sources including Wallhaven, Konachan, MoeWalls, and MotionBGs. One unified search bar, infinite inspiration — all free."
+                description="Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — all free."
                 badge="8 SOURCES · 4K · FREE"
                 imageSrc="/Store.PNG"
                 index={0}
@@ -40,7 +40,7 @@ export default function ColorWallLanding() {
             <ShowcaseCard
                 title="LIBRARY"
                 description="Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store."
-                badge="LOCAL · OFFLINE · FAST"
+                badge="LOCAL · OFFLINE · CUTE"
                 imageSrc="/Library.PNG"
                 index={1}
                 theme={theme}
