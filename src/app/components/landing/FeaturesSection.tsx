@@ -28,7 +28,7 @@ const features = [
         id: "04",
         icon: Search,
         title: "8 Sources, One Store",
-        desc: "Wallhaven, Konachan, MoeWalls, MotionBGs & more — unified search, zero effort.",
+        desc: "Third party store, we do not scrape anyone — unified search, zero effort.",
     },
     {
         id: "05",
