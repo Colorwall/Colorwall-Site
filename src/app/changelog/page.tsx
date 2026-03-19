@@ -45,11 +45,11 @@ export default function ChangelogPage() {
                 if (res.ok) {
                     const data: Release[] = await res.json();
 
-                    // Sort releases using semantic versioning logic
+                    // sort releases using semantic versioning logic
                     const sortedReleases = data.sort((a, b) => {
-                        // Extract version numbers, removing 'v' prefixes
-                        const versionA = a.tag_name.replace(/^v/, '').split('.').map(Number);
-                        const versionB = b.tag_name.replace(/^v/, '').split('.').map(Number);
+                        // extract version numbers, handling prefixes like 'Colorwall-v'
+                        const versionA = a.tag_name.replace(/^.*?v/i, '').split('.').map(Number);
+                        const versionB = b.tag_name.replace(/^.*?v/i, '').split('.').map(Number);
 
                         for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
                             const partA = versionA[i] || 0;
@@ -58,7 +58,7 @@ export default function ChangelogPage() {
                             if (partA < partB) return 1;
                         }
 
-                        // Fallback to published_at if versions are identical
+                        // fallback to published_at if versions are identical
                         return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
                     });
 
@@ -89,7 +89,7 @@ export default function ChangelogPage() {
     const renderMarkdown = (text: string) => {
         if (!text) return null;
 
-        // Basic parser for GitHub Release body
+        // basic parser for github release body
         const lines = text.split('\n');
 
         return (
@@ -102,7 +102,7 @@ export default function ChangelogPage() {
                         return <div key={idx} className={`w-full h-px my-4 ${borderColor}`} />;
                     }
 
-                    // Headers
+                    // headers
                     if (trimmed.startsWith('### ')) {
                         return <h3 key={idx} className={`font-bold text-sm uppercase tracking-wide opacity-80 mt-6 mb-1 ${textColor}`}>{trimmed.replace('###', '').trim()}</h3>;
                     }
@@ -113,7 +113,7 @@ export default function ChangelogPage() {
                         return <h1 key={idx} className={`font-bold text-lg uppercase tracking-wide mt-8 mb-2 ${textColor}`}>{trimmed.replace('#', '').trim()}</h1>;
                     }
 
-                    // Lists
+                    // lists
                     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                         let content = trimmed.substring(2);
                         const parts = content.split(/(\*\*.*?\*\*)/g);
@@ -133,7 +133,7 @@ export default function ChangelogPage() {
                         );
                     }
 
-                    // HTML Images
+                    // html images
                     if (trimmed.startsWith('<img')) {
                         return (
                             <div
@@ -144,7 +144,7 @@ export default function ChangelogPage() {
                         );
                     }
 
-                    // Paragraphs
+                    // paragraphs
                     const parts = trimmed.split(/(\*\*.*?\*\*)/g);
                     return (
                         <p key={idx} className="mb-2 opacity-90">
@@ -166,7 +166,7 @@ export default function ChangelogPage() {
             <main className="pt-28 pb-20 px-4 sm:px-6">
                 <div className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[75%] xl:w-[65%] max-w-6xl mx-auto transition-all duration-500 ease-out">
 
-                    {/* Page Header */}
+                    {/* page header */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -191,7 +191,7 @@ export default function ChangelogPage() {
                         </a>
                     </motion.div>
 
-                    {/* Releases Loading */}
+                    {/* releases loading */}
                     {loading ? (
                         <div className="flex justify-center items-center py-20">
                             <Loader2 className={`animate-spin ${mutedText}`} size={32} />
@@ -242,7 +242,7 @@ export default function ChangelogPage() {
 
                                             {renderMarkdown(release.body)}
 
-                                            {/* Downloads Section */}
+                                            {/* downloads section */}
                                             {release.assets && release.assets.length > 0 && (
                                                 <div className="mt-8 pt-6 border-t border-current/10">
                                                     <h3 className="font-bold text-sm tracking-wide opacity-70 mb-4 flex items-center gap-2">
