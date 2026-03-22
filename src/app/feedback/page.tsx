@@ -29,7 +29,7 @@ async function getFeedback(): Promise<FeedbackItem[]> {
         const docs = await db.collection('feedback')
             .find()
             .sort({ createdAt: -1 })
-            .limit(100)
+            .limit(20)
             .toArray();
 
         return docs.map(doc => ({
@@ -50,8 +50,6 @@ async function getFeedback(): Promise<FeedbackItem[]> {
 
 export default async function FeedbackPage() {
     const feedbacks = await getFeedback();
-    const appCount  = feedbacks.filter(f => f.source === 'App').length;
-    const webCount  = feedbacks.filter(f => f.source !== 'App').length;
 
-    return <FeedbackClientDisplay feedbacks={feedbacks as any} appCount={appCount} webCount={webCount} />;
+    return <FeedbackClientDisplay feedbacks={feedbacks as any} />;
 }

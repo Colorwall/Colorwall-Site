@@ -1,6 +1,7 @@
 'use client';
 
-import { MessageSquare } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { MessageSquare, Loader2 } from 'lucide-react';
 import { FeedbackForm } from './FeedbackForm';
 import { FeedbackCards, FeedbackGroup, FeedbackItem } from './FeedbackCards';
 import { useTheme } from '@/app/contexts/ThemeContext';
@@ -8,17 +9,47 @@ import { GradientHeading } from '@/app/components/landing/GradientHeading';
 
 interface FeedbackClientDisplayProps {
     feedbacks: FeedbackItem[];
-    appCount: number;
-    webCount: number;
 }
 
 export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
+    const [items, setItems] = useState<FeedbackItem[]>(feedbacks);
+    const [hasMore, setHasMore] = useState(feedbacks.length === 20);
+    const [isLoadingIndicator, setIsLoadingIndicator] = useState(false);
+
+    // Infinite scroll observer
+    const observer = useRef<IntersectionObserver | null>(null);
+    const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+        if (isLoadingIndicator) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                loadMore();
+            }
+        });
+        if (node) observer.current.observe(node);
+    }, [isLoadingIndicator, hasMore]);
+
+    const loadMore = async () => {
+        setIsLoadingIndicator(true);
+        try {
+            const res = await fetch(`/api/feedback?skip=${items.length}&limit=20`);
+            const json = await res.json();
+            if (json.success && json.data) {
+                setItems(prev => [...prev, ...json.data]);
+                if (json.data.length < 20) setHasMore(false);
+            }
+        } catch {
+            setHasMore(false);
+        }
+        setIsLoadingIndicator(false);
+    };
+
     // Grouping logic (ported from page.tsx)
     const groups: FeedbackGroup[] = [];
-    for (const item of feedbacks) {
+    for (const item of items) {
         const last = groups[groups.length - 1];
         if (last && last.username === item.username && last.source === item.source) {
             last.items.push(item);
@@ -117,9 +148,18 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                     )}
 
                     {groups.length > 0 && (
-                        <div className={`mt-12 flex items-center justify-center gap-3 text-[11px] font-mono ${isDark ? 'text-zinc-700' : 'text-zinc-500'}`}>
+                        <div 
+                            ref={lastElementRef}
+                            className={`mt-14 mb-10 flex items-center justify-center gap-3 text-[11px] font-mono ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}
+                        >
                             <div className={`h-px w-16 ${isDark ? 'bg-white/5' : 'bg-black/5'}`} />
-                            <span>Showing {feedbacks.length} most recent submissions</span>
+                            {isLoadingIndicator ? (
+                                <span className="flex items-center gap-2"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Fetching more entries...</span>
+                            ) : hasMore ? (
+                                <span>Scroll down to log history</span>
+                            ) : (
+                                <span>End of history. Total {items.length} records.</span>
+                            )}
                             <div className={`h-px w-16 ${isDark ? 'bg-white/5' : 'bg-black/5'}`} />
                         </div>
                     )}
