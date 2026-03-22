@@ -63,6 +63,36 @@ function detectSource(formData: FormData, req: Request): 'App' | 'Web' {
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
+export async function GET(req: Request) {
+    try {
+        const url = new URL(req.url);
+        const skip = Math.max(0, parseInt(url.searchParams.get('skip') || '0', 10));
+        const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10)));
+
+        const db = await getDb();
+        const docs = await db.collection('feedback')
+            .find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+
+        const formatted = docs.map(doc => ({
+            id:        doc._id.toString(),
+            username:  doc.username ?? 'Anonymous',
+            text:      doc.text     ?? '',
+            images:    doc.images   ?? [],
+            source:    (doc.source === 'App' ? 'App' : 'Web') as 'App' | 'Web',
+            createdAt: doc.createdAt,
+        }));
+
+        return NextResponse.json({ success: true, data: formatted });
+    } catch (error) {
+        console.error('[feedback/GET]', error);
+        return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    }
+}
+
 export async function POST(req: Request) {
     try {
         // ── 1. Parse form data ───────────────────────────────────────────────

@@ -6,17 +6,48 @@ import {
     CheckCircle2, ChevronRight, AlertCircle, Pencil,
     Monitor, Globe
 } from 'lucide-react';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-function getUserColor(name: string) {
+function getUserColor(name: string, isDark: boolean) {
     const palette = [
-        { bg: 'from-violet-500/20 to-indigo-500/20', border: 'border-violet-500/30', text: 'text-violet-300', dot: 'bg-violet-400', accent: '#8b5cf6' },
-        { bg: 'from-cyan-500/20 to-sky-500/20',      border: 'border-cyan-500/30',   text: 'text-cyan-300',   dot: 'bg-cyan-400',   accent: '#06b6d4' },
-        { bg: 'from-emerald-500/20 to-teal-500/20',  border: 'border-emerald-500/30',text: 'text-emerald-300',dot: 'bg-emerald-400', accent: '#10b981' },
-        { bg: 'from-amber-500/20 to-orange-500/20',  border: 'border-amber-500/30',  text: 'text-amber-300',  dot: 'bg-amber-400',  accent: '#f59e0b' },
-        { bg: 'from-rose-500/20 to-pink-500/20',     border: 'border-rose-500/30',   text: 'text-rose-300',   dot: 'bg-rose-400',   accent: '#f43f5e' },
-        { bg: 'from-fuchsia-500/20 to-purple-500/20',border: 'border-fuchsia-500/30',text: 'text-fuchsia-300',dot: 'bg-fuchsia-400', accent: '#d946ef' },
+        { 
+            bg: isDark ? 'from-violet-500/20 to-indigo-500/20' : 'from-violet-500/5 to-indigo-500/5',
+            border: isDark ? 'border-violet-500/30' : 'border-violet-500/20',
+            text: isDark ? 'text-violet-300' : 'text-violet-600',
+            dot: 'bg-violet-400', accent: '#8b5cf6' 
+        },
+        { 
+            bg: isDark ? 'from-cyan-500/20 to-sky-500/20' : 'from-cyan-500/5 to-sky-500/5',
+            border: isDark ? 'border-cyan-500/30' : 'border-cyan-500/20',
+            text: isDark ? 'text-cyan-300' : 'text-cyan-600',
+            dot: 'bg-cyan-400',   accent: '#06b6d4' 
+        },
+        { 
+            bg: isDark ? 'from-emerald-500/20 to-teal-500/20' : 'from-emerald-500/5 to-teal-500/5',
+            border: isDark ? 'border-emerald-500/30' : 'border-emerald-500/20',
+            text: isDark ? 'text-emerald-300' : 'text-emerald-600',
+            dot: 'bg-emerald-400', accent: '#10b981' 
+        },
+        { 
+            bg: isDark ? 'from-amber-500/20 to-orange-500/20' : 'from-amber-500/5 to-orange-500/5',
+            border: isDark ? 'border-amber-500/30' : 'border-amber-500/20',
+            text: isDark ? 'text-amber-300' : 'text-amber-600',
+            dot: 'bg-amber-400',  accent: '#f59e0b' 
+        },
+        { 
+            bg: isDark ? 'from-rose-500/20 to-pink-500/20' : 'from-rose-500/5 to-pink-500/5',
+            border: isDark ? 'border-rose-500/30' : 'border-rose-500/20',
+            text: isDark ? 'text-rose-300' : 'text-rose-600',
+            dot: 'bg-rose-400',   accent: '#f43f5e' 
+        },
+        { 
+            bg: isDark ? 'from-fuchsia-500/20 to-purple-500/20' : 'from-fuchsia-500/5 to-purple-500/5',
+            border: isDark ? 'border-fuchsia-500/30' : 'border-fuchsia-500/20',
+            text: isDark ? 'text-fuchsia-300' : 'text-fuchsia-600',
+            dot: 'bg-fuchsia-400', accent: '#d946ef' 
+        },
     ];
     const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
     return palette[hash % palette.length];
@@ -24,7 +55,7 @@ function getUserColor(name: string) {
 
 // ─── Username Gate ────────────────────────────────────────────────────────────
 
-function UsernameGate({ onConfirm }: { onConfirm: (name: string) => void }) {
+function UsernameGate({ onConfirm, isDark }: { onConfirm: (name: string) => void, isDark: boolean }) {
     const [value, setValue] = useState('');
     const [shake, setShake]  = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -40,12 +71,11 @@ function UsernameGate({ onConfirm }: { onConfirm: (name: string) => void }) {
     return (
         <div className="flex flex-col items-center justify-center py-6 px-2">
             <div className="w-full max-w-sm">
-                {/* icon */}
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 mx-auto">
-                    <Pencil className="w-5 h-5 text-indigo-400" />
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 mx-auto ${isDark ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-indigo-500/5 border-indigo-500/10'}`}>
+                    <Pencil className="w-5 h-5 text-indigo-500" />
                 </div>
 
-                <h2 className="text-xl font-black text-white tracking-tight text-center mb-1">
+                <h2 className={`text-xl font-black tracking-tight text-center mb-1 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                     What should we call you?
                 </h2>
                 <p className="text-[12px] text-zinc-500 text-center mb-6 font-mono">
@@ -60,12 +90,16 @@ function UsernameGate({ onConfirm }: { onConfirm: (name: string) => void }) {
                         onKeyDown={e => e.key === 'Enter' && confirm()}
                         maxLength={64}
                         placeholder="e.g. xKirito99"
-                        className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-indigo-500/50 focus:bg-white/[0.06] transition-all font-mono tracking-wide"
+                        className={`w-full rounded-xl px-4 py-3 text-sm outline-none transition-all font-mono tracking-wide ${
+                            isDark 
+                                ? 'bg-white/[0.04] border border-white/10 text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-white/[0.06]' 
+                                : 'bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-indigo-500/50 focus:bg-zinc-100'
+                        }`}
                     />
                     {value.trim().length >= 2 && (
                         <div className={`absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center`}
-                            style={{ background: getUserColor(value.trim()).accent + '30', border: `1px solid ${getUserColor(value.trim()).accent}40` }}>
-                            <span className="text-[9px] font-black" style={{ color: getUserColor(value.trim()).accent }}>
+                            style={{ background: getUserColor(value.trim(), isDark).accent + '30', border: `1px solid ${getUserColor(value.trim(), isDark).accent}40` }}>
+                            <span className="text-[9px] font-black" style={{ color: getUserColor(value.trim(), isDark).accent }}>
                                 {value.trim().charAt(0).toUpperCase()}
                             </span>
                         </div>
@@ -73,7 +107,7 @@ function UsernameGate({ onConfirm }: { onConfirm: (name: string) => void }) {
                 </div>
 
                 {value.trim().length > 0 && value.trim().length < 2 && (
-                    <p className="text-[11px] text-rose-400/80 font-mono mt-2 ml-1">At least 2 characters.</p>
+                    <p className={`text-[11px] font-mono mt-2 ml-1 ${isDark ? 'text-rose-400/80' : 'text-rose-500/90'}`}>At least 2 characters.</p>
                 )}
 
                 <button
@@ -90,14 +124,14 @@ function UsernameGate({ onConfirm }: { onConfirm: (name: string) => void }) {
 
 // ─── Image Preview ────────────────────────────────────────────────────────────
 
-function ImagePreview({ src, onRemove }: { src: string; onRemove: () => void }) {
+function ImagePreview({ src, onRemove, isDark }: { src: string; onRemove: () => void, isDark: boolean }) {
     return (
-        <div className="relative group flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-white/10">
+        <div className={`relative group flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-zinc-200'}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={src} alt="" className="w-full h-full object-cover" />
             <button
                 onClick={onRemove}
-                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ${isDark ? 'bg-black/60' : 'bg-black/40'}`}
             >
                 <X className="w-4 h-4 text-white" />
             </button>
@@ -107,8 +141,7 @@ function ImagePreview({ src, onRemove }: { src: string; onRemove: () => void }) 
 
 // ─── Main Form ────────────────────────────────────────────────────────────────
 
-interface FeedbackFormProps {
-    /** Populated only when submitted from the Tauri desktop app */
+export interface FeedbackFormProps {
     defaultUsername?: string;
     defaultSource?: 'App' | 'Web';
 }
@@ -116,6 +149,9 @@ interface FeedbackFormProps {
 type Stage = 'username' | 'form' | 'submitting' | 'success' | 'error';
 
 export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: FeedbackFormProps) {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     const [stage,    setStage]    = useState<Stage>('username');
     const [username, setUsername] = useState('');
     const [text,     setText]     = useState('');
@@ -146,18 +182,16 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
             }
 
             try {
-                // If they cleared local storage, ask the server what their name is
                 const res = await fetch('/api/identify');
                 const data = await res.json();
                 
                 if (data.username && data.username !== 'Anonymous User' && data.username !== 'Anonymous') {
-                    // Mwahaha, you are stuck with this name
                     setUsername(data.username);
                     localStorage.setItem('cw_username', data.username);
                     setStage('form');
                 }
             } catch (err) {
-                // Let them set a new one if network fails
+                // Ignore network errors
             }
         };
 
@@ -168,12 +202,11 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
         setUsername(name);
         localStorage.setItem('cw_username', name);
         setStage('form');
-        // Fire-and-forget: register username↔IP association on the server
         fetch('/api/identify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: name }),
-        }).catch(() => {/* non-critical */});
+        }).catch(() => {/* ignore */});
     }, []);
 
     const addImages = useCallback((files: FileList | null) => {
@@ -225,24 +258,24 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
         }
     };
 
-    const color = username ? getUserColor(username) : null;
+    const color = username ? getUserColor(username, isDark) : null;
 
     // ── Render ────────────────────────────────────────────────────────────────
     return (
-        <div className="w-full rounded-2xl border border-white/8 bg-[#0d0d0f]/90 backdrop-blur-xl overflow-hidden">
+        <div className={`w-full rounded-2xl border backdrop-blur-xl overflow-hidden ${
+            isDark ? 'border-white/8 bg-[#0d0d0f]/90 shadow-none' : 'border-zinc-200 bg-white/90 shadow-sm'
+        }`}>
 
-            {/* ── Username Gate ── */}
             {stage === 'username' && (
                 <div className="p-6">
-                    <UsernameGate onConfirm={confirmUsername} />
+                    <UsernameGate onConfirm={confirmUsername} isDark={isDark} />
                 </div>
             )}
 
-            {/* ── Submission Form ── */}
             {(stage === 'form' || stage === 'submitting' || stage === 'error') && color && (
                 <>
                     {/* Header */}
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/6">
+                    <div className={`flex items-center justify-between px-5 py-4 border-b ${isDark ? 'border-white/6' : 'border-zinc-100'}`}>
                         <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${color.bg} border ${color.border} flex items-center justify-center`}>
                                 <span className={`text-[11px] font-black ${color.text}`}>
@@ -250,12 +283,12 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                                 </span>
                             </div>
                             <div>
-                                <span className="text-[13px] font-bold text-white">{username}</span>
+                                <span className={`text-[13px] font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>{username}</span>
                                 <div className="flex items-center gap-1 mt-0.5">
                                     {defaultSource === 'App'
-                                        ? <Monitor className="w-2.5 h-2.5 text-blue-400" />
-                                        : <Globe    className="w-2.5 h-2.5 text-emerald-400" />}
-                                    <span className={`text-[10px] font-mono ${defaultSource === 'App' ? 'text-blue-400/70' : 'text-emerald-400/70'}`}>
+                                        ? <Monitor className="w-2.5 h-2.5 text-blue-500" />
+                                        : <Globe    className="w-2.5 h-2.5 text-emerald-500" />}
+                                    <span className={`text-[10px] font-mono ${defaultSource === 'App' ? (isDark ? 'text-blue-400/70' : 'text-blue-600/70') : (isDark ? 'text-emerald-400/70' : 'text-emerald-600/70')}`}>
                                         {defaultSource === 'App' ? 'Desktop App' : 'Web'}
                                     </span>
                                 </div>
@@ -272,7 +305,9 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                             maxLength={2000}
                             rows={4}
                             placeholder="Report a bug, request a feature, or just say something…"
-                            className="w-full bg-transparent text-[13.5px] text-zinc-300 placeholder-zinc-600 resize-none outline-none leading-relaxed font-[450]"
+                            className={`w-full bg-transparent text-[13.5px] resize-none outline-none leading-relaxed font-[450] ${
+                                isDark ? 'text-zinc-300 placeholder-zinc-600' : 'text-zinc-700 placeholder-zinc-400'
+                            }`}
                             style={{ fontFamily: 'inherit' }}
                         />
                     </div>
@@ -281,39 +316,45 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                     {previews.length > 0 && (
                         <div className="px-5 pb-3 flex gap-2 flex-wrap">
                             {previews.map((src, i) => (
-                                <ImagePreview key={i} src={src} onRemove={() => removeImage(i)} />
+                                <ImagePreview key={i} src={src} isDark={isDark} onRemove={() => removeImage(i)} />
                             ))}
                         </div>
                     )}
 
                     {/* Log file indicator */}
                     {logFile && (
-                        <div className="mx-5 mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/8">
+                        <div className={`mx-5 mb-3 flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                            isDark ? 'bg-white/[0.03] border-white/8' : 'bg-zinc-50 border-zinc-200'
+                        }`}>
                             <FileText className="w-3.5 h-3.5 text-zinc-500" />
-                            <span className="text-[11px] font-mono text-zinc-400 flex-1 truncate">{logFile.name}</span>
+                            <span className="text-[11px] font-mono text-zinc-500 flex-1 truncate">{logFile.name}</span>
                             <button onClick={() => setLogFile(null)}>
-                                <X className="w-3.5 h-3.5 text-zinc-600 hover:text-zinc-400 transition-colors" />
+                                <X className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-400 transition-colors" />
                             </button>
                         </div>
                     )}
 
                     {/* Error */}
                     {errMsg && (
-                        <div className="mx-5 mb-3 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-rose-500/8 border border-rose-500/20">
-                            <AlertCircle className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
-                            <p className="text-[11px] font-mono text-rose-400">{errMsg}</p>
+                        <div className={`mx-5 mb-3 flex items-center gap-2 px-3 py-2.5 rounded-lg border ${
+                            isDark ? 'bg-rose-500/8 border-rose-500/20' : 'bg-rose-50 border-rose-200'
+                        }`}>
+                            <AlertCircle className={`w-3.5 h-3.5 flex-shrink-0 ${isDark ? 'text-rose-400' : 'text-rose-500'}`} />
+                            <p className={`text-[11px] font-mono ${isDark ? 'text-rose-400' : 'text-rose-500'}`}>{errMsg}</p>
                         </div>
                     )}
 
                     {/* Footer toolbar */}
-                    <div className="flex items-center justify-between px-5 py-3 border-t border-white/6">
+                    <div className={`flex items-center justify-between px-5 py-3 border-t ${isDark ? 'border-white/6' : 'border-zinc-100'}`}>
                         <div className="flex items-center gap-1">
                             {/* Image attach */}
                             <button
                                 onClick={() => imageInputRef.current?.click()}
                                 disabled={images.length >= 5}
                                 title="Attach images (max 5)"
-                                className="p-2 rounded-lg text-zinc-600 hover:text-zinc-300 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                className={`p-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all ${
+                                    isDark ? 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
+                                }`}
                             >
                                 <ImagePlus className="w-4 h-4" />
                             </button>
@@ -323,19 +364,21 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                             <button
                                 onClick={() => logInputRef.current?.click()}
                                 title="Attach log file (max 1 MB)"
-                                className="p-2 rounded-lg text-zinc-600 hover:text-zinc-300 hover:bg-white/5 transition-all"
+                                className={`p-2 rounded-lg transition-all ${
+                                    isDark ? 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
+                                }`}
                             >
                                 <FileText className="w-4 h-4" />
                             </button>
                             <input ref={logInputRef} type="file" accept=".log,.txt" hidden onChange={e => setLogFile(e.target.files?.[0] ?? null)} />
 
                             {images.length > 0 && (
-                                <span className="text-[10px] font-mono text-zinc-600 ml-1">{images.length}/5</span>
+                                <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{images.length}/5</span>
                             )}
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <span className={`text-[10px] font-mono tabular-nums transition-colors ${charLeft < 100 ? 'text-amber-500' : charLeft < 20 ? 'text-rose-500' : 'text-zinc-700'}`}>
+                            <span className={`text-[10px] font-mono tabular-nums transition-colors ${charLeft < 100 ? 'text-amber-500' : charLeft < 20 ? 'text-rose-500' : 'text-zinc-500'}`}>
                                 {charLeft}
                             </span>
                             <button
@@ -355,14 +398,14 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
             {/* ── Success ── */}
             {stage === 'success' && (
                 <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-500/5 border border-emerald-500/10'}`}>
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
-                    <h3 className="text-base font-black text-white mb-1 tracking-tight">Received.</h3>
-                    <p className="text-[12px] text-zinc-500 font-mono mb-6">Your feedback is now live in the feed.</p>
+                    <h3 className={`text-base font-black mb-1 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>Received.</h3>
+                    <p className={`text-[12px] font-mono mb-6 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>Your feedback is now live in the feed.</p>
                     <button
                         onClick={() => setStage('form')}
-                        className="text-[11px] font-mono text-indigo-400 hover:text-indigo-300 transition-colors underline underline-offset-2"
+                        className={`text-[11px] font-mono transition-colors underline underline-offset-2 ${isDark ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-500'}`}
                     >
                         Submit another
                     </button>
