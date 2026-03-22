@@ -157,7 +157,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
     const [text,     setText]     = useState('');
     const [images,   setImages]   = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
-    const [logFile,  setLogFile]  = useState<File | null>(null);
+    const [logFiles, setLogFiles] = useState<File[]>([]);
     const [errMsg,   setErrMsg]   = useState('');
     const [charLeft, setCharLeft] = useState(2000);
 
@@ -226,14 +226,25 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
         setPreviews(prev => prev.filter((_, i) => i !== idx));
     }, []);
 
+    const addLogs = useCallback((files: FileList | null) => {
+        if (!files) return;
+        const allowed = 5 - logFiles.length;
+        const next = Array.from(files).slice(0, allowed);
+        setLogFiles(prev => [...prev, ...next]);
+    }, [logFiles.length]);
+
+    const removeLog = useCallback((idx: number) => {
+        setLogFiles(prev => prev.filter((_, i) => i !== idx));
+    }, []);
+
     const handleTextChange = (v: string) => {
         setText(v);
         setCharLeft(2000 - v.length);
     };
 
     const handleSubmit = async () => {
-        if (!text.trim() && images.length === 0) {
-            setErrMsg('Write something or attach an image.');
+        if (!text.trim() && images.length === 0 && logFiles.length === 0) {
+            setErrMsg('Write something, attach an image, or upload a log.');
             return;
         }
         setStage('submitting');
@@ -244,14 +255,14 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
         fd.append('text',     text.trim());
         fd.append('source',   defaultSource);
         images.forEach(img => fd.append('images', img));
-        if (logFile) fd.append('logFile', logFile);
+        logFiles.forEach(log => fd.append('logFiles', log));
 
         try {
             const res  = await fetch('/api/feedback', { method: 'POST', body: fd });
             const data = await res.json();
             if (!res.ok) { setErrMsg(data.error ?? 'Something went wrong.'); setStage('form'); return; }
             setStage('success');
-            setText(''); setImages([]); setPreviews([]); setLogFile(null); setCharLeft(2000);
+            setText(''); setImages([]); setPreviews([]); setLogFiles([]); setCharLeft(2000);
         } catch {
             setErrMsg('Network error. Please try again.');
             setStage('form');
@@ -322,15 +333,19 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                     )}
 
                     {/* Log file indicator */}
-                    {logFile && (
-                        <div className={`mx-5 mb-3 flex items-center gap-2 px-3 py-2 rounded-lg border ${
-                            isDark ? 'bg-white/[0.03] border-white/8' : 'bg-zinc-50 border-zinc-200'
-                        }`}>
-                            <FileText className="w-3.5 h-3.5 text-zinc-500" />
-                            <span className="text-[11px] font-mono text-zinc-500 flex-1 truncate">{logFile.name}</span>
-                            <button onClick={() => setLogFile(null)}>
-                                <X className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-400 transition-colors" />
-                            </button>
+                    {logFiles.length > 0 && (
+                        <div className="px-5 pb-3 flex flex-col gap-2">
+                            {logFiles.map((file, idx) => (
+                                <div key={idx} className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                                    isDark ? 'bg-white/[0.03] border-white/8' : 'bg-zinc-50 border-zinc-200'
+                                }`}>
+                                    <FileText className="w-3.5 h-3.5 text-zinc-500" />
+                                    <span className="text-[11px] font-mono text-zinc-500 flex-1 truncate">{file.name}</span>
+                                    <button onClick={() => removeLog(idx)}>
+                                        <X className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-400 transition-colors" />
+                                    </button>
+                                </div>
+                            ))}
                         </div>
                     )}
 
@@ -363,14 +378,21 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                             {/* Log attach */}
                             <button
                                 onClick={() => logInputRef.current?.click()}
-                                title="Attach log file (max 1 MB)"
-                                className={`p-2 rounded-lg transition-all ${
+                                disabled={logFiles.length >= 5}
+                                title="Attach log files (max 5)"
+                                className={`p-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all ${
                                     isDark ? 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
                                 }`}
                             >
                                 <FileText className="w-4 h-4" />
                             </button>
-                            <input ref={logInputRef} type="file" accept=".log,.txt" hidden onChange={e => setLogFile(e.target.files?.[0] ?? null)} />
+                            <input ref={logInputRef} type="file" accept=".log,.txt" multiple hidden onChange={e => addLogs(e.target.files)} />
+
+                            {logFiles.length > 0 && (
+                                <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                                    {logFiles.length}/5 Logs
+                                </span>
+                            )}
 
                             {images.length > 0 && (
                                 <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{images.length}/5</span>
@@ -383,7 +405,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web' }: Feedbac
                             </span>
                             <button
                                 onClick={handleSubmit}
-                                disabled={stage === 'submitting' || (!text.trim() && images.length === 0)}
+                                disabled={stage === 'submitting' || (!text.trim() && images.length === 0 && logFiles.length === 0)}
                                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500/90 hover:bg-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold text-[12px] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(99,102,241,0.35)]"
                             >
                                 {stage === 'submitting'
