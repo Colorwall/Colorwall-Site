@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+
 function hashIp(req: Request): string {
     const raw =
         req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
