@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { MessageSquare, Loader2 } from 'lucide-react';
 import { FeedbackForm } from './FeedbackForm';
 import { FeedbackCards, FeedbackGroup, FeedbackItem } from './FeedbackCards';
@@ -15,9 +15,37 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
-    const [items, setItems] = useState<FeedbackItem[]>(feedbacks);
-    const [hasMore, setHasMore] = useState(feedbacks.length === 20);
+    const [items, setItems] = useState<FeedbackItem[]>(feedbacks || []);
+    const [hasMore, setHasMore] = useState(true);
     const [isLoadingIndicator, setIsLoadingIndicator] = useState(false);
+    const [initialLoad, setInitialLoad] = useState(!feedbacks || feedbacks.length === 0);
+
+    useEffect(() => {
+        const loadInitial = async () => {
+            setIsLoadingIndicator(true);
+            try {
+                const res = await fetch(`/api/feedback?skip=0&limit=20`);
+                const json = await res.json();
+                if (json.success && json.data) {
+                    setItems(json.data);
+                    if (json.data.length < 20) setHasMore(false);
+                } else {
+                    setHasMore(false);
+                }
+            } catch {
+                setHasMore(false);
+            }
+            setIsLoadingIndicator(false);
+            setInitialLoad(false);
+        };
+
+        if (!feedbacks || feedbacks.length === 0) {
+            loadInitial();
+        } else {
+            setInitialLoad(false);
+            setHasMore(feedbacks.length === 20);
+        }
+    }, [feedbacks]);
 
     // Infinite scroll observer
     const observer = useRef<IntersectionObserver | null>(null);
@@ -134,7 +162,12 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                         <div className={`h-px flex-1 bg-gradient-to-l to-transparent ${isDark ? 'from-white/10' : 'from-black/10'}`} />
                     </div>
 
-                    {groups.length === 0 ? (
+                    {initialLoad ? (
+                        <div className={`flex flex-col items-center justify-center py-40 border border-dashed rounded-3xl ${isDark ? 'border-white/8' : 'border-black/5'}`}>
+                            <Loader2 className={`w-8 h-8 animate-spin mb-4 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
+                            <p className={`text-lg font-semibold ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Loading feedback...</p>
+                        </div>
+                    ) : groups.length === 0 ? (
                         <div className={`flex flex-col items-center justify-center py-40 border border-dashed rounded-3xl ${isDark ? 'border-white/8' : 'border-black/5'}`}>
                             <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-5 ${isDark ? 'border-white/10 bg-white/[0.03]' : 'border-zinc-200 bg-white'}`}>
                                 <MessageSquare className={`w-6 h-6 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`} />

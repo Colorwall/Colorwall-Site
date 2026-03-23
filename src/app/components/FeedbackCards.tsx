@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Monitor, Globe, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Monitor, Globe, ChevronDown, ChevronUp, FileText, MessageSquare, Send, Trash2, Loader2 } from 'lucide-react';
 import { useTheme } from '@/app/contexts/ThemeContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -141,6 +141,145 @@ function MessagesList({ items, isExpanded, theme }: { items: FeedbackItem[], isE
     );
 }
 
+function ReplySection({ theme, isApp, threadId, initialReplies }: { theme: string, isApp?: boolean, threadId: string, initialReplies: any[] }) {
+    const isDark = theme === 'dark';
+    const [isReplying, setIsReplying] = useState(false);
+    const [replyText, setReplyText] = useState('');
+    const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date}[]>(initialReplies || []);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [slowmode, setSlowmode] = useState(0);
+
+    useEffect(() => {
+        if (slowmode <= 0) return;
+        const timer = setInterval(() => setSlowmode(s => s - 1), 1000);
+        return () => clearInterval(timer);
+    }, [slowmode]);
+
+    const handleDeleteReply = async (id: string) => {
+        if (!confirm('Admin: Delete this reply?')) return;
+        try {
+            const res = await fetch(`/api/feedback/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                setLocalReplies(prev => prev.filter(r => r.id !== id));
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch {
+            alert('Delete failed.');
+        }
+    };
+
+    const handleReply = async () => {
+        if (!replyText.trim() || isSubmitting) return;
+        setIsSubmitting(true);
+        const username = typeof window !== 'undefined' ? (localStorage.getItem('cw_username') || 'Anonymous') : 'Anonymous';
+
+        try {
+            const res = await fetch('/api/feedback/reply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ threadId, username, text: replyText.trim() })
+            });
+            const data = await res.json();
+            
+            if (res.status === 429) {
+                setSlowmode(60);
+            } else if (data.success && data.reply) {
+                setLocalReplies([...localReplies, data.reply]);
+                setReplyText('');
+                setIsReplying(false);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (e) {
+            alert('Failed to post reply.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className={`mt-4 pt-4 border-t ${isDark ? 'border-white/[0.04]' : 'border-zinc-100'} pl-[44px]`}>
+            {/* Show local replies */}
+            {localReplies.length > 0 && (
+                <div className="space-y-4 mb-4">
+                    {localReplies.map(reply => (
+                        <div key={reply.id} className="flex gap-3">
+                            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${isDark ? 'from-indigo-500/20 to-purple-500/20 border border-indigo-500/30' : 'from-indigo-100 to-purple-100 border border-indigo-200'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                                <span className={`text-[10px] font-black ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>{reply.username.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex items-baseline justify-between gap-2">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className={`text-[12px] font-bold ${isDark ? 'text-white/90' : 'text-zinc-800'}`}>{reply.username}</span>
+                                        <span className={`text-[9px] font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>{timeAgo(reply.createdAt)}</span>
+                                    </div>
+                                    <button onClick={() => handleDeleteReply(reply.id)} className={`opacity-40 hover:opacity-100 transition-opacity p-1 ${isDark ? 'text-rose-500/50 hover:text-rose-400' : 'text-rose-600/50 hover:text-rose-600'}`}>
+                                        <Trash2 className="w-3 h-3" />
+                                    </button>
+                                </div>
+                                <p className={`text-[12px] leading-relaxed mt-0.5 whitespace-pre-wrap select-text cursor-text ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                    {reply.text}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Reply Actions */}
+            {!isReplying ? (
+                <button 
+                    onClick={() => setIsReplying(true)}
+                    className={`flex items-center gap-1.5 text-[11px] font-mono transition-colors ${
+                        isApp 
+                            ? (isDark ? 'text-blue-400/60 hover:text-blue-400' : 'text-blue-600/70 hover:text-blue-600')
+                            : (isDark ? 'text-zinc-400 hover:text-zinc-200' : 'text-zinc-500 hover:text-zinc-800')
+                    }`}
+                >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    Reply to thread
+                </button>
+            ) : (
+                <div className="flex flex-col gap-2 relative">
+                    <textarea 
+                        className={`w-full min-h-[70px] resize-none rounded-xl p-3 text-[12px] outline-none border transition-colors ${
+                            isDark 
+                                ? 'bg-white/[0.02] border-white/10 text-white placeholder-zinc-600 focus:border-indigo-500/50' 
+                                : 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-indigo-500/50'
+                        }`}
+                        placeholder="Write a reply..."
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        autoFocus
+                    />
+                    <div className="flex justify-end gap-2 mt-1">
+                        <button 
+                            onClick={() => setIsReplying(false)}
+                            className={`px-3 py-1.5 rounded-lg text-[11px] font-mono transition-colors ${
+                                isDark ? 'text-zinc-400 hover:bg-white/5' : 'text-zinc-500 hover:bg-zinc-100'
+                            }`}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={handleReply}
+                            disabled={!replyText.trim() || isSubmitting || slowmode > 0}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[11px] font-bold disabled:opacity-50 transition-colors shadow-sm ${
+                                slowmode > 0 ? (isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-200 text-zinc-500') : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                            }`}
+                        >
+                            {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : slowmode > 0 ? null : <Send className="w-3" />}
+                            {slowmode > 0 ? `Wait ${slowmode}s` : isSubmitting ? 'Posting...' : 'Submit Reply'}
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 /** Web submission — warm card, chat-bubble feel */
 function WebCard({ group, index, theme }: { group: FeedbackGroup; index: number; theme: string }) {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -151,6 +290,18 @@ function WebCard({ group, index, theme }: { group: FeedbackGroup; index: number;
     const first    = group.items[0];
 
     const needsExpansion = group.items.length > 1 || (first.text && first.text.length > 250) || (first.logFiles && first.logFiles.length > 0);
+
+    const handleDeleteThread = async () => {
+        if (!confirm('Admin: Delete this ENTIRE thread?')) return;
+        try {
+            const res = await fetch(`/api/feedback/${first.id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) window.location.reload();
+            else alert(`Error: ${data.error}`);
+        } catch {
+            alert('Delete failed.');
+        }
+    };
 
     return (
         <div className={`relative rounded-xl border overflow-hidden ${
@@ -174,7 +325,12 @@ function WebCard({ group, index, theme }: { group: FeedbackGroup; index: number;
                             </div>
                         </div>
                     </div>
-                    <span className={`text-[9px] font-mono tabular-nums py-1 px-2 rounded ${isDark ? 'text-zinc-600 bg-white/[0.02]' : 'text-zinc-400 bg-zinc-50'}`}>#{String(index + 1).padStart(4, '0')}</span>
+                    <div className="flex items-center gap-3">
+                        <button onClick={handleDeleteThread} className={`opacity-40 hover:opacity-100 transition-opacity p-1 ${isDark ? 'text-rose-500/50 hover:text-rose-400' : 'text-rose-600/50 hover:text-rose-600'}`}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <span className={`text-[9px] font-mono tabular-nums py-1 px-2 rounded ${isDark ? 'text-zinc-600 bg-white/[0.02]' : 'text-zinc-400 bg-zinc-50'}`}>#{String(index + 1).padStart(4, '0')}</span>
+                    </div>
                 </div>
 
                 <MessagesList items={group.items} isExpanded={isExpanded} theme={theme} />
@@ -195,6 +351,7 @@ function WebCard({ group, index, theme }: { group: FeedbackGroup; index: number;
                         </button>
                     </div>
                 )}
+                <ReplySection theme={theme} isApp={false} threadId={first.id} initialReplies={(first as any).replies || []} />
             </div>
         </div>
     );
@@ -207,6 +364,18 @@ function AppCard({ group, index, theme }: { group: FeedbackGroup; index: number;
     const first = group.items[0];
 
     const needsExpansion = group.items.length > 1 || (first.text && first.text.length > 250) || (first.logFiles && first.logFiles.length > 0);
+
+    const handleDeleteThread = async () => {
+        if (!confirm('Admin: Delete this ENTIRE thread?')) return;
+        try {
+            const res = await fetch(`/api/feedback/${first.id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) window.location.reload();
+            else alert(`Error: ${data.error}`);
+        } catch {
+            alert('Delete failed.');
+        }
+    };
 
     return (
         <div className={`relative rounded-xl border overflow-hidden ${
@@ -234,7 +403,12 @@ function AppCard({ group, index, theme }: { group: FeedbackGroup; index: number;
                             </div>
                         </div>
                     </div>
-                    <span className={`text-[9px] font-mono tabular-nums py-1 px-2 rounded ${isDark ? 'text-zinc-600 bg-white/[0.02]' : 'text-zinc-400 bg-zinc-100/50'}`}>#{String(index + 1).padStart(4, '0')}</span>
+                    <div className="flex items-center gap-3">
+                        <button onClick={handleDeleteThread} className={`opacity-40 hover:opacity-100 transition-opacity p-1 ${isDark ? 'text-rose-500/50 hover:text-rose-400' : 'text-rose-600/50 hover:text-rose-600'}`}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <span className={`text-[9px] font-mono tabular-nums py-1 px-2 rounded ${isDark ? 'text-zinc-600 bg-white/[0.02]' : 'text-zinc-400 bg-zinc-100/50'}`}>#{String(index + 1).padStart(4, '0')}</span>
+                    </div>
                 </div>
 
                 <div className="space-y-3 font-mono mt-3 pl-[44px]">
@@ -286,6 +460,7 @@ function AppCard({ group, index, theme }: { group: FeedbackGroup; index: number;
                         </button>
                     </div>
                 )}
+                <ReplySection theme={theme} isApp={true} threadId={first.id} initialReplies={(first as any).replies || []} />
             </div>
         </div>
     );

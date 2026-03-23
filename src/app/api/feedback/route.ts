@@ -97,6 +97,12 @@ export async function GET(req: Request) {
             appVersion: doc.appVersion,
             source:    (doc.source === 'App' ? 'App' : 'Web') as 'App' | 'Web',
             createdAt: doc.createdAt,
+            replies:   (doc.replies || []).map((r: any) => ({
+                id: r.id,
+                username: r.username,
+                text: r.text,
+                createdAt: r.createdAt
+            })),
         }));
 
         return NextResponse.json({ success: true, data: formatted });
@@ -120,7 +126,7 @@ export async function POST(req: Request) {
         const rawUsername = formData.get('username')?.toString() ?? '';
         const rawText     = formData.get('text')?.toString() ?? '';
 
-        const username = sanitizeString(rawUsername) || 'Anonymous';
+        let username = sanitizeString(rawUsername) || 'Anonymous';
         const text     = sanitizeString(rawText);
 
         if (username.length > LIMITS.USERNAME_MAX) {
@@ -198,16 +204,28 @@ export async function POST(req: Request) {
 
         const source = detectSource(formData, req);
 
-        // ── 6. Atomic rate-limit check ───────────────────────────────────────
-        //   findOneAndUpdate with upsert lets us check + create in a single
-        //   round-trip, eliminating the TOCTOU race condition of
-        //   findOne → insertOne.
-        //
-        //   The `rateLimits` collection should have a TTL index:
-        //   db.rateLimits.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
         const ipHash   = hashIp(req);
         const db       = await getDb();
         const now      = new Date();
+
+        // ── 5.5 Username Collision Check ─────────────────────────────────────
+        if (username !== 'Anonymous') {
+            const existingUser = await db.collection('feedback').findOne({
+                username: { $regex: new RegExp(`^${username}$`, 'i') },
+                ipHash: { $ne: ipHash }
+            });
+
+            if (existingUser) {
+                if (source === 'Web') {
+                    return err('This username is already taken by someone else.', 400);
+                } else {
+                    const tag = Math.floor(1000 + Math.random() * 9000);
+                    username = `${username}#${tag}`;
+                }
+            }
+        }
+
+        // ── 6. Atomic rate-limit check ───────────────────────────────────────
         const expiresAt = new Date(now.getTime() + LIMITS.RATE_WINDOW_MS);
 
         const rl = await db.collection('rateLimits').findOneAndUpdate(
