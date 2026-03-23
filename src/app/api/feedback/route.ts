@@ -203,17 +203,30 @@ export async function POST(req: Request) {
         ).slice(0, 32) || null;
 
         const source = detectSource(formData, req);
+        const deviceId = formData.get('deviceId')?.toString().slice(0, 100) || null;
 
         const ipHash   = hashIp(req);
         const db       = await getDb();
         const now      = new Date();
 
-        // ── 5.5 Username Collision Check ─────────────────────────────────────
+        // ── 5.5 Username Collision Check & Device Syncing ────────────────
+        if (deviceId && source === 'App') {
+            await db.collection('feedback').updateMany(
+                { deviceId },
+                { $set: { ipHash } }
+            );
+        }
+
         if (username !== 'Anonymous') {
-            const existingUser = await db.collection('feedback').findOne({
+            const query: any = {
                 username: { $regex: new RegExp(`^${username}$`, 'i') },
                 ipHash: { $ne: ipHash }
-            });
+            };
+            if (deviceId) {
+                query.deviceId = { $ne: deviceId };
+            }
+
+            const existingUser = await db.collection('feedback').findOne(query);
 
             if (existingUser) {
                 if (source === 'Web') {
@@ -247,6 +260,7 @@ export async function POST(req: Request) {
             logFiles,
             appVersion,
             ipHash,
+            deviceId,
             source,
             createdAt:  now,
         });
