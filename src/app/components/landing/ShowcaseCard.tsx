@@ -130,6 +130,7 @@ export const ShowcaseCard = ({
                                                         width={1600}
                                                         height={900}
                                                         className="w-full h-auto max-h-full object-contain drop-shadow-2xl rounded-2xl sm:rounded-[2rem]"
+                                                        style={{ height: 'auto' }}
                                                         priority={index === 0}
                                                     />
                                                 </div>
@@ -140,6 +141,7 @@ export const ShowcaseCard = ({
                                                     width={1600}
                                                     height={1200}
                                                     className="w-full h-full object-cover"
+                                                    style={{ height: 'auto' }}
                                                     priority={index === 0}
                                                 />
                                             )}

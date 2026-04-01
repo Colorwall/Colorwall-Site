@@ -43,6 +43,7 @@ export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
                         width={512}
                         height={192}
                         className="w-64 sm:w-80 md:w-96 lg:w-[448px] xl:w-[512px] h-auto object-contain drop-shadow-2xl"
+                        style={{ height: 'auto' }}
                         priority
                         fetchPriority="high"
                     />

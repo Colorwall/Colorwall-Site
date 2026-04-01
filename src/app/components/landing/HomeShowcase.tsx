@@ -13,7 +13,7 @@ export const HomeShowcase = ({ theme }: { theme: "dark" | "light" }) => {
                         width={1920}
                         height={1080}
                         className="w-full h-auto"
-                        quality={95}
+                        style={{ height: 'auto' }}
                         priority
                     />
                     <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none

@@ -1,25 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
 import { Analytics } from '@vercel/analytics/next';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   display: 'swap',
-  preload: true,
-  adjustFontFallback: true
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: 'swap',
-  preload: true,
-  adjustFontFallback: true
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://laxenta.xyz";
@@ -121,7 +123,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-x-hidden`}
+        className={`${outfit.variable} ${inter.variable} ${geistMono.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-inter overflow-x-hidden`}
       >
         <ThemeProvider>
           <Navbar />
