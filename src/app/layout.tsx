@@ -1,19 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Inter, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
 import { Analytics } from '@vercel/analytics/next';
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
   display: 'swap',
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
   display: 'swap',
 });
@@ -22,7 +22,9 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: 'swap',
+  weight: ["300", "400", "500", "600", "700"],
 });
+
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://laxenta.xyz";
 
@@ -123,7 +125,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${outfit.variable} ${inter.variable} ${geistMono.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-inter overflow-x-hidden`}
+        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-hidden`}
       >
         <ThemeProvider>
           <Navbar />
