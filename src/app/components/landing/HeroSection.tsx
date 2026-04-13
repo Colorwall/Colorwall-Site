@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Typewriter } from "react-simple-typewriter";
 import Image from "next/image";
 import Link from "next/link";
-import { Download, FileText, MessageCircle, Monitor, Cpu, Github } from "lucide-react";
+import { Download, FileText, MessageCircle, Monitor, Cpu, Wrench } from "lucide-react";
 import { ScrollArrow } from "./ScrollArrow";
 
 export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
@@ -123,7 +123,7 @@ export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
                     <span className="opacity-50">·</span>
                     <span className="flex items-center gap-1 sm:gap-1.5"><Monitor className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Windows 10/11</span>
                     <span className="opacity-50">·</span>
-                    <span className="flex items-center gap-1 sm:gap-1.5"><Github className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> AGPL-3</span>
+                    <span className="flex items-center gap-1 sm:gap-1.5"><Wrench className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Under Development</span>
                 </div>
             </div>
 
