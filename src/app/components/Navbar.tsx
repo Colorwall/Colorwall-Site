@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,14 +39,54 @@ const XIcon = () => (
     </svg>
 );
 
+/* sound on icon */
+const SoundOnIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+);
+/* sound off icon */
+const SoundOffIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        <line x1="23" y1="9" x2="17" y2="15" />
+        <line x1="17" y1="9" x2="23" y2="15" />
+    </svg>
+);
+
 export const Navbar = () => {
     const { theme, toggleTheme } = useTheme();
     const pathname = usePathname();
     const isDark = theme === "dark";
     const [isVisible, setIsVisible] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isSoundOn, setIsSoundOn] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
     const lastScrollY = useRef(0);
     const isHovered = useRef(false);
+
+    /* init audio once on mount */
+    useEffect(() => {
+        audioRef.current = new Audio("/temp_recording.wav");
+        audioRef.current.loop = true;
+        audioRef.current.volume = 1.0;
+        return () => {
+            audioRef.current?.pause();
+            audioRef.current = null;
+        };
+    }, []);
+
+    const toggleSound = useCallback(() => {
+        if (!audioRef.current) return;
+        if (isSoundOn) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play().catch(() => {/* autoplay may be blocked */});
+        }
+        setIsSoundOn(prev => !prev);
+    }, [isSoundOn]);
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
@@ -140,6 +180,16 @@ export const Navbar = () => {
                             title="Toggle theme">
                             {isDark ? <SunIcon /> : <MoonIcon />}
                         </button>
+                        {/* sound toggle */}
+                        <button
+                            onClick={toggleSound}
+                            className={`p-2 rounded-lg transition-all duration-200 ${isSoundOn
+                                ? isDark ? "text-white bg-white/10 hover:bg-white/15" : "text-black bg-black/8 hover:bg-black/12"
+                                : iconBtn}`}
+                            title={isSoundOn ? "Mute ambient sound" : "Play ambient sound"}
+                        >
+                            {isSoundOn ? <SoundOnIcon /> : <SoundOffIcon />}
+                        </button>
                     </div>
                     <div className="md:hidden flex items-center gap-1">
                         <button onClick={toggleTheme} className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
@@ -197,6 +247,16 @@ export const Navbar = () => {
                                         className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                         <XIcon />
                                     </a>
+                                    {/* sound toggle in mobile menu */}
+                                    <button
+                                        onClick={toggleSound}
+                                        className={`p-2 rounded-lg transition-all duration-200 ml-auto ${isSoundOn
+                                            ? isDark ? "text-white bg-white/10" : "text-black bg-black/8"
+                                            : iconBtn}`}
+                                        title={isSoundOn ? "Mute ambient sound" : "Play ambient sound"}
+                                    >
+                                        {isSoundOn ? <SoundOnIcon /> : <SoundOffIcon />}
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>

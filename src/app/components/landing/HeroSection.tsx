@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Typewriter } from "react-simple-typewriter";
 import Image from "next/image";
@@ -11,6 +12,14 @@ export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
     const { scrollYProgress } = useScroll();
     const heroScale = useTransform(scrollYProgress, [0, 0.25], [1, 0.95]);
 
+    /* randomly select a bg video each page load — ~30% each new webm, else the default webm */
+    const bgVideo = useMemo(() => {
+        const r = Math.random();
+        if (r < 0.3) return { src: "/wallpaper_1775826051.webm", type: "video/webm" };
+        if (r < 0.6) return { src: "/Shimoe_Koharu_-_Blue_Archive.webm", type: "video/webm" };
+        return { src: "/videos/myCutekoiiii.webm", type: "video/webm" };
+    }, []);
+
     return (
         <motion.section
             style={{ scale: heroScale }}
@@ -19,6 +28,7 @@ export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
             {/* video bg */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <video
+                    key={bgVideo.src}
                     autoPlay
                     muted
                     loop
@@ -28,7 +38,7 @@ export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
                     fetchPriority="high"
                     className="w-full h-full object-cover opacity-65"
                 >
-                    <source src="/videos/myCutekoiiii.webm" type="video/webm" />
+                    <source src={bgVideo.src} type={bgVideo.type} />
                 </video>
 
                 {/* Removed fallback gradient fade at edges as requested */}
