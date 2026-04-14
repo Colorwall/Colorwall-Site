@@ -21,7 +21,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                 <div
                     className="absolute inset-0 w-full h-full opacity-30 transform scale-105 blur-xl"
                     style={{
-                        backgroundImage: "url('/LxColorWall.png')",
+                        backgroundImage: "url('/LxColorWall.webp')",
                         backgroundSize: "cover",
                         backgroundPosition: "center"
                     }}
@@ -34,7 +34,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                     {/* ════ Branding ════ */}
                     <div className="col-span-1 md:col-span-1 space-y-6">
                         <div className="flex items-center">
-                            <img src="/LxColorWall.png" alt="ColorWall Logo" className="h-8 w-auto object-contain pointer-events-none select-none" />
+                            <img src="/LxColorWall.webp" alt="ColorWall Logo" className="h-8 w-auto object-contain pointer-events-none select-none" />
                         </div>
                         <p className={`text-sm leading-relaxed font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
                             PRODUCED BY LAXENTA INC <br />
