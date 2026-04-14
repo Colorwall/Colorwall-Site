@@ -32,7 +32,7 @@ export default function ColorWallLanding() {
                 title="STORE"
                 description="Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — no account needed."
                 badge="8 SOURCES · 4K · UNIFIED"
-                imageSrcs={["/Store.PNG", "/modal.PNG"]}
+                imageSrcs={["/STORE.webp", "/modal.webp"]}
                 index={0}
                 theme={theme}
             />

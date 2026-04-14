@@ -48,7 +48,7 @@ export const HeroSection = ({ theme }: { theme?: "dark" | "light" }) => {
                 {/* logo */}
                 <div className="relative w-full flex justify-center items-center">
                     <Image
-                        src="/LxColorWall.png"
+                        src="/LxColorWall.webp"
                         alt="ColorWall"
                         width={512}
                         height={192}

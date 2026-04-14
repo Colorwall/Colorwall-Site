@@ -8,7 +8,7 @@ export const HomeShowcase = ({ theme }: { theme: "dark" | "light" }) => {
             <div className="max-w-7xl mx-auto">
                 <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/5 bg-black/5">
                     <Image
-                        src="/HOME.PNG"
+                        src="/HOME.webp"
                         alt="colorwall full interface"
                         width={1920}
                         height={1080}
