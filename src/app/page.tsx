@@ -50,7 +50,7 @@ export default function ColorWallLanding() {
                 title="CUSTOMIZATION"
                 description="unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets."
                 badge="RUST · TAURI · LOW OVERHEAD"
-                imageSrcs={["/Video.PNG", "/PEAKmodalpreview.PNG", "/multi.PNG", "/taskbar.PNG", "/ADV.PNG", "/perf.PNG"]}
+                imageSrcs={["/PEAKmodalpreview.PNG", "/multi.PNG", "/taskbar.PNG", "/ADV.PNG", "/perf.PNG"]}
                 index={2}
                 theme={theme}
                 layout="vertical"
