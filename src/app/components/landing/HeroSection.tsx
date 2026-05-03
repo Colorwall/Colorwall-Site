@@ -29,7 +29,7 @@ const pickRandomVideo = () => {
 
 export const HeroSection = () => {
     const router = useRouter();
-    const [bgVideo, setBgVideo] = useState<HeroVideo>(HERO_VIDEOS[0]);
+    const [bgVideo, setBgVideo] = useState<HeroVideo | null>(null);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [loadingButton, setLoadingButton] = useState<"download" | "changelog" | "discord" | null>(null);
 
@@ -56,29 +56,39 @@ export const HeroSection = () => {
         <section
             className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-black text-white"
         >
+            {/* Preload all raw posters so they are cached and ready the moment a random video is picked */}
+            {HERO_VIDEOS.map((video) => (
+                <link key={video.poster} rel="preload" href={video.poster} as="image" type="image/webp" />
+            ))}
+
             {/* video bg */}
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <Image
-                    src={bgVideo.poster}
-                    alt="Background Poster"
-                    fill
-                    priority
-                    className={`object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-0" : "opacity-65"}`}
-                />
-                <video
-                    key={bgVideo.src}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    // @ts-expect-error React types don't officially support fetchPriority natively on video elements yet in this TS version
-                    fetchPriority="high"
-                    onCanPlay={() => setIsVideoLoaded(true)}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-65" : "opacity-0"}`}
-                >
-                    <source src={bgVideo.src} type={bgVideo.type} />
-                </video>
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black">
+                {bgVideo && (
+                    <>
+                        <Image
+                            src={bgVideo.poster}
+                            alt="Background Poster"
+                            fill
+                            priority
+                            unoptimized
+                            className={`object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-0" : "opacity-65"}`}
+                        />
+                        <video
+                            key={bgVideo.src}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                            // @ts-expect-error React types don't officially support fetchPriority natively on video elements yet in this TS version
+                            fetchPriority="high"
+                            onCanPlay={() => setIsVideoLoaded(true)}
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-65" : "opacity-0"}`}
+                        >
+                            <source src={bgVideo.src} type={bgVideo.type} />
+                        </video>
+                    </>
+                )}
             </div>
 
             <div className="absolute inset-0 z-[1] bg-black/35 pointer-events-none" aria-hidden="true" />
