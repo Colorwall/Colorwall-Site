@@ -139,26 +139,27 @@ export const HeroSection = () => {
                 {/* CTA row */}
                 <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
                     {/* download */}
-                    <Link
-                        href="/download"
-                        onClick={(event) => handleInternalNavigation(event, "download", "/download")}
-                        aria-busy={loadingButton === "download"}
-                        style={{ 
-                            backgroundImage: 'linear-gradient(110deg, #ffffff 35%, #f4f9ff 45%, #8bc5f8 50%, #f4f9ff 55%, #ffffff 65%)',
-                            backgroundSize: '200% auto'
-                        }}
-                        className="animate-bg-pan group inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 text-black hover:shadow-[0_8px_30px_rgba(255,255,255,0.25)] border border-white/40"
-                    >
-                        {loadingButton === "download" ? (
-                            <LoaderCircle className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                        ) : (
-                            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                        )}
-                        Download Now
-                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md ml-0.5 sm:ml-1 bg-black/10 text-black/60">
-                            Win 10/11
-                        </span>
-                    </Link>
+                    <div className="relative group inline-flex rounded-[14px] overflow-hidden p-[5px] hover:-translate-y-0.5 transition-transform duration-300 shadow-[0_8px_30px_rgba(255,255,255,0.15)]">
+                        {/* Spinning Conic Gradient for Edge Glint */}
+                        <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#60a5fa_50%,transparent_100%)] opacity-100 group-hover:opacity-100 transition-opacity duration-300" />
+                        
+                        <Link
+                            href="/download"
+                            onClick={(event) => handleInternalNavigation(event, "download", "/download")}
+                            aria-busy={loadingButton === "download"}
+                            className="relative inline-flex items-center justify-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-[10px] bg-white text-black font-bold text-xs sm:text-sm tracking-wide w-full"
+                        >
+                            {loadingButton === "download" ? (
+                                <LoaderCircle className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                            ) : (
+                                <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                            )}
+                            Download Now
+                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md ml-0.5 sm:ml-1 bg-black/10 text-black/60">
+                                Win 10/11
+                            </span>
+                        </Link>
+                    </div>
 
                     {/* changelog */}
                     <Link
