@@ -29,15 +29,16 @@ type HeroVideo = {
 
 const HIGH_QUALITY_VIDEOS: HeroVideo[] = [
     { src: "/videos/Shimoe_Koharu.webm", type: "video/webm" },
-    { src: "/videos/grass.webm", type: "video/webm" },
+    { src: "/videos/Konoe_Mina_Rainy_Day_In_The_City_Blue_Archive_Live_Wallpaper.webm", type: "video/webm" },
+    { src: "/videos/Nakamasa_Ichika_With_Balloon_Blue_Archive_Live_Wallpaper.webm", type: "video/webm" },
+    { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm" },
 ];
 
 const MEDIUM_QUALITY_VIDEOS: HeroVideo[] = [
-    { src: "/videos/grass.webm", type: "video/webm" },
+    { src: "/videos/mycutekoii.webm", type: "video/webm" },
 ];
 
 const LOW_QUALITY_VIDEOS: HeroVideo[] = [
-    { src: "/videos/myCutekoiiii.webm", type: "video/webm" },
     { src: "/videos/mycutekoii.webm", type: "video/webm" },
 ];
 
@@ -72,7 +73,7 @@ const pickVideoFromConnection = (connection?: NetworkInformation) => {
 
 export const HeroSection = () => {
     const router = useRouter();
-    const [bgVideo, setBgVideo] = useState<HeroVideo>(() => pickRandomVideo(MEDIUM_QUALITY_VIDEOS));
+    const [bgVideo, setBgVideo] = useState<HeroVideo>({ src: "/videos/Shimoe_Koharu.webm", type: "video/webm" });
     const [loadingButton, setLoadingButton] = useState<"download" | "changelog" | "discord" | null>(null);
 
     const handleInternalNavigation = (
