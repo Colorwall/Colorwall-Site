@@ -32,7 +32,6 @@ const HIGH_QUALITY_VIDEOS: HeroVideo[] = [
     { src: "/videos/Konoe_Mina_Rainy_Day_In_The_City_Blue_Archive_Live_Wallpaper.webm", type: "video/webm" },
     { src: "/videos/Nakamasa_Ichika_With_Balloon_Blue_Archive_Live_Wallpaper.webm", type: "video/webm" },
     { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm" },
-    { src: "/videos/Tendou_Kei_-_Blue_Archive.webm", type: "video/webm" },
 ];
 
 const MEDIUM_QUALITY_VIDEOS: HeroVideo[] = [
