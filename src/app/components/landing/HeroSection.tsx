@@ -169,12 +169,16 @@ export const HeroSection = () => {
             <div className="relative z-10 text-center flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 max-w-4xl xl:max-w-5xl">
                 {/* logo */}
                 <div className="relative w-full flex justify-center items-center">
+                    <div
+                        aria-hidden="true"
+                        className="absolute -z-10 h-24 w-56 sm:h-28 sm:w-72 md:h-32 md:w-80 rounded-full bg-black/70 blur-3xl"
+                    />
                     <Image
                         src="/LxColorWall.webp"
                         alt="ColorWall"
                         width={512}
                         height={192}
-                        className="w-64 sm:w-80 md:w-96 lg:w-[448px] xl:w-[512px] h-auto object-contain drop-shadow-2xl"
+                        className="w-64 sm:w-80 md:w-96 lg:w-[448px] xl:w-[512px] h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
                         style={{ height: 'auto' }}
                         priority
                         fetchPriority="high"

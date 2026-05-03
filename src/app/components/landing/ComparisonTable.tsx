@@ -31,13 +31,14 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                     viewport={{ once: true }}
                     className={`rounded-2xl overflow-hidden border ${theme === "dark" ? "border-white/10" : "border-black/10"}`}
                 >
-                    <table className="w-full text-sm">
+                    <div className="w-full overflow-x-auto overscroll-x-contain">
+                    <table className="w-full min-w-[680px] text-xs sm:text-sm">
                         <thead>
                             <tr className={theme === "dark" ? "bg-white/5" : "bg-black/5"}>
-                                <th className="text-left p-4 font-medium opacity-50" />
-                                <th className={`p-4 font-bold ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>ColorWall</th>
-                                <th className="p-4 font-medium opacity-40">Wallpaper Engine</th>
-                                <th className="p-4 font-medium opacity-40">Lively</th>
+                                <th className="text-left p-3 sm:p-4 font-medium opacity-50" />
+                                <th className={`p-3 sm:p-4 font-bold ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>ColorWall</th>
+                                <th className="p-3 sm:p-4 font-medium opacity-40">Wallpaper Engine</th>
+                                <th className="p-3 sm:p-4 font-medium opacity-40">Lively</th>
                             </tr>
                         </thead>
                         <tbody className={`divide-y ${theme === "dark" ? "divide-white/5" : "divide-black/5"}`}>
@@ -53,14 +54,15 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                 ["Taskbar Effects", "Acrylic/Blur", "Even better", "Yes"],
                             ].map(([label, cw, we, lv]) => (
                                 <tr key={label} className={`transition-colors ${theme === "dark" ? "hover:bg-white/[0.03]" : "hover:bg-black/[0.02]"}`}>
-                                    <td className="p-4 font-medium">{label}</td>
-                                    <td className={`p-4 text-center font-semibold ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>{cw}</td>
-                                    <td className="p-4 text-center opacity-50">{we}</td>
-                                    <td className="p-4 text-center opacity-50">{lv}</td>
+                                    <td className="p-3 sm:p-4 font-medium whitespace-nowrap">{label}</td>
+                                    <td className={`p-3 sm:p-4 text-center font-semibold whitespace-nowrap ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>{cw}</td>
+                                    <td className="p-3 sm:p-4 text-center opacity-50 whitespace-nowrap">{we}</td>
+                                    <td className="p-3 sm:p-4 text-center opacity-50 whitespace-nowrap">{lv}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </motion.div>
             </div>
         </section>
