@@ -29,15 +29,69 @@ export const ShowcaseCard = ({
     imageFit = "cover",
 }: ShowcaseCardProps) => {
     const ref = useRef(null);
+    const imageContainerRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: true, margin: "-10%" });
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    
+    const currentIndexRef = useRef(currentImgIndex);
+    const wheelAccumulator = useRef(0);
 
+    // Sync state to ref for wheel event listener
     useEffect(() => {
-        if (!imageSrcs || imageSrcs.length <= 1) return;
+        currentIndexRef.current = currentImgIndex;
+    }, [currentImgIndex]);
+
+    // Auto-scroll unless hovered
+    useEffect(() => {
+        if (!imageSrcs || imageSrcs.length <= 1 || isHovered) return;
         const interval = setInterval(() => {
             setCurrentImgIndex((prev) => (prev + 1) % imageSrcs.length);
         }, 3500);
         return () => clearInterval(interval);
+    }, [imageSrcs, isHovered]);
+
+    // Wheel scroll interceptor for cycling images
+    useEffect(() => {
+        if (!imageSrcs || imageSrcs.length <= 1) return;
+        const el = imageContainerRef.current;
+        if (!el) return;
+
+        const handleWheel = (e: WheelEvent) => {
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                const sensitivity = 70; // Adjust for scroll speed
+                wheelAccumulator.current += e.deltaY;
+                
+                if (wheelAccumulator.current > sensitivity) {
+                    // Scrolling down
+                    if (currentIndexRef.current < imageSrcs.length - 1) {
+                        e.preventDefault();
+                        setCurrentImgIndex(prev => prev + 1);
+                        wheelAccumulator.current = 0;
+                    } else {
+                        wheelAccumulator.current = 0; // Release scroll
+                    }
+                } else if (wheelAccumulator.current < -sensitivity) {
+                    // Scrolling up
+                    if (currentIndexRef.current > 0) {
+                        e.preventDefault();
+                        setCurrentImgIndex(prev => prev - 1);
+                        wheelAccumulator.current = 0;
+                    } else {
+                        wheelAccumulator.current = 0; // Release scroll
+                    }
+                } else {
+                    // Still accumulating, prevent default to avoid jitter
+                    if ((e.deltaY > 0 && currentIndexRef.current < imageSrcs.length - 1) ||
+                        (e.deltaY < 0 && currentIndexRef.current > 0)) {
+                        e.preventDefault();
+                    }
+                }
+            }
+        };
+
+        el.addEventListener('wheel', handleWheel, { passive: false });
+        return () => el.removeEventListener('wheel', handleWheel);
     }, [imageSrcs]);
 
     const displayImages = imageSrcs && imageSrcs.length > 0 ? imageSrcs : (imageSrc ? [imageSrc] : []);
@@ -105,7 +159,11 @@ export const ShowcaseCard = ({
                            No "Card" Container anymore. 
                            Just the content floating in space. 
                         */}
-                        <div className={`relative w-full group
+                        <div 
+                            ref={imageContainerRef}
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                            className={`relative w-full group
                             ${layout === "grid" ? "aspect-video" : (imageFit === "contain" ? "" : "aspect-[21/9] sm:aspect-[21/9]")}`}
                         >
                                 {displayImages.map((src, i) => {

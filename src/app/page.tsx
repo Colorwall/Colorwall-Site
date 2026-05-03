@@ -76,6 +76,8 @@ export default function ColorWallLanding() {
                     </span>
                 </p>
 
+                <HomeShowcase theme={theme} />
+
                 <ShowcaseCard
                     title="STORE"
                     description="Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — no account needed."
@@ -89,7 +91,7 @@ export default function ColorWallLanding() {
                     title="LIBRARY"
                     description="Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store."
                     badge="LOCAL · OFFLINE · CUTE"
-                    imageSrc="/Library.PNG"
+                    imageSrc="/Library.webp"
                     index={1}
                     theme={theme}
                 />
@@ -98,7 +100,7 @@ export default function ColorWallLanding() {
                     title="CUSTOMIZATION"
                     description="unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets."
                     badge="RUST · TAURI · LOW OVERHEAD"
-                    imageSrcs={["/PEAKmodalpreview.PNG", "/multi.PNG", "/taskbar.PNG", "/ADV.PNG", "/perf.PNG"]}
+                    imageSrcs={["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]}
                     index={2}
                     theme={theme}
                     layout="vertical"
@@ -109,7 +111,7 @@ export default function ColorWallLanding() {
                     title="WIDGETS"
                     description="desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable."
                     badge="HTML · JS · PINNED"
-                    imageSrcs={["/widgets.PNG"]}
+                    imageSrcs={["/widgets.webp"]}
                     index={3}
                     theme={theme}
                     layout="vertical"
@@ -151,7 +153,7 @@ export default function ColorWallLanding() {
                                 title="STUDIO"
                                 description="build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly."
                                 badge="NODE-BASED · D3D11 · PARTICLES"
-                                imageSrcs={["/studio.png"]}
+                                imageSrcs={["/studio.webp"]}
                                 index={4}
                                 theme={theme}
                                 layout="vertical"
@@ -165,7 +167,7 @@ export default function ColorWallLanding() {
                                 title="INTERACTIVE"
                                 description="wallpapers that come alive. fully interactive html5 canvases and webgl shaders that respond to your mouse movements and clicks. your desktop is now a playground."
                                 badge="WEBGL · DYNAMIC · INTERACTIVE"
-                                imageSrcs={["/INTERACTIVES.PNG"]}
+                                imageSrcs={["/INTERACTIVES.webp"]}
                                 index={5}
                                 theme={theme}
                                 layout="vertical"
@@ -179,7 +181,6 @@ export default function ColorWallLanding() {
                     </div>
                 </div>
 
-                <HomeShowcase theme={theme} />
             </div>
 
             <ComparisonTable theme={theme} />
