@@ -70,11 +70,16 @@ const getViewportTier = () => {
         return "high" as DisplayTier;
     }
 
-    const { width, height } = window.screen;
+    // Use inner dimensions (visible viewport) as primary indicator
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
     const pixelRatio = window.devicePixelRatio || 1;
-    const effectiveWidth = Math.round(width * pixelRatio);
-    const effectiveHeight = Math.round(height * pixelRatio);
 
+    // Calculate effective resolution in CSS pixels
+    const effectiveWidth = Math.round(viewportWidth * pixelRatio);
+    const effectiveHeight = Math.round(viewportHeight * pixelRatio);
+
+    // Load low-quality for sub-1080p displays
     if (effectiveWidth < 1920 || effectiveHeight < 1080) {
         return "low";
     }
@@ -113,6 +118,10 @@ export const HeroSection = () => {
         const nav = navigator as NavigatorWithConnection;
         const connection = nav.connection;
 
+        // Resolution-aware video selection:
+        // - Sub-1080p viewports: load mycutekoii.webm (low-res, ~190KB)
+        // - 1080p+: load high-quality variants (~2.7-3.9MB)
+        // - Also respects network conditions (2G/3G/save-data use low tier)
         const updateVideoQuality = () => {
             const connectionTier = pickVideoFromConnection(connection);
             const viewportTier = getViewportTier();
@@ -148,6 +157,7 @@ export const HeroSection = () => {
                         // @ts-expect-error React types don't officially support fetchPriority natively on video elements yet in this TS version
                         fetchPriority="high"
                         className="w-full h-full object-cover opacity-65"
+                        title={`Hero video (${bgVideo.src.endsWith("mycutekoii.webm") ? "1080p" : "native resolution"})`}
                     >
                         <source src={bgVideo.src} type={bgVideo.type} />
                     </video>
