@@ -27,6 +27,8 @@ type HeroVideo = {
     type: string;
 };
 
+type DisplayTier = "low" | "high";
+
 const HIGH_QUALITY_VIDEOS: HeroVideo[] = [
     { src: "/videos/Shimoe_Koharu.webm", type: "video/webm" },
     { src: "/videos/Konoe_Mina_Rainy_Day_In_The_City_Blue_Archive_Live_Wallpaper.webm", type: "video/webm" },
@@ -45,23 +47,44 @@ const pickRandomVideo = (videos: HeroVideo[]) => {
 
 const pickVideoFromConnection = (connection?: NetworkInformation) => {
     if (connection?.saveData) {
-        return pickRandomVideo(LOW_QUALITY_VIDEOS);
+        return "low";
     }
 
     if (connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g" || connection?.effectiveType === "3g") {
-        return pickRandomVideo(LOW_QUALITY_VIDEOS);
+        return "low";
     }
 
     if (typeof connection?.downlink === "number" && connection.downlink <= 1.5) {
-        return pickRandomVideo(LOW_QUALITY_VIDEOS);
+        return "low";
     }
 
-    return pickRandomVideo(HIGH_QUALITY_VIDEOS);
+    return "high";
+};
+
+const pickVideoForDisplay = (tier: DisplayTier) => {
+    return tier === "low" ? pickRandomVideo(LOW_QUALITY_VIDEOS) : pickRandomVideo(HIGH_QUALITY_VIDEOS);
+};
+
+const getViewportTier = () => {
+    if (typeof window === "undefined") {
+        return "high" as DisplayTier;
+    }
+
+    const { width, height } = window.screen;
+    const pixelRatio = window.devicePixelRatio || 1;
+    const effectiveWidth = Math.round(width * pixelRatio);
+    const effectiveHeight = Math.round(height * pixelRatio);
+
+    if (effectiveWidth < 1920 || effectiveHeight < 1080) {
+        return "low";
+    }
+
+    return "high";
 };
 
 export const HeroSection = () => {
     const router = useRouter();
-    const [bgVideo, setBgVideo] = useState<HeroVideo>({ src: "/videos/Shimoe_Koharu.webm", type: "video/webm" });
+    const [bgVideo, setBgVideo] = useState<HeroVideo | null>(null);
     const [loadingButton, setLoadingButton] = useState<"download" | "changelog" | "discord" | null>(null);
 
     const handleInternalNavigation = (
@@ -79,31 +102,32 @@ export const HeroSection = () => {
     };
 
     const videoPreload = useMemo<"none" | "metadata" | "auto">(() => {
-        if (bgVideo.src.endsWith(".webm")) {
-            return "metadata";
-        }
-
-        if (bgVideo.src.includes("Shimoe_Koharu")) {
-            return "auto";
+        if (!bgVideo) {
+            return "none";
         }
 
         return "metadata";
-    }, [bgVideo.src]);
+    }, [bgVideo]);
 
     useEffect(() => {
         const nav = navigator as NavigatorWithConnection;
         const connection = nav.connection;
 
         const updateVideoQuality = () => {
-            setBgVideo(pickVideoFromConnection(connection));
+            const connectionTier = pickVideoFromConnection(connection);
+            const viewportTier = getViewportTier();
+
+            setBgVideo(pickVideoForDisplay(connectionTier === "low" ? "low" : viewportTier));
         };
 
         updateVideoQuality();
 
         connection?.addEventListener("change", updateVideoQuality);
+        window.addEventListener("resize", updateVideoQuality);
 
         return () => {
             connection?.removeEventListener("change", updateVideoQuality);
+            window.removeEventListener("resize", updateVideoQuality);
         };
     }, []);
 
@@ -113,19 +137,21 @@ export const HeroSection = () => {
         >
             {/* video bg */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <video
-                    key={bgVideo.src}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload={videoPreload}
-                    // @ts-expect-error React types don't officially support fetchPriority natively on video elements yet in this TS version
-                    fetchPriority="high"
-                    className="w-full h-full object-cover opacity-65"
-                >
-                    <source src={bgVideo.src} type={bgVideo.type} />
-                </video>
+                {bgVideo ? (
+                    <video
+                        key={bgVideo.src}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload={videoPreload}
+                        // @ts-expect-error React types don't officially support fetchPriority natively on video elements yet in this TS version
+                        fetchPriority="high"
+                        className="w-full h-full object-cover opacity-65"
+                    >
+                        <source src={bgVideo.src} type={bgVideo.type} />
+                    </video>
+                ) : null}
             </div>
 
             <div className="absolute inset-0 z-[1] bg-black/35 pointer-events-none" aria-hidden="true" />
