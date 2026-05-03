@@ -23,7 +23,7 @@ export const HomeShowcase = ({ theme }: { theme: "dark" | "light" }) => {
 
                 <p className={`text-center mt-6 text-sm font-mono ${theme === "dark" ? "text-white/50" : "text-black/50"}`}>
                     Blazing fast cz it&apos;s in rust/tauri · Workshop/shaders · Widgets 4k/8k live wallpapers  <br />
-                    <span className={`text-xs ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>MORE FEATURES LISTED BELOW!</span>
+                    <span className={`text-xs ${theme === "dark" ? "text-white/40" : "text-black/40"}`}>LEARN MORE BELOW!</span>
                 </p>
             </div>
         </section>
