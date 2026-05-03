@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { GradientHeading } from "./GradientHeading";
-import { Check, X, Minus } from "lucide-react";
+import { Check } from "lucide-react";
 
 export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
+    const [hoveredCol, setHoveredCol] = useState<number | null>(null);
 
     const features = [
         { label: "Price", cw: "Free", we: "$3.99", lv: "Free" },
@@ -82,26 +84,34 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                             </div>
                                         </div>
                                     </th>
-                                    <th className={`p-4 sm:p-6 align-bottom pb-6 text-center font-bold text-base sm:text-lg ${isDark ? "text-white/60" : "text-black/60"}`}>
+                                    <th 
+                                        className={`p-4 sm:p-6 align-bottom pb-6 text-center font-bold text-base sm:text-lg transition-colors cursor-default ${isDark ? (hoveredCol === 2 ? "text-white/90" : "text-white/60") : (hoveredCol === 2 ? "text-black/90" : "text-black/60")}`}
+                                        onMouseEnter={() => setHoveredCol(2)}
+                                        onMouseLeave={() => setHoveredCol(null)}
+                                    >
                                         <div className="flex flex-col items-center gap-2">
                                             <img 
                                                 src="https://www.google.com/s2/favicons?domain=wallpaperengine.io&sz=128" 
                                                 alt="Wallpaper Engine" 
                                                 loading="lazy" 
                                                 decoding="async"
-                                                className="w-6 h-6 sm:w-8 sm:h-8 object-contain opacity-50 grayscale hover:grayscale-0 hover:opacity-80 transition-all" 
+                                                className={`w-6 h-6 sm:w-8 sm:h-8 object-contain transition-all duration-300 ${hoveredCol === 2 ? "grayscale-0 opacity-100" : "grayscale opacity-50"}`} 
                                             />
                                             <span>Wallpaper Engine</span>
                                         </div>
                                     </th>
-                                    <th className={`p-4 sm:p-6 align-bottom pb-6 text-center font-bold text-base sm:text-lg ${isDark ? "text-white/60" : "text-black/60"}`}>
+                                    <th 
+                                        className={`p-4 sm:p-6 align-bottom pb-6 text-center font-bold text-base sm:text-lg transition-colors cursor-default ${isDark ? (hoveredCol === 3 ? "text-white/90" : "text-white/60") : (hoveredCol === 3 ? "text-black/90" : "text-black/60")}`}
+                                        onMouseEnter={() => setHoveredCol(3)}
+                                        onMouseLeave={() => setHoveredCol(null)}
+                                    >
                                         <div className="flex flex-col items-center gap-2">
                                             <img 
-                                                src="https://www.google.com/s2/favicons?domain=rocksdanister.com&sz=128" 
+                                                src="https://www.google.com/s2/favicons?domain=rocksdanister.github.io/lively&sz=128" 
                                                 alt="Lively Wallpaper" 
                                                 loading="lazy" 
                                                 decoding="async"
-                                                className="w-6 h-6 sm:w-8 sm:h-8 object-contain opacity-50 grayscale hover:grayscale-0 hover:opacity-80 transition-all" 
+                                                className={`w-6 h-6 sm:w-8 sm:h-8 object-contain transition-all duration-300 ${hoveredCol === 3 ? "grayscale-0 opacity-100" : "grayscale opacity-50"}`} 
                                             />
                                             <span>Lively</span>
                                         </div>
@@ -124,12 +134,20 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                                 {renderValue(feature.cw, true)}
                                             </div>
                                         </td>
-                                        <td className={`p-5 text-center border-y transition-colors
-                                            ${isDark ? "border-white/5 group-hover:bg-white/[0.02]" : "border-black/5 group-hover:bg-black/[0.02]"}`}>
+                                        <td 
+                                            className={`p-5 text-center border-y transition-colors
+                                            ${isDark ? "border-white/5 group-hover:bg-white/[0.02]" : "border-black/5 group-hover:bg-black/[0.02]"}`}
+                                            onMouseEnter={() => setHoveredCol(2)}
+                                            onMouseLeave={() => setHoveredCol(null)}
+                                        >
                                             {renderValue(feature.we, false)}
                                         </td>
-                                        <td className={`p-5 text-center border-y transition-colors
-                                            ${isDark ? "border-white/5 group-hover:bg-white/[0.02]" : "border-black/5 group-hover:bg-black/[0.02]"}`}>
+                                        <td 
+                                            className={`p-5 text-center border-y transition-colors
+                                            ${isDark ? "border-white/5 group-hover:bg-white/[0.02]" : "border-black/5 group-hover:bg-black/[0.02]"}`}
+                                            onMouseEnter={() => setHoveredCol(3)}
+                                            onMouseLeave={() => setHoveredCol(null)}
+                                        >
                                             {renderValue(feature.lv, false)}
                                         </td>
                                     </tr>
