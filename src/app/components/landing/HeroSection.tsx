@@ -34,10 +34,6 @@ const HIGH_QUALITY_VIDEOS: HeroVideo[] = [
     { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm" },
 ];
 
-const MEDIUM_QUALITY_VIDEOS: HeroVideo[] = [
-    { src: "/videos/mycutekoii.webm", type: "video/webm" },
-];
-
 const LOW_QUALITY_VIDEOS: HeroVideo[] = [
     { src: "/videos/mycutekoii.webm", type: "video/webm" },
 ];
@@ -52,20 +48,12 @@ const pickVideoFromConnection = (connection?: NetworkInformation) => {
         return pickRandomVideo(LOW_QUALITY_VIDEOS);
     }
 
-    if (connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g") {
+    if (connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g" || connection?.effectiveType === "3g") {
         return pickRandomVideo(LOW_QUALITY_VIDEOS);
     }
 
-    if (connection?.effectiveType === "3g") {
-        return pickRandomVideo(MEDIUM_QUALITY_VIDEOS);
-    }
-
-    if (typeof connection?.downlink === "number" && connection.downlink < 1.5) {
+    if (typeof connection?.downlink === "number" && connection.downlink <= 1.5) {
         return pickRandomVideo(LOW_QUALITY_VIDEOS);
-    }
-
-    if (typeof connection?.downlink === "number" && connection.downlink < 5) {
-        return pickRandomVideo(MEDIUM_QUALITY_VIDEOS);
     }
 
     return pickRandomVideo(HIGH_QUALITY_VIDEOS);
