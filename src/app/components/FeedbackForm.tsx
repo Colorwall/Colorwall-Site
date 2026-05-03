@@ -408,6 +408,27 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                     </button>
                 </div>
             )}
+                    {/* Hidden file inputs wired to the attach buttons */}
+                    <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => { addImages(e.target.files); (e.currentTarget as HTMLInputElement).value = ''; }}
+                        style={{ display: 'none' }}
+                    />
+
+                    <input
+                        ref={logInputRef}
+                        type="file"
+                        accept=",.log,.txt,text/plain"
+                        multiple
+                        onChange={(e) => { addLogs(e.target.files); (e.currentTarget as HTMLInputElement).value = ''; }}
+                        style={{ display: 'none' }}
+                    />
+
         </>
     );
 }
+
+// Hidden file inputs are placed after the component so refs are available for the buttons
