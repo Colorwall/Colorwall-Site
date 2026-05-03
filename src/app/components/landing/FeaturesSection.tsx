@@ -1,58 +1,64 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Zap, Monitor, Search, HardDrive, Paintbrush, Shield, Layout, MousePointer2, Cpu } from "lucide-react";
+import { Zap, Monitor, Search, Paintbrush, Shield, Layout, MousePointer2, Cpu, Wand2 } from "lucide-react";
 import { GradientHeading } from "./GradientHeading";
 
 // -- feature data --
 const features = [
     {
         id: "01",
-        icon: Cpu,
-        title: "Built in Rust & Tauri",
-        desc: "insanely fast and lightweight. <10mb app size with near-zero background overhead and native performance.",
+        icon: Zap,
+        title: "Ultra-Lightweight Core",
+        desc: "Built in Rust & Tauri. Negligible performance impact (~0.5% CPU, 1-2% GPU) even at 4K 60FPS.",
     },
     {
         id: "02",
-        icon: Zap,
-        title: "Negligible Performance Impact",
-        desc: "~0.5% CPU, 1-2% GPU for 4K 60fps. Hardware-decoded via Windows Media Foundation.",
+        icon: Cpu,
+        title: "D3D11 Compositor Engine",
+        desc: "Hardware-accelerated DirectX 11 rendering for buttery smooth playback and zero-latency scene composition.",
     },
     {
         id: "03",
-        icon: Monitor,
-        title: "4K/8k Live Wallpapers",
-        desc: "Stunning video wallpapers at native resolution with buttery smooth playback.",
+        icon: Paintbrush,
+        title: "Interactive Studio Editor",
+        desc: "Build your own dynamic scenes with a professional visual editor. Mix videos, images, and particle emitters seamlessly.",
     },
     {
         id: "04",
-        icon: Search,
-        title: "8 Sources, One Store",
-        desc: "Third party store, we do not store data or wallpapers on our server — but we provide unified search.",
+        icon: Shield,
+        title: "Advanced HLSL Shaders",
+        desc: "Apply real-time, customizable shader effects like God Rays, Chromatic Aberration, Blur, and Rain Drops.",
     },
     {
         id: "05",
-        icon: HardDrive,
-        title: "Smart Loading",
-        desc: "Thumbnails load instantly. Previews on click. 4K only downloads when you confirm.",
+        icon: MousePointer2,
+        title: "Audio Reactive Ecosystem",
+        desc: "Native system audio analysis injects rhythmic life into your wallpapers, particles, and widgets in real-time.",
     },
     {
         id: "06",
-        icon: Paintbrush,
-        title: "Taskbar Effects",
-        desc: "Transparent, blur, or acrylic taskbar with custom colors and opacity controls.",
+        icon: Layout,
+        title: "Desktop Widgets",
+        desc: "Pin interactive HTML5/React widgets—like 3D clocks, visualizers, and system monitors—directly to your desktop.",
     },
     {
         id: "07",
-        icon: Layout,
-        title: "HTML Widgets",
-        desc: "desktop widgets powered by modern web tech. create your own or use community-made snippets.",
+        icon: Monitor,
+        title: "Multi-Monitor Mastery",
+        desc: "Flawless multi-display support. Run different engines per screen and permanently save widget layouts.",
     },
     {
         id: "08",
-        icon: MousePointer2,
-        title: "Interactive Wallpapers",
-        desc: "fully interactive html5 wallpapers. webgl, canvas, and shaders that react to your mouse and keyboard.",
+        icon: Search,
+        title: "Massive Workshop",
+        desc: "Browse and download thousands of 4K videos, webgl scenes, and community-made .colorwall projects instantly.",
+    },
+    {
+        id: "09",
+        icon: Wand2,
+        title: "Taskbar Customization",
+        desc: "Transform your taskbar with transparent, blur, or acrylic effects, completely independent of the wallpaper engine.",
     }
 ];
 
@@ -75,9 +81,9 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         system_capabilities
                     </p>
                     <GradientHeading
-                        text="Performance without compromise"
+                        text={"Performance\nwithout compromise"}
                         theme={theme}
-                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight"
+                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight whitespace-pre-wrap leading-[1.1]"
                     />
                 </motion.div>
 
@@ -115,7 +121,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 </div>
 
                                 <div>
-                                    <h3 className={`text-xl font-bold mb-3 tracking-wide group-hover:-translate-y-0.5 transition-transform duration-300
+                                    <h3 className={`text-xl font-mono font-bold mb-3 tracking-wide group-hover:-translate-y-0.5 transition-transform duration-300
                                         ${theme === "dark" ? "text-white" : "text-black"}`}>
                                         {f.title}
                                     </h3>

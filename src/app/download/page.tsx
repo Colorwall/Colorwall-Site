@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Download, ShieldCheck, AlertTriangle } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
 import { SecurityReport } from "@/app/components/SecurityReport";
+import { HomeShowcase } from "@/app/components/landing/HomeShowcase";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useState, useEffect, useRef } from "react";
 
@@ -108,8 +109,15 @@ export default function DownloadPage() {
                             <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
                                 Download Colorwall
                             </h1>
-                            <p className={`text-lg ${mutedText} max-w-xl mx-auto`}>
-                                Desktop Customization, Engineered in Rust
+                            <p 
+                                className="text-lg md:text-xl font-bold bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto] max-w-xl mx-auto"
+                                style={{ 
+                                    backgroundImage: isDark 
+                                        ? 'linear-gradient(110deg, #ffffff 35%, #f4f9ff 45%, #8bc5f8 50%, #f4f9ff 55%, #ffffff 65%)'
+                                        : 'linear-gradient(110deg, #000000 35%, #111827 45%, #3b82f6 50%, #111827 55%, #000000 65%)'
+                                }}
+                            >
+                                Desktop Customization Engine, Engineered in Rust
                             </p>
                         </div>
                     </motion.div>
@@ -187,6 +195,11 @@ export default function DownloadPage() {
                         </div>
                     </motion.div>
 
+                    {/* App UI Showcase */}
+                    <div className="pt-8">
+                        <HomeShowcase theme={theme} />
+                    </div>
+
                     {/* Security Report Section */}
                     <SecurityReport theme={theme} />
 
@@ -194,7 +207,7 @@ export default function DownloadPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className={`text-center p-8 rounded-3xl border ${borderColor} ${cardBg}`}
+                        className={`text-center p-8 rounded-3xl border ${borderColor} ${cardBg} flex flex-col items-center justify-center`}
                     >
                         <p className={`text-sm md:text-base ${mutedText} max-w-3xl mx-auto leading-relaxed`}>
                             We are actively working to bring ColorWall to more storefronts. In the future, we plan to add support for the Microsoft Store, Steam, and Epic Games Store to make downloading and updating as seamless as possible. Stay tuned!

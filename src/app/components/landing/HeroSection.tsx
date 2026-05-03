@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Download, FileText, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
 import { ScrollArrow } from "./ScrollArrow";
+import { GradientHeading } from "./GradientHeading";
 
 type HeroVideo = {
     src: string;
@@ -113,18 +114,18 @@ export const HeroSection = () => {
                 </div>
 
                 <h1 className="text-xs sm:text-sm md:text-base font-mono font-semibold tracking-widest uppercase opacity-90 mb-1 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                    Live Wallpaper <span className="text-blue-500">&</span> Desktop Customization Engine
+                    The Ultimate <GradientHeading text="Wallpaper Engine" theme="dark" as="span" className="inline-block px-1" /> Alternative
                 </h1>
 
                 {/* typewriter */}
                 <div className="text-xs sm:text-sm md:text-base lg:text-lg font-mono text-white/90 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     <Typewriter
                         words={[
-                            "< The desktop customization engine you deserved />",
-                            "< Built in Rust + Tauri · Workshop/8k/Local/Shader Support · Multiple Renderers />",
-                            "< 8K Vsync · Hardware accelerated DirectX 3D 11 · Minimal GPU even on the highest workloads />",
-                            "< 10+ Wallpaper sources · One unified store · Inbuild Shader configuarations (in dev) />",
-                            "< We made something beautiful, people will complain & compare idc, but we will keep improving. />",
+                            "< The next-generation Wallpaper Engine alternative />",
+                            "< Built in Rust + Tauri · Ultra-lightweight · Hardware Accelerated />",
+                            "< 8K Video · Interactive HTML5 · Advanced D3D11 Shader Effects />",
+                            "< Desktop Widgets · Taskbar Customization · Audio Reactive />",
+                            "< 100% Free · No limits, no subscriptions, just pure customization />",
                         ]}
                         loop={0}
                         cursor
@@ -142,7 +143,11 @@ export const HeroSection = () => {
                         href="/download"
                         onClick={(event) => handleInternalNavigation(event, "download", "/download")}
                         aria-busy={loadingButton === "download"}
-                        className="group inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 bg-white text-black hover:shadow-[0_8px_30px_rgba(255,255,255,0.15)]"
+                        style={{ 
+                            backgroundImage: 'linear-gradient(110deg, #ffffff 35%, #f4f9ff 45%, #8bc5f8 50%, #f4f9ff 55%, #ffffff 65%)',
+                            backgroundSize: '200% auto'
+                        }}
+                        className="animate-bg-pan group inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 text-black hover:shadow-[0_8px_30px_rgba(255,255,255,0.25)] border border-white/40"
                     >
                         {loadingButton === "download" ? (
                             <LoaderCircle className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />

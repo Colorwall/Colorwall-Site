@@ -7,7 +7,7 @@ interface GradientHeadingProps {
     text: string;
     theme: "dark" | "light";
     className?: string;
-    as?: "h1" | "h2" | "h3" | "h4";
+    as?: "h1" | "h2" | "h3" | "h4" | "span";
 }
 
 export const GradientHeading = ({ text, theme, className = "", as = "h2" }: GradientHeadingProps) => {

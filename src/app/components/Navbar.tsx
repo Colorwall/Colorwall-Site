@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback, type MouseEvent } from "react
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
-import { MessageCircle, MessageSquare, FileText, Menu, X, Home, Download } from "lucide-react";
+import { MessageCircle, MessageSquare, FileText, Menu, X, Home, Download, Loader2 } from "lucide-react";
 
 const SunIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -67,6 +67,7 @@ export const Navbar = () => {
     const [isVisible, setIsVisible] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSoundOn, setIsSoundOn] = useState(false);
+    const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const lastScrollY = useRef(0);
     const isHovered = useRef(false);
@@ -107,6 +108,10 @@ export const Navbar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    useEffect(() => {
+        setLoadingRoute(null);
+    }, [pathname]);
+
     const navLinks = [
         { name: "Home", href: "/", icon: Home },
         { name: "Download", href: "/download", icon: Download },
@@ -125,12 +130,13 @@ export const Navbar = () => {
             setIsMobileMenuOpen(false);
         }
 
-        if (isExternal) {
+        if (isExternal || pathname === href) {
             return;
         }
 
         event.preventDefault();
-        router.push(href);
+        setLoadingRoute(href);
+        setTimeout(() => router.push(href), 50);
     };
 
     const base = isDark
@@ -185,7 +191,11 @@ export const Navbar = () => {
                                             : isDark ? "text-white/55 hover:text-white hover:bg-white/7" : "text-black/50 hover:text-black hover:bg-black/4"
                                         }`}
                                 >
-                                    <link.icon size={16} strokeWidth={1.8} />
+                                    {loadingRoute === link.href ? (
+                                        <Loader2 size={16} strokeWidth={1.8} className="animate-spin" />
+                                    ) : (
+                                        <link.icon size={16} strokeWidth={1.8} />
+                                    )}
                                     {link.name}
                                 </Link>
                             );
@@ -261,7 +271,11 @@ export const Navbar = () => {
                                             : isDark ? "text-white/55 hover:text-white hover:bg-white/7" : "text-black/50 hover:text-black hover:bg-black/4"
                                         }`}
                                     >
-                                        <link.icon size={16} strokeWidth={1.8} />
+                                        {loadingRoute === link.href ? (
+                                            <Loader2 size={16} strokeWidth={1.8} className="animate-spin" />
+                                        ) : (
+                                            <link.icon size={16} strokeWidth={1.8} />
+                                        )}
                                         {link.name}
                                     </Link>
                                 );
