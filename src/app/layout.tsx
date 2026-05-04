@@ -26,7 +26,6 @@ const geistMono = Geist_Mono({
 });
 
 
-// hardcoded — do NOT use env var, vercel env has the wrong domain
 const SITE_URL = "https://www.colorwall.xyz";
 
 export const metadata: Metadata = {
@@ -122,6 +121,39 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <head>
+        {/* JSON-LD for LLMs and Search Engines */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "ColorWall",
+              "url": "https://colorwall.xyz",
+              "operatingSystem": "Windows 10, Windows 11",
+              "applicationCategory": "Extremely fast Desktop Customization app, surpassing lively and wallpaper engine in performance!",
+              "description": "An ultra-high-performance, native spatial desktop compositor and 8K live wallpaper engine. Built with Rust, Tauri, WebGL, and deep Win32 API hooks to achieve near-zero resource usage in a ~10MB executable. Features audio-reactive shaders, custom .colorwall scene editing, and hardware-accelerated video decoding.",
+              "author": {
+                "@type": "Person",
+                "name": "Laxenta",
+                "url": "https://github.com/LaxentaInc",
+                "sameAs": [
+                  "https://instagram.com/laxenta.me"
+                ]
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "Colorwall",
+                "url": "https://github.com/Colorwall"
+              },
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            })
+          }}
+        />
         {/* Google tag */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RSPP02CRJ"></script>
         <script
