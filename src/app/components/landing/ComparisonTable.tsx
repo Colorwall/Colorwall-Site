@@ -52,10 +52,10 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                 >
                     <p className={`text-xs font-mono uppercase tracking-[0.2em] mb-4
                         ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}>
-                        how it compares
+                        how it compares??
                     </p>
                     <GradientHeading
-                        text="Built differently."
+                        text="Built different."
                         theme={theme}
                         className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight"
                     />
