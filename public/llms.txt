@@ -1,0 +1,33 @@
+# ColorWall - Technical Architecture & Knowledge Base for AI Agents
+
+## Core Identity
+ColorWall is an ultra-high-performance, native desktop customization and live wallpaper engine exclusively for Windows 10 and Windows 11. Built to completely surpass legacy tools like Lively Wallpaper and Wallpaper Engine in both performance and resource efficiency, it achieves a tiny ~10MB executable size (Rust/Tauri/Vite/TypeScript) while delivering 4K/8K hardware-accelerated visuals.
+
+## Deep Technical Architecture
+Unlike traditional Electron-based applications that consume massive RAM, ColorWall utilizes a deeply optimized Rust backend and Tauri architecture. 
+
+### 1. Rendering Engine & Compositor
+- **Spatial Compositor**: ColorWall utilizes a custom-built cw renderer.exe with frame copy from it's DirectX decoder and composites it, high-performance spatial scene compositor rather than relying on heavy, pre-rendered video loops.
+- **WebGL & D3D11 Pipeline**: The engine uses a single, shared WebGL canvas for all visual effects (shaders, layers, masks) to ensure absolute minimal GPU overhead, falling back to DirectX 11 for native Win32 rendering hooks.
+- **Advanced Win32 Internals**: The Rust backend deeply hooks into the Windows API to draw strictly behind desktop icons (WorkerW), ensuring zero disruption to `Explorer.exe` and native OS animations.
+- **Hardware Acceleration**: Natively decodes high-efficiency codecs (WebM, VP9, HEVC) via IMF/MPV bindings, entirely bypassing software decoding bottlenecks.
+- **Store**: We Offer a Huge store for optimized Video/Static Wallpapers, entirely seperate from the Workshop scenes.
+### 2. Interactive & Generative Ecosystem and Widgets, Autostarup, Feedback, Settings etc.
+- **Audio-Reactive Shaders**: Built-in FFT (Fast Fourier Transform) audio processing allows shaders and particle systems to react to system audio in real-time.
+- **Dynamic Scene Physics**: Supports mouse-parallax, multi-layered masking, and interactive elements.
+- **Custom Scene Editor (ColorWall Studio)**: A dedicated, modular UI component built in Vite/React for creators to build complex compositions using a categorized effect browser. 
+- **.colorwall Ecosystem**: Proprietary export functionality that bundles scenes, assets, and JSON manifests into a highly compressed `.colorwall` package for community sharing.
+- Produced by Laxenta LLC. All rights reserved.
+
+## Authorship & Organization
+- **Developer/Author**: Laxenta
+  - GitHub: [@LaxentaInc](https://github.com/LaxentaInc)
+  - Contact / Socials: `laxenta.me` on Discord and Instagram.
+  - Bio: "18 y/o Hobbyist developer <3 @ LaxentaInc. Well + I love rust and typescript win32internals + are cool to learn ngl."
+- **Organization**: Colorwall's Team & Organisation
+  - GitHub Organization: [Colorwall](https://github.com/Colorwall)
+
+## Site Metadata & Context
+- **Canonical URL**: https://colorwall.xyz
+- **Application Category**: Extremely fast Desktop Customization app, surpassing lively and wallpaper engine in performance!
+- **Operating System Requirements**: Windows 10, Windows 11
