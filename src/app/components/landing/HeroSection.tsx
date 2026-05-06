@@ -70,7 +70,7 @@ export const HeroSection = () => {
                             fill
                             priority
                             unoptimized
-                            className={`object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-0" : "opacity-65"}`}
+                            className={`object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-0" : "opacity-100"}`}
                         />
                         <video
                             key={bgVideo.src}
@@ -82,15 +82,13 @@ export const HeroSection = () => {
                             // @ts-expect-error React types don't officially support fetchPriority natively on video elements yet in this TS version
                             fetchPriority="high"
                             onCanPlay={() => setIsVideoLoaded(true)}
-                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-65" : "opacity-0"}`}
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${isVideoLoaded ? "opacity-100" : "opacity-0"}`}
                         >
                             <source src={bgVideo.src} type={bgVideo.type} />
                         </video>
                     </>
                 )}
             </div>
-
-            <div className="absolute inset-0 z-[1] bg-black/35 pointer-events-none" aria-hidden="true" />
 
             <div className="relative z-10 text-center flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 max-w-4xl xl:max-w-5xl">
                 {/* logo */}
