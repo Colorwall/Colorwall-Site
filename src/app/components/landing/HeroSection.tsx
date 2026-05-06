@@ -118,10 +118,10 @@ export const HeroSection = () => {
                 </h1>
 
                 {/* typewriter */}
-                <div className="text-xs sm:text-sm md:text-base lg:text-lg font-mono text-white/90 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                <div className="text-xs sm:text-sm md:text-base lg:text-lg font-mono text-white/90 font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     <Typewriter
                         words={[
-                            "< Your Desktop Called, it wants personality! >",
+                            "< Your Desktop Called, It wants Personality! >",
                             "< A Wallpaper Engine built for performance and You!>",
                             "< Built in Rust + Tauri · DirectX 11/IMF/MPV/WEB2 · Hardware Accelerated >",
                             "< 8K Video · Workshop/Studio (under work) · Advanced D3D11 Shader Effects >",
@@ -130,10 +130,10 @@ export const HeroSection = () => {
                         ]}
                         loop={0}
                         cursor
-                        cursorStyle="_"
-                        typeSpeed={25}
+                        cursorStyle="\_"
+                        typeSpeed={35}
                         deleteSpeed={15}
-                        delaySpeed={2200}
+                        delaySpeed={5200}
                     />
                 </div>
 
