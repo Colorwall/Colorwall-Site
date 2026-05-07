@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Download, FileText, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
 import { ScrollArrow } from "./ScrollArrow";
 import { GradientHeading } from "./GradientHeading";
+import { AmbientPlayer } from "./AmbientPlayer";
 
 type HeroVideo = {
     src: string;
@@ -205,6 +206,8 @@ export const HeroSection = () => {
                         Discord
                     </a>
                 </div>
+
+                <AmbientPlayer theme="dark" />
 
                 {/* platform tags */}
                 <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-mono pt-2 text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">

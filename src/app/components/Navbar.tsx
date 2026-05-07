@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useCallback, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
@@ -43,22 +43,6 @@ const XIcon = () => (
     </svg>
 );
 
-const SoundOnIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-    </svg>
-);
-
-const SoundOffIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-        <line x1="23" y1="9" x2="17" y2="15" />
-        <line x1="17" y1="9" x2="23" y2="15" />
-    </svg>
-);
-
 export const Navbar = () => {
     const { theme, toggleTheme } = useTheme();
     const pathname = usePathname();
@@ -66,35 +50,9 @@ export const Navbar = () => {
     const isDark = theme === "dark";
     const [isVisible, setIsVisible] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isSoundOn, setIsSoundOn] = useState(false);
     const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const lastScrollY = useRef(0);
     const isHovered = useRef(false);
-
-    useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
-            }
-        };
-    }, []);
-
-    const toggleSound = useCallback(() => {
-        if (!audioRef.current) {
-            audioRef.current = new Audio("/instrumental.mp3");
-            audioRef.current.loop = true;
-            audioRef.current.volume = 1.0;
-        }
-
-        if (isSoundOn) {
-            audioRef.current.pause();
-        } else {
-            audioRef.current.play().catch(() => {/* autoplay may be blocked */});
-        }
-        setIsSoundOn(prev => !prev);
-    }, [isSoundOn]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -233,15 +191,6 @@ export const Navbar = () => {
                             {isDark ? <SunIcon /> : <MoonIcon />}
                         </button>
                         <button
-                            onClick={toggleSound}
-                            className={`p-2.5 sm:p-3 md:p-2 rounded-xl md:rounded-lg transition-all duration-200 ${isSoundOn
-                                ? isDark ? "text-white bg-white/10 hover:bg-white/15" : "text-black bg-black/8 hover:bg-black/12"
-                                : iconBtn}`}
-                            title={isSoundOn ? "Mute ambient sound" : "Play ambient sound"}
-                        >
-                            {isSoundOn ? <SoundOnIcon /> : <SoundOffIcon />}
-                        </button>
-                        <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                             className={`md:hidden p-2.5 sm:p-3 rounded-xl transition-all duration-200 ${iconBtn}`}
@@ -297,15 +246,6 @@ export const Navbar = () => {
                                     aria-label="X (Twitter)" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                     <XIcon />
                                 </a>
-                                <button
-                                    onClick={toggleSound}
-                                    className={`p-2 rounded-lg transition-all duration-200 ml-auto ${isSoundOn
-                                        ? isDark ? "text-white bg-white/10" : "text-black bg-black/8"
-                                        : iconBtn}`}
-                                    title={isSoundOn ? "Mute ambient sound" : "Play ambient sound"}
-                                >
-                                    {isSoundOn ? <SoundOnIcon /> : <SoundOffIcon />}
-                                </button>
                             </div>
                         </div>
                     </div>
