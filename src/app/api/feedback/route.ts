@@ -89,26 +89,48 @@ export async function GET(req: Request) {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
+            .project({
+                username: 1,
+                text: 1,
+                images: 1,
+                logFiles: 1,
+                appVersion: 1,
+                source: 1,
+                createdAt: 1,
+                replies: 1,
+            })
             .toArray();
 
-        const formatted = docs.map(doc => ({
-            id:        doc._id.toString(),
-            username:  doc.username ?? 'Anonymous',
-            text:      doc.text     ?? '',
-            images:    doc.images   ?? [],
-            logFiles:  doc.logFiles ?? (doc.logFile ? [{ name: 'log.txt', content: doc.logFile }] : []),
-            appVersion: doc.appVersion,
-            source:    (doc.source === 'App' ? 'App' : 'Web') as 'App' | 'Web',
-            createdAt: doc.createdAt,
-            replies:   (doc.replies || []).map((r: any) => ({
-                id: r.id,
-                username: r.username,
-                text: r.text,
-                createdAt: r.createdAt
-            })),
-        }));
+        const formatted = docs.map(doc => {
+            // truncate log file content for listing to avoid bloated payloads
+            const logFiles = (doc.logFiles ?? (doc.logFile ? [{ name: 'log.txt', content: doc.logFile }] : []))
+                .map((lf: { name: string; content: string }) => ({
+                    name: lf.name,
+                    content: typeof lf.content === 'string' ? lf.content.slice(0, 2000) : '',
+                }));
 
-        return NextResponse.json({ success: true, data: formatted });
+            return {
+                id:        doc._id.toString(),
+                username:  doc.username ?? 'Anonymous',
+                text:      doc.text     ?? '',
+                images:    doc.images   ?? [],
+                logFiles,
+                appVersion: doc.appVersion,
+                source:    (doc.source === 'App' ? 'App' : 'Web') as 'App' | 'Web',
+                createdAt: doc.createdAt,
+                replies:   (doc.replies || []).map((r: any) => ({
+                    id: r.id,
+                    username: r.username,
+                    text: r.text,
+                    createdAt: r.createdAt
+                })),
+            };
+        });
+
+        const res = NextResponse.json({ success: true, data: formatted });
+        // allow short client-side cache to avoid hammering on scroll
+        res.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
+        return res;
     } catch (error) {
         console.error('[feedback/GET]', error);
         return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });

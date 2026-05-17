@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { MessageSquare, Loader2 } from 'lucide-react';
 import { FeedbackForm } from './FeedbackForm';
 import { FeedbackCards, FeedbackGroup, FeedbackItem } from './FeedbackCards';
@@ -76,16 +76,19 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
         if (node) observer.current.observe(node);
     }, [isLoadingIndicator, hasMore, loadMore]);
 
-    // Grouping logic (ported from page.tsx)
-    const groups: FeedbackGroup[] = [];
-    for (const item of items) {
-        const last = groups[groups.length - 1];
-        if (last && last.username === item.username && last.source === item.source) {
-            last.items.push(item);
-        } else {
-            groups.push({ username: item.username, source: item.source, items: [item] });
+    // memoize grouping so it only recalculates when items change
+    const groups: FeedbackGroup[] = useMemo(() => {
+        const result: FeedbackGroup[] = [];
+        for (const item of items) {
+            const last = result[result.length - 1];
+            if (last && last.username === item.username && last.source === item.source) {
+                last.items.push(item);
+            } else {
+                result.push({ username: item.username, source: item.source, items: [item] });
+            }
         }
-    }
+        return result;
+    }, [items]);
 
     return (
         <main

@@ -39,11 +39,13 @@ export async function getDb(): Promise<Db> {
     // if not specified in the URI.
     cachedDb = connectedClient.db('ColorWall');
 
-    // Ensure TTL index exists for rateLimits
+    // ensure indexes exist
     try {
         await cachedDb.collection('rateLimits').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+        // index for fast sorted pagination on the feedback listing
+        await cachedDb.collection('feedback').createIndex({ createdAt: -1 });
     } catch (e) {
-        // Ignore silent index creation failures in serverless environments
+        // ignore silent index creation failures in serverless environments
     }
 
     return cachedDb;
