@@ -5,7 +5,7 @@ import { Typewriter } from "react-simple-typewriter";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Download, FileText, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
+import { Download, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
 import { ScrollArrow } from "./ScrollArrow";
 import { GradientHeading } from "./GradientHeading";
 import { AmbientPlayer } from "./AmbientPlayer";
@@ -71,17 +71,17 @@ const HeroBackground = React.memo(() => (
 
 export const HeroSection = () => {
     const router = useRouter();
-    const [loadingButton, setLoadingButton] = useState<"download" | "changelog" | "discord" | null>(null);
+    const [loadingButton, setLoadingButton] = useState<"download" | "discord" | null>(null);
 
     const handleInternalNavigation = (
         event: React.MouseEvent<HTMLAnchorElement>,
-        button: "download" | "changelog",
+        button: "download",
         href: string
     ) => {
         event.preventDefault();
         setLoadingButton(button);
 
-        // Keep the spinner visible for at least one render before route transition.
+        // keep the spinner visible for at least one render before route transition
         setTimeout(() => {
             router.push(href);
         }, 120);
@@ -159,7 +159,7 @@ export const HeroSection = () => {
                         <Link
                             href="/download"
                             onClick={(event) => handleInternalNavigation(event, "download", "/download")}
-                            aria-busy={loadingButton === "download"}
+                            aria-busy={loadingButton === "download" ? "true" : "false"}
                             className="relative inline-flex items-center justify-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-[10px] bg-white text-black font-bold text-xs sm:text-sm tracking-wide w-full"
                         >
                             {loadingButton === "download" ? (
@@ -174,20 +174,6 @@ export const HeroSection = () => {
                         </Link>
                     </div>
 
-                    {/* changelog */}
-                    <Link
-                        href="/changelog"
-                        onClick={(event) => handleInternalNavigation(event, "changelog", "/changelog")}
-                        aria-busy={loadingButton === "changelog"}
-                        className="flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-white/40 hover:bg-black/50 w-full sm:w-auto"
-                    >
-                        {loadingButton === "changelog" ? (
-                            <LoaderCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
-                        ) : (
-                            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        )}
-                        Changelog
-                    </Link>
 
                     {/* discord */}
                     <a
@@ -195,7 +181,7 @@ export const HeroSection = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setLoadingButton("discord")}
-                        aria-busy={loadingButton === "discord"}
+                        {...{ "aria-busy": loadingButton === "discord" ? "true" : "false" }}
                         className="flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-300 w-full sm:w-auto"
                     >
                         {loadingButton === "discord" ? (

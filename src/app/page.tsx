@@ -97,7 +97,7 @@ export default function ColorWallLanding() {
                 />
 
                 <ShowcaseCard
-                    title="CUSTOMIZATION"
+                    title="CUSTOMISE"
                     description="unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets."
                     badge="RUST · TAURI · LOW OVERHEAD"
                     imageSrcs={["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]}
@@ -124,6 +124,7 @@ export default function ColorWallLanding() {
                     {/* Navigation Buttons */}
                     <div className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-4 z-20 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button 
+                            aria-label="Scroll carousel left"
                             onClick={() => scrollCarousel("left")}
                             className={`p-3 rounded-full backdrop-blur-md border shadow-lg transition-transform hover:scale-110 active:scale-95
                                 ${theme === "dark" ? "bg-black/50 border-white/10 text-white hover:bg-black/80" : "bg-white/50 border-black/10 text-black hover:bg-white/80"}`}
@@ -134,6 +135,7 @@ export default function ColorWallLanding() {
 
                     <div className="absolute top-1/2 -translate-y-1/2 right-2 sm:right-4 z-20 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button 
+                            aria-label="Scroll carousel right"
                             onClick={() => scrollCarousel("right")}
                             className={`p-3 rounded-full backdrop-blur-md border shadow-lg transition-transform hover:scale-110 active:scale-95
                                 ${theme === "dark" ? "bg-black/50 border-white/10 text-white hover:bg-black/80" : "bg-white/50 border-black/10 text-black hover:bg-white/80"}`}
@@ -144,8 +146,7 @@ export default function ColorWallLanding() {
 
                     <div 
                         ref={carouselRef}
-                        className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 px-4 sm:px-8 hide-scrollbar scroll-smooth" 
-                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 px-4 sm:px-8 hide-scrollbar scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none]" 
                     >
                         {/* Slide 1: Studio Editor */}
                         <div className="w-full min-w-[90vw] md:min-w-[75vw] lg:min-w-[60vw] snap-center shrink-0">
