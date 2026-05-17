@@ -55,6 +55,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             title: "Community", links: [
                                 { name: "Discord", href: "https://discord.gg/QYwhay7r2V" },
                                 { name: "GitHub", href: "https://github.com/shelleyloosespatience/WallpaperEngine" },
+                                { name: "Discussions", href: "https://github.com/orgs/Colorwall/discussions" },
                                 { name: "Issues", href: "https://github.com/shelleyloosespatience/WallpaperEngine/issues" }
                             ]
                         },
