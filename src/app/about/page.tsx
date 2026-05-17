@@ -229,13 +229,6 @@ export default function AboutPage() {
                     <p className={`text-base mb-3 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
                         Colorwall is a work in progress and may contain bugs. We are not responsible for any damages caused by the use of this website/app. or any illegal activities that may be performed by it's users.
                     </p>
-                    <a href="https://colorwall.xyz" target="_blank" rel="noopener noreferrer"
-                        className={`text-sm font-mono transition-colors ${isDark ? "text-cyan-500/50 hover:text-cyan-400" : "text-cyan-600/50 hover:text-cyan-600"}`}>
-                        colorwall.xyz — check it out if you want &lt;.3
-                    </a>
-                    {/* <p className={`text-sm flex items-center justify-center gap-2 mt-6 ${isDark ? "text-zinc-600" : "text-zinc-400"}`}>
-                        made with <Heart className="w-3.5 h-3.5 text-rose-500" /> by laxenta inc
-                    </p> */}
                 </div>
 
             </main>
