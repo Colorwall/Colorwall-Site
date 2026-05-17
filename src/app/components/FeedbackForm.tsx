@@ -62,6 +62,7 @@ function ImagePreview({ src, onRemove, isDark }: { src: string; onRemove: () => 
             <img src={src} alt="" className="w-full h-full object-cover" />
             <button
                 onClick={onRemove}
+                aria-label="Remove image"
                 className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ${isDark ? 'bg-black/60' : 'bg-black/40'}`}
             >
                 <X className="w-4 h-4 text-white" />
@@ -278,11 +279,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
     return (
         <>
             {(stage === 'form' || stage === 'submitting' || stage === 'error') && (
-                <div className={`w-full rounded-2xl border overflow-hidden ${isDark ? 'border-white/8 bg-white/[0.02]' : 'border-zinc-100 bg-white'}`} style={{
-                    boxShadow: isDark 
-                        ? '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px -10px rgba(99, 102, 241, 0.15)'
-                        : '0 25px 50px -12px rgba(0, 0, 0, 0.1)'
-                }}>
+                <div className={`w-full rounded-2xl border overflow-hidden ${isDark ? 'border-white/8 bg-white/[0.02] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),0_0_60px_-10px_rgba(99,102,241,0.15)]' : 'border-zinc-100 bg-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)]'}`}>
                     <div className={`px-4 py-3 border-b ${isDark ? 'border-white/6' : 'border-zinc-100'}`}>
                         <h3 className={`text-sm font-bold ${isDark ? 'text-zinc-200' : 'text-zinc-600'}`}>Feedback</h3>
                     </div>
@@ -313,12 +310,11 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                 maxLength={2000}
                                 rows={12}
                                 placeholder="Report a bug, request a feature, or just say something…"
-                                className={`mt-2 w-full h-72 rounded-xl px-4 py-4 text-[13.5px] resize-none outline-none transition-all leading-relaxed font-[450] ${
+                                className={`mt-2 w-full h-72 rounded-xl px-4 py-4 text-[13.5px] resize-none outline-none transition-all leading-relaxed font-[450] [font-family:inherit] ${
                                     isDark
                                         ? 'bg-white/[0.04] border border-white/10 text-zinc-300 placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-white/[0.06]'
                                         : 'bg-zinc-50 border border-zinc-200 text-zinc-700 placeholder-zinc-400 focus:border-indigo-500/50 focus:bg-zinc-100'
                                 }`}
-                                style={{ fontFamily: 'inherit' }}
                             />
                         </div>
 
@@ -340,7 +336,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                     }`}>
                                         <FileText className="w-3.5 h-3.5 text-zinc-500" />
                                         <span className="text-[11px] font-mono text-zinc-500 flex-1 truncate">{file.name}</span>
-                                        <button onClick={() => removeLog(idx)}>
+                                        <button aria-label="Remove log file" onClick={() => removeLog(idx)}>
                                             <X className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-400 transition-colors" />
                                         </button>
                                     </div>
@@ -408,14 +404,15 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                     </button>
                 </div>
             )}
-                    {/* Hidden file inputs wired to the attach buttons */}
+                    {/* hidden file inputs wired to the attach buttons */}
                     <input
                         ref={imageInputRef}
                         type="file"
                         accept="image/*"
                         multiple
+                        aria-label="Upload images"
                         onChange={(e) => { addImages(e.target.files); (e.currentTarget as HTMLInputElement).value = ''; }}
-                        style={{ display: 'none' }}
+                        className="hidden"
                     />
 
                     <input
@@ -423,8 +420,9 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                         type="file"
                         accept=",.log,.txt,text/plain"
                         multiple
+                        aria-label="Upload log files"
                         onChange={(e) => { addLogs(e.target.files); (e.currentTarget as HTMLInputElement).value = ''; }}
-                        style={{ display: 'none' }}
+                        className="hidden"
                     />
 
         </>
