@@ -230,28 +230,28 @@ export default function WallpapersPage() {
                 </div>
 
                 {/* ─── controls ─── */}
-                <div className="flex flex-col sm:flex-row gap-3 mb-10">
-                    {/* search */}
-                    <div className={`relative flex-1 max-w-md rounded-xl border transition-colors ${isDark ? "border-white/10 bg-white/[0.03] focus-within:border-white/20" : "border-zinc-200 bg-white focus-within:border-zinc-300"}`}>
-                        <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-zinc-600" : "text-zinc-400"}`} />
+                <div className="flex flex-col gap-4 mb-10">
+                    {/* search — full width */}
+                    <div className={`relative w-full rounded-xl border transition-colors ${isDark ? "border-white/10 bg-white/[0.03] focus-within:border-white/20" : "border-zinc-200 bg-white focus-within:border-zinc-300"}`}>
+                        <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-zinc-600" : "text-zinc-400"}`} />
                         <input
                             type="text"
                             placeholder="search loaded wallpapers..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             aria-label="search wallpapers"
-                            className={`w-full pl-10 pr-4 py-2.5 bg-transparent text-sm outline-none ${isDark ? "text-white placeholder:text-zinc-600" : "text-zinc-900 placeholder:text-zinc-400"}`}
+                            className={`w-full pl-11 pr-4 py-3 bg-transparent text-sm outline-none ${isDark ? "text-white placeholder:text-zinc-600" : "text-zinc-900 placeholder:text-zinc-400"}`}
                         />
                         {search && (
                             <button onClick={() => setSearch("")} aria-label="clear search"
-                                className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? "text-zinc-500 hover:text-white" : "text-zinc-400 hover:text-zinc-800"}`}>
+                                className={`absolute right-4 top-1/2 -translate-y-1/2 ${isDark ? "text-zinc-500 hover:text-white" : "text-zinc-400 hover:text-zinc-800"}`}>
                                 <X className="w-3.5 h-3.5" />
                             </button>
                         )}
                     </div>
 
-                    {/* tag filter */}
-                    <div className="flex flex-wrap gap-1.5 max-h-[72px] overflow-y-auto">
+                    {/* tags — below search */}
+                    <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto">
                         <button
                             onClick={() => handleTagChange("")}
                             className={`text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all duration-200 shrink-0 ${!activeTag

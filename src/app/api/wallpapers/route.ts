@@ -72,7 +72,7 @@ export async function GET(request: Request) {
         try {
             const res = await fetch(
                 "https://raw.githubusercontent.com/LaxentaInc/Wallpaper-Archive/main/README.md",
-                { next: { revalidate: 3600 } }
+                { cache: "no-store" }
             );
             if (!res.ok) throw new Error(`github returned ${res.status}`);
             const raw = await res.text();
