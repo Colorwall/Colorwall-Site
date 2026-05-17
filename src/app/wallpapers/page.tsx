@@ -10,6 +10,30 @@ type Wallpaper = { url: string; title: string; tags: string[] };
 
 const PAGE_SIZE = 20;
 
+// ─── fuzzy search helper ──────────────────────────────────────────────────────
+// Returns true if all characters of query appear in text in order, 
+// or if query is a direct substring of text.
+function fuzzyMatch(query: string, text: string) {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    const t = text.toLowerCase();
+    
+    // direct match
+    if (t.includes(q)) return true;
+    
+    // fuzzy match (subsequence)
+    let qIdx = 0;
+    let tIdx = 0;
+    while (qIdx < q.length && tIdx < t.length) {
+        if (q[qIdx] === t[tIdx]) {
+            qIdx++;
+        }
+        tIdx++;
+    }
+    return qIdx === q.length;
+}
+
+
 // ─── skeleton card (fixed aspect ratio, no layout shift) ──────────────────────
 function Skeleton({ isDark }: { isDark: boolean }) {
     return (
@@ -184,7 +208,14 @@ export default function WallpapersPage() {
 
     // client-side search filter
     const displayed = search
-        ? items.filter((w) => w.title.toLowerCase().includes(search.toLowerCase()))
+        ? items.filter((w) => {
+              const query = search.trim();
+              if (!query) return true;
+              // search in title
+              if (fuzzyMatch(query, w.title)) return true;
+              // search in tags
+              return w.tags.some(tag => fuzzyMatch(query, tag));
+          })
         : items;
 
     return (

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
-import { Users, MessageSquare, FileText, Menu, X, Home, Download, Loader2, ImageIcon } from "lucide-react";
+import { Users, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Clover } from "lucide-react";
 
 const SunIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -78,7 +78,7 @@ export const Navbar = () => {
         { name: "Home", href: "/", icon: Home },
         { name: "Download", href: "/download", icon: Download },
         { name: "Changelog", href: "/changelog", icon: FileText },
-        { name: "Wallpapers", href: "/wallpapers", icon: ImageIcon },
+        { name: "Wallpapers", href: "/wallpapers", icon: Clover },
         { name: "Feedback", href: "/feedback", icon: MessageSquare },
         { name: "About", href: "/about", icon: Users },
     ];
