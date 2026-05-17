@@ -11,15 +11,14 @@ type Wallpaper = { url: string; title: string; tags: string[] };
 const PAGE_SIZE = 20;
 
 // ─── fuzzy search helper ──────────────────────────────────────────────────────
-// Returns true if all characters of query appear in text in order, 
-// or if query is a direct substring of text.
-function fuzzyMatch(query: string, text: string) {
-    if (!query) return true;
+// Returns match score: 4 (exact title), 3 (exact tag), 2 (fuzzy title), 1 (fuzzy tag), 0 (no match)
+function getMatchScore(query: string, text: string, isTag: boolean) {
+    if (!query) return 0;
     const q = query.toLowerCase();
     const t = text.toLowerCase();
     
     // direct match
-    if (t.includes(q)) return true;
+    if (t.includes(q)) return isTag ? 3 : 4;
     
     // fuzzy match (subsequence)
     let qIdx = 0;
@@ -30,7 +29,7 @@ function fuzzyMatch(query: string, text: string) {
         }
         tIdx++;
     }
-    return qIdx === q.length;
+    return qIdx === q.length ? (isTag ? 1 : 2) : 0;
 }
 
 
@@ -206,17 +205,34 @@ export default function WallpapersPage() {
         return () => window.removeEventListener("keydown", handler);
     }, []);
 
-    // client-side search filter
-    const displayed = search
-        ? items.filter((w) => {
-              const query = search.trim();
-              if (!query) return true;
-              // search in title
-              if (fuzzyMatch(query, w.title)) return true;
-              // search in tags
-              return w.tags.some(tag => fuzzyMatch(query, tag));
-          })
-        : items;
+    // client-side search filter with categorization
+    const displayGroups = (() => {
+        const query = search.trim();
+        if (!query) return { all: items };
+
+        const scored = items.map(w => {
+            let score = getMatchScore(query, w.title, false);
+            if (score === 0) {
+                for (const tag of w.tags) {
+                    const tagScore = getMatchScore(query, tag, true);
+                    if (tagScore > score) score = tagScore;
+                }
+            }
+            return { w, score };
+        }).filter(item => item.score > 0);
+
+        // Sort by score descending (best matches first)
+        scored.sort((a, b) => b.score - a.score);
+
+        const exact = scored.filter(i => i.score >= 3).map(i => i.w);
+        const fuzzy = scored.filter(i => i.score < 3).map(i => i.w);
+        
+        return { exact, fuzzy };
+    })();
+    
+    const hasResults = search 
+        ? (displayGroups.exact!.length > 0 || displayGroups.fuzzy!.length > 0)
+        : displayGroups.all!.length > 0;
 
     return (
         <div
@@ -282,7 +298,7 @@ export default function WallpapersPage() {
                     </div>
 
                     {/* tags — below search */}
-                    <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto">
+                    <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                         <button
                             onClick={() => handleTagChange("")}
                             className={`text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all duration-200 shrink-0 ${!activeTag
@@ -309,24 +325,55 @@ export default function WallpapersPage() {
 
                 {/* ─── skeleton initial state ─── */}
                 {initialLoad && (
-                    <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3">
+                    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
                         {Array.from({ length: 20 }).map((_, i) => (
                             <Skeleton key={i} isDark={isDark} />
                         ))}
                     </div>
                 )}
 
-                {/* ─── masonry grid ─── */}
-                {!initialLoad && displayed.length > 0 && (
-                    <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3">
-                        {displayed.map((w, i) => (
+                {/* ─── masonry grid (no search) ─── */}
+                {!initialLoad && !search && displayGroups.all && displayGroups.all.length > 0 && (
+                    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
+                        {displayGroups.all.map((w, i) => (
                             <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
                         ))}
                     </div>
                 )}
 
+                {/* ─── search results groups ─── */}
+                {!initialLoad && search && hasResults && (
+                    <div className="space-y-10">
+                        {displayGroups.exact!.length > 0 && (
+                            <div>
+                                <h3 className={`text-xs font-mono font-bold tracking-widest uppercase mb-4 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Exact Matches</h3>
+                                <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
+                                    {displayGroups.exact!.map((w, i) => (
+                                        <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {displayGroups.exact!.length > 0 && displayGroups.fuzzy!.length > 0 && (
+                            <hr className={`border-t ${isDark ? "border-white/10" : "border-zinc-200"}`} />
+                        )}
+
+                        {displayGroups.fuzzy!.length > 0 && (
+                            <div>
+                                <h3 className={`text-xs font-mono font-bold tracking-widest uppercase mb-4 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Related Matches</h3>
+                                <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
+                                    {displayGroups.fuzzy!.map((w, i) => (
+                                        <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* ─── empty state ─── */}
-                {!initialLoad && displayed.length === 0 && !loading && (
+                {!initialLoad && !hasResults && !loading && (
                     <div className="flex flex-col items-center justify-center py-32">
                         <ImageIcon className={`w-12 h-12 mb-4 ${isDark ? "text-zinc-700" : "text-zinc-300"}`} />
                         <p className={`text-lg font-semibold mb-1 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>no wallpapers found</p>
@@ -336,7 +383,7 @@ export default function WallpapersPage() {
 
                 {/* ─── loading more skeletons ─── */}
                 {loading && !initialLoad && (
-                    <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 mt-3">
+                    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 mt-4">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <Skeleton key={`load-${i}`} isDark={isDark} />
                         ))}
