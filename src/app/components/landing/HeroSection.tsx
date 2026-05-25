@@ -193,6 +193,8 @@ export const HeroSection = () => {
                     </a>
                 </div>
 
+                {/* dock target — the global ambient player will animate here when in view */}
+                <div id="ambient-dock" className="w-full flex justify-center items-center" style={{ minHeight: "48px" }} />
 
 
                 {/* platform tags */}
