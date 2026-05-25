@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
+import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { Analytics } from '@vercel/analytics/next';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -185,6 +186,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <Navbar />
+          <GlobalAmbientPlayer />
           <div className="relative min-h-screen flex flex-col">
             {/* Background elements for glass effect depth */}
             {/* <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none z-0" /> */}
