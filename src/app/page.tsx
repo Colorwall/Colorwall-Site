@@ -13,6 +13,7 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { BottomCTA } from "@/app/components/landing/BottomCTA";
 import { Footer } from "@/app/components/Footer";
+import SoftAurora from "@/app/components/ui/SoftAurora";
 
 export default function ColorWallLanding() {
     const { theme } = useTheme();
@@ -66,15 +67,27 @@ export default function ColorWallLanding() {
 
             {/* ════ Previews / Screenshots ════ */}
             <div id="previews" className="pt-24 pb-12">
-                <p className="text-center mb-16 px-4">
-                    <span className={`${theme === "dark" ? "text-white/70" : "text-black/70"} block text-2xl font-bold`}>
-                        Seems too good to be true?
-                    </span>
+                <div className="relative w-full overflow-hidden flex items-center justify-center py-40 mb-16 rounded-2xl border mx-auto max-w-[1400px]"
+                     style={{ borderColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }}>
+                    <div className="absolute inset-0 z-0">
+                        <SoftAurora
+                            color1={theme === "dark" ? "#4c1d95" : "#ffb6ff"}
+                            color2={theme === "dark" ? "#00d8ff" : "#e100ff"}
+                            speed={0.8}
+                            brightness={theme === "dark" ? 1.5 : 1.5}
+                            bandSpread={1.5}
+                        />
+                    </div>
+                    <p className="text-center px-4 relative z-10 pointer-events-none">
+                        <span className={`${theme === "dark" ? "text-white" : "text-black"} block text-3xl sm:text-4xl font-bold drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}>
+                            Seems too good to be true?
+                        </span>
 
-                    <span className={`${theme === "dark" ? "text-violet-300/80" : "text-violet-600/80"} block mt-2 text-lg font-semibold italic`}>
-                        It is :D That's why I built it
-                    </span>
-                </p>
+                        <span className={`${theme === "dark" ? "text-violet-200" : "text-violet-800"} block mt-3 text-xl sm:text-2xl font-semibold italic drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
+                            It is :D That's why I built it
+                        </span>
+                    </p>
+                </div>
 
                 <HomeShowcase theme={theme} />
 
