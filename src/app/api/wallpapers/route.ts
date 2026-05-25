@@ -42,8 +42,8 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
 // ─── origin / referer check ───────────────────────────────────────────────────
 // only allow requests from our own site — blocks direct curl/scraper access
 const ALLOWED_ORIGINS = [
-    "colorwall.laxenta.me",
-    "www.colorwall.laxenta.me",
+    "colorwall.xyz",
+    "www.colorwall.xyz",
     "localhost",
     "127.0.0.1",
 ];
@@ -299,8 +299,23 @@ export async function GET(request: Request) {
     const nextMinute = Math.floor(Date.now() / 60000);
     const nextToken = start + limit < total ? computeToken(nextPage, nextMinute) : null;
 
-    // collect unique tags (only on first page to save bandwidth)
-    const allTags = page === 1 ? [...new Set(allEntries.flatMap((w) => w.tags))].sort() : undefined;
+    // collect tags ranked by frequency — most popular first (only on page 1)
+    let allTags: string[] | undefined;
+    if (page === 1) {
+        const tagCounts = new Map<string, number>();
+        for (const w of allEntries) {
+            for (const t of w.tags) {
+                const lower = t.toLowerCase();
+                tagCounts.set(lower, (tagCounts.get(lower) || 0) + 1);
+            }
+        }
+        // filter out ultra-rare tags (< 5 matches), sort by count descending, take top 50
+        allTags = [...tagCounts.entries()]
+            .filter(([, count]) => count >= 5)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 50)
+            .map(([tag]) => tag);
+    }
 
     return NextResponse.json(
         {
