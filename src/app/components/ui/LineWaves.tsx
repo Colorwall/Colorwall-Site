@@ -103,7 +103,7 @@ void main() {
   if (uEnableMouse) {
     vec2 mPos = rotate2D(uMouse * 2.0 - 1.0, uRotation);
     float mDist = length(coords - mPos);
-    mouseWarp = uMouseInfluence * exp(-mDist * mDist * 4.0);
+    mouseWarp = uMouseInfluence * exp(-mDist * mDist * 1.5);
   }
 
   float warpAx = coords.x + displaceA(coords.y, halfT) * uWarpIntensity + mouseWarp;
@@ -237,8 +237,8 @@ export default function LineWaves({
       program.uniforms.uTime.value = time * 0.001;
 
       if (enableMouseInteraction) {
-        currentMouse[0] += 0.05 * (targetMouse[0] - currentMouse[0]);
-        currentMouse[1] += 0.05 * (targetMouse[1] - currentMouse[1]);
+        currentMouse[0] += 0.15 * (targetMouse[0] - currentMouse[0]);
+        currentMouse[1] += 0.15 * (targetMouse[1] - currentMouse[1]);
         program.uniforms.uMouse.value[0] = currentMouse[0];
         program.uniforms.uMouse.value[1] = currentMouse[1];
       } else {

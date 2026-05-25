@@ -67,15 +67,18 @@ export default function ColorWallLanding() {
             <FeaturesSection theme={theme} />
 
             {/* ════ Previews / Screenshots ════ */}
-            <div id="previews" className="pt-0 pb-12 -mt-12">
-                <div className="relative w-full overflow-hidden flex items-center justify-center py-24 mb-16">
-                    <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)" }}>
+            <div id="previews" className="pb-12 -mt-48 pt-48 relative z-0">
+                <div className="relative w-full overflow-hidden flex items-center justify-center py-40 mb-16">
+                    <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)" }}>
                         <LineWaves
                             color1={theme === "dark" ? "#4c1d95" : "#ffb6ff"}
                             color2={theme === "dark" ? "#00d8ff" : "#e100ff"}
                             color3={theme === "dark" ? "#1e1b4b" : "#fdf4ff"}
                             brightness={theme === "dark" ? 0.8 : 1.2}
                             enableMouseInteraction={true}
+                            mouseInfluence={5.0}
+                            innerLineCount={12}
+                            outerLineCount={14}
                         />
                     </div>
                     <div className="text-center px-4 relative z-10 pointer-events-none">
