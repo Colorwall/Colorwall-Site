@@ -42,8 +42,8 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
 // ─── origin / referer check ───────────────────────────────────────────────────
 // only allow requests from our own site — blocks direct curl/scraper access
 const ALLOWED_ORIGINS = [
-    "colorwall.laxenta.me",
-    "www.colorwall.laxenta.me",
+    "colorwall.xyz",
+    "www.colorwall.xyz",
     "localhost",
     "127.0.0.1",
 ];
