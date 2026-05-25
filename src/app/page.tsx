@@ -13,7 +13,7 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { BottomCTA } from "@/app/components/landing/BottomCTA";
 import { Footer } from "@/app/components/Footer";
-import SoftAurora from "@/app/components/ui/SoftAurora";
+import LineWaves from "@/app/components/ui/LineWaves";
 import { GradientHeading } from "./components/landing/GradientHeading";
 
 export default function ColorWallLanding() {
@@ -67,26 +67,29 @@ export default function ColorWallLanding() {
             <FeaturesSection theme={theme} />
 
             {/* ════ Previews / Screenshots ════ */}
-            <div id="previews" className="pt-10 pb-12">
-                <div className="relative w-full overflow-hidden flex items-center justify-center py-10 mb-16">
-                    <div className="absolute inset-0 z-0">
-                        <SoftAurora
+            <div id="previews" className="pb-12 -mt-48 pt-48 relative z-0">
+                <div className="relative w-full overflow-hidden flex items-center justify-center py-40 mb-16">
+                    <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)" }}>
+                        <LineWaves
                             color1={theme === "dark" ? "#4c1d95" : "#ffb6ff"}
                             color2={theme === "dark" ? "#00d8ff" : "#e100ff"}
-                            speed={0.8}
-                            brightness={theme === "dark" ? 1.5 : 1.5}
-                            bandSpread={1.5}
+                            color3={theme === "dark" ? "#1e1b4b" : "#fdf4ff"}
+                            brightness={theme === "dark" ? 0.8 : 1.2}
+                            enableMouseInteraction={true}
+                            mouseInfluence={5.0}
+                            innerLineCount={12}
+                            outerLineCount={14}
                         />
                     </div>
-                    <p className="text-center px-4 relative z-10 pointer-events-none">
-                        <span className={`${theme === "dark" ? "text-white" : "text-black"} block text-3xl sm:text-4xl font-bold drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}>
+                    <div className="text-center px-4 relative z-10 pointer-events-none">
+                        <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-3xl sm:text-4xl font-bold drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}>
                           <GradientHeading text="Seems too good to be true?" theme={"dark"} />
-                        </span>
+                        </div>
 
-                        <span className={`${theme === "dark" ? "text-violet-200" : "text-violet-800"} block mt-3 text-xl sm:text-2xl font-semibold italic drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
+                        <div className={`${theme === "dark" ? "text-violet-200" : "text-violet-800"} block mt-3 text-xl sm:text-2xl font-semibold italic drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
                             It is &lt;3 That's why I built it!
-                        </span>
-                    </p>
+                        </div>
+                    </div>
                 </div>
 
                 <HomeShowcase theme={theme} />
