@@ -4,16 +4,45 @@ import { NextResponse } from "next/server";
 // not real security — just raises the bar so bots can't blindly paginate
 const HASH_SECRET = "cw-wallpaper-archive-2026";
 
-// ─── in-memory cache ──────────────────────────────────────────────────────────
+// ─── source config ────────────────────────────────────────────────────────────
 
-type WallpaperEntry = { url: string; title: string; tags: string[] };
+type SourceId = "archive" | "yapude";
 
-let cache: { data: WallpaperEntry[]; fetchedAt: number } | null = null;
-const CACHE_TTL = 1000 * 60 * 60; // 1 hour
+interface SourceConfig {
+    id: SourceId;
+    url: string;
+    ttl: number; // cache ttl in ms
+}
+
+const SOURCES: SourceConfig[] = [
+    {
+        id: "archive",
+        url: "https://raw.githubusercontent.com/LaxentaInc/Wallpaper-Archive/main/README.md",
+        ttl: 1000 * 60 * 60, // 1 hour
+    },
+    {
+        id: "yapude",
+        url: "https://raw.githubusercontent.com/yapude/wallpapers/main/README.md",
+        ttl: 1000 * 60 * 30, // 30 minutes — scraper keeps appending
+    },
+];
+
+// ─── in-memory cache (per source) ─────────────────────────────────────────────
+
+type WallpaperEntry = { url: string; title: string; tags: string[]; source: SourceId };
+
+type SourceCache = { data: WallpaperEntry[]; fetchedAt: number };
+
+const caches: Record<SourceId, SourceCache | null> = {
+    archive: null,
+    yapude: null,
+};
 
 // ─── parser ───────────────────────────────────────────────────────────────────
+// both repos use the same markdown table format:
+// | <img src="..."> | **Title** ... | tag1, tag2, ... |
 
-function parseReadme(raw: string): WallpaperEntry[] {
+function parseReadme(raw: string, source: SourceId): WallpaperEntry[] {
     const entries: WallpaperEntry[] = [];
     const rowRegex = /\|\s*<img\s+src="([^"]+)"[^>]*>\s*\|\s*\*\*([^*]+)\*\*.*?\|\s*([^|]*)\|/g;
     let match: RegExpExecArray | null;
@@ -24,9 +53,36 @@ function parseReadme(raw: string): WallpaperEntry[] {
         const tags = tagsRaw
             ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
             : [];
-        entries.push({ url, title, tags });
+        entries.push({ url, title, tags, source });
     }
     return entries;
+}
+
+// ─── deduplication & merging ──────────────────────────────────────────────────
+// deduplicate by url — keep the entry with more tags (richer metadata)
+
+function deduplicateByUrl(entries: WallpaperEntry[]): WallpaperEntry[] {
+    const seen = new Map<string, WallpaperEntry>();
+    for (const entry of entries) {
+        const existing = seen.get(entry.url);
+        if (!existing || entry.tags.length > existing.tags.length) {
+            seen.set(entry.url, entry);
+        }
+    }
+    return Array.from(seen.values());
+}
+
+// ─── interleave two arrays for variety ────────────────────────────────────────
+// alternates picks from each source so the user sees a mix
+
+function interleave(a: WallpaperEntry[], b: WallpaperEntry[]): WallpaperEntry[] {
+    const result: WallpaperEntry[] = [];
+    const maxLen = Math.max(a.length, b.length);
+    for (let i = 0; i < maxLen; i++) {
+        if (i < a.length) result.push(a[i]);
+        if (i < b.length) result.push(b[i]);
+    }
+    return result;
 }
 
 // ─── simple hash for token validation ─────────────────────────────────────────
@@ -50,6 +106,32 @@ function validateToken(token: string, page: number): boolean {
     return token === computeToken(page, now) || token === computeToken(page, now - 1);
 }
 
+// ─── fetch & cache a single source ────────────────────────────────────────────
+
+async function fetchSource(config: SourceConfig): Promise<WallpaperEntry[]> {
+    const cached = caches[config.id];
+    if (cached && Date.now() - cached.fetchedAt < config.ttl) {
+        return cached.data;
+    }
+
+    try {
+        const res = await fetch(config.url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`github returned ${res.status}`);
+        const raw = await res.text();
+        const parsed = parseReadme(raw, config.id);
+        caches[config.id] = { data: parsed, fetchedAt: Date.now() };
+        return parsed;
+    } catch (err) {
+        if (cached) {
+            // serve stale data if available
+            console.error(`failed to refresh ${config.id} cache, serving stale:`, err);
+            return cached.data;
+        }
+        console.error(`failed to fetch ${config.id} source:`, err);
+        return []; // graceful — return empty instead of crashing
+    }
+}
+
 // ─── route ────────────────────────────────────────────────────────────────────
 
 export async function GET(request: Request) {
@@ -67,26 +149,29 @@ export async function GET(request: Request) {
         );
     }
 
-    // fetch & cache the readme
-    if (!cache || Date.now() - cache.fetchedAt > CACHE_TTL) {
-        try {
-            const res = await fetch(
-                "https://raw.githubusercontent.com/LaxentaInc/Wallpaper-Archive/main/README.md",
-                { cache: "no-store" }
-            );
-            if (!res.ok) throw new Error(`github returned ${res.status}`);
-            const raw = await res.text();
-            cache = { data: parseReadme(raw), fetchedAt: Date.now() };
-        } catch (err) {
-            if (cache) {
-                console.error("failed to refresh wallpaper cache, serving stale:", err);
-            } else {
-                return NextResponse.json({ error: "failed to fetch wallpaper archive" }, { status: 502 });
-            }
-        }
+    // fetch both sources in parallel — if one fails, the other still works
+    const results = await Promise.allSettled(
+        SOURCES.map((src) => fetchSource(src))
+    );
+
+    // collect entries from each source
+    const sourceEntries: WallpaperEntry[][] = results.map((r) =>
+        r.status === "fulfilled" ? r.value : []
+    );
+
+    // if both sources returned nothing, return error
+    if (sourceEntries.every((arr) => arr.length === 0)) {
+        return NextResponse.json(
+            { error: "failed to fetch wallpaper sources" },
+            { status: 502 }
+        );
     }
 
-    let items = cache!.data;
+    // interleave then deduplicate for variety across sources
+    const merged = interleave(sourceEntries[0], sourceEntries[1]);
+    const allEntries = deduplicateByUrl(merged);
+
+    let items = allEntries;
 
     // filter by tag
     if (tag) {
@@ -98,13 +183,13 @@ export async function GET(request: Request) {
     const start = (page - 1) * limit;
     const slice = items.slice(start, start + limit);
 
-    // generate token for the NEXT page so the client can request it
+    // generate token for the next page so the client can request it
     const nextPage = page + 1;
     const nextMinute = Math.floor(Date.now() / 60000);
     const nextToken = start + limit < total ? computeToken(nextPage, nextMinute) : null;
 
     // collect unique tags (only on first page to save bandwidth)
-    const allTags = page === 1 ? [...new Set(cache!.data.flatMap((w) => w.tags))].sort() : undefined;
+    const allTags = page === 1 ? [...new Set(allEntries.flatMap((w) => w.tags))].sort() : undefined;
 
     return NextResponse.json(
         {

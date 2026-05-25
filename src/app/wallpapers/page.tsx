@@ -6,7 +6,7 @@ import { Footer } from "@/app/components/Footer";
 import { Download, Search, X, ImageIcon } from "lucide-react";
 import { GradientHeading } from "../components/landing/GradientHeading";
 
-type Wallpaper = { url: string; title: string; tags: string[] };
+type Wallpaper = { url: string; title: string; tags: string[]; source?: "archive" | "yapude" };
 
 const PAGE_SIZE = 20;
 
@@ -267,11 +267,16 @@ export default function WallpapersPage() {
                         </span>
                     </h1>
                     <p className={`text-base sm:text-lg max-w-2xl leading-relaxed ${isDark ? "text-zinc-500" : "text-zinc-500"}`}>
-                        {total > 0 ? `${total.toLocaleString()} wallpapers` : "loading..."} We do not claim ownership, The repository is under Creative Commons Uni, If someone owns copyright to something and wishes it removed, just email or messages us! we are a small team!
+                        {total > 0 ? `${total.toLocaleString()} wallpapers` : "loading..."} from multiple sources. We do not claim ownership, The repository is under Creative Commons Uni, If someone owns copyright to something and wishes it removed, just email or messages us! we are a small team!
                         {" "}
                         <a href="https://github.com/LaxentaInc/Wallpaper-Archive" target="_blank" rel="noopener noreferrer"
                             className={`font-mono text-sm ${isDark ? "text-cyan-500/60 hover:text-cyan-400" : "text-cyan-600/50 hover:text-cyan-600"} transition-colors`}>
-                            source repo →
+                            Source1 →
+                        </a>
+                        {" "}
+                        <a href="https://github.com/yapude/wallpapers" target="_blank" rel="noopener noreferrer"
+                            className={`font-mono text-sm ${isDark ? "text-violet-500/60 hover:text-violet-400" : "text-violet-600/50 hover:text-violet-600"} transition-colors`}>
+                            Source2 →
                         </a>
                     </p>
                 </div>
@@ -396,7 +401,7 @@ export default function WallpapersPage() {
                 {/* ─── end message ─── */}
                 {!hasMore && items.length > 0 && !initialLoad && (
                     <p className={`text-center text-xs font-mono py-8 ${isDark ? "text-zinc-700" : "text-zinc-400"}`}>
-                        — thats all {total.toLocaleString()} wallpapers · scraped with wreq + rust bypassing cf —
+                        — thats all {total.toLocaleString()} wallpapers · dual sourced from archive + yapude · scraped with wreq + rust bypassing cf —
                     </p>
                 )}
             </main>
