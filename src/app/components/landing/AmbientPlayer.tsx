@@ -1,26 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX, ChevronDown, Music } from "lucide-react";
-
-type AmbientTrack = {
-    id: string;
-    label: string;
-    src: string;
-};
-
-const AMBIENT_TRACKS: AmbientTrack[] = [
-    { id: "instrumental", label: "Instrumental", src: "/instrumental.mp3" },
-    { id: "crypto-dreams", label: "Crypto Dreams", src: "/crypto-dreams.mp3" },
-];
-
-const pickRandomTrack = (excludingId?: string): AmbientTrack => {
-    const filtered = excludingId
-        ? AMBIENT_TRACKS.filter((track) => track.id !== excludingId)
-        : AMBIENT_TRACKS;
-    const pool = filtered.length > 0 ? filtered : AMBIENT_TRACKS;
-    return pool[Math.floor(Math.random() * pool.length)];
-};
+import { useAmbient } from "@/app/contexts/AmbientContext";
 
 // animated equalizer bars shown when music is playing
 const EqualizerBars = () => (
@@ -42,24 +24,13 @@ const EqualizerBars = () => (
     </div>
 );
 
+// pure ui component — all audio state comes from AmbientContext
 export const AmbientPlayer = ({ theme }: { theme: string }) => {
-    const [isEnabled, setIsEnabled] = useState(false);
+    const { isEnabled, currentTrack, tracks, toggle, selectTrack } = useAmbient();
     const [isOpen, setIsOpen] = useState(false);
-    const [currentTrack, setCurrentTrack] = useState<AmbientTrack>(() => pickRandomTrack());
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const isDark = theme === "dark";
-
-    // cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
-            }
-        };
-    }, []);
 
     // close dropdown when clicking outside
     useEffect(() => {
@@ -72,46 +43,6 @@ export const AmbientPlayer = ({ theme }: { theme: string }) => {
         document.addEventListener("mousedown", handleClick);
         return () => document.removeEventListener("mousedown", handleClick);
     }, [isOpen]);
-
-    const ensureAudio = useCallback(() => {
-        if (!audioRef.current) {
-            const audio = new Audio();
-            audio.loop = true;
-            audio.volume = 0.7;
-            audio.preload = "none";
-            audioRef.current = audio;
-        }
-        return audioRef.current;
-    }, []);
-
-    const toggleAudio = useCallback(() => {
-        if (isEnabled) {
-            const audio = audioRef.current;
-            if (!audio) return;
-            audio.pause();
-            setIsEnabled(false);
-            return;
-        }
-
-        const audio = ensureAudio();
-        if (audio.src !== new URL(currentTrack.src, window.location.origin).href) {
-            audio.src = currentTrack.src;
-        }
-
-        audio.play()
-            .then(() => setIsEnabled(true))
-            .catch(() => setIsEnabled(false));
-    }, [isEnabled, currentTrack, ensureAudio]);
-
-    const selectTrack = useCallback((track: AmbientTrack) => {
-        setCurrentTrack(track);
-        setIsOpen(false);
-        const audio = audioRef.current;
-        if (audio && isEnabled) {
-            audio.src = track.src;
-            audio.play().catch(() => setIsEnabled(false));
-        }
-    }, [isEnabled]);
 
     return (
         <div className="w-full px-8 sm:px-0" ref={containerRef}>
@@ -137,7 +68,7 @@ export const AmbientPlayer = ({ theme }: { theme: string }) => {
                         {/* play/pause toggle */}
                         <button
                             type="button"
-                            onClick={toggleAudio}
+                            onClick={toggle}
                             {...{ "aria-pressed": isEnabled ? "true" : "false" }}
                             aria-label={isEnabled ? "Pause ambient music" : "Play ambient music"}
                             className={`
@@ -204,13 +135,13 @@ export const AmbientPlayer = ({ theme }: { theme: string }) => {
                             `}
                         >
                             <div className="p-1.5">
-                                {AMBIENT_TRACKS.map((track) => {
+                                {tracks.map((track) => {
                                     const isActive = currentTrack.id === track.id;
                                     return (
                                         <button
                                             key={track.id}
                                             type="button"
-                                            onClick={() => selectTrack(track)}
+                                            onClick={() => { selectTrack(track); setIsOpen(false); }}
                                             className={`
                                                 w-full flex items-center gap-2.5 rounded-lg px-3 py-2
                                                 text-xs font-medium transition-colors duration-200 cursor-pointer

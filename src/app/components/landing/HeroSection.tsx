@@ -6,8 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Download, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
-import { ScrollArrow } from "./ScrollArrow";
 import { GradientHeading } from "./GradientHeading";
+import { AmbientPlayer } from "./AmbientPlayer";
 
 
 type HeroVideo = {
@@ -193,6 +193,8 @@ export const HeroSection = () => {
                     </a>
                 </div>
 
+                {/* ambient player — inline on homepage */}
+                <AmbientPlayer theme="dark" />
 
 
                 {/* platform tags */}
@@ -204,8 +206,6 @@ export const HeroSection = () => {
                     <span className="flex items-center gap-1 sm:gap-1.5"><Wrench className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Under Development</span>
                 </div>
             </div>
-
-            <ScrollArrow theme="dark" />
         </section>
     );
 };
