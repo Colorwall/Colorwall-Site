@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
 import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
+import { AmbientProvider } from "@/app/contexts/AmbientContext";
 import { Analytics } from '@vercel/analytics/next';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -185,6 +186,7 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-hidden`}
       >
         <ThemeProvider>
+          <AmbientProvider>
           <Navbar />
           <GlobalAmbientPlayer />
           <div className="relative min-h-screen flex flex-col">
@@ -196,6 +198,7 @@ export default function RootLayout({
             </main>
           </div>
           {/* <Analytics /> */}
+          </AmbientProvider>
         </ThemeProvider>
       </body>
     </html>
