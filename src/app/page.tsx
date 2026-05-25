@@ -14,6 +14,7 @@ import { FAQSection } from "@/app/components/landing/FAQSection";
 import { BottomCTA } from "@/app/components/landing/BottomCTA";
 import { Footer } from "@/app/components/Footer";
 import SoftAurora from "@/app/components/ui/SoftAurora";
+import { GradientHeading } from "./components/landing/GradientHeading";
 
 export default function ColorWallLanding() {
     const { theme } = useTheme();
@@ -66,9 +67,8 @@ export default function ColorWallLanding() {
             <FeaturesSection theme={theme} />
 
             {/* ════ Previews / Screenshots ════ */}
-            <div id="previews" className="pt-24 pb-12">
-                <div className="relative w-full overflow-hidden flex items-center justify-center py-40 mb-16 rounded-2xl border mx-auto max-w-[1400px]"
-                     style={{ borderColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }}>
+            <div id="previews" className="pt-10 pb-12">
+                <div className="relative w-full overflow-hidden flex items-center justify-center py-10 mb-16">
                     <div className="absolute inset-0 z-0">
                         <SoftAurora
                             color1={theme === "dark" ? "#4c1d95" : "#ffb6ff"}
@@ -80,11 +80,11 @@ export default function ColorWallLanding() {
                     </div>
                     <p className="text-center px-4 relative z-10 pointer-events-none">
                         <span className={`${theme === "dark" ? "text-white" : "text-black"} block text-3xl sm:text-4xl font-bold drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}>
-                            Seems too good to be true?
+                          <GradientHeading text="Seems too good to be true?" theme={"dark"} />
                         </span>
 
                         <span className={`${theme === "dark" ? "text-violet-200" : "text-violet-800"} block mt-3 text-xl sm:text-2xl font-semibold italic drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
-                            It is :D That's why I built it
+                            It is &lt;3 That's why I built it!
                         </span>
                     </p>
                 </div>
