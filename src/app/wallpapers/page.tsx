@@ -3,24 +3,51 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Footer } from "@/app/components/Footer";
-import { Download, Search, X, ImageIcon } from "lucide-react";
+import { Download, Loader2, Search, X, ImageIcon } from "lucide-react";
 import { GradientHeading } from "../components/landing/GradientHeading";
 
-type Wallpaper = { url: string; title: string; tags: string[] };
+type Wallpaper = { url: string; title: string; tags: string[]; source?: "archive" | "yapude" };
 
 const PAGE_SIZE = 20;
 
+// ─── wsrv.nl thumbnail proxy ──────────────────────────────────────────────────
+// routes images through wsrv.nl for resized thumbnails in the grid,
+// full-res only loads when the user clicks into the lightbox
+function thumbUrl(originalUrl: string, width = 600): string {
+    return `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}&w=${width}&q=80&output=webp`;
+}
+
+// ─── auto-download helper ─────────────────────────────────────────────────────
+// fetches the full-res image as a blob and triggers a real browser download
+async function autoDownload(url: string, filename: string): Promise<void> {
+    try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename || "wallpaper.jpg";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+        // fallback — open in new tab if fetch fails (cors etc)
+        console.error("auto-download failed, opening in new tab:", err);
+        window.open(url, "_blank");
+    }
+}
+
 // ─── fuzzy search helper ──────────────────────────────────────────────────────
-// Returns true if all characters of query appear in text in order, 
-// or if query is a direct substring of text.
-function fuzzyMatch(query: string, text: string) {
-    if (!query) return true;
+// Returns match score: 4 (exact title), 3 (exact tag), 2 (fuzzy title), 1 (fuzzy tag), 0 (no match)
+function getMatchScore(query: string, text: string, isTag: boolean) {
+    if (!query) return 0;
     const q = query.toLowerCase();
     const t = text.toLowerCase();
-    
+
     // direct match
-    if (t.includes(q)) return true;
-    
+    if (t.includes(q)) return isTag ? 3 : 4;
+
     // fuzzy match (subsequence)
     let qIdx = 0;
     let tIdx = 0;
@@ -30,14 +57,14 @@ function fuzzyMatch(query: string, text: string) {
         }
         tIdx++;
     }
-    return qIdx === q.length;
+    return qIdx === q.length ? (isTag ? 1 : 2) : 0;
 }
 
 
 // ─── skeleton card (fixed aspect ratio, no layout shift) ──────────────────────
 function Skeleton({ isDark }: { isDark: boolean }) {
     return (
-        <div className="break-inside-avoid mb-3">
+        <div className="break-inside-avoid mb-4">
             <div className={`rounded-xl overflow-hidden animate-pulse ${isDark ? "bg-white/[0.04]" : "bg-zinc-200/60"}`}
                 style={{ aspectRatio: "16/10" }} />
         </div>
@@ -52,7 +79,7 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
     if (error) return null;
 
     return (
-        <div className="break-inside-avoid mb-3 group cursor-pointer" onClick={onClick}>
+        <div className="break-inside-avoid mb-4 group cursor-pointer" onClick={onClick}>
             <div className={`rounded-xl overflow-hidden relative ${isDark ? "bg-white/[0.03]" : "bg-zinc-100"}`}
                 style={{ aspectRatio: loaded ? undefined : "16/10" }}>
 
@@ -63,7 +90,7 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                    src={w.url}
+                    src={thumbUrl(w.url)}
                     alt={w.title}
                     loading="lazy"
                     onLoad={() => setLoaded(true)}
@@ -72,16 +99,70 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
                 />
 
                 {/* hover overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
-                    <p className="text-white text-[11px] font-semibold leading-snug line-clamp-2 mb-1">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                    <p className="text-white text-xs font-semibold leading-snug line-clamp-2 mb-1">
                         {w.title}
                     </p>
                     <div className="flex flex-wrap gap-1">
-                        {w.tags.slice(0, 3).map((t) => (
-                            <span key={t} className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-white/15 text-white/80">{t}</span>
+                        {w.tags.slice(0, 4).map((t) => (
+                            <span key={t} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/15 text-white/80">{t}</span>
                         ))}
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── lightbox with full-res + auto download ──────────────────────────────────
+function Lightbox({ w, onClose }: { w: Wallpaper; onClose: () => void }) {
+    const [downloading, setDownloading] = useState(false);
+
+    // extract a filename from the url
+    const filename = w.url.split("/").pop() || "wallpaper.jpg";
+
+    const handleDownload = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (downloading) return;
+        setDownloading(true);
+        await autoDownload(w.url, filename);
+        setDownloading(false);
+    };
+
+    return (
+        <div
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+            onClick={onClose}
+        >
+            <div className="max-w-5xl max-h-[90vh] relative" onClick={(e) => e.stopPropagation()}>
+                {/* full-res image — no wsrv proxy here, we want the real thing */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={w.url} alt={w.title} className="max-w-full max-h-[85vh] object-contain rounded-xl" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent rounded-b-xl">
+                    <p className="text-white text-sm font-semibold mb-2">{w.title}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {w.tags.map((t) => (
+                            <span key={t} className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/15 text-white/80">{t}</span>
+                        ))}
+                        <button
+                            onClick={handleDownload}
+                            disabled={downloading}
+                            className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 transition-colors disabled:opacity-60"
+                        >
+                            {downloading
+                                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Downloading...</>
+                                : <><Download className="w-3.5 h-3.5" /> Download</>
+                            }
+                        </button>
+                    </div>
+                </div>
+                <button
+                    onClick={onClose}
+                    aria-label="close lightbox"
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white/70 hover:text-white flex items-center justify-center transition-colors"
+                >
+                    <X className="w-4 h-4" />
+                </button>
             </div>
         </div>
     );
@@ -103,15 +184,22 @@ export default function WallpapersPage() {
     const [search, setSearch] = useState("");
     const [lightbox, setLightbox] = useState<Wallpaper | null>(null);
 
-    // token chain — the api gives us the token for the next page
+    // refs to avoid stale closures in callbacks
     const nextTokenRef = useRef<string | null>(null);
     const currentPageRef = useRef(1);
+    const loadingRef = useRef(false);
+    const activeTagRef = useRef("");
 
     const sentinelRef = useRef<HTMLDivElement>(null);
 
+    // keep tag ref in sync
+    useEffect(() => { activeTagRef.current = activeTag; }, [activeTag]);
+
     // ─── fetch a page ─────────────────────────────────────────────────────────
+    // uses refs for loading guard so the callback identity never changes
     const fetchPage = useCallback(async (page: number, tag: string, reset: boolean) => {
-        if (loading) return;
+        if (loadingRef.current) return;
+        loadingRef.current = true;
         setLoading(true);
 
         try {
@@ -125,13 +213,26 @@ export default function WallpapersPage() {
             const res = await fetch(`/api/wallpapers?${params}`);
 
             if (res.status === 403) {
-                // token expired — reset to page 1
-                console.warn("token expired, resetting to page 1");
+                // token expired — silently re-fetch page 1 to get fresh token chain
+                console.warn("token expired, refreshing from page 1");
                 nextTokenRef.current = null;
                 currentPageRef.current = 1;
-                setHasMore(false);
+
+                const freshParams = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE) });
+                if (tag) freshParams.set("tag", tag);
+                const freshRes = await fetch(`/api/wallpapers?${freshParams}`);
+                if (freshRes.ok) {
+                    const freshData = await freshRes.json();
+                    // don't reset items — just update the token so next scroll works
+                    nextTokenRef.current = freshData.nextToken || null;
+                    currentPageRef.current = 1;
+                    setHasMore(freshData.hasMore);
+                    if (freshData.tags) setAllTags(freshData.tags);
+                }
                 return;
             }
+
+            if (!res.ok) throw new Error(`api returned ${res.status}`);
 
             const data = await res.json();
             setItems((prev) => (reset ? data.items : [...prev, ...data.items]));
@@ -143,16 +244,17 @@ export default function WallpapersPage() {
         } catch (err) {
             console.error("failed to fetch wallpapers:", err);
         } finally {
+            loadingRef.current = false;
             setLoading(false);
             setInitialLoad(false);
         }
-    }, [loading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // no deps — uses refs for everything mutable
 
     // initial load
     useEffect(() => {
         fetchPage(1, "", true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchPage]);
 
     // tag change — reset everything
     const handleTagChange = useCallback((tag: string) => {
@@ -161,41 +263,31 @@ export default function WallpapersPage() {
         setHasMore(true);
         nextTokenRef.current = null;
         currentPageRef.current = 1;
+        loadingRef.current = false; // force unlock in case it was stuck
+        setLoading(false);
         setInitialLoad(true);
-        // fetch after state resets
+        // slight delay to let react flush state, then fetch fresh
         setTimeout(() => {
-            const params = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE) });
-            if (tag) params.set("tag", tag);
-            fetch(`/api/wallpapers?${params}`)
-                .then((r) => r.json())
-                .then((data) => {
-                    setItems(data.items);
-                    setHasMore(data.hasMore);
-                    setTotal(data.total);
-                    nextTokenRef.current = data.nextToken || null;
-                    currentPageRef.current = 1;
-                    if (data.tags) setAllTags(data.tags);
-                    setInitialLoad(false);
-                })
-                .catch(console.error);
+            fetchPage(1, tag, true);
         }, 0);
-    }, []);
+    }, [fetchPage]);
 
-    // infinite scroll observer
+    // infinite scroll observer — stable deps, no loading in deps
     useEffect(() => {
         if (!sentinelRef.current) return;
         const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && hasMore && !loading && !initialLoad) {
+            () => {
+                // check refs directly — no stale closures
+                if (!loadingRef.current) {
                     const nextPage = currentPageRef.current + 1;
-                    fetchPage(nextPage, activeTag, false);
+                    fetchPage(nextPage, activeTagRef.current, false);
                 }
             },
-            { rootMargin: "400px" }
+            { rootMargin: "600px" }
         );
         observer.observe(sentinelRef.current);
         return () => observer.disconnect();
-    }, [hasMore, loading, activeTag, initialLoad, fetchPage]);
+    }, [fetchPage]);
 
     // close lightbox on escape
     useEffect(() => {
@@ -206,17 +298,34 @@ export default function WallpapersPage() {
         return () => window.removeEventListener("keydown", handler);
     }, []);
 
-    // client-side search filter
-    const displayed = search
-        ? items.filter((w) => {
-              const query = search.trim();
-              if (!query) return true;
-              // search in title
-              if (fuzzyMatch(query, w.title)) return true;
-              // search in tags
-              return w.tags.some(tag => fuzzyMatch(query, tag));
-          })
-        : items;
+    // client-side search filter with categorization
+    const displayGroups = (() => {
+        const query = search.trim();
+        if (!query) return { all: items };
+
+        const scored = items.map(w => {
+            let score = getMatchScore(query, w.title, false);
+            if (score === 0) {
+                for (const tag of w.tags) {
+                    const tagScore = getMatchScore(query, tag, true);
+                    if (tagScore > score) score = tagScore;
+                }
+            }
+            return { w, score };
+        }).filter(item => item.score > 0);
+
+        // Sort by score descending (best matches first)
+        scored.sort((a, b) => b.score - a.score);
+
+        const exact = scored.filter(i => i.score >= 3).map(i => i.w);
+        const fuzzy = scored.filter(i => i.score < 3).map(i => i.w);
+
+        return { exact, fuzzy };
+    })();
+
+    const hasResults = search
+        ? (displayGroups.exact!.length > 0 || displayGroups.fuzzy!.length > 0)
+        : displayGroups.all!.length > 0;
 
     return (
         <div
@@ -251,11 +360,16 @@ export default function WallpapersPage() {
                         </span>
                     </h1>
                     <p className={`text-base sm:text-lg max-w-2xl leading-relaxed ${isDark ? "text-zinc-500" : "text-zinc-500"}`}>
-                        {total > 0 ? `${total.toLocaleString()} wallpapers` : "loading..."} We do not claim ownership, The repository is under Creative Commons Uni, If someone owns copyright to something and wishes it removed, just email or messages us! we are a small team!
+                        {total > 0 ? `${total.toLocaleString()} wallpapers` : "loading..."} from multiple sources. We do not claim ownership, The repository is under Creative Commons Uni, If someone owns copyright to something and wishes it removed, just email or messages us! we are a small team!
                         {" "}
                         <a href="https://github.com/LaxentaInc/Wallpaper-Archive" target="_blank" rel="noopener noreferrer"
                             className={`font-mono text-sm ${isDark ? "text-cyan-500/60 hover:text-cyan-400" : "text-cyan-600/50 hover:text-cyan-600"} transition-colors`}>
-                            source repo →
+                            Source1 →
+                        </a>
+                        {" "}
+                        <a href="https://github.com/yapude/wallpapers" target="_blank" rel="noopener noreferrer"
+                            className={`font-mono text-sm ${isDark ? "text-violet-500/60 hover:text-violet-400" : "text-violet-600/50 hover:text-violet-600"} transition-colors`}>
+                            Source2 →
                         </a>
                     </p>
                 </div>
@@ -282,7 +396,7 @@ export default function WallpapersPage() {
                     </div>
 
                     {/* tags — below search */}
-                    <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto">
+                    <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                         <button
                             onClick={() => handleTagChange("")}
                             className={`text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all duration-200 shrink-0 ${!activeTag
@@ -309,24 +423,55 @@ export default function WallpapersPage() {
 
                 {/* ─── skeleton initial state ─── */}
                 {initialLoad && (
-                    <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3">
+                    <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
                         {Array.from({ length: 20 }).map((_, i) => (
                             <Skeleton key={i} isDark={isDark} />
                         ))}
                     </div>
                 )}
 
-                {/* ─── masonry grid ─── */}
-                {!initialLoad && displayed.length > 0 && (
-                    <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3">
-                        {displayed.map((w, i) => (
+                {/* ─── masonry grid (no search) ─── */}
+                {!initialLoad && !search && displayGroups.all && displayGroups.all.length > 0 && (
+                    <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
+                        {displayGroups.all.map((w, i) => (
                             <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
                         ))}
                     </div>
                 )}
 
+                {/* ─── search results groups ─── */}
+                {!initialLoad && search && hasResults && (
+                    <div className="space-y-10">
+                        {displayGroups.exact!.length > 0 && (
+                            <div>
+                                <h3 className={`text-xs font-mono font-bold tracking-widest uppercase mb-4 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Exact Matches</h3>
+                                <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
+                                    {displayGroups.exact!.map((w, i) => (
+                                        <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {displayGroups.exact!.length > 0 && displayGroups.fuzzy!.length > 0 && (
+                            <hr className={`border-t ${isDark ? "border-white/10" : "border-zinc-200"}`} />
+                        )}
+
+                        {displayGroups.fuzzy!.length > 0 && (
+                            <div>
+                                <h3 className={`text-xs font-mono font-bold tracking-widest uppercase mb-4 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Related Matches</h3>
+                                <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
+                                    {displayGroups.fuzzy!.map((w, i) => (
+                                        <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* ─── empty state ─── */}
-                {!initialLoad && displayed.length === 0 && !loading && (
+                {!initialLoad && !hasResults && !loading && (
                     <div className="flex flex-col items-center justify-center py-32">
                         <ImageIcon className={`w-12 h-12 mb-4 ${isDark ? "text-zinc-700" : "text-zinc-300"}`} />
                         <p className={`text-lg font-semibold mb-1 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>no wallpapers found</p>
@@ -336,7 +481,7 @@ export default function WallpapersPage() {
 
                 {/* ─── loading more skeletons ─── */}
                 {loading && !initialLoad && (
-                    <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 mt-3">
+                    <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5 mt-4">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <Skeleton key={`load-${i}`} isDark={isDark} />
                         ))}
@@ -349,48 +494,13 @@ export default function WallpapersPage() {
                 {/* ─── end message ─── */}
                 {!hasMore && items.length > 0 && !initialLoad && (
                     <p className={`text-center text-xs font-mono py-8 ${isDark ? "text-zinc-700" : "text-zinc-400"}`}>
-                        — thats all {total.toLocaleString()} wallpapers · scraped with wreq + rust bypassing cf —
+                        — thats all {total.toLocaleString()} wallpapers · dual sourced from archive + yapude · scraped with wreq + rust bypassing cf —
                     </p>
                 )}
             </main>
 
             {/* ─── lightbox ─── */}
-            {lightbox && (
-                <div
-                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
-                    onClick={() => setLightbox(null)}
-                >
-                    <div className="max-w-5xl max-h-[90vh] relative" onClick={(e) => e.stopPropagation()}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={lightbox.url} alt={lightbox.title} className="max-w-full max-h-[85vh] object-contain rounded-xl" />
-                        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent rounded-b-xl">
-                            <p className="text-white text-sm font-semibold mb-2">{lightbox.title}</p>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                {lightbox.tags.map((t) => (
-                                    <span key={t} className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/15 text-white/80">{t}</span>
-                                ))}
-                                <a
-                                    href={lightbox.url}
-                                    download
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <Download className="w-3.5 h-3.5" /> Download
-                                </a>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setLightbox(null)}
-                            aria-label="close lightbox"
-                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white/70 hover:text-white flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
-            )}
+            {lightbox && <Lightbox w={lightbox} onClose={() => setLightbox(null)} />}
 
             <Footer theme={theme as "dark" | "light"} />
         </div>
