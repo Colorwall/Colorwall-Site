@@ -332,93 +332,90 @@ export default function WallpapersPage() {
             className={`min-h-screen relative overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#080809] text-zinc-100" : "bg-slate-50 text-zinc-900"}`}
             style={{ fontFamily: "'DM Sans', 'Geist', sans-serif" }}
         >
-            {/* ─── ambient background ─── */}
-            <div className={`pointer-events-none fixed inset-0 z-0 ${isDark ? "opacity-[0.035]" : "opacity-[0.05]"}`}
+            {/* ─── subtle ambient bg ─── */}
+            <div className={`pointer-events-none fixed inset-0 z-0 ${isDark ? "opacity-[0.03]" : "opacity-[0.04]"}`}
                 style={{
                     backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAABJz2zMAAAACHRSTlMzMzMzMzMzM8A/4eYAAACbSURBVDjLpZGxDQMwDASJ/y18q0L5K8zM4E5AAXqSBM4+M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO9c5M9d7+E7oO/8Bv9B6wT4CxcwAAAAASUVORK5CYII=")`,
                     backgroundRepeat: "repeat", backgroundSize: "100px 100px",
                 }} />
-            <div className="pointer-events-none fixed top-[-15%] left-[-5%] w-[55%] h-[55%] rounded-full opacity-40"
-                style={{ background: `radial-gradient(circle, ${isDark ? "rgba(99,102,241,0.12)" : "rgba(99,102,241,0.08)"} 0%, transparent 70%)` }} />
-            <div className="pointer-events-none fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-30"
-                style={{ background: `radial-gradient(circle, ${isDark ? "rgba(139,92,246,0.10)" : "rgba(139,92,246,0.06)"} 0%, transparent 70%)` }} />
-            <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent z-50" />
+            <div className={`fixed top-0 left-0 right-0 h-px z-50 ${isDark ? "bg-white/[0.06]" : "bg-zinc-200"}`} />
 
-            <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
+            <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-36 pb-20">
 
-                {/* ─── header ─── */}
-                <div className="mb-12">
-                    <p className={`text-[11px] font-mono font-bold uppercase tracking-[0.25em] mb-5 ${isDark ? "text-cyan-400/70" : "text-cyan-600"}`}>
-                        <span className="inline-block w-2 h-2 rounded-full bg-cyan-500 mr-2 align-middle" />
-                        Wallpaper Archive
-                    </p>
-                    <h1 className={`text-[clamp(2.5rem,6vw,5rem)] font-black tracking-[-0.04em] leading-[0.85] mb-4 ${isDark ? "text-white" : "text-zinc-900"}`}>
-                        <GradientHeading text="Static Wallpapers," theme="dark" as="span" className="inline-block px-1" />
-                        <br />
-                        <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-aqua-400 bg-clip-text text-transparent">
-                            No strings attached!..
+                {/* ─── header (staircase, gradient) ─── */}
+                <div className="mb-10">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold uppercase tracking-wide leading-[1.1] mb-3">
+                        <GradientHeading text="Desktop" theme="dark" as="span" className="block" />
+                        <span className="block pl-8 sm:pl-14 md:pl-20">
+                            <GradientHeading text="Wallpapers" theme="dark" as="span" className="inline-block" />
                         </span>
                     </h1>
-                    <p className={`text-base sm:text-lg max-w-2xl leading-relaxed ${isDark ? "text-zinc-500" : "text-zinc-500"}`}>
-                        {total > 0 ? `${total.toLocaleString()} wallpapers` : "loading..."} from multiple sources. We do not claim ownership, The repository is under Creative Commons Uni, If someone owns copyright to something and wishes it removed, just email or messages us! we are a small team!
-                        {" "}
-                        <a href="https://github.com/LaxentaInc/Wallpaper-Archive" target="_blank" rel="noopener noreferrer"
-                            className={`font-mono text-sm ${isDark ? "text-cyan-500/60 hover:text-cyan-400" : "text-cyan-600/50 hover:text-cyan-600"} transition-colors`}>
-                            Source1 →
-                        </a>
-                        {" "}
-                        <a href="https://github.com/yapude/wallpapers" target="_blank" rel="noopener noreferrer"
-                            className={`font-mono text-sm ${isDark ? "text-violet-500/60 hover:text-violet-400" : "text-violet-600/50 hover:text-violet-600"} transition-colors`}>
-                            Source2 →
-                        </a>
-                    </p>
-                </div>
-
-                {/* ─── controls ─── */}
-                <div className="flex flex-col gap-4 mb-10">
-                    {/* search — full width */}
-                    <div className={`relative w-full rounded-xl border transition-colors ${isDark ? "border-white/10 bg-white/[0.03] focus-within:border-white/20" : "border-zinc-200 bg-white focus-within:border-zinc-300"}`}>
-                        <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-zinc-600" : "text-zinc-400"}`} />
-                        <input
-                            type="text"
-                            placeholder="search loaded wallpapers..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            aria-label="search wallpapers"
-                            className={`w-full pl-11 pr-4 py-3 bg-transparent text-sm outline-none ${isDark ? "text-white placeholder:text-zinc-600" : "text-zinc-900 placeholder:text-zinc-400"}`}
-                        />
-                        {search && (
-                            <button onClick={() => setSearch("")} aria-label="clear search"
-                                className={`absolute right-4 top-1/2 -translate-y-1/2 ${isDark ? "text-zinc-500 hover:text-white" : "text-zinc-400 hover:text-zinc-800"}`}>
-                                <X className="w-3.5 h-3.5" />
-                            </button>
+                    <div className={`flex items-center gap-2 text-xs pl-1 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
+                        <a href="/" className={`${isDark ? "hover:text-white" : "hover:text-zinc-800"} transition-colors`}>Home</a>
+                        <span className={isDark ? "text-zinc-600" : "text-zinc-300"}>/</span>
+                        <span className={isDark ? "text-zinc-300" : "text-zinc-700"}>Desktop Wallpapers</span>
+                        {total > 0 && (
+                            <>
+                                <span className={isDark ? "text-zinc-600" : "text-zinc-300"}>·</span>
+                                <span className={`font-mono ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>{total.toLocaleString()}</span>
+                            </>
                         )}
                     </div>
+                </div>
 
-                    {/* tags — below search */}
-                    <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+                {/* ─── divider ─── */}
+                <div className={`h-px mb-6 ${isDark ? "bg-white/[0.08]" : "bg-zinc-200"}`} />
+
+                {/* ─── tag bar (pill chips, ranked by frequency) ─── */}
+                <div className="flex flex-wrap items-center gap-2 mb-8">
+                    <button
+                        onClick={() => handleTagChange("")}
+                        className={`text-[11px] font-semibold uppercase tracking-wide px-3.5 py-1.5 rounded-full transition-all duration-200 ${!activeTag
+                            ? isDark
+                                ? "bg-white text-zinc-900"
+                                : "bg-zinc-900 text-white"
+                            : isDark
+                                ? "bg-white/[0.08] text-zinc-300 hover:bg-white/[0.14] hover:text-white"
+                                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
+                            }`}
+                    >
+                        Show All
+                    </button>
+                    {allTags.map((t) => (
                         <button
-                            onClick={() => handleTagChange("")}
-                            className={`text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all duration-200 shrink-0 ${!activeTag
-                                ? isDark ? "bg-white/10 text-white" : "bg-zinc-900 text-white"
-                                : isDark ? "bg-white/[0.03] text-zinc-500 hover:bg-white/[0.06] hover:text-white" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800"
+                            key={t}
+                            onClick={() => handleTagChange(t === activeTag ? "" : t)}
+                            className={`text-[11px] font-semibold uppercase tracking-wide px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all duration-200 ${t === activeTag
+                                ? isDark
+                                    ? "bg-white text-zinc-900"
+                                    : "bg-zinc-900 text-white"
+                                : isDark
+                                    ? "bg-white/[0.08] text-zinc-300 hover:bg-white/[0.14] hover:text-white"
+                                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
                                 }`}
                         >
-                            All
+                            {t}
                         </button>
-                        {allTags.slice(0, 20).map((t) => (
-                            <button
-                                key={t}
-                                onClick={() => handleTagChange(t === activeTag ? "" : t)}
-                                className={`text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all duration-200 shrink-0 ${t === activeTag
-                                    ? isDark ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" : "bg-violet-100 text-violet-700 border border-violet-300"
-                                    : isDark ? "bg-white/[0.03] text-zinc-500 hover:bg-white/[0.06] hover:text-white" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800"
-                                    }`}
-                            >
-                                {t}
-                            </button>
-                        ))}
-                    </div>
+                    ))}
+                </div>
+
+                {/* ─── search ─── */}
+                <div className={`relative w-full mb-8 rounded-full border transition-colors ${isDark ? "border-white/[0.12] bg-white/[0.06] focus-within:border-white/25 focus-within:bg-white/[0.08]" : "border-zinc-200 bg-zinc-50 focus-within:border-zinc-400 focus-within:bg-white"}`}>
+                    <Search className={`absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-zinc-400" : "text-zinc-400"}`} />
+                    <input
+                        type="text"
+                        placeholder="search wallpapers..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        aria-label="search wallpapers"
+                        className={`w-full pl-12 pr-12 py-3.5 bg-transparent text-sm outline-none rounded-full ${isDark ? "text-white placeholder:text-zinc-500" : "text-zinc-900 placeholder:text-zinc-400"}`}
+                    />
+                    {search && (
+                        <button onClick={() => setSearch("")} aria-label="clear search"
+                            className={`absolute right-5 top-1/2 -translate-y-1/2 ${isDark ? "text-zinc-400 hover:text-white" : "text-zinc-400 hover:text-zinc-800"} transition-colors`}>
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
 
                 {/* ─── skeleton initial state ─── */}
