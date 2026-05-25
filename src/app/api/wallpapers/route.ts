@@ -1,4 +1,78 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+
+// ─── rate limiter (in-memory, per-ip sliding window) ──────────────────────────
+// 60 requests per minute per ip — enough for normal browsing, blocks hammering
+
+const RATE_LIMIT = 60;
+const RATE_WINDOW = 60_000; // 1 minute
+
+type RateBucket = { timestamps: number[] };
+const rateLimits = new Map<string, RateBucket>();
+
+// clean up stale entries every 5 minutes so we don't leak memory
+let lastCleanup = Date.now();
+function cleanupRateLimits() {
+    const now = Date.now();
+    if (now - lastCleanup < 300_000) return;
+    lastCleanup = now;
+    for (const [ip, bucket] of rateLimits) {
+        bucket.timestamps = bucket.timestamps.filter((t) => now - t < RATE_WINDOW);
+        if (bucket.timestamps.length === 0) rateLimits.delete(ip);
+    }
+}
+
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+    cleanupRateLimits();
+    const now = Date.now();
+    let bucket = rateLimits.get(ip);
+    if (!bucket) {
+        bucket = { timestamps: [] };
+        rateLimits.set(ip, bucket);
+    }
+    // drop timestamps outside the window
+    bucket.timestamps = bucket.timestamps.filter((t) => now - t < RATE_WINDOW);
+    if (bucket.timestamps.length >= RATE_LIMIT) {
+        return { allowed: false, remaining: 0 };
+    }
+    bucket.timestamps.push(now);
+    return { allowed: true, remaining: RATE_LIMIT - bucket.timestamps.length };
+}
+
+// ─── origin / referer check ───────────────────────────────────────────────────
+// only allow requests from our own site — blocks direct curl/scraper access
+const ALLOWED_ORIGINS = [
+    "colorwall.laxenta.me",
+    "www.colorwall.laxenta.me",
+    "localhost",
+    "127.0.0.1",
+];
+
+function isAllowedOrigin(headersList: Headers): boolean {
+    const origin = headersList.get("origin") || "";
+    const referer = headersList.get("referer") || "";
+    const check = origin || referer;
+    if (!check) return false; // no origin/referer = probably a raw api call
+    try {
+        const hostname = new URL(check).hostname;
+        return ALLOWED_ORIGINS.some((allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`));
+    } catch {
+        return false;
+    }
+}
+
+// ─── bot user-agent blocker ───────────────────────────────────────────────────
+const BOT_PATTERNS = [
+    /python-requests/i, /scrapy/i, /httpclient/i, /java\//i,
+    /wget/i, /curl/i, /go-http-client/i, /node-fetch/i,
+    /axios/i, /postman/i, /insomnia/i, /httpie/i,
+];
+
+function isBot(headersList: Headers): boolean {
+    const ua = headersList.get("user-agent") || "";
+    if (!ua) return true; // no user-agent = suspicious
+    return BOT_PATTERNS.some((pat) => pat.test(ua));
+}
 
 // ─── shared secret for hash validation ────────────────────────────────────────
 // not real security — just raises the bar so bots can't blindly paginate
@@ -135,6 +209,43 @@ async function fetchSource(config: SourceConfig): Promise<WallpaperEntry[]> {
 // ─── route ────────────────────────────────────────────────────────────────────
 
 export async function GET(request: Request) {
+    const headersList = await headers();
+
+    // ── security: origin / referer check ──────────────────────────────────────
+    if (!isAllowedOrigin(headersList)) {
+        return NextResponse.json(
+            { error: "forbidden" },
+            { status: 403, headers: { "X-Blocked": "origin" } }
+        );
+    }
+
+    // ── security: bot user-agent check ────────────────────────────────────────
+    if (isBot(headersList)) {
+        return NextResponse.json(
+            { error: "forbidden" },
+            { status: 403, headers: { "X-Blocked": "bot" } }
+        );
+    }
+
+    // ── security: rate limit ──────────────────────────────────────────────────
+    const clientIp = headersList.get("x-forwarded-for")?.split(",")[0]?.trim()
+        || headersList.get("x-real-ip")
+        || "unknown";
+    const rateCheck = checkRateLimit(clientIp);
+    if (!rateCheck.allowed) {
+        return NextResponse.json(
+            { error: "rate limited — slow down", code: "RATE_LIMITED" },
+            {
+                status: 429,
+                headers: {
+                    "Retry-After": "60",
+                    "X-RateLimit-Limit": String(RATE_LIMIT),
+                    "X-RateLimit-Remaining": "0",
+                },
+            }
+        );
+    }
+
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(24, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
@@ -204,6 +315,8 @@ export async function GET(request: Request) {
         {
             headers: {
                 "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+                "X-RateLimit-Limit": String(RATE_LIMIT),
+                "X-RateLimit-Remaining": String(rateCheck.remaining),
             },
         }
     );
