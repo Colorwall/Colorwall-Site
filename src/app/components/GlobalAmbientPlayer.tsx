@@ -4,7 +4,7 @@ import { useTheme } from "@/app/contexts/ThemeContext";
 import { AmbientPlayer } from "@/app/components/landing/AmbientPlayer";
 
 // global ambient player — fixed at bottom center, persists across all pages
-export const GlobalAmbientPlayer = () => {
+export function GlobalAmbientPlayer() {
     const { theme } = useTheme();
 
     return (
@@ -12,4 +12,4 @@ export const GlobalAmbientPlayer = () => {
             <AmbientPlayer theme={theme} />
         </div>
     );
-};
+}
