@@ -144,13 +144,13 @@ const features = [
         id: "01",
         icon: FastIcon,
         title: "Blazing Fast",
-        desc: "Built in Rust & Tauri. Negligible performance impact (~0.5% CPU, 1-2% GPU) even at 4K 60FPS.",
+        desc: "Built in Rust & Tauri. Negligible performance impact (~0.5% CPU, 2-5% GPU usage) even at 4K or 8k 60FPS. Unbelievably efficient is it not? ",
     },
     {
         id: "02",
         icon: EngineIcon,
-        title: "D3D11 Compositor Engine",
-        desc: "Hardware-accelerated DirectX 11 rendering/ Multiple Renderers and zero-latency scene composition.",
+        title: "Direct3D11 Compositor Engine",
+        desc: "Hardware-accelerated DirectX11 Rendering/Providing Multiple Renderers -> IMF for Zero-Copy Rendering & MPV for 8k Video/Scenes, & Webview2 for widgets.",
     },
     {
         id: "03",
