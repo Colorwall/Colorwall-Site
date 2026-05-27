@@ -30,7 +30,7 @@ const HeroBackground = React.memo(() => (
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: `
             <img id="hero-poster" src="${HERO_VIDEOS[0].poster}" alt="Background Poster" fetchpriority="high" class="object-cover absolute inset-0 w-full h-full opacity-100 transition-opacity duration-1000 ease-in-out" />
-            <video id="hero-video" src="${HERO_VIDEOS[0].src}" autoplay muted loop playsinline preload="auto" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out"></video>
+            <video id="hero-video" src="${HERO_VIDEOS[0].src}" autoplay muted loop playsinline preload="none" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out"></video>
             <script>
                 (function() {
                     try {
@@ -39,11 +39,8 @@ const HeroBackground = React.memo(() => (
                         var poster = document.getElementById('hero-poster');
                         var video = document.getElementById('hero-video');
                         
-                        if (poster.src !== v.poster) {
-                            poster.src = v.poster;
-                            video.src = v.src;
-                            video.load();
-                        }
+                        poster.src = v.poster;
+                        video.src = v.src;
 
                         var forcePlay = function() {
                             var playPromise = video.play();
@@ -59,8 +56,14 @@ const HeroBackground = React.memo(() => (
                             }
                             forcePlay();
                         };
-                        
-                        setTimeout(forcePlay, 500);
+
+                        // defer video load until browser is idle so it doesn't block lcp
+                        var startLoad = function() { video.load(); };
+                        if (window.requestIdleCallback) {
+                            requestIdleCallback(startLoad, { timeout: 1500 });
+                        } else {
+                            setTimeout(startLoad, 200);
+                        }
 
                     } catch (e) { console.error(e); }
                 })();
