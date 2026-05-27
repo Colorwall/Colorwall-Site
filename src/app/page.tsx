@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useProtection } from "@/hooks/use-protection";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -13,7 +14,11 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { BottomCTA } from "@/app/components/landing/BottomCTA";
 import { Footer } from "@/app/components/Footer";
-import LineWaves from "@/app/components/ui/LineWaves";
+// lazy-load linewaves so the ogl webgl library stays out of the initial bundle
+const LineWaves = dynamic(() => import("@/app/components/ui/LineWaves"), {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+});
 import { GradientHeading } from "./components/landing/GradientHeading";
 
 export default function ColorWallLanding() {
