@@ -12,7 +12,8 @@ export async function POST(req: Request) {
         }
 
         if (passkey === correctPasskey) {
-            const response = NextResponse.json({ success: true });
+            const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || '127.0.0.1';
+            const response = NextResponse.json({ success: true, ip });
             
             // Set cookie for 7 days
             response.cookies.set({
@@ -38,10 +39,11 @@ export async function GET(req: Request) {
     const cookieHeader = req.headers.get('cookie') || '';
     const match = cookieHeader.match(/cw_admin_token=([^;]+)/);
     const passkey = match ? match[1] : null;
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || '127.0.0.1';
 
     if (passkey && passkey === process.env.ADMIN_PASSKEY) {
-        return NextResponse.json({ isAdmin: true });
+        return NextResponse.json({ isAdmin: true, ip });
     }
-    return NextResponse.json({ isAdmin: false });
+    return NextResponse.json({ isAdmin: false, ip });
 }
 

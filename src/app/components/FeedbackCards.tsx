@@ -442,20 +442,11 @@ function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: num
 
 // ─── Feed ──────────────────────────────────────────────────────────────────────
 
-export function FeedbackCards({ groups }: { groups: FeedbackGroup[] }) {
-    const [isAdmin, setIsAdmin] = useState(false);
-
-    useEffect(() => {
-        fetch('/api/auth/admin')
-            .then(res => res.json())
-            .then(data => setIsAdmin(!!data.isAdmin))
-            .catch(() => {});
-    }, []);
-
+export function FeedbackCards({ groups, isAdmin }: { groups: FeedbackGroup[], isAdmin?: boolean }) {
     return (
         <div className="flex flex-col gap-6 max-w-[900px] mx-auto w-full">
             {groups.map((group, i) => (
-                <IssueCard key={`${group.username}-${i}`} group={group} index={i} isAdmin={isAdmin} />
+                <IssueCard key={`${group.username}-${i}`} group={group} index={i} isAdmin={!!isAdmin} />
             ))}
         </div>
     );
