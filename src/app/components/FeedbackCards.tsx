@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Tag, Trash2, Loader2, PlaySquare, Eye, Edit3, Image as ImageIcon, Smile, Paperclip } from 'lucide-react';
+import { Tag, Trash2, Loader2, PlaySquare, Eye, Edit3, Image as ImageIcon, Smile, Paperclip, Check, X } from 'lucide-react';
 import { useTheme } from '@/app/contexts/ThemeContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export interface FeedbackItem {
     id:        string;
@@ -84,16 +86,46 @@ function CommentBox({
     body, 
     images, 
     logFiles, 
-    isMain 
+    isMain,
+    itemId,
+    isAdmin
 }: { 
     username: string, 
     createdAt: Date | string, 
     body: string, 
     images?: string[], 
     logFiles?: { name: string, content: string }[],
-    isMain?: boolean
+    isMain?: boolean,
+    itemId: string,
+    isAdmin: boolean
 }) {
     const avatar = getUserAvatar(username);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editText, setEditText] = useState(body);
+    const [isSaving, setIsSaving] = useState(false);
+    const [currentBody, setCurrentBody] = useState(body);
+
+    const handleSaveEdit = async () => {
+        setIsSaving(true);
+        try {
+            const res = await fetch(`/api/feedback/${itemId}/edit?type=${isMain ? 'issue' : 'reply'}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: editText, originalText: currentBody })
+            });
+            if (res.ok) {
+                setCurrentBody(editText);
+                setIsEditing(false);
+            } else {
+                alert("Failed to save edit.");
+            }
+        } catch {
+            alert("Error saving edit.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="flex gap-4 relative">
             {/* Vertical Thread Line */}
@@ -116,14 +148,52 @@ function CommentBox({
                             <span>commented</span>
                             <span>{timeAgo(createdAt)}</span>
                         </div>
-                        {isMain && (
-                            <span className="border border-[#30363d] text-[#8b949e] px-2 py-0.5 rounded-full text-xs font-semibold">
-                                Author
-                            </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                            {isMain && (
+                                <span className="border border-[#30363d] text-[#8b949e] px-2 py-0.5 rounded-full text-xs font-semibold">
+                                    Author
+                                </span>
+                            )}
+                            {isAdmin && !isEditing && (
+                                <button onClick={() => setIsEditing(true)} className="text-[#8b949e] hover:text-indigo-400 p-1 rounded-md hover:bg-[#30363d] transition-colors">
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                            {isAdmin && !isMain && (
+                                <button onClick={async () => {
+                                    if(confirm('Delete reply?')) {
+                                        await fetch(`/api/feedback/${itemId}?type=reply`, { method: 'DELETE' });
+                                        window.location.reload();
+                                    }
+                                }} className="text-[#8b949e] hover:text-rose-400 p-1 rounded-md hover:bg-[#30363d] transition-colors">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
                     </div>
-                    <div className="p-4 text-[14px] leading-relaxed text-[#c9d1d9] whitespace-pre-wrap font-sans">
-                        {body}
+                    <div className="p-4 text-[14px] leading-relaxed text-[#c9d1d9] font-sans">
+                        {isEditing ? (
+                            <div className="flex flex-col gap-3">
+                                <textarea 
+                                    className="w-full min-h-[120px] bg-[#0d1117] border border-[#30363d] rounded-md p-3 text-[#c9d1d9] focus:border-indigo-500 outline-none"
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                />
+                                <div className="flex justify-end gap-2">
+                                    <button onClick={() => { setIsEditing(false); setEditText(currentBody); }} className="px-3 py-1.5 rounded-md text-xs font-semibold text-[#8b949e] hover:text-white bg-[#21262d] border border-[#30363d]">Cancel</button>
+                                    <button onClick={handleSaveEdit} disabled={isSaving} className="px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-[#238636] hover:bg-[#2ea043] flex items-center gap-1">
+                                        {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Save
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-hidden">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {currentBody}
+                                </ReactMarkdown>
+                            </div>
+                        )}
+                        
                         {images && <ExpandableImageGrid images={images} />}
                         {logFiles && logFiles.map((log, idx) => (
                             <div key={idx} className="mt-3 rounded-md border border-[#30363d] overflow-hidden">
@@ -142,7 +212,7 @@ function CommentBox({
     );
 }
 
-function ReplySection({ threadId, initialReplies }: { threadId: string, initialReplies: any[] }) {
+function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string, initialReplies: any[], isAdmin: boolean }) {
     const [replyText, setReplyText] = useState('');
     const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date}[]>(initialReplies || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -183,9 +253,11 @@ function ReplySection({ threadId, initialReplies }: { threadId: string, initialR
             {localReplies.map(reply => (
                 <CommentBox 
                     key={reply.id} 
+                    itemId={reply.id}
                     username={reply.username} 
                     createdAt={reply.createdAt} 
                     body={reply.text} 
+                    isAdmin={isAdmin}
                 />
             ))}
 
@@ -262,7 +334,7 @@ function ReplySection({ threadId, initialReplies }: { threadId: string, initialR
 /** 
  * Github Issue Thread Card
  */
-function IssueCard({ group, index }: { group: FeedbackGroup; index: number }) {
+function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: number; isAdmin: boolean }) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const first = group.items[0];
@@ -300,21 +372,25 @@ function IssueCard({ group, index }: { group: FeedbackGroup; index: number }) {
                             </span>
                         </div>
                     </div>
-                    <button onClick={handleDeleteThread} className="text-rose-500 hover:text-rose-400 p-2 border border-[#30363d] rounded-md bg-[#21262d]">
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    {isAdmin && (
+                        <button onClick={handleDeleteThread} className="text-rose-500 hover:text-rose-400 p-2 border border-[#30363d] rounded-md bg-[#21262d] transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             </div>
 
             <div className="p-5">
                 {/* Main Issue Comment */}
                 <CommentBox 
+                    itemId={first.id}
                     username={group.username} 
                     createdAt={first.createdAt} 
                     body={first.text} 
                     images={first.images} 
                     logFiles={first.logFiles} 
                     isMain={true}
+                    isAdmin={isAdmin}
                 />
 
                 {/* Timeline Tag Event */}
@@ -343,11 +419,13 @@ function IssueCard({ group, index }: { group: FeedbackGroup; index: number }) {
                 {group.items.slice(1).map(item => (
                     <CommentBox 
                         key={item.id}
+                        itemId={item.id}
                         username={item.username} 
                         createdAt={item.createdAt} 
                         body={item.text} 
                         images={item.images} 
                         logFiles={item.logFiles} 
+                        isAdmin={isAdmin}
                     />
                 ))}
 
@@ -355,6 +433,7 @@ function IssueCard({ group, index }: { group: FeedbackGroup; index: number }) {
                 <ReplySection 
                     threadId={first.id} 
                     initialReplies={first.replies || []} 
+                    isAdmin={isAdmin}
                 />
             </div>
         </div>
@@ -364,10 +443,19 @@ function IssueCard({ group, index }: { group: FeedbackGroup; index: number }) {
 // ─── Feed ──────────────────────────────────────────────────────────────────────
 
 export function FeedbackCards({ groups }: { groups: FeedbackGroup[] }) {
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        fetch('/api/auth/admin')
+            .then(res => res.json())
+            .then(data => setIsAdmin(!!data.isAdmin))
+            .catch(() => {});
+    }, []);
+
     return (
         <div className="flex flex-col gap-6 max-w-[900px] mx-auto w-full">
             {groups.map((group, i) => (
-                <IssueCard key={`${group.username}-${i}`} group={group} index={i} />
+                <IssueCard key={`${group.username}-${i}`} group={group} index={i} isAdmin={isAdmin} />
             ))}
         </div>
     );

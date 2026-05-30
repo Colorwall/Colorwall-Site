@@ -6,6 +6,7 @@ import { FeedbackForm } from './FeedbackForm';
 import { FeedbackCards, FeedbackGroup, FeedbackItem } from './FeedbackCards';
 import { useTheme } from '@/app/contexts/ThemeContext';
 import { GradientHeading } from '@/app/components/landing/GradientHeading';
+import { Lock } from 'lucide-react';
 
 interface FeedbackClientDisplayProps {
     feedbacks: FeedbackItem[];
@@ -139,7 +140,22 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                 <div className="max-w-4xl mx-auto mt-24">
                     <div className="flex items-center gap-4 mb-8">
                         <div className={`h-px flex-1 bg-gradient-to-r to-transparent ${isDark ? 'from-white/10' : 'from-black/10'}`} />
-                        <span className={`text-[10px] font-mono uppercase tracking-widest ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}>Latest Reports</span>
+                        <span className={`text-[10px] font-mono uppercase tracking-widest flex items-center gap-2 ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}>
+                            Latest Reports
+                            <button 
+                                onClick={async () => {
+                                    const passkey = prompt("Admin Passkey:");
+                                    if (passkey) {
+                                        const res = await fetch('/api/auth/admin', { method: 'POST', body: JSON.stringify({ passkey }), headers: { 'Content-Type': 'application/json' } });
+                                        if (res.ok) window.location.reload();
+                                        else alert("Invalid passkey");
+                                    }
+                                }} 
+                                className="hover:text-indigo-400 transition-colors"
+                            >
+                                <Lock className="w-3 h-3" />
+                            </button>
+                        </span>
                         <div className={`h-px flex-1 bg-gradient-to-l to-transparent ${isDark ? 'from-white/10' : 'from-black/10'}`} />
                     </div>
 

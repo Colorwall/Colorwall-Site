@@ -131,9 +131,14 @@ export async function GET(req: Request) {
                 } catch(e) {}
                 text = text.replace(metaMatch[0], '').trim();
                 // Also remove image and log preview sections appended
-                text = text.replace(/### Images[\s\S]*/, '').trim();
+                text = text.replace(/### Attached Images[\s\S]*/, '').trim();
                 text = text.replace(/### Logs[\s\S]*/, '').trim();
             }
+            
+            // Strip imported text artifacts
+            text = text.replace(/\*\*Source:\*\*.*?\n/g, '').trim();
+            text = text.replace(/\*\*App Version:\*\*.*?\n/g, '').trim();
+            text = text.replace(/\*\*Original Date:\*\*.*?\n/g, '').trim();
 
             const logFiles = [];
             if (meta.logFiles) {
