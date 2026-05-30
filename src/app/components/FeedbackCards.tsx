@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Tag, Trash2, Loader2, PlaySquare, Eye, Edit3, Image as ImageIcon, Smile, Paperclip, Check, X } from 'lucide-react';
+import { Tag, Trash2, Loader2, PlaySquare, Eye, Edit3, Image as ImageIcon, Smile, Paperclip, Check, X, BadgeCheck } from 'lucide-react';
 import { useTheme } from '@/app/contexts/ThemeContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -15,8 +15,9 @@ export interface FeedbackItem {
     appVersion?: string;
     source:    'App' | 'Web';
     labels?:   string[];
+    isVerified?: boolean;
     createdAt: Date | string;
-    replies?:  { id: string; username: string; text: string; createdAt: Date | string }[];
+    replies?:  { id: string; username: string; text: string; createdAt: Date | string, isVerified?: boolean }[];
 }
 
 export interface FeedbackGroup {
@@ -88,7 +89,8 @@ function CommentBox({
     logFiles, 
     isMain,
     itemId,
-    isAdmin
+    isAdmin,
+    isVerified
 }: { 
     username: string, 
     createdAt: Date | string, 
@@ -97,7 +99,8 @@ function CommentBox({
     logFiles?: { name: string, content: string }[],
     isMain?: boolean,
     itemId: string,
-    isAdmin: boolean
+    isAdmin: boolean,
+    isVerified?: boolean
 }) {
     const avatar = getUserAvatar(username);
     const [isEditing, setIsEditing] = useState(false);
@@ -145,6 +148,11 @@ function CommentBox({
                     <div className="bg-[#161b22] border-b border-[#30363d] px-4 py-2.5 flex items-center justify-between text-[13px]">
                         <div className="flex items-center gap-1.5 text-[#8b949e]">
                             <span className="font-semibold text-[#c9d1d9]">{username}</span>
+                            {isVerified && (
+                                <span className="text-blue-500" title="Verified Moderator">
+                                    <BadgeCheck className="w-4 h-4 fill-blue-500 text-[#161b22]" />
+                                </span>
+                            )}
                             <span>commented</span>
                             <span>{timeAgo(createdAt)}</span>
                         </div>
@@ -214,7 +222,7 @@ function CommentBox({
 
 function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string, initialReplies: any[], isAdmin: boolean }) {
     const [replyText, setReplyText] = useState('');
-    const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date}[]>(initialReplies || []);
+    const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date, isVerified?: boolean}[]>(initialReplies || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
 
@@ -258,6 +266,7 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                     createdAt={reply.createdAt} 
                     body={reply.text} 
                     isAdmin={isAdmin}
+                    isVerified={reply.isVerified}
                 />
             ))}
 
@@ -391,6 +400,7 @@ function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: num
                     logFiles={first.logFiles} 
                     isMain={true}
                     isAdmin={isAdmin}
+                    isVerified={first.isVerified}
                 />
 
                 {/* Timeline Tag Event */}
@@ -426,6 +436,7 @@ function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: num
                         images={item.images} 
                         logFiles={item.logFiles} 
                         isAdmin={isAdmin}
+                        isVerified={item.isVerified}
                     />
                 ))}
 

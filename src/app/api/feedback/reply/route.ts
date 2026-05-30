@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         }
 
         const username = sanitizeString(rawUsername || '');
-        const text     = sanitizeString(rawText || '');
+        const text     = sanitizeString(rawText || '').replace(/META_START/g, 'META_DISABLED');
 
         if (!text || text.length > 2000) {
             return err('Reply must be between 1 and 2000 characters.', 400);
@@ -56,10 +56,15 @@ export async function POST(req: Request) {
 
         const ipHash = hashIp(req);
         
+        const cookieHeader = req.headers.get('cookie') || '';
+        const match = cookieHeader.match(/cw_admin_token=([^;]+)/);
+        const token = match ? match[1] : null;
+        const isVerified = token === process.env.ADMIN_PASSKEY;
+
         const issueNumber = parseInt(threadId, 10);
         if (isNaN(issueNumber)) return err('Invalid thread ID format.', 400);
 
-        const meta = { username, ipHash };
+        const meta = { username, ipHash, ...(isVerified ? { isVerified: true } : {}) };
         const commentBody = `${text}\n\n<!-- META_START\n${JSON.stringify(meta, null, 2)}\nMETA_END -->`;
 
         const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}/comments`, {
@@ -85,6 +90,7 @@ export async function POST(req: Request) {
             id: comment.id.toString(),
             username,
             text,
+            isVerified,
             createdAt: new Date(comment.created_at)
         };
 

@@ -164,7 +164,19 @@ export async function GET(req: Request) {
                         let cUsername = c.user?.login || 'Anonymous';
                         let cCreatedAt = c.created_at;
                         let cText = c.body || '';
+                        let cIsVerified = false;
                         
+                        // Parse META tag if present
+                        const metaMatch = cText.match(/<!--\s*META_START([\s\S]*?)META_END\s*-->/);
+                        if (metaMatch) {
+                            try {
+                                const cMeta = JSON.parse(metaMatch[1]);
+                                if (cMeta.isVerified) cIsVerified = true;
+                                if (cMeta.username) cUsername = cMeta.username;
+                            } catch(e) {}
+                            cText = cText.replace(metaMatch[0], '').trim();
+                        }
+
                         // Parse importer format: **Reply from User** on Date:
                         const match = cText.match(/^\*\*Reply from (.*?)\*\* on (.*?):\n\n([\s\S]*)$/);
                         if (match) {
@@ -177,6 +189,7 @@ export async function GET(req: Request) {
                             id: c.id.toString(),
                             username: cUsername,
                             text: cText,
+                            isVerified: cIsVerified,
                             createdAt: new Date(cCreatedAt)
                         };
                     });
@@ -192,6 +205,7 @@ export async function GET(req: Request) {
                 appVersion: meta.appVersion,
                 source: meta.source || 'Web',
                 labels: issue.labels?.map((l: any) => l.name) || [],
+                isVerified: !!meta.isVerified,
                 createdAt: new Date(meta.createdAt || issue.created_at),
                 replies
             };
@@ -222,7 +236,7 @@ export async function POST(req: Request) {
         const rawText     = formData.get('text')?.toString() ?? '';
 
         let username = sanitizeString(rawUsername) || 'Anonymous';
-        const text     = sanitizeString(rawText);
+        const text     = sanitizeString(rawText).replace(/META_START/g, 'META_DISABLED');
 
         if (username.length > LIMITS.USERNAME_MAX) {
             return err(`Username must be ${LIMITS.USERNAME_MAX} characters or fewer.`, 400);
@@ -291,7 +305,12 @@ export async function POST(req: Request) {
         // We omit username uniqueness checks since GitHub issues don't naturally enforce it,
         // and we are not using a database anymore.
 
-        const meta = { username, images, logFiles, appVersion, source, deviceId, ipHash };
+        const cookieHeader = req.headers.get('cookie') || '';
+        const match = cookieHeader.match(/cw_admin_token=([^;]+)/);
+        const token = match ? match[1] : null;
+        const isVerified = token === process.env.ADMIN_PASSKEY;
+
+        const meta = { username, images, logFiles, appVersion, source, deviceId, ipHash, ...(isVerified ? { isVerified: true } : {}) };
         let issueBody = text;
         
         if (images.length > 0) {
