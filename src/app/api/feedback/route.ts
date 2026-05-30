@@ -317,7 +317,19 @@ export async function POST(req: Request) {
         }
 
         const issue = await res.json();
-        return NextResponse.json({ success: true, id: issue.number.toString() }, { status: 201 });
+        const newItem = {
+            id: issue.number.toString(),
+            username,
+            text: text,
+            images: images,
+            logFiles: logFiles.map(l => ({ name: l.name, content: '[Log attached]' })),
+            appVersion,
+            source,
+            labels: ['feedback', source, ...userLabels],
+            createdAt: new Date().toISOString(),
+            replies: []
+        };
+        return NextResponse.json({ success: true, id: issue.number.toString(), data: newItem }, { status: 201 });
 
     } catch (error) {
         console.error('[feedback/POST]', error);

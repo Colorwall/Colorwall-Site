@@ -10,6 +10,7 @@ export interface FeedbackFormProps {
     defaultUsername?: string;
     defaultSource?: 'App' | 'Web';
     appVersion?: string;
+    onFeedbackSubmit?: (item: any) => void;
 }
 
 type Stage = 'form' | 'submitting' | 'success' | 'error';
@@ -33,7 +34,7 @@ function getUserAvatar(name: string) {
     };
 }
 
-export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersion }: FeedbackFormProps) {
+export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersion, onFeedbackSubmit }: FeedbackFormProps) {
     const [stage,    setStage]    = useState<Stage>('form');
     const [username, setUsername] = useState('');
     const [text,     setText]     = useState('');
@@ -134,6 +135,9 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
             const res  = await fetch('/api/feedback', { method: 'POST', body: fd });
             const data = await res.json();
             if (!res.ok) { setErrMsg(data.error ?? 'Something went wrong.'); setStage('form'); return; }
+            if (data.data && onFeedbackSubmit) {
+                onFeedbackSubmit(data.data);
+            }
             setStage('success');
             setText(''); setImages([]); setPreviews([]); setLogFiles([]); setSelectedLabels([]);
         } catch {

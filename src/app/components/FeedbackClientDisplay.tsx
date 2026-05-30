@@ -110,45 +110,29 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
 
             <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-16 pt-28 pb-28">
 
-                {/* ══════════ HEADER ══════════ */}
+
+      {/* ══════════ HEADER ══════════ */}
                 <div className="mb-20">
-                    <div className="flex items-center gap-3 mb-7">
-                        <span className="relative flex h-2 w-2">
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
-                        </span>
-                        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-indigo-400">
-                            Community · App/Web Feedback :3
-                        </span>
-                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-indigo-500/40 to-transparent" />
-                    </div>
 
                     <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-10">
                         <div className="flex-1">
-                            <h1 className={`text-[clamp(3rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.9] mb-0 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                                What do
-                            </h1>
+                            {/* <h1 className="text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-2 text-blue-500"> */}
+                             <GradientHeading text='FEATURE /' theme={isDark ? 'dark' : 'light'} className='text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-2 text-blue-500'/>
+                            {/* </h1> */}
                             <h1
-                                className="text-[clamp(3rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.9] mb-6"
-                                style={{ WebkitTextStroke: isDark ? '1px rgba(255,255,255,0.2)' : '1px rgba(0,0,0,0.15)', color: 'transparent' }}
+                                className="text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-6"
+                                style={{
+                                    background: 'linear-gradient(to right, #60a5fa, #bfdbfe)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                }}
                             >
-                                you think?
+                                BUG REPORTS
                             </h1>
-                            <GradientHeading
-                                text="Tell us All About It!"
-                                theme={theme as 'dark' | 'light'}
-                                as="h1"
-                                className="text-[clamp(3rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.9] mb-0"
-                            />
-                            <p className={`text-[15px] max-w-lg leading-relaxed ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
-                                Unfiltered reports, feature requests, and bug logs, tell us anything related to {' '}
-                                <span className={`font-medium ${isDark ? 'text-zinc-300' : 'text-zinc-800'}`}>ColorWall</span>.
-                                Every voice shapes the next release. Don&apos;t be like me and post random stuff :3
-                            </p>
                         </div>
 
-                        {/* Moved the Feedback Form into the hero section, replacing the little stats blocks */}
                         <div className="w-full xl:w-xl xl:flex-shrink-0">
-                            <FeedbackForm defaultSource="Web" />
+                            <FeedbackForm defaultSource="Web" onFeedbackSubmit={(newItem) => setItems(prev => [newItem, ...prev])} />
                         </div>
                     </div>
                 </div>
