@@ -149,31 +149,33 @@ export async function GET(req: Request) {
             }
 
             let replies = [];
-            const labels = issue.labels?.map((l: any) => l.name) || [];
             if (issue.comments > 0) {
-                try {
-                    const cRes = await fetch(issue.comments_url, {
-                        headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+                const commentsRes = await fetch(issue.comments_url, {
+                    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (commentsRes.ok) {
+                    const comments = await commentsRes.json();
+                    replies = comments.map((c: any) => {
+                        let cUsername = c.user?.login || 'Anonymous';
+                        let cCreatedAt = c.created_at;
+                        let cText = c.body || '';
+                        
+                        // Parse importer format: **Reply from User** on Date:
+                        const match = cText.match(/^\*\*Reply from (.*?)\*\* on (.*?):\n\n([\s\S]*)$/);
+                        if (match) {
+                            cUsername = match[1];
+                            cCreatedAt = match[2];
+                            cText = match[3];
+                        }
+
+                        return {
+                            id: c.id.toString(),
+                            username: cUsername,
+                            text: cText,
+                            createdAt: new Date(cCreatedAt)
+                        };
                     });
-                    if (cRes.ok) {
-                        const commentsData = await cRes.json();
-                        replies = commentsData.map((c: any) => {
-                            let replyMeta: any = {};
-                            let replyText = c.body || '';
-                            const rMetaMatch = replyText.match(/<!--\s*META_START([\s\S]*?)META_END\s*-->/);
-                            if (rMetaMatch) {
-                                try { replyMeta = JSON.parse(rMetaMatch[1]); } catch(e) {}
-                                replyText = replyText.replace(rMetaMatch[0], '').trim();
-                            }
-                            return {
-                                id: c.id.toString(),
-                                username: replyMeta.username || c.user.login,
-                                text: replyText,
-                                createdAt: new Date(c.created_at)
-                            };
-                        });
-                    }
-                } catch(e) {}
+                }
             }
 
             return {
@@ -184,8 +186,8 @@ export async function GET(req: Request) {
                 logFiles,
                 appVersion: meta.appVersion,
                 source: meta.source || 'Web',
-                labels,
-                createdAt: new Date(issue.created_at),
+                labels: issue.labels?.map((l: any) => l.name) || [],
+                createdAt: new Date(meta.createdAt || issue.created_at),
                 replies
             };
         }));
