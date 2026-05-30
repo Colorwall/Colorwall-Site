@@ -185,7 +185,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                             </div>
                             
                             <div className="p-2 relative bg-[#0d1117]">
-                                <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
+                                <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:border-[#8b949e]">
                                     <div className="px-2 py-1.5 flex gap-1 border-b border-[#30363d] bg-[#0d1117] rounded-t-md">
                                         <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><Edit3 className="w-4 h-4" /></button>
                                         <button onClick={() => imageInputRef.current?.click()} className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]" title="Upload images"><ImageIcon className="w-4 h-4" /></button>
