@@ -77,6 +77,7 @@ export async function GET(req: Request) {
             }
 
             let replies = [];
+            const labels = issue.labels?.map((l: any) => l.name) || [];
             if (issue.comments > 0) {
                 try {
                     const cRes = await fetch(issue.comments_url, {
@@ -111,6 +112,7 @@ export async function GET(req: Request) {
                 logFiles,
                 appVersion: meta.appVersion,
                 source: meta.source || 'Web',
+                labels,
                 createdAt: new Date(issue.created_at),
                 replies
             };

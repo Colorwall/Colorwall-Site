@@ -149,6 +149,7 @@ export async function GET(req: Request) {
             }
 
             let replies = [];
+            const labels = issue.labels?.map((l: any) => l.name) || [];
             if (issue.comments > 0) {
                 try {
                     const cRes = await fetch(issue.comments_url, {
@@ -183,6 +184,7 @@ export async function GET(req: Request) {
                 logFiles,
                 appVersion: meta.appVersion,
                 source: meta.source || 'Web',
+                labels,
                 createdAt: new Date(issue.created_at),
                 replies
             };
@@ -277,6 +279,7 @@ export async function POST(req: Request) {
         const source = detectSource(formData, req);
         const deviceId = formData.get('deviceId')?.toString().slice(0, 100) || null;
         const ipHash = hashIp(req);
+        const userLabels = formData.getAll('labels').map(String).map(sanitizeString).filter(Boolean).slice(0, 5);
 
         // We omit username uniqueness checks since GitHub issues don't naturally enforce it,
         // and we are not using a database anymore.
@@ -304,7 +307,7 @@ export async function POST(req: Request) {
             body: JSON.stringify({
                 title,
                 body: issueBody,
-                labels: ['feedback', source]
+                labels: ['feedback', source, ...userLabels]
             })
         });
 

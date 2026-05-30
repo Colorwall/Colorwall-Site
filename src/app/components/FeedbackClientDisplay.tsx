@@ -76,18 +76,13 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
         if (node) observer.current.observe(node);
     }, [isLoadingIndicator, hasMore, loadMore]);
 
-    // memoize grouping so it only recalculates when items change
+    // map each issue to its own group
     const groups: FeedbackGroup[] = useMemo(() => {
-        const result: FeedbackGroup[] = [];
-        for (const item of items) {
-            const last = result[result.length - 1];
-            if (last && last.username === item.username && last.source === item.source) {
-                last.items.push(item);
-            } else {
-                result.push({ username: item.username, source: item.source, items: [item] });
-            }
-        }
-        return result;
+        return items.map(item => ({
+            username: item.username,
+            source: item.source,
+            items: [item]
+        }));
     }, [items]);
 
     return (
