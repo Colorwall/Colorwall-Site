@@ -1,62 +1,60 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
-import crypto from 'crypto';
 
-function hashIp(req: Request): string {
-    const forwardedFor = req.headers.get('x-forwarded-for');
-    const raw =
-        (forwardedFor ? forwardedFor.split(',')[0].trim() : null) ||
-        req.headers.get('x-real-ip') ||
-        'unknown';
-    return crypto.createHash('sha256').update(raw).digest('hex');
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER = process.env.GITHUB_OWNER;
+const GITHUB_REPO = process.env.GITHUB_REPO;
+
+function checkAdmin(req: Request) {
+    const cookieHeader = req.headers.get('cookie') || '';
+    const match = cookieHeader.match(/cw_admin_token=([^;]+)/);
+    const passkey = match ? match[1] : null;
+    return passkey && passkey === process.env.ADMIN_PASSKEY;
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    if (!checkAdmin(req)) {
+        return NextResponse.json({ success: false, error: 'Forbidden: Admin access only.' }, { status: 403 });
+    }
+
+    const id = (await params).id;
+    const url = new URL(req.url);
+    const type = url.searchParams.get('type') || 'issue'; // 'issue' or 'reply'
+
+    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
+        return NextResponse.json({ success: false, error: 'GitHub config missing.' }, { status: 500 });
+    }
+
     try {
-        const id = (await params).id;
-        const currentIpHash = hashIp(req);
-        const db = await getDb();
-
-        // 1. Verify if the requester is "Laxenta"
-        // Admin condition: The current IP hash must have at least one feedback post under the exact alias 'laxenta'
-        const isAdmin = await db.collection('feedback').findOne({ 
-            username: { $regex: /^laxenta$/i }, 
-            ipHash: currentIpHash 
-        });
-
-        if (!isAdmin) {
-            return NextResponse.json({ success: false, error: 'Forbidden: Admin access only.' }, { status: 403 });
-        }
-
-        // 2. Try to grab ObjectId (if it is a thread ID)
-        let objectId: ObjectId | null = null;
-        try {
-            objectId = new ObjectId(id);
-        } catch {
-            // Invalid ObjectId, meaning it's almost certainly a Reply ID (which is also an ObjectId string natively, but just in case)
-        }
-
-        // 3. Try to delete as a Main Thread
-        if (objectId) {
-            const deleteResult = await db.collection('feedback').deleteOne({ _id: objectId });
-            if (deleteResult.deletedCount === 1) {
-                return NextResponse.json({ success: true, message: 'Thread deleted.' });
+        if (type === 'reply') {
+            // Delete comment
+            const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/comments/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                }
+            });
+            if (res.ok) {
+                return NextResponse.json({ success: true, message: 'Reply deleted.' });
             }
+            return NextResponse.json({ success: false, error: 'Failed to delete reply.' }, { status: res.status });
+        } else {
+            // "Delete" issue (close it)
+            // GitHub REST API doesn't support deleting issues. We will close it instead.
+            const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ state: 'closed' })
+            });
+            if (res.ok) {
+                return NextResponse.json({ success: true, message: 'Thread closed (deleted).' });
+            }
+            return NextResponse.json({ success: false, error: 'Failed to delete thread.' }, { status: res.status });
         }
-
-        // 4. If not a thread (or invalid ObjectId), try to delete as a Reply
-        const pullResult = await db.collection('feedback').updateOne(
-            { "replies.id": id },
-            { $pull: { replies: { id } } as any }
-        );
-
-        if (pullResult.modifiedCount === 1) {
-            return NextResponse.json({ success: true, message: 'Reply deleted.' });
-        }
-
-        return NextResponse.json({ success: false, error: 'Item not found.' }, { status: 404 });
-
     } catch (error) {
         console.error('[feedback/DELETE]', error);
         return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });

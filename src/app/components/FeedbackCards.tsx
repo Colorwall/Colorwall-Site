@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Monitor, Globe, ChevronDown, ChevronUp, FileText, MessageSquare, Send, Trash2, Loader2 } from 'lucide-react';
+import { Tag, Trash2, Loader2, PlaySquare, Eye, Edit3, Image as ImageIcon, Smile, Paperclip, Check, X, BadgeCheck } from 'lucide-react';
 import { useTheme } from '@/app/contexts/ThemeContext';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export interface FeedbackItem {
     id:        string;
@@ -14,7 +14,10 @@ export interface FeedbackItem {
     logFiles?: { name: string, content: string }[];
     appVersion?: string;
     source:    'App' | 'Web';
+    labels?:   string[];
+    isVerified?: boolean;
     createdAt: Date | string;
+    replies?:  { id: string; username: string; text: string; createdAt: Date | string, isVerified?: boolean }[];
 }
 
 export interface FeedbackGroup {
@@ -25,72 +28,49 @@ export interface FeedbackGroup {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getUserColor(name: string, theme: string) {
-    const isDark = theme === 'dark';
-    const palette = [
-        { 
-            bg: isDark ? 'from-violet-500/20 to-indigo-500/20' : 'from-violet-500/5 to-indigo-500/5',
-            border: isDark ? 'border-violet-500/30' : 'border-violet-500/20',
-            text: isDark ? 'text-violet-300' : 'text-violet-600',
-            dot: 'bg-violet-400',   accent: '#8b5cf6' 
-        },
-        { 
-            bg: isDark ? 'from-cyan-500/20 to-sky-500/20' : 'from-cyan-500/5 to-sky-500/5',
-            border: isDark ? 'border-cyan-500/30' : 'border-cyan-500/20',
-            text: isDark ? 'text-cyan-300' : 'text-cyan-600',
-            dot: 'bg-cyan-400',     accent: '#06b6d4' 
-        },
-        { 
-            bg: isDark ? 'from-emerald-500/20 to-teal-500/20' : 'from-emerald-500/5 to-teal-500/5',
-            border: isDark ? 'border-emerald-500/30' : 'border-emerald-500/20',
-            text: isDark ? 'text-emerald-300' : 'text-emerald-600',
-            dot: 'bg-emerald-400',  accent: '#10b981' 
-        },
-        { 
-            bg: isDark ? 'from-amber-500/20 to-orange-500/20' : 'from-amber-500/5 to-orange-500/5',
-            border: isDark ? 'border-amber-500/30' : 'border-amber-500/20',
-            text: isDark ? 'text-amber-300' : 'text-amber-600',
-            dot: 'bg-amber-400',    accent: '#f59e0b' 
-        },
-        { 
-            bg: isDark ? 'from-rose-500/20 to-pink-500/20' : 'from-rose-500/5 to-pink-500/5',
-            border: isDark ? 'border-rose-500/30' : 'border-rose-500/20',
-            text: isDark ? 'text-rose-300' : 'text-rose-600',
-            dot: 'bg-rose-400',     accent: '#f43f5e' 
-        },
-        { 
-            bg: isDark ? 'from-fuchsia-500/20 to-purple-500/20' : 'from-fuchsia-500/5 to-purple-500/5',
-            border: isDark ? 'border-fuchsia-500/30' : 'border-fuchsia-500/20',
-            text: isDark ? 'text-fuchsia-300' : 'text-fuchsia-600',
-            dot: 'bg-fuchsia-400',  accent: '#d946ef' 
-        },
-    ];
+function getUserAvatar(name: string) {
     const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    return palette[hash % palette.length];
+    const colors = [
+        'bg-indigo-600', 'bg-blue-600', 'bg-emerald-600', 
+        'bg-rose-600', 'bg-amber-600', 'bg-fuchsia-600'
+    ];
+    return {
+        color: colors[hash % colors.length],
+        initial: name.charAt(0).toUpperCase()
+    };
 }
 
 function timeAgo(date: Date | string): string {
     const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-    if (diff < 60)     return `${diff}s ago`;
-    if (diff < 3600)   return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400)  return `${Math.floor(diff / 3600)}h ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 60)     return `${diff} seconds ago`;
+    if (diff < 3600)   return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400)  return `${Math.floor(diff / 3600)} hours ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
     return new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getLabelColor(label: string) {
+    const map: Record<string, string> = {
+        'bug': 'border-rose-500/30 text-rose-400',
+        'enhancement': 'border-sky-500/30 text-sky-400',
+        'question': 'border-fuchsia-500/30 text-fuchsia-400',
+        'help wanted': 'border-emerald-500/30 text-emerald-400',
+        'App': 'border-indigo-500/30 text-indigo-400 bg-indigo-500/10',
+        'Web': 'border-teal-500/30 text-teal-400 bg-teal-500/10',
+        'feedback': 'border-zinc-500/30 text-zinc-400'
+    };
+    return map[label] || 'border-zinc-500/30 text-zinc-400';
 }
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
-function ExpandableImageGrid({ images, theme }: { images: string[], theme: string }) {
+function ExpandableImageGrid({ images }: { images: string[] }) {
     if (images.length === 0) return null;
-    const isDark = theme === 'dark';
-
     return (
         <div className={`mt-3 grid gap-2 ${images.length === 1 ? 'grid-cols-1 max-w-sm' : 'grid-cols-2 max-w-md'}`}>
             {images.map((src, idx) => (
                 <a key={idx} href={src} target="_blank" rel="noreferrer"
-                    className={`relative block overflow-hidden rounded-lg border ${
-                        isDark ? 'border-white/8' : 'border-zinc-200'
-                    }`}
+                    className="relative block overflow-hidden rounded-lg border border-[#30363d]"
                     style={{ aspectRatio: images.length === 1 ? '16/9' : '1/1' }}
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -101,74 +81,150 @@ function ExpandableImageGrid({ images, theme }: { images: string[], theme: strin
     );
 }
 
-function MessagesList({ items, isExpanded, theme }: { items: FeedbackItem[], isExpanded: boolean, theme: string }) {
-    const isDark = theme === 'dark';
-    const displayItems = isExpanded ? items : [items[0]];
+function CommentBox({ 
+    username, 
+    createdAt, 
+    body, 
+    images, 
+    logFiles, 
+    isMain,
+    itemId,
+    isAdmin,
+    isVerified
+}: { 
+    username: string, 
+    createdAt: Date | string, 
+    body: string, 
+    images?: string[], 
+    logFiles?: { name: string, content: string }[],
+    isMain?: boolean,
+    itemId: string,
+    isAdmin: boolean,
+    isVerified?: boolean
+}) {
+    const avatar = getUserAvatar(username);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editText, setEditText] = useState(body);
+    const [isSaving, setIsSaving] = useState(false);
+    const [currentBody, setCurrentBody] = useState(body);
+
+    const handleSaveEdit = async () => {
+        setIsSaving(true);
+        try {
+            const res = await fetch(`/api/feedback/${itemId}/edit?type=${isMain ? 'issue' : 'reply'}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: editText, originalText: currentBody })
+            });
+            if (res.ok) {
+                setCurrentBody(editText);
+                setIsEditing(false);
+            } else {
+                alert("Failed to save edit.");
+            }
+        } catch {
+            alert("Error saving edit.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
-        <div className="space-y-3 mt-1 pl-[44px]">
-            {displayItems.map((item, i) => {
-                const isTruncated = !isExpanded && item.text.length > 250;
-                const displayText = isTruncated ? item.text.slice(0, 250) + '...' : item.text;
+        <div className="flex gap-4 relative">
+            {/* Vertical Thread Line */}
+            <div className="absolute left-4 top-8 bottom-[-24px] w-[2px] bg-[#21262d] -translate-x-1/2 z-0" />
+            
+            {/* Avatar */}
+            <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-xs ${avatar.color}`}>
+                {avatar.initial}
+            </div>
 
-                return (
-                    <div key={item.id} className={i > 0 ? `pt-3 border-t ${isDark ? 'border-white/[0.04]' : 'border-zinc-100'}` : ''}>
-                        {i > 0 && (
-                            <span className={`block text-[10px] font-mono mb-1 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>{timeAgo(item.createdAt)}</span>
-                        )}
-                        {item.text && (
-                            <p className={`text-[13px] leading-[1.6] whitespace-pre-wrap font-[450] select-text cursor-text ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                                {displayText}
-                            </p>
-                        )}
-                        {(isExpanded || i === 0) && <ExpandableImageGrid images={item.images} theme={theme} />}
-                        {item.logFiles && item.logFiles.map((log, idx) => (
-                            <div key={idx} className={`mt-3 rounded-lg border overflow-hidden ${isDark ? 'border-indigo-500/20' : 'border-indigo-200'}`}>
-                                <div className={`flex items-center gap-2 px-3 py-2 text-[10px] uppercase tracking-wider font-mono border-b ${isDark ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>
-                                    <FileText size={12} /> {log.name}
+            {/* Comment Body */}
+            <div className="flex-1 relative mb-6">
+                {/* Pointer Arrow */}
+                <div className="absolute left-[-6px] top-3 w-3 h-3 bg-[#161b22] border-l border-t border-[#30363d] rotate-[-45deg]" />
+                
+                <div className={`border border-[#30363d] rounded-md overflow-hidden ${isMain ? 'bg-[#0d1117]' : 'bg-[#0d1117]'}`}>
+                    <div className="bg-[#161b22] border-b border-[#30363d] px-4 py-2.5 flex items-center justify-between text-[13px]">
+                        <div className="flex items-center gap-1.5 text-[#8b949e]">
+                            <span className="font-semibold text-[#c9d1d9]">{username}</span>
+                            {isVerified && (
+                                <span className="text-blue-500" title="Verified Moderator">
+                                    <BadgeCheck className="w-4 h-4 fill-blue-500 text-[#161b22]" />
+                                </span>
+                            )}
+                            <span>commented</span>
+                            <span>{timeAgo(createdAt)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {isMain && (
+                                <span className="border border-[#30363d] text-[#8b949e] px-2 py-0.5 rounded-full text-xs font-semibold">
+                                    Author
+                                </span>
+                            )}
+                            {isAdmin && !isEditing && (
+                                <button onClick={() => setIsEditing(true)} className="text-[#8b949e] hover:text-indigo-400 p-1 rounded-md hover:bg-[#30363d] transition-colors">
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                            {isAdmin && !isMain && (
+                                <button onClick={async () => {
+                                    if(confirm('Delete reply?')) {
+                                        await fetch(`/api/feedback/${itemId}?type=reply`, { method: 'DELETE' });
+                                        window.location.reload();
+                                    }
+                                }} className="text-[#8b949e] hover:text-rose-400 p-1 rounded-md hover:bg-[#30363d] transition-colors">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    <div className="p-4 text-[14px] leading-relaxed text-[#c9d1d9] font-sans">
+                        {isEditing ? (
+                            <div className="flex flex-col gap-3">
+                                <textarea 
+                                    className="w-full min-h-[120px] bg-[#0d1117] border border-[#30363d] rounded-md p-3 text-[#c9d1d9] focus:border-indigo-500 outline-none"
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                />
+                                <div className="flex justify-end gap-2">
+                                    <button onClick={() => { setIsEditing(false); setEditText(currentBody); }} className="px-3 py-1.5 rounded-md text-xs font-semibold text-[#8b949e] hover:text-white bg-[#21262d] border border-[#30363d]">Cancel</button>
+                                    <button onClick={handleSaveEdit} disabled={isSaving} className="px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-[#238636] hover:bg-[#2ea043] flex items-center gap-1">
+                                        {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Save
+                                    </button>
                                 </div>
-                                <div className={`p-3 text-[11px] font-mono overflow-x-auto whitespace-pre-wrap max-h-48 select-text cursor-text ${
-                                    isDark ? 'bg-black/40 text-indigo-100/70' : 'bg-white text-indigo-900/80'
-                                }`}>
+                            </div>
+                        ) : (
+                            <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-hidden">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {currentBody}
+                                </ReactMarkdown>
+                            </div>
+                        )}
+                        
+                        {images && <ExpandableImageGrid images={images} />}
+                        {logFiles && logFiles.map((log, idx) => (
+                            <div key={idx} className="mt-3 rounded-md border border-[#30363d] overflow-hidden">
+                                <div className="bg-[#161b22] border-b border-[#30363d] px-3 py-2 text-xs font-mono text-[#8b949e]">
+                                    {log.name}
+                                </div>
+                                <div className="p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap max-h-48 bg-[#0d1117] text-[#c9d1d9]">
                                     {log.content}
                                 </div>
                             </div>
                         ))}
                     </div>
-                );
-            })}
+                </div>
+            </div>
         </div>
     );
 }
 
-function ReplySection({ theme, isApp, threadId, initialReplies }: { theme: string, isApp?: boolean, threadId: string, initialReplies: {id: string, text: string, username: string, createdAt: Date}[] }) {
-    const isDark = theme === 'dark';
-    const [isReplying, setIsReplying] = useState(false);
+function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string, initialReplies: any[], isAdmin: boolean }) {
     const [replyText, setReplyText] = useState('');
-    const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date}[]>(initialReplies || []);
+    const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date, isVerified?: boolean}[]>(initialReplies || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [slowmode, setSlowmode] = useState(0);
-
-    useEffect(() => {
-        if (slowmode <= 0) return;
-        const timer = setInterval(() => setSlowmode(s => s - 1), 1000);
-        return () => clearInterval(timer);
-    }, [slowmode]);
-
-    const handleDeleteReply = async (id: string) => {
-        if (!confirm('Admin: Delete this reply?')) return;
-        try {
-            const res = await fetch(`/api/feedback/${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-                setLocalReplies(prev => prev.filter(r => r.id !== id));
-            } else {
-                alert(`Error: ${data.error}`);
-            }
-        } catch {
-            alert('Delete failed.');
-        }
-    };
+    const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
 
     const handleReply = async () => {
         if (!replyText.trim() || isSubmitting) return;
@@ -183,12 +239,10 @@ function ReplySection({ theme, isApp, threadId, initialReplies }: { theme: strin
             });
             const data = await res.json();
             
-            if (res.status === 429) {
-                setSlowmode(60);
-            } else if (data.success && data.reply) {
+            if (data.success && data.reply) {
                 setLocalReplies([...localReplies, data.reply]);
                 setReplyText('');
-                setIsReplying(false);
+                setActiveTab('write');
             } else {
                 alert(`Error: ${data.error}`);
             }
@@ -199,171 +253,101 @@ function ReplySection({ theme, isApp, threadId, initialReplies }: { theme: strin
         }
     };
 
+    const myAvatar = typeof window !== 'undefined' ? getUserAvatar(localStorage.getItem('cw_username') || 'A') : getUserAvatar('A');
+
     return (
-        <div className={`mt-4 pt-4 border-t ${isDark ? 'border-white/[0.04]' : 'border-zinc-100'} pl-[44px]`}>
-            {/* Show local replies */}
-            {localReplies.length > 0 && (
-                <div className="space-y-4 mb-4">
-                    {localReplies.map(reply => (
-                        <div key={reply.id} className="flex gap-3">
-                            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${isDark ? 'from-indigo-500/20 to-purple-500/20 border border-indigo-500/30' : 'from-indigo-100 to-purple-100 border border-indigo-200'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                                <span className={`text-[10px] font-black ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>{reply.username.charAt(0).toUpperCase()}</span>
+        <div className="mt-2">
+            {/* Show Replies */}
+            {localReplies.map(reply => (
+                <CommentBox 
+                    key={reply.id} 
+                    itemId={reply.id}
+                    username={reply.username} 
+                    createdAt={reply.createdAt} 
+                    body={reply.text} 
+                    isAdmin={isAdmin}
+                    isVerified={reply.isVerified}
+                />
+            ))}
+
+            {/* Reply Input */}
+            <div className="flex gap-4 relative mt-6">
+                <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-xs ${myAvatar.color}`}>
+                    {myAvatar.initial}
+                </div>
+                <div className="flex-1 relative">
+                    <div className="absolute left-[-6px] top-3 w-3 h-3 bg-[#0d1117] border-l border-t border-[#30363d] rotate-[-45deg] z-10" />
+                    <div className="border border-[#30363d] rounded-md bg-[#0d1117] flex flex-col">
+                        <div className="bg-[#161b22] border-b border-[#30363d] rounded-t-md">
+                            <div className="flex px-2 pt-2 gap-1">
+                                <button 
+                                    onClick={() => setActiveTab('write')}
+                                    className={`px-4 py-2 text-sm rounded-t-md transition-colors ${activeTab === 'write' ? 'bg-[#0d1117] text-[#c9d1d9] border border-b-0 border-[#30363d]' : 'text-[#8b949e] hover:text-[#c9d1d9] border border-transparent'}`}
+                                >
+                                    Write
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('preview')}
+                                    className={`px-4 py-2 text-sm rounded-t-md transition-colors ${activeTab === 'preview' ? 'bg-[#0d1117] text-[#c9d1d9] border border-b-0 border-[#30363d]' : 'text-[#8b949e] hover:text-[#c9d1d9] border border-transparent'}`}
+                                >
+                                    Preview
+                                </button>
                             </div>
-                            <div className="flex-1">
-                                <div className="flex items-baseline justify-between gap-2">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className={`text-[12px] font-bold ${isDark ? 'text-white/90' : 'text-zinc-800'}`}>{reply.username}</span>
-                                        <span className={`text-[9px] font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>{timeAgo(reply.createdAt)}</span>
-                                    </div>
-                                    <button onClick={() => handleDeleteReply(reply.id)} className={`opacity-40 hover:opacity-100 transition-opacity p-1 ${isDark ? 'text-rose-500/50 hover:text-rose-400' : 'text-rose-600/50 hover:text-rose-600'}`}>
-                                        <Trash2 className="w-3 h-3" />
-                                    </button>
+                        </div>
+                        
+                        <div className="p-2 relative bg-[#0d1117]">
+                            <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:border-[#8b949e]">
+                                <div className="px-2 py-1.5 flex gap-1 border-b border-[#30363d] bg-[#0d1117] rounded-t-md">
+                                    <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><Edit3 className="w-4 h-4" /></button>
+                                    <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><ImageIcon className="w-4 h-4" /></button>
                                 </div>
-                                <p className={`text-[12px] leading-relaxed mt-0.5 whitespace-pre-wrap select-text cursor-text ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                                    {reply.text}
-                                </p>
+                                {activeTab === 'write' ? (
+                                    <textarea 
+                                        className="w-full min-h-[100px] bg-transparent text-[14px] text-[#c9d1d9] p-3 resize-y outline-none"
+                                        placeholder="Leave a comment"
+                                        value={replyText}
+                                        onChange={(e) => setReplyText(e.target.value)}
+                                    />
+                                ) : (
+                                    <div className="w-full min-h-[100px] p-3 text-[14px] text-[#c9d1d9] whitespace-pre-wrap">
+                                        {replyText || 'Nothing to preview'}
+                                    </div>
+                                )}
+                                <div className="flex items-center justify-between px-3 py-2 border-t border-[#30363d] border-dashed">
+                                    <span className="text-xs text-[#8b949e] flex items-center gap-1"><Paperclip className="w-3 h-3"/> Attach files by dragging & dropping</span>
+                                    <button className="text-[#8b949e] hover:text-[#c9d1d9]"><Smile className="w-4 h-4" /></button>
+                                </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Reply Actions */}
-            {!isReplying ? (
-                <button 
-                    onClick={() => setIsReplying(true)}
-                    className={`flex items-center gap-1.5 text-[11px] font-mono transition-colors ${
-                        isApp 
-                            ? (isDark ? 'text-blue-400/60 hover:text-blue-400' : 'text-blue-600/70 hover:text-blue-600')
-                            : (isDark ? 'text-zinc-400 hover:text-zinc-200' : 'text-zinc-500 hover:text-zinc-800')
-                    }`}
-                >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    Reply to thread
-                </button>
-            ) : (
-                <div className="flex flex-col gap-2 relative">
-                    <textarea 
-                        className={`w-full min-h-[70px] resize-none rounded-xl p-3 text-[12px] outline-none border transition-colors ${
-                            isDark 
-                                ? 'bg-white/[0.02] border-white/10 text-white placeholder-zinc-600 focus:border-indigo-500/50' 
-                                : 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-indigo-500/50'
-                        }`}
-                        placeholder="Write a reply..."
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        autoFocus
-                    />
-                    <div className="flex justify-end gap-2 mt-1">
-                        <button 
-                            onClick={() => setIsReplying(false)}
-                            className={`px-3 py-1.5 rounded-lg text-[11px] font-mono transition-colors ${
-                                isDark ? 'text-zinc-400 hover:bg-white/5' : 'text-zinc-500 hover:bg-zinc-100'
-                            }`}
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            onClick={handleReply}
-                            disabled={!replyText.trim() || isSubmitting || slowmode > 0}
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[11px] font-bold disabled:opacity-50 transition-colors shadow-sm ${
-                                slowmode > 0 ? (isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-200 text-zinc-500') : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                            }`}
-                        >
-                            {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : slowmode > 0 ? null : <Send className="w-3" />}
-                            {slowmode > 0 ? `Wait ${slowmode}s` : isSubmitting ? 'Posting...' : 'Submit Reply'}
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
-
-/** Web submission — warm card, chat-bubble feel */
-function WebCard({ group, index, theme }: { group: FeedbackGroup; index: number; theme: string }) {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const isDark = theme === 'dark';
-    
-    const color    = getUserColor(group.username, theme);
-    const initials = group.username.slice(0, 2).toUpperCase();
-    const first    = group.items[0];
-
-    const needsExpansion = group.items.length > 1 || (first.text && first.text.length > 250) || (first.logFiles && first.logFiles.length > 0);
-
-    const handleDeleteThread = async () => {
-        if (!confirm('Admin: Delete this ENTIRE thread?')) return;
-        try {
-            const res = await fetch(`/api/feedback/${first.id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) window.location.reload();
-            else alert(`Error: ${data.error}`);
-        } catch {
-            alert('Delete failed.');
-        }
-    };
-
-    return (
-        <div className={`relative rounded-xl border overflow-hidden ${
-            isDark ? 'border-white/8 bg-[#0d0d0f]/90 shadow-none' : 'border-zinc-200 bg-white shadow-sm'
-        }`}>
-
-            <div className="relative z-10 p-5">
-                {/* User row */}
-                <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color.bg} border ${color.border} flex items-center justify-center flex-shrink-0`}>
-                            <span className={`text-[10px] font-black ${color.text}`}>{initials}</span>
-                        </div>
-                        <div>
-                            <span className={`text-[13px] font-bold tracking-wide ${isDark ? 'text-white' : 'text-zinc-900'}`}>{group.username}</span>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <Globe className={`w-2.5 h-2.5 ${isDark ? 'text-emerald-500/70' : 'text-emerald-600/70'}`} />
-                                <span className={`text-[10px] font-mono ${isDark ? 'text-emerald-500/60' : 'text-emerald-600/70'}`}>Web</span>
-                                <span className={`text-[10px] ${isDark ? 'text-zinc-700' : 'text-zinc-300'}`}>·</span>
-                                <span className={`text-[10px] font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{timeAgo(first.createdAt)}</span>
-                            </div>
+                        
+                        <div className="p-2 flex justify-end gap-2 bg-[#0d1117] rounded-b-md">
+                            <button 
+                                onClick={handleReply}
+                                disabled={!replyText.trim() || isSubmitting}
+                                className={`px-4 py-1.5 rounded-md text-[13px] font-semibold transition-colors ${
+                                    !replyText.trim() || isSubmitting 
+                                        ? 'bg-[#238636]/50 text-white/50 cursor-not-allowed' 
+                                        : 'bg-[#238636] text-white hover:bg-[#2ea043]'
+                                }`}
+                            >
+                                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Comment'}
+                            </button>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button onClick={handleDeleteThread} className={`opacity-40 hover:opacity-100 transition-opacity p-1 ${isDark ? 'text-rose-500/50 hover:text-rose-400' : 'text-rose-600/50 hover:text-rose-600'}`}>
-                            <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                        <span className={`text-[9px] font-mono tabular-nums py-1 px-2 rounded ${isDark ? 'text-zinc-600 bg-white/[0.02]' : 'text-zinc-400 bg-zinc-50'}`}>#{String(index + 1).padStart(4, '0')}</span>
-                    </div>
                 </div>
-
-                <MessagesList items={group.items} isExpanded={isExpanded} theme={theme} />
-
-                {needsExpansion && (
-                    <div className="mt-3 pl-[44px]">
-                        <button 
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            className={`flex items-center gap-1 text-[11px] font-mono transition-colors ${
-                                isDark ? 'text-indigo-400/60 hover:text-indigo-300' : 'text-indigo-600/80 hover:text-indigo-600'
-                            }`}
-                        >
-                            {isExpanded ? (
-                                <><ChevronUp className="w-3 h-3" /> Show less</>
-                            ) : (
-                                <><ChevronDown className="w-3 h-3" /> Show more {group.items.length > 1 && `(${group.items.length - 1} earlier)`}</>
-                            )}
-                        </button>
-                    </div>
-                )}
-                <ReplySection theme={theme} isApp={false} threadId={first.id} initialReplies={(first as unknown as {replies: {id: string, text: string, username: string, createdAt: Date}[]}).replies || []} />
             </div>
         </div>
     );
 }
 
-/** App submission — monochrome, terminal / system-log feel */
-function AppCard({ group, index, theme }: { group: FeedbackGroup; index: number; theme: string }) {
-    const [isExpanded, setIsExpanded] = useState(false);
+/** 
+ * Github Issue Thread Card
+ */
+function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: number; isAdmin: boolean }) {
+    const { theme } = useTheme();
     const isDark = theme === 'dark';
     const first = group.items[0];
-
-    const needsExpansion = group.items.length > 1 || (first.text && first.text.length > 250) || (first.logFiles && first.logFiles.length > 0);
+    const labels = first.labels || ['feedback', group.source];
 
     const handleDeleteThread = async () => {
         if (!confirm('Admin: Delete this ENTIRE thread?')) return;
@@ -378,89 +362,90 @@ function AppCard({ group, index, theme }: { group: FeedbackGroup; index: number;
     };
 
     return (
-        <div className={`relative rounded-xl border overflow-hidden ${
-            isDark ? 'border-blue-500/10 bg-[#08090d]/95 shadow-none' : 'border-blue-600/10 bg-slate-50 shadow-sm'
-        }`}>
-
-            <div className="relative z-10 p-5">
-                {/* Header row */}
+        <div className={`mb-12 rounded-xl overflow-hidden text-[#c9d1d9] font-sans bg-[#010409] border-[6px] p-2 sm:p-4 ${isDark ? 'border-white/5 shadow-xl shadow-black/50' : 'border-indigo-50/80 shadow-xl shadow-indigo-900/10'}`}>
+            {/* Header */}
+            <div className="p-5 border-b border-[#30363d] bg-[#0d1117]">
                 <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-blue-500/8 border-blue-500/15' : 'bg-blue-500/5 border-blue-500/10'}`}>
-                            <Monitor className={`w-3.5 h-3.5 ${isDark ? 'text-blue-400/80' : 'text-blue-600/80'}`} />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <span className={`text-[13px] font-bold tracking-wide font-mono ${isDark ? 'text-white/90' : 'text-zinc-800'}`}>{group.username}</span>
-                                <span className={`text-[9px] font-mono font-bold px-1 py-[1px] rounded border ${isDark ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : 'bg-blue-500/5 border-blue-500/15 text-blue-600'}`}>DESKTOP</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className={`text-[10px] font-mono ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{timeAgo(first.createdAt)}</span>
-                                <span className={`text-[10px] ${isDark ? 'text-zinc-700' : 'text-zinc-300'}`}>·</span>
-                                <span className={`text-[10px] font-mono ${isDark ? 'text-blue-500/50' : 'text-blue-600/60'}`}>
-                                    {first.appVersion ? `Engine v${first.appVersion.replace(/^v/i, '')}` : 'Engine V1'}
-                                </span>
-                            </div>
+                    <div>
+                        <h2 className="text-2xl font-normal tracking-tight flex items-center gap-2 mb-2">
+                            Feedback from {group.username} 
+                            <span className="text-[#8b949e] font-light">#{first.id}</span>
+                        </h2>
+                        <div className="flex items-center gap-2">
+                            <span className="bg-[#238636] text-white px-3 py-1 rounded-full text-[13px] font-medium flex items-center gap-1.5">
+                                <PlaySquare className="w-3.5 h-3.5" />
+                                Open
+                            </span>
+                            <span className="text-[#8b949e] text-[13px]">
+                                <span className="font-semibold text-[#c9d1d9]">{group.username}</span> opened this issue {timeAgo(first.createdAt)}
+                            </span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button onClick={handleDeleteThread} className={`opacity-40 hover:opacity-100 transition-opacity p-1 ${isDark ? 'text-rose-500/50 hover:text-rose-400' : 'text-rose-600/50 hover:text-rose-600'}`}>
-                            <Trash2 className="w-3.5 h-3.5" />
+                    {isAdmin && (
+                        <button onClick={handleDeleteThread} className="text-rose-500 hover:text-rose-400 p-2 border border-[#30363d] rounded-md bg-[#21262d] transition-colors">
+                            <Trash2 className="w-4 h-4" />
                         </button>
-                        <span className={`text-[9px] font-mono tabular-nums py-1 px-2 rounded ${isDark ? 'text-zinc-600 bg-white/[0.02]' : 'text-zinc-400 bg-zinc-100/50'}`}>#{String(index + 1).padStart(4, '0')}</span>
-                    </div>
+                    )}
                 </div>
+            </div>
 
-                <div className="space-y-3 font-mono mt-3 pl-[44px]">
-                    {/* Log-line style messages */}
-                    {(isExpanded ? group.items : [first]).map((item, i) => {
-                        const isTruncated = !isExpanded && item.text.length > 250;
-                        const displayText = isTruncated ? item.text.slice(0, 250) + '...' : item.text;
+            <div className="p-5">
+                {/* Main Issue Comment */}
+                <CommentBox 
+                    itemId={first.id}
+                    username={group.username} 
+                    createdAt={first.createdAt} 
+                    body={first.text} 
+                    images={first.images} 
+                    logFiles={first.logFiles} 
+                    isMain={true}
+                    isAdmin={isAdmin}
+                    isVerified={first.isVerified}
+                />
 
-                        return (
-                            <div key={item.id} className={i > 0 ? `pt-3 border-t ${isDark ? 'border-white/[0.04]' : 'border-blue-500/5'}` : ''}>
-                                {item.text && (
-                                    <p className={`text-[12px] leading-[1.6] whitespace-pre-wrap select-text cursor-text ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                                        {/* Prefix message with a › prompt symbol */}
-                                        <span className={`select-none mr-2 ${isDark ? 'text-blue-500/40' : 'text-blue-600/30'}`}>›</span>
-                                        {displayText}
-                                    </p>
-                                )}
-                                {(isExpanded || i === 0) && <ExpandableImageGrid images={item.images} theme={theme} />}
-                                {item.logFiles && item.logFiles.map((log, idx) => (
-                                    <div key={idx} className={`mt-3 rounded-lg border overflow-hidden ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
-                                        <div className={`flex items-center gap-2 px-3 py-2 text-[10px] uppercase tracking-wider font-mono border-b ${isDark ? 'bg-white/5 border-white/10 text-zinc-400' : 'bg-slate-100 border-slate-200 text-zinc-500'}`}>
-                                            <FileText size={12} /> {log.name}
-                                        </div>
-                                        <div className={`p-3 text-[11px] font-mono overflow-x-auto whitespace-pre-wrap max-h-48 select-text cursor-text ${
-                                            isDark ? 'bg-black/30 text-zinc-300' : 'bg-white text-zinc-700'
-                                        }`}>
-                                            {log.content}
-                                        </div>
-                                    </div>
+                {/* Timeline Tag Event */}
+                {labels.length > 0 && (
+                    <div className="flex gap-4 relative mb-6">
+                        <div className="absolute left-4 top-0 bottom-[-24px] w-[2px] bg-[#21262d] -translate-x-1/2 z-0" />
+                        <div className="relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-[#21262d] border border-[#30363d]">
+                            <Tag className="w-3.5 h-3.5 text-[#8b949e]" />
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[13px] text-[#8b949e] py-1.5">
+                            <span className="font-semibold text-[#c9d1d9]">{group.username}</span>
+                            added
+                            <div className="flex gap-1">
+                                {labels.map(label => (
+                                    <span key={label} className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getLabelColor(label)}`}>
+                                        {label}
+                                    </span>
                                 ))}
                             </div>
-                        );
-                    })}
-                </div>
-
-                {needsExpansion && (
-                    <div className="mt-3 pl-[44px]">
-                        <button 
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            className={`flex items-center gap-1 text-[11px] font-mono transition-colors ${
-                                isDark ? 'text-blue-400/50 hover:text-blue-400' : 'text-blue-600/70 hover:text-blue-600'
-                            }`}
-                        >
-                            {isExpanded ? (
-                                <><ChevronUp className="w-3 h-3" /> Hide trace</>
-                            ) : (
-                                <><ChevronDown className="w-3 h-3" /> Expand trace {group.items.length > 1 && `(${group.items.length - 1} logs)`}</>
-                            )}
-                        </button>
+                            <span>{timeAgo(first.createdAt)}</span>
+                        </div>
                     </div>
                 )}
-                <ReplySection theme={theme} isApp={true} threadId={first.id} initialReplies={(first as unknown as {replies: {id: string, text: string, username: string, createdAt: Date}[]}).replies || []} />
+
+                {/* Additional Comments by Author (if grouped) */}
+                {group.items.slice(1).map(item => (
+                    <CommentBox 
+                        key={item.id}
+                        itemId={item.id}
+                        username={item.username} 
+                        createdAt={item.createdAt} 
+                        body={item.text} 
+                        images={item.images} 
+                        logFiles={item.logFiles} 
+                        isAdmin={isAdmin}
+                        isVerified={item.isVerified}
+                    />
+                ))}
+
+                {/* Replies / Comments */}
+                <ReplySection 
+                    threadId={first.id} 
+                    initialReplies={first.replies || []} 
+                    isAdmin={isAdmin}
+                />
             </div>
         </div>
     );
@@ -468,16 +453,12 @@ function AppCard({ group, index, theme }: { group: FeedbackGroup; index: number;
 
 // ─── Feed ──────────────────────────────────────────────────────────────────────
 
-export function FeedbackCards({ groups }: { groups: FeedbackGroup[] }) {
-    const { theme } = useTheme();
-
+export function FeedbackCards({ groups, isAdmin }: { groups: FeedbackGroup[], isAdmin?: boolean }) {
     return (
-        <div className="flex flex-col gap-5">
-            {groups.map((group, i) =>
-                group.source === 'App'
-                    ? <AppCard key={`${group.username}-${i}`} group={group} index={i} theme={theme} />
-                    : <WebCard key={`${group.username}-${i}`} group={group} index={i} theme={theme} />
-            )}
+        <div className="flex flex-col gap-6 max-w-[900px] mx-auto w-full">
+            {groups.map((group, i) => (
+                <IssueCard key={`${group.username}-${i}`} group={group} index={i} isAdmin={!!isAdmin} />
+            ))}
         </div>
     );
 }

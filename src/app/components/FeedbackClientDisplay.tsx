@@ -6,6 +6,8 @@ import { FeedbackForm } from './FeedbackForm';
 import { FeedbackCards, FeedbackGroup, FeedbackItem } from './FeedbackCards';
 import { useTheme } from '@/app/contexts/ThemeContext';
 import { GradientHeading } from '@/app/components/landing/GradientHeading';
+import { Lock, CheckCircle, ChevronRight } from 'lucide-react';
+import { Toaster, toast } from 'react-hot-toast';
 
 interface FeedbackClientDisplayProps {
     feedbacks: FeedbackItem[];
@@ -20,7 +22,20 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
     const [isLoadingIndicator, setIsLoadingIndicator] = useState(false);
     const [initialLoad, setInitialLoad] = useState(!feedbacks || feedbacks.length === 0);
 
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [adminIp, setAdminIp] = useState('127.0.0.1');
+    const [showAdminInput, setShowAdminInput] = useState(false);
+    const [adminPasskey, setAdminPasskey] = useState('');
+
     useEffect(() => {
+        fetch('/api/auth/admin')
+            .then(res => res.json())
+            .then(data => {
+                setIsAdmin(!!data.isAdmin);
+                if (data.ip) setAdminIp(data.ip);
+            })
+            .catch(() => {});
+
         const loadInitial = async () => {
             setIsLoadingIndicator(true);
             try {
@@ -76,18 +91,13 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
         if (node) observer.current.observe(node);
     }, [isLoadingIndicator, hasMore, loadMore]);
 
-    // memoize grouping so it only recalculates when items change
+    // map each issue to its own group
     const groups: FeedbackGroup[] = useMemo(() => {
-        const result: FeedbackGroup[] = [];
-        for (const item of items) {
-            const last = result[result.length - 1];
-            if (last && last.username === item.username && last.source === item.source) {
-                last.items.push(item);
-            } else {
-                result.push({ username: item.username, source: item.source, items: [item] });
-            }
-        }
-        return result;
+        return items.map(item => ({
+            username: item.username,
+            source: item.source,
+            items: [item]
+        }));
     }, [items]);
 
     return (
@@ -95,6 +105,8 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
             className={`min-h-screen relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#080809] text-zinc-100' : 'bg-slate-50 text-zinc-900'}`}
             style={{ fontFamily: "'DM Sans', 'Geist', sans-serif" }}
         >
+            <Toaster position="bottom-right" toastOptions={{ style: { background: isDark ? '#0d1117' : '#fff', color: isDark ? '#c9d1d9' : '#000', border: '1px solid #30363d' } }} />
+
             {/* Noise overlay */}
             <div className={`pointer-events-none fixed inset-0 z-0 ${isDark ? 'opacity-[0.035]' : 'opacity-[0.05]'}`}
                 style={{
@@ -115,45 +127,27 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
 
             <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-16 pt-28 pb-28">
 
-                {/* ══════════ HEADER ══════════ */}
-                <div className="mb-20">
-                    <div className="flex items-center gap-3 mb-7">
-                        <span className="relative flex h-2 w-2">
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
-                        </span>
-                        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-indigo-400">
-                            Community · App/Web Feedback :3
-                        </span>
-                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-indigo-500/40 to-transparent" />
-                    </div>
 
-                    <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-10">
-                        <div className="flex-1">
-                            <h1 className={`text-[clamp(3rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.9] mb-0 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                                What do
-                            </h1>
+      {/* ══════════ HEADER ══════════ */}
+                <div className="mb-20">
+
+                    <div className="flex flex-col gap-10 max-w-[900px] mx-auto">
+                        <div className="text-center">
+                             <GradientHeading text='FEATURE /' theme={isDark ? 'dark' : 'light'} className='text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-2 text-blue-500'/>
                             <h1
-                                className="text-[clamp(3rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.9] mb-6"
-                                style={{ WebkitTextStroke: isDark ? '1px rgba(255,255,255,0.2)' : '1px rgba(0,0,0,0.15)', color: 'transparent' }}
+                                className="text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-6"
+                                style={{
+                                    background: 'linear-gradient(to right, #60a5fa, #bfdbfe)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                }}
                             >
-                                you think?
+                                BUG REPORTS
                             </h1>
-                            <GradientHeading
-                                text="Tell us All About It!"
-                                theme={theme as 'dark' | 'light'}
-                                as="h1"
-                                className="text-[clamp(3rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.9] mb-0"
-                            />
-                            <p className={`text-[15px] max-w-lg leading-relaxed ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
-                                Unfiltered reports, feature requests, and bug logs, tell us anything related to {' '}
-                                <span className={`font-medium ${isDark ? 'text-zinc-300' : 'text-zinc-800'}`}>ColorWall</span>.
-                                Every voice shapes the next release. Don&apos;t be like me and post random stuff :3
-                            </p>
                         </div>
 
-                        {/* Moved the Feedback Form into the hero section, replacing the little stats blocks */}
-                        <div className="w-full xl:w-xl xl:flex-shrink-0">
-                            <FeedbackForm defaultSource="Web" />
+                        <div className="w-full">
+                            <FeedbackForm defaultSource="Web" onFeedbackSubmit={(newItem) => setItems(prev => [newItem, ...prev])} />
                         </div>
                     </div>
                 </div>
@@ -162,9 +156,78 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                 <div className="max-w-4xl mx-auto mt-24">
                     <div className="flex items-center gap-4 mb-8">
                         <div className={`h-px flex-1 bg-gradient-to-r to-transparent ${isDark ? 'from-white/10' : 'from-black/10'}`} />
-                        <span className={`text-[10px] font-mono uppercase tracking-widest ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}>Latest Reports</span>
+                        <span className={`text-[10px] font-mono uppercase tracking-widest flex items-center gap-2 ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}>
+                            Latest Reports
+                            {isAdmin ? (
+                                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold" title="Admin Verified">
+                                    <CheckCircle className="w-3 h-3" />
+                                    Moderator
+                                </span>
+                            ) : (
+                                <button 
+                                    onClick={() => setShowAdminInput(true)} 
+                                    className="hover:text-indigo-400 transition-colors"
+                                >
+                                    <Lock className="w-3 h-3" />
+                                </button>
+                            )}
+                        </span>
                         <div className={`h-px flex-1 bg-gradient-to-l to-transparent ${isDark ? 'from-white/10' : 'from-black/10'}`} />
                     </div>
+
+                    {showAdminInput && !isAdmin && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                            <div className="bg-[#0d1117] border border-[#30363d] rounded-xl shadow-2xl p-6 w-full max-w-sm relative">
+                                <button onClick={() => setShowAdminInput(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-300">
+                                    <ChevronRight className="w-4 h-4 rotate-90" />
+                                </button>
+                                <h3 className="text-xl font-semibold text-[#c9d1d9] mb-1 flex items-center gap-2">
+                                    <Lock className="w-5 h-5 text-indigo-400" />
+                                    Authenticate
+                                </h3>
+                                <p className="text-xs text-[#8b949e] mb-5">
+                                    Logging in binds moderator access to your current IP (<span className="font-mono text-indigo-300">{adminIp}</span>). This access will last until your IP changes.
+                                </p>
+                                <input 
+                                    type="password" 
+                                    autoFocus
+                                    placeholder="Enter passkey"
+                                    className="w-full bg-[#010409] border border-[#30363d] px-3 py-2 rounded-md text-[#c9d1d9] outline-none focus:border-indigo-500 mb-4 font-mono text-sm"
+                                    value={adminPasskey}
+                                    onChange={(e) => setAdminPasskey(e.target.value)}
+                                    onKeyDown={async (e) => {
+                                        if (e.key === 'Enter') {
+                                            const toastId = toast.loading('Authenticating...');
+                                            try {
+                                                const res = await fetch('/api/auth/admin', { method: 'POST', body: JSON.stringify({ passkey: adminPasskey }), headers: { 'Content-Type': 'application/json' } });
+                                                const data = await res.json();
+                                                if (res.ok) {
+                                                    toast.success('Moderator verified!', { id: toastId, icon: '✅' });
+                                                    setIsAdmin(true);
+                                                    if (data.ip) setAdminIp(data.ip);
+                                                    setShowAdminInput(false);
+                                                } else {
+                                                    toast.error('Invalid passkey', { id: toastId });
+                                                }
+                                            } catch {
+                                                toast.error('Network error', { id: toastId });
+                                            }
+                                        } else if (e.key === 'Escape') {
+                                            setShowAdminInput(false);
+                                        }
+                                    }}
+                                />
+                                <div className="text-right">
+                                    <button 
+                                        onClick={() => setShowAdminInput(false)}
+                                        className="text-xs font-semibold text-zinc-400 hover:text-white mr-4"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {initialLoad ? (
                         <div className={`flex flex-col items-center justify-center py-40 border border-dashed rounded-3xl ${isDark ? 'border-white/8' : 'border-black/5'}`}>
@@ -180,7 +243,7 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                             <p className={`text-sm mt-1 ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}>Be the first to leave feedback.</p>
                         </div>
                     ) : (
-                        <FeedbackCards groups={groups as FeedbackGroup[]} />
+                        <FeedbackCards groups={groups as FeedbackGroup[]} isAdmin={isAdmin} />
                     )}
 
                     {groups.length > 0 && (
