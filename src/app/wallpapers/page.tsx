@@ -256,20 +256,14 @@ export default function WallpapersPage() {
         fetchPage(1, "", true);
     }, [fetchPage]);
 
-    // tag change — reset everything
+    // tag change — fetch fresh without clearing items to prevent flickering
     const handleTagChange = useCallback((tag: string) => {
         setActiveTag(tag);
-        setItems([]);
         setHasMore(true);
         nextTokenRef.current = null;
         currentPageRef.current = 1;
         loadingRef.current = false; // force unlock in case it was stuck
-        setLoading(false);
-        setInitialLoad(true);
-        // slight delay to let react flush state, then fetch fresh
-        setTimeout(() => {
-            fetchPage(1, tag, true);
-        }, 0);
+        fetchPage(1, tag, true);
     }, [fetchPage]);
 
     // infinite scroll observer — stable deps, no loading in deps

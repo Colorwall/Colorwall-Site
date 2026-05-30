@@ -129,6 +129,13 @@ function parseReadme(raw: string, source: SourceId): WallpaperEntry[] {
             : [];
         entries.push({ url, title, tags, source });
     }
+    
+    // Shuffle the array to randomize the wallpaper order
+    for (let i = entries.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [entries[i], entries[j]] = [entries[j], entries[i]];
+    }
+    
     return entries;
 }
 
@@ -309,11 +316,9 @@ export async function GET(request: Request) {
                 tagCounts.set(lower, (tagCounts.get(lower) || 0) + 1);
             }
         }
-        // filter out ultra-rare tags (< 5 matches), sort by count descending, take top 50
+        // sort by count descending, don't filter out rare tags so users can see all tags
         allTags = [...tagCounts.entries()]
-            .filter(([, count]) => count >= 5)
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 50)
             .map(([tag]) => tag);
     }
 
