@@ -171,7 +171,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                         value={username}
                                         onChange={e => setUsername(e.target.value)}
                                         maxLength={64}
-                                        placeholder="Username (e.g. Laxenta)"
+                                        placeholder="Enter your Username (ex-> CuteChud911)"
                                         className="w-full bg-transparent text-[16px] text-[#c9d1d9] outline-none placeholder-[#8b949e] font-semibold"
                                     />
                                 </div>

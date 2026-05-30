@@ -114,7 +114,11 @@ function CommentBox({
             const res = await fetch(`/api/feedback/${itemId}/edit?type=${isMain ? 'issue' : 'reply'}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: editText, originalText: currentBody })
+                body: JSON.stringify({ 
+                    text: editText, 
+                    originalText: currentBody,
+                    adminName: typeof window !== 'undefined' ? localStorage.getItem('cw_username') : ''
+                })
             });
             if (res.ok) {
                 setCurrentBody(editText);
@@ -362,7 +366,10 @@ function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: num
     };
 
     return (
-        <div className={`mb-12 rounded-xl overflow-hidden text-[#c9d1d9] font-sans bg-[#010409] border-[6px] p-2 sm:p-4 ${isDark ? 'border-white/5 shadow-xl shadow-black/50' : 'border-indigo-50/80 shadow-xl shadow-indigo-900/10'}`}>
+        <div 
+            className={`mb-12 rounded-xl overflow-hidden text-[#c9d1d9] font-sans bg-[#010409] border-[6px] p-2 sm:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both ${isDark ? 'border-white/5 shadow-xl shadow-black/50' : 'border-indigo-50/80 shadow-xl shadow-indigo-900/10'}`}
+            style={{ animationDelay: `${(index % 5) * 100}ms` }}
+        >
             {/* Header */}
             <div className="p-5 border-b border-[#30363d] bg-[#0d1117]">
                 <div className="flex items-start justify-between">

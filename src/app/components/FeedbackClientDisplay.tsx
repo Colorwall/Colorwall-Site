@@ -39,11 +39,11 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
         const loadInitial = async () => {
             setIsLoadingIndicator(true);
             try {
-                const res = await fetch(`/api/feedback?skip=0&limit=20`);
+                const res = await fetch(`/api/feedback?skip=0&limit=5`);
                 const json = await res.json();
                 if (json.success && json.data) {
                     setItems(json.data);
-                    if (json.data.length < 20) setHasMore(false);
+                    if (json.data.length < 5) setHasMore(false);
                 } else {
                     setHasMore(false);
                 }
@@ -58,7 +58,7 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
             loadInitial();
         } else {
             setInitialLoad(false);
-            setHasMore(feedbacks.length === 20);
+            setHasMore(feedbacks.length === 5);
         }
     }, [feedbacks]);
 
@@ -66,11 +66,11 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
     const loadMore = useCallback(async () => {
         setIsLoadingIndicator(true);
         try {
-            const res = await fetch(`/api/feedback?skip=${items.length}&limit=20`);
+            const res = await fetch(`/api/feedback?skip=${items.length}&limit=5`);
             const json = await res.json();
             if (json.success && json.data) {
                 setItems(prev => [...prev, ...json.data]);
-                if (json.data.length < 20) setHasMore(false);
+                if (json.data.length < 5) setHasMore(false);
             }
         } catch {
             setHasMore(false);
@@ -249,17 +249,17 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                     {groups.length > 0 && (
                         <div 
                             ref={lastElementRef}
-                            className={`mt-14 mb-10 flex items-center justify-center gap-3 text-[11px] font-mono ${isDark ? 'text-zinc-600' : 'text-zinc-500'}`}
+                            className={`mt-14 mb-10 flex items-center justify-center gap-4 text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}
                         >
-                            <div className={`h-px w-16 ${isDark ? 'bg-white/5' : 'bg-black/5'}`} />
+                            <div className={`h-px w-24 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
                             {isLoadingIndicator ? (
-                                <span className="flex items-center gap-2"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Fetching more entries...</span>
+                                <span className="flex items-center gap-2"><Loader2 className={`w-4 h-4 animate-spin ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} /> Fetching more entries...</span>
                             ) : hasMore ? (
-                                <span>Scroll down to log history</span>
+                                <span>Scroll down to load history</span>
                             ) : (
-                                <span>End of history. Total {items.length} records.</span>
+                                <span>No more Reports!!! ...End of history!! Total {items.length} records.</span>
                             )}
-                            <div className={`h-px w-16 ${isDark ? 'bg-white/5' : 'bg-black/5'}`} />
+                            <div className={`h-px w-24 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
                         </div>
                     )}
                 </div>
