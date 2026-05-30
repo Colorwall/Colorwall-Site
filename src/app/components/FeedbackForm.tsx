@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useTheme } from '@/app/contexts/ThemeContext';
 import {
     X, ImagePlus, FileText, Loader2,
     CheckCircle2, AlertCircle, Edit3, Image as ImageIcon, Smile, Paperclip, Tag
@@ -35,6 +36,8 @@ function getUserAvatar(name: string) {
 }
 
 export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersion, onFeedbackSubmit }: FeedbackFormProps) {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [stage,    setStage]    = useState<Stage>('form');
     const [username, setUsername] = useState('');
     const [text,     setText]     = useState('');
@@ -149,7 +152,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
     const myAvatar = getUserAvatar(username || 'A');
 
     return (
-        <div className="bg-[#010409] text-[#c9d1d9] font-sans w-full max-w-[900px] mx-auto rounded-xl">
+        <div className={`text-[#c9d1d9] font-sans w-full max-w-[900px] mx-auto rounded-xl ${isDark ? 'bg-[#010409]' : 'bg-[#010409] shadow-xl shadow-indigo-900/10 border-[6px] border-indigo-50/80 p-2'}`}>
             {(stage === 'form' || stage === 'submitting' || stage === 'error') && (
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Main Form Area */}

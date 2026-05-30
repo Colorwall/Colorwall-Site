@@ -114,11 +114,9 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
       {/* ══════════ HEADER ══════════ */}
                 <div className="mb-20">
 
-                    <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-10">
-                        <div className="flex-1">
-                            {/* <h1 className="text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-2 text-blue-500"> */}
+                    <div className="flex flex-col gap-10 max-w-[900px] mx-auto">
+                        <div className="text-center">
                              <GradientHeading text='FEATURE /' theme={isDark ? 'dark' : 'light'} className='text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-2 text-blue-500'/>
-                            {/* </h1> */}
                             <h1
                                 className="text-[clamp(2.5rem,7vw,6rem)] font-extrabold uppercase tracking-wide leading-[1.1] mb-6"
                                 style={{
@@ -131,7 +129,7 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
                             </h1>
                         </div>
 
-                        <div className="w-full xl:w-xl xl:flex-shrink-0">
+                        <div className="w-full">
                             <FeedbackForm defaultSource="Web" onFeedbackSubmit={(newItem) => setItems(prev => [newItem, ...prev])} />
                         </div>
                     </div>
