@@ -26,11 +26,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     try {
         const bodyData = await req.json();
-        const { text, originalText } = bodyData;
+        const { text: rawText, originalText, adminName } = bodyData;
 
-        if (typeof text !== 'string') {
+        if (typeof rawText !== 'string') {
             return NextResponse.json({ success: false, error: 'Invalid text payload.' }, { status: 400 });
         }
+
+        // Append edit tag
+        const editTag = `\n\n_Edited by Moderator ${adminName || ''} <3_`.trim();
+        // Prevent stacking edit tags
+        const text = rawText.includes('_Edited by Moderator') 
+            ? rawText 
+            : `${rawText}\n\n${editTag}`;
 
         // We need to fetch the existing body so we don't lose the META_START block, images, etc.
         let apiUrl = type === 'reply' 

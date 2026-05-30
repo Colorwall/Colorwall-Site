@@ -39,11 +39,11 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
         const loadInitial = async () => {
             setIsLoadingIndicator(true);
             try {
-                const res = await fetch(`/api/feedback?skip=0&limit=20`);
+                const res = await fetch(`/api/feedback?skip=0&limit=5`);
                 const json = await res.json();
                 if (json.success && json.data) {
                     setItems(json.data);
-                    if (json.data.length < 20) setHasMore(false);
+                    if (json.data.length < 5) setHasMore(false);
                 } else {
                     setHasMore(false);
                 }
@@ -58,7 +58,7 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
             loadInitial();
         } else {
             setInitialLoad(false);
-            setHasMore(feedbacks.length === 20);
+            setHasMore(feedbacks.length === 5);
         }
     }, [feedbacks]);
 
@@ -66,11 +66,11 @@ export function FeedbackClientDisplay({ feedbacks }: FeedbackClientDisplayProps)
     const loadMore = useCallback(async () => {
         setIsLoadingIndicator(true);
         try {
-            const res = await fetch(`/api/feedback?skip=${items.length}&limit=20`);
+            const res = await fetch(`/api/feedback?skip=${items.length}&limit=5`);
             const json = await res.json();
             if (json.success && json.data) {
                 setItems(prev => [...prev, ...json.data]);
-                if (json.data.length < 20) setHasMore(false);
+                if (json.data.length < 5) setHasMore(false);
             }
         } catch {
             setHasMore(false);
