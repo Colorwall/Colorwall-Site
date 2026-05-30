@@ -148,6 +148,7 @@ export const Navbar = () => {
                                     target={isExternal ? "_blank" : undefined}
                                     rel={isExternal ? "noopener noreferrer" : undefined}
                                     onClick={(event) => handleNavClick(event, link.href, isExternal)}
+                                    prefetch={['/download', '/about'].includes(link.href) ? undefined : false}
                                     title={link.name}
                                     className={`p-2.5 sm:p-3 md:px-3 md:py-2 rounded-xl text-xs font-mono font-semibold tracking-widest uppercase transition-all duration-200 flex items-center md:gap-2
                     ${isActive
@@ -219,6 +220,7 @@ export const Navbar = () => {
                                         target={isExternal ? "_blank" : undefined}
                                         rel={isExternal ? "noopener noreferrer" : undefined}
                                         onClick={(event) => handleNavClick(event, link.href, isExternal, true)}
+                                        prefetch={['/download', '/about'].includes(link.href) ? undefined : false}
                                         className={`px-4 py-3 sm:py-4 rounded-xl text-xs sm:text-sm font-mono font-semibold tracking-widest uppercase transition-all duration-200 flex items-center gap-3
                         ${isActive
                                             ? isDark ? "bg-white/10 text-white" : "bg-black/6 text-black"

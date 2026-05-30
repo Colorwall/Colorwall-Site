@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
 import crypto from 'crypto';
+
+// ─── GitHub Config ────────────────────────────────────────────────────────────
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER = process.env.GITHUB_OWNER;
+const GITHUB_REPO = process.env.GITHUB_REPO;
 
 function sanitizeString(value: string): string {
     return value
@@ -24,6 +27,9 @@ function hashIp(req: Request): string {
 }
 
 export async function POST(req: Request) {
+    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
+        return err('GitHub config missing.', 500);
+    }
     try {
         let body;
         try {
@@ -49,47 +55,38 @@ export async function POST(req: Request) {
         }
 
         const ipHash = hashIp(req);
-        const db = await getDb();
-        const now = new Date();
-        const RATE_WINDOW_MS = 60 * 1000; // 1 min
+        
+        const issueNumber = parseInt(threadId, 10);
+        if (isNaN(issueNumber)) return err('Invalid thread ID format.', 400);
 
-        // Rate limit uniquely for replies, so replying doesn't block posting threads
-        const rlDocId = `reply:${ipHash}`;
-        const expiresAt = new Date(now.getTime() + RATE_WINDOW_MS);
+        const meta = { username, ipHash };
+        const commentBody = `${text}\n\n<!-- META_START\n${JSON.stringify(meta, null, 2)}\nMETA_END -->`;
 
-        const rl = await db.collection('rateLimits').findOneAndUpdate(
-            { ipHash: rlDocId, expiresAt: { $gt: now } },
-            { $setOnInsert: { ipHash: rlDocId, createdAt: now, expiresAt } },
-            { upsert: true, returnDocument: 'before' }
-        );
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}/comments`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ body: commentBody })
+        });
 
-        if (rl !== null) {
-            return err('You are replying too fast. Please wait 1 minute.', 429);
+        if (!res.ok) {
+            if (res.status === 404) {
+                return err('Thread not found. It may have been deleted.', 404);
+            }
+            return err('Failed to post reply.', 500);
         }
 
-        let objectId: ObjectId;
-        try {
-            objectId = new ObjectId(threadId);
-        } catch {
-            return err('Invalid thread ID format.', 400);
-        }
+        const comment = await res.json();
 
         const reply = {
-            id: new ObjectId().toString(),
+            id: comment.id.toString(),
             username,
             text,
-            createdAt: now,
-            ipHash
+            createdAt: new Date(comment.created_at)
         };
-
-        const result = await db.collection('feedback').updateOne(
-            { _id: objectId },
-            { $push: { replies: reply } as any }
-        );
-
-        if (result.matchedCount === 0) {
-            return err('Thread not found. It may have been deleted.', 404);
-        }
 
         return NextResponse.json({ success: true, reply }, { status: 201 });
 

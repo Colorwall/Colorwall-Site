@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/mongodb';
 import crypto from 'crypto';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -22,13 +21,17 @@ const ALLOWED_IMAGE_TYPES = new Set([
 
 const ALLOWED_SOURCES = new Set(['App', 'Web']);
 
+// ─── GitHub Config ────────────────────────────────────────────────────────────
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER = process.env.GITHUB_OWNER;
+const GITHUB_REPO = process.env.GITHUB_REPO;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Strip null bytes and control characters that break MongoDB / display. */
 function sanitizeString(value: string): string {
     return value
-        .replace(/\0/g, '')                       // null bytes
-        .replace(/[\x01-\x08\x0B\x0C\x0E-\x1F]/g, '') // ASCII control chars (keep \t \n \r)
+        .replace(/\0/g, '')
+        .replace(/[\x01-\x08\x0B\x0C\x0E-\x1F]/g, '')
         .trim();
 }
 
@@ -36,7 +39,6 @@ function err(message: string, status: number) {
     return NextResponse.json({ success: false, error: message }, { status });
 }
 
-/** Hash the IP so we never store PII in the database. */
 function hashIp(req: Request): string {
     const forwardedFor = req.headers.get('x-forwarded-for');
     const raw =
@@ -46,22 +48,44 @@ function hashIp(req: Request): string {
     return crypto.createHash('sha256').update(raw).digest('hex');
 }
 
-/** Detect submission source with priority:
- *  1. Explicit `source` field sent by the client (validated against allowlist)
- *  2. Tauri user-agent detection (desktop app)
- *  3. Default → Web
- */
 function detectSource(formData: FormData, req: Request): 'App' | 'Web' {
     const sourceStr = formData.get('source');
     const explicit = typeof sourceStr === 'string' ? sourceStr.trim() : null;
     const deviceId = formData.get('deviceId');
     
     if (explicit && ALLOWED_SOURCES.has(explicit)) {
-        if (explicit === 'App' && !deviceId) return 'Web'; // App must have deviceId
+        if (explicit === 'App' && !deviceId) return 'Web';
         return explicit as 'App' | 'Web';
     }
     const ua = req.headers.get('user-agent') ?? '';
     return (ua.includes('Tauri') && deviceId) ? 'App' : 'Web';
+}
+
+async function uploadToGithub(path: string, contentBase64: string): Promise<string | null> {
+    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) return null;
+    try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: `Upload ${path}`,
+                content: contentBase64
+            })
+        });
+        if (!res.ok) {
+            console.error(`GitHub upload failed: ${await res.text()}`);
+            return null;
+        }
+        const data = await res.json();
+        return data.content?.download_url || null;
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
 }
 
 // ─── Route ────────────────────────────────────────────────────────────────────
@@ -78,59 +102,95 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
+    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
+        return NextResponse.json({ success: true, data: [] });
+    }
     try {
         const url = new URL(req.url);
-        const skip = Math.max(0, parseInt(url.searchParams.get('skip') || '0', 10));
         const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10)));
+        const skip = Math.max(0, parseInt(url.searchParams.get('skip') || '0', 10));
+        const page = Math.floor(skip / limit) + 1;
 
-        const db = await getDb();
-        const docs = await db.collection('feedback')
-            .find()
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .project({
-                username: 1,
-                text: 1,
-                images: 1,
-                logFiles: 1,
-                appVersion: 1,
-                source: 1,
-                createdAt: 1,
-                replies: 1,
-            })
-            .toArray();
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?state=open&sort=created&direction=desc&per_page=${limit}&page=${page}`, {
+            headers: {
+                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
+            }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch issues');
+        const issues = await res.json();
 
-        const formatted = docs.map(doc => {
-            // truncate log file content for listing to avoid bloated payloads
-            const logFiles = (doc.logFiles ?? (doc.logFile ? [{ name: 'log.txt', content: doc.logFile }] : []))
-                .map((lf: { name: string; content: string }) => ({
-                    name: lf.name,
-                    content: typeof lf.content === 'string' ? lf.content.slice(0, 2000) : '',
-                }));
+        const formatted = await Promise.all(issues.map(async (issue: any) => {
+            let meta: any = {};
+            let text = issue.body || '';
+            const metaMatch = text.match(/<!--\s*META_START([\s\S]*?)META_END\s*-->/);
+            if (metaMatch) {
+                try {
+                    meta = JSON.parse(metaMatch[1]);
+                } catch(e) {}
+                text = text.replace(metaMatch[0], '').trim();
+                // Also remove image and log preview sections appended
+                text = text.replace(/### Images[\s\S]*/, '').trim();
+                text = text.replace(/### Logs[\s\S]*/, '').trim();
+            }
+
+            const logFiles = [];
+            if (meta.logFiles) {
+                for (const lf of meta.logFiles) {
+                    try {
+                        const lfRes = await fetch(lf.url);
+                        if (lfRes.ok) {
+                            const content = await lfRes.text();
+                            logFiles.push({ name: lf.name, content: content.slice(0, 2000) });
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            let replies = [];
+            if (issue.comments > 0) {
+                try {
+                    const cRes = await fetch(issue.comments_url, {
+                        headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+                    });
+                    if (cRes.ok) {
+                        const commentsData = await cRes.json();
+                        replies = commentsData.map((c: any) => {
+                            let replyMeta: any = {};
+                            let replyText = c.body || '';
+                            const rMetaMatch = replyText.match(/<!--\s*META_START([\s\S]*?)META_END\s*-->/);
+                            if (rMetaMatch) {
+                                try { replyMeta = JSON.parse(rMetaMatch[1]); } catch(e) {}
+                                replyText = replyText.replace(rMetaMatch[0], '').trim();
+                            }
+                            return {
+                                id: c.id.toString(),
+                                username: replyMeta.username || c.user.login,
+                                text: replyText,
+                                createdAt: new Date(c.created_at)
+                            };
+                        });
+                    }
+                } catch(e) {}
+            }
 
             return {
-                id:        doc._id.toString(),
-                username:  doc.username ?? 'Anonymous',
-                text:      doc.text     ?? '',
-                images:    doc.images   ?? [],
+                id: issue.number.toString(),
+                username: meta.username || 'Anonymous',
+                text: text,
+                images: meta.images || [],
                 logFiles,
-                appVersion: doc.appVersion,
-                source:    (doc.source === 'App' ? 'App' : 'Web') as 'App' | 'Web',
-                createdAt: doc.createdAt,
-                replies:   (doc.replies || []).map((r: any) => ({
-                    id: r.id,
-                    username: r.username,
-                    text: r.text,
-                    createdAt: r.createdAt
-                })),
+                appVersion: meta.appVersion,
+                source: meta.source || 'Web',
+                createdAt: new Date(issue.created_at),
+                replies
             };
-        });
+        }));
 
-        const res = NextResponse.json({ success: true, data: formatted });
-        // allow short client-side cache to avoid hammering on scroll
-        res.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
-        return res;
+        const response = NextResponse.json({ success: true, data: formatted });
+        response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
+        return response;
     } catch (error) {
         console.error('[feedback/GET]', error);
         return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
@@ -138,8 +198,10 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
+        return err('GitHub configuration missing.', 500);
+    }
     try {
-        // ── 1. Parse form data ───────────────────────────────────────────────
         let formData: FormData;
         try {
             formData = await req.formData();
@@ -147,7 +209,6 @@ export async function POST(req: Request) {
             return err('Invalid multipart/form-data payload.', 400);
         }
 
-        // ── 2. Validate text fields ──────────────────────────────────────────
         const rawUsername = formData.get('username')?.toString() ?? '';
         const rawText     = formData.get('text')?.toString() ?? '';
 
@@ -157,16 +218,12 @@ export async function POST(req: Request) {
         if (username.length > LIMITS.USERNAME_MAX) {
             return err(`Username must be ${LIMITS.USERNAME_MAX} characters or fewer.`, 400);
         }
-
         if (text.length > LIMITS.TEXT_MAX) {
             return err(`Feedback text must be ${LIMITS.TEXT_MAX} characters or fewer.`, 400);
         }
 
-        // ── 3. Parse & validate files ────────────────────────────────────────
         const images: string[] = [];
-        const imageEntries = formData.getAll('images'); // multi-file field
-
-        // Accept both `images` (array) and legacy `image0`…`imageN` keys
+        const imageEntries = formData.getAll('images');
         const allImageFiles = [
             ...imageEntries,
             ...Array.from(formData.keys())
@@ -176,118 +233,88 @@ export async function POST(req: Request) {
 
         for (const file of allImageFiles) {
             if (images.length >= LIMITS.IMAGE_COUNT) break;
-
             if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-                return err(
-                    `Unsupported image type "${file.type}". Allowed: JPEG, PNG, WebP, GIF.`,
-                    400,
-                );
+                return err(`Unsupported image type "${file.type}". Allowed: JPEG, PNG, WebP, GIF.`, 400);
             }
-
             if (file.size > LIMITS.IMAGE_MAX_SIZE) {
                 return err(`Each image must be under ${LIMITS.IMAGE_MAX_SIZE / 1024 / 1024} MB.`, 400);
             }
-
-            if (file.size === 0) continue; // skip empty blobs silently
+            if (file.size === 0) continue;
 
             const buffer = await file.arrayBuffer();
             const base64 = Buffer.from(buffer).toString('base64');
-            images.push(`data:${file.type};base64,${base64}`);
+            const ext = file.name.split('.').pop() || 'png';
+            const filename = `images/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+            const url = await uploadToGithub(filename, base64);
+            if (url) images.push(url);
         }
 
-        // Log files
-        const logFiles: { name: string, content: string }[] = [];
+        const logFiles: { name: string, url: string }[] = [];
         const rawLogFiles = [
             ...formData.getAll('logFiles'),
-            ...formData.getAll('logFile') // fallback for legacy
+            ...formData.getAll('logFile')
         ].filter((v): v is File => typeof v === 'object' && v !== null && 'size' in v && 'type' in v && 'arrayBuffer' in v);
 
         for (const file of rawLogFiles) {
             if (logFiles.length >= 5) break;
-            
             if (file.size > LIMITS.LOG_MAX_SIZE) {
                 return err(`Log file "${file.name}" must be under ${LIMITS.LOG_MAX_SIZE / 1024 / 1024} MB.`, 400);
             }
             if (file.size > 0) {
-                logFiles.push({
-                    name: sanitizeString(file.name).slice(0, 50) || 'log.txt',
-                    content: await file.text()
-                });
+                const buffer = await file.arrayBuffer();
+                const base64 = Buffer.from(buffer).toString('base64');
+                const filename = `logs/${Date.now()}-${Math.random().toString(36).substring(7)}.txt`;
+                const url = await uploadToGithub(filename, base64);
+                if (url) logFiles.push({ name: sanitizeString(file.name).slice(0, 50) || 'log.txt', url });
             }
         }
 
-        // ── 4. Require at least something meaningful ─────────────────────────
         if (!text && images.length === 0 && logFiles.length === 0) {
             return err('Feedback must include text, at least one image, or a log file.', 400);
         }
 
-        // ── 5. Optional metadata ─────────────────────────────────────────────
-        const appVersion = sanitizeString(
-            formData.get('appVersion')?.toString() ?? ''
-        ).slice(0, 32) || null;
-
+        const appVersion = sanitizeString(formData.get('appVersion')?.toString() ?? '').slice(0, 32) || null;
         const source = detectSource(formData, req);
         const deviceId = formData.get('deviceId')?.toString().slice(0, 100) || null;
+        const ipHash = hashIp(req);
 
-        const ipHash   = hashIp(req);
-        const db       = await getDb();
-        const now      = new Date();
+        // We omit username uniqueness checks since GitHub issues don't naturally enforce it,
+        // and we are not using a database anymore.
 
-        // ── 5.5 Username Collision Check & Device Syncing ────────────────
-        if (deviceId && source === 'App') {
-            await db.collection('feedback').updateMany(
-                { deviceId },
-                { $set: { ipHash } }
-            );
+        const meta = { username, images, logFiles, appVersion, source, deviceId, ipHash };
+        let issueBody = text;
+        
+        if (images.length > 0) {
+            issueBody += '\n\n### Images\n' + images.map(url => `![image](${url})`).join('\n');
         }
-
-        if (username !== 'Anonymous') {
-            const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const query: any = {
-                username: { $regex: new RegExp(`^${escapedUsername}$`, 'i') },
-                source: source, // Isolate namespaces by App / Web
-                ipHash: { $ne: ipHash }
-            };
-            if (deviceId) {
-                query.deviceId = { $ne: deviceId };
-            }
-
-            const existingUser = await db.collection('feedback').findOne(query);
-
-            if (existingUser && username.toLowerCase() !== 'laxenta') {
-                const tag = Math.floor(1000 + Math.random() * 9000);
-                username = `${username}#${tag}`;
-            }
+        if (logFiles.length > 0) {
+            issueBody += '\n\n### Logs\n' + logFiles.map(l => `[${l.name}](${l.url})`).join('\n');
         }
+        issueBody += `\n\n<!-- META_START\n${JSON.stringify(meta, null, 2)}\nMETA_END -->`;
 
-        // ── 6. Atomic rate-limit check ───────────────────────────────────────
-        const expiresAt = new Date(now.getTime() + LIMITS.RATE_WINDOW_MS);
-
-        const rl = await db.collection('rateLimits').findOneAndUpdate(
-            { ipHash, expiresAt: { $gt: now } },            // find an active window
-            { $setOnInsert: { ipHash, createdAt: now, expiresAt } },
-            { upsert: true, returnDocument: 'before' },     // "before" → null if inserted fresh
-        );
-
-        // If a document existed before our upsert, the IP is rate-limited
-        if (rl !== null) {
-            return err('You have already submitted feedback recently. Please wait 1 minute.', 429);
-        }
-
-        // ── 7. Persist feedback ──────────────────────────────────────────────
-        const result = await db.collection('feedback').insertOne({
-            username,
-            text,
-            images,
-            logFiles,
-            appVersion,
-            ipHash,
-            deviceId,
-            source,
-            createdAt:  now,
+        const title = `Feedback from ${username}`;
+        
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title,
+                body: issueBody,
+                labels: ['feedback', source]
+            })
         });
 
-        return NextResponse.json({ success: true, id: result.insertedId }, { status: 201 });
+        if (!res.ok) {
+            console.error('Failed to create issue:', await res.text());
+            return err('Failed to save feedback.', 500);
+        }
+
+        const issue = await res.json();
+        return NextResponse.json({ success: true, id: issue.number.toString() }, { status: 201 });
 
     } catch (error) {
         console.error('[feedback/POST]', error);
