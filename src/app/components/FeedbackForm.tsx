@@ -152,7 +152,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
     const myAvatar = getUserAvatar(username || 'A');
 
     return (
-        <div className={`text-[#c9d1d9] font-sans w-full max-w-[900px] mx-auto rounded-xl ${isDark ? 'bg-[#010409]' : 'bg-[#010409] shadow-xl shadow-indigo-900/10 border-[6px] border-indigo-50/80 p-2'}`}>
+        <div className={`text-[#c9d1d9] font-sans w-full max-w-[900px] mx-auto rounded-xl bg-[#010409] border-[6px] p-6 sm:p-8 ${isDark ? 'border-white/5 shadow-xl shadow-black/50' : 'border-indigo-50/80 shadow-xl shadow-indigo-900/10'}`}>
             {(stage === 'form' || stage === 'submitting' || stage === 'error') && (
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Main Form Area */}

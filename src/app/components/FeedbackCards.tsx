@@ -281,7 +281,7 @@ function IssueCard({ group, index }: { group: FeedbackGroup; index: number }) {
     };
 
     return (
-        <div className={`mb-12 rounded-xl overflow-hidden text-[#c9d1d9] font-sans ${isDark ? 'bg-[#010409] border border-[#30363d]' : 'bg-[#010409] shadow-xl shadow-indigo-900/10 border-[6px] border-indigo-50/80'}`}>
+        <div className={`mb-12 rounded-xl overflow-hidden text-[#c9d1d9] font-sans bg-[#010409] border-[6px] p-2 sm:p-4 ${isDark ? 'border-white/5 shadow-xl shadow-black/50' : 'border-indigo-50/80 shadow-xl shadow-indigo-900/10'}`}>
             {/* Header */}
             <div className="p-5 border-b border-[#30363d] bg-[#0d1117]">
                 <div className="flex items-start justify-between">
