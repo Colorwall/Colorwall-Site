@@ -316,8 +316,9 @@ export async function GET(request: Request) {
                 tagCounts.set(lower, (tagCounts.get(lower) || 0) + 1);
             }
         }
-        // sort by count descending, don't filter out rare tags so users can see all tags
+        // sort by count descending, keep tags with >= 2 occurrences
         allTags = [...tagCounts.entries()]
+            .filter(([, count]) => count >= 2)
             .sort((a, b) => b[1] - a[1])
             .map(([tag]) => tag);
     }

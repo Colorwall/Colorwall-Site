@@ -5,6 +5,7 @@ import { useTheme } from "@/app/contexts/ThemeContext";
 import { Footer } from "@/app/components/Footer";
 import { Download, Loader2, Search, X, ImageIcon } from "lucide-react";
 import { GradientHeading } from "../components/landing/GradientHeading";
+import React from "react";
 
 type Wallpaper = { url: string; title: string; tags: string[]; source?: "archive" | "yapude" };
 
@@ -182,7 +183,15 @@ export default function WallpapersPage() {
     const [allTags, setAllTags] = useState<string[]>([]);
     const [activeTag, setActiveTag] = useState("");
     const [search, setSearch] = useState("");
+    const [showAutocomplete, setShowAutocomplete] = useState(false);
     const [lightbox, setLightbox] = useState<Wallpaper | null>(null);
+
+    // Random suggestions for empty search
+    const randomSuggestions = React.useMemo(() => {
+        if (!showAutocomplete || search || allTags.length === 0) return [];
+        // simple random shuffle for 8 suggestions
+        return [...allTags].sort(() => Math.random() - 0.5).slice(0, 8);
+    }, [showAutocomplete, search, allTags]);
 
     // refs to avoid stale closures in callbacks
     const nextTokenRef = useRef<string | null>(null);
@@ -375,7 +384,7 @@ export default function WallpapersPage() {
                     >
                         Show All
                     </button>
-                    {allTags.map((t) => (
+                    {allTags.slice(0, 40).map((t) => (
                         <button
                             key={t}
                             onClick={() => handleTagChange(t === activeTag ? "" : t)}
@@ -395,20 +404,50 @@ export default function WallpapersPage() {
 
                 {/* ─── search ─── */}
                 <div className={`relative w-full mb-8 rounded-full border transition-colors ${isDark ? "border-white/[0.12] bg-white/[0.06] focus-within:border-white/25 focus-within:bg-white/[0.08]" : "border-zinc-200 bg-zinc-50 focus-within:border-zinc-400 focus-within:bg-white"}`}>
-                    <Search className={`absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-zinc-400" : "text-zinc-400"}`} />
+                    <Search className={`absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? "text-zinc-400" : "text-zinc-400"}`} />
                     <input
                         type="text"
                         placeholder="search wallpapers..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        onFocus={() => setShowAutocomplete(true)}
+                        onBlur={() => setShowAutocomplete(false)}
                         aria-label="search wallpapers"
-                        className={`w-full pl-12 pr-12 py-3.5 bg-transparent text-sm outline-none rounded-full ${isDark ? "text-white placeholder:text-zinc-500" : "text-zinc-900 placeholder:text-zinc-400"}`}
+                        className={`w-full pl-14 pr-14 py-5 bg-transparent text-base outline-none rounded-full ${isDark ? "text-white placeholder:text-zinc-500" : "text-zinc-900 placeholder:text-zinc-400"}`}
                     />
                     {search && (
                         <button onClick={() => setSearch("")} aria-label="clear search"
-                            className={`absolute right-5 top-1/2 -translate-y-1/2 ${isDark ? "text-zinc-400 hover:text-white" : "text-zinc-400 hover:text-zinc-800"} transition-colors`}>
-                            <X className="w-4 h-4" />
+                            className={`absolute right-6 top-1/2 -translate-y-1/2 ${isDark ? "text-zinc-400 hover:text-white" : "text-zinc-400 hover:text-zinc-800"} transition-colors`}>
+                            <X className="w-5 h-5" />
                         </button>
+                    )}
+                    
+                    {/* Autocomplete Dropdown */}
+                    {showAutocomplete && (search || randomSuggestions.length > 0) && (
+                        <div className={`absolute left-0 right-0 top-full mt-2 rounded-2xl border p-2 z-[60] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 ${isDark ? "bg-[#0d1117] border-[#30363d]" : "bg-white border-zinc-200"}`}>
+                            {!search && <h4 className={`text-[10px] font-bold uppercase tracking-widest px-4 pt-3 pb-2 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>Random Suggestions</h4>}
+                            
+                            {(search ? allTags.filter(t => t.toLowerCase().includes(search.toLowerCase())).slice(0, 8) : randomSuggestions).map(t => (
+                                <button
+                                    key={t}
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        handleTagChange(t);
+                                        setSearch("");
+                                        setShowAutocomplete(false);
+                                    }}
+                                    className={`w-full text-left px-4 py-2.5 text-sm rounded-xl transition-colors font-medium flex items-center justify-between group ${isDark ? "text-zinc-300 hover:bg-white/5" : "text-zinc-700 hover:bg-zinc-100"}`}
+                                >
+                                    <span>{t}</span>
+                                    <span className={`text-[10px] font-mono tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>Filter Tag</span>
+                                </button>
+                            ))}
+                            {search && allTags.filter(t => t.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+                                <div className={`px-4 py-3 text-sm text-center ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
+                                    No matching tags found
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
 
