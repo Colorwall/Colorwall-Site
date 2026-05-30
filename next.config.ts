@@ -103,7 +103,6 @@ const nextConfig: NextConfig = {
         hostname: 'assets-v2.lottiefiles.com',
         pathname: '/**',
       },
-      // Add Spotify image domains
       {
         protocol: 'https',
         hostname: 'i.scdn.co',
@@ -120,9 +119,10 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
-    // Add this to allow external images in SVGs
-    domains: ['i.scdn.co', 'cdn.discordapp.com'],
-    unoptimized: true
+    // vercel will auto-serve optimized webp/avif at the right size
+    // hobby plan allows 1000 unique source images/month — we have ~20
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   }
 };
 
