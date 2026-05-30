@@ -88,16 +88,18 @@ interface SourceConfig {
     ttl: number; // cache ttl in ms
 }
 
+// ttls bumped to 6 hours — the readmes don't change that frequently
+// and downloading 14.5 MB (yapude) every 30 min was destroying cold start times on vercel
 const SOURCES: SourceConfig[] = [
     {
         id: "archive",
         url: "https://raw.githubusercontent.com/LaxentaInc/Wallpaper-Archive/main/README.md",
-        ttl: 1000 * 60 * 60, // 1 hour
+        ttl: 1000 * 60 * 60 * 6, // 6 hours
     },
     {
         id: "yapude",
         url: "https://raw.githubusercontent.com/yapude/wallpapers/main/README.md",
-        ttl: 1000 * 60 * 30, // 30 minutes — scraper keeps appending
+        ttl: 1000 * 60 * 60 * 6, // 6 hours — was 30 min but that downloads 14.5 MB way too often
     },
 ];
 
@@ -105,7 +107,7 @@ const SOURCES: SourceConfig[] = [
 
 type WallpaperEntry = { url: string; title: string; tags: string[]; source: SourceId };
 
-type SourceCache = { data: WallpaperEntry[]; fetchedAt: number };
+type SourceCache = { data: WallpaperEntry[]; fetchedAt: number; etag?: string };
 
 const caches: Record<SourceId, SourceCache | null> = {
     archive: null,
@@ -188,6 +190,8 @@ function validateToken(token: string, page: number): boolean {
 }
 
 // ─── fetch & cache a single source ────────────────────────────────────────────
+// uses etag-based conditional requests so we skip re-downloading 14.5 MB
+// when the content hasn't actually changed
 
 async function fetchSource(config: SourceConfig): Promise<WallpaperEntry[]> {
     const cached = caches[config.id];
@@ -196,11 +200,28 @@ async function fetchSource(config: SourceConfig): Promise<WallpaperEntry[]> {
     }
 
     try {
-        const res = await fetch(config.url, { cache: "no-store" });
+        // build conditional request headers if we have a cached etag
+        const fetchHeaders: Record<string, string> = {};
+        if (cached?.etag) {
+            fetchHeaders["If-None-Match"] = cached.etag;
+        }
+
+        const res = await fetch(config.url, {
+            cache: "no-store",
+            headers: fetchHeaders,
+        });
+
+        // 304 = content unchanged, just refresh the timestamp
+        if (res.status === 304 && cached) {
+            caches[config.id] = { ...cached, fetchedAt: Date.now() };
+            return cached.data;
+        }
+
         if (!res.ok) throw new Error(`github returned ${res.status}`);
         const raw = await res.text();
         const parsed = parseReadme(raw, config.id);
-        caches[config.id] = { data: parsed, fetchedAt: Date.now() };
+        const etag = res.headers.get("etag") || undefined;
+        caches[config.id] = { data: parsed, fetchedAt: Date.now(), etag };
         return parsed;
     } catch (err) {
         if (cached) {

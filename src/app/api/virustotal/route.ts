@@ -8,6 +8,7 @@ export async function GET() {
     try {
         const VT_API_KEY = "fbc3c83112565aa17273eb4b799ee24a7f2fb96bcb9a589f40f1dec963030503";
         // we no care about the api key, steal it tf u gonna do using a free api key
+        
         // fetch latest github release
         const ghRes = await fetch("https://api.github.com/repos/colorwall/colorwall/releases/latest");
         if (!ghRes.ok) throw new Error("failed to fetch github release");
