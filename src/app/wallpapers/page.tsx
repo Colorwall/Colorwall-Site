@@ -81,8 +81,9 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
 
     return (
         <div className="break-inside-avoid mb-4 group cursor-pointer" onClick={onClick}>
+            {/* always keep aspect-ratio so the grid never reflows when images load */}
             <div className={`rounded-xl overflow-hidden relative ${isDark ? "bg-white/[0.03]" : "bg-zinc-100"}`}
-                style={{ aspectRatio: loaded ? undefined : "16/10" }}>
+                style={{ aspectRatio: "16/10" }}>
 
                 {/* skeleton placeholder while loading */}
                 {!loaded && (
@@ -96,7 +97,7 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
                     loading="lazy"
                     onLoad={() => setLoaded(true)}
                     onError={() => setError(true)}
-                    className={`w-full h-auto block transition-all duration-500 ${loaded ? "opacity-100 group-hover:scale-[1.03]" : "opacity-0"}`}
+                    className={`w-full h-full object-cover block transition-all duration-500 ${loaded ? "opacity-100 group-hover:scale-[1.03]" : "opacity-0"}`}
                 />
 
                 {/* hover overlay */}
@@ -118,6 +119,7 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
 // ─── lightbox with full-res + auto download ──────────────────────────────────
 function Lightbox({ w, onClose }: { w: Wallpaper; onClose: () => void }) {
     const [downloading, setDownloading] = useState(false);
+    const [imgLoaded, setImgLoaded] = useState(false);
 
     // extract a filename from the url
     const filename = w.url.split("/").pop() || "wallpaper.jpg";
@@ -135,11 +137,23 @@ function Lightbox({ w, onClose }: { w: Wallpaper; onClose: () => void }) {
             className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
             onClick={onClose}
         >
-            <div className="max-w-5xl max-h-[90vh] relative" onClick={(e) => e.stopPropagation()}>
+            {/* fixed dimensions so tags/title don't float before image loads */}
+            <div className="relative w-full max-w-5xl" style={{ minHeight: "60vh" }} onClick={(e) => e.stopPropagation()}>
+                {/* loading skeleton */}
+                {!imgLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-white/40 animate-spin" />
+                    </div>
+                )}
                 {/* full-res image — no wsrv proxy here, we want the real thing */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={w.url} alt={w.title} className="max-w-full max-h-[85vh] object-contain rounded-xl" />
-                <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent rounded-b-xl">
+                <img
+                    src={w.url}
+                    alt={w.title}
+                    onLoad={() => setImgLoaded(true)}
+                    className={`w-full max-h-[85vh] object-contain rounded-xl transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                />
+                <div className={`absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent rounded-b-xl transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}>
                     <p className="text-white text-sm font-semibold mb-2">{w.title}</p>
                     <div className="flex items-center gap-2 flex-wrap">
                         {w.tags.map((t) => (
@@ -265,15 +279,12 @@ export default function WallpapersPage() {
         fetchPage(1, "", true);
     }, [fetchPage]);
 
-    // tag change — fetch fresh without clearing items to prevent flickering
+    // tag click = just set the search text so it filters client-side
+    // don't change the api scope — we want ALL wallpapers loaded, tags just filter visually
     const handleTagChange = useCallback((tag: string) => {
-        setActiveTag(tag);
-        setHasMore(true);
-        nextTokenRef.current = null;
-        currentPageRef.current = 1;
-        loadingRef.current = false; // force unlock in case it was stuck
-        fetchPage(1, tag, true);
-    }, [fetchPage]);
+        setActiveTag("");
+        setSearch(tag);
+    }, []);
 
     // infinite scroll observer — stable deps, no loading in deps
     useEffect(() => {
@@ -372,8 +383,8 @@ export default function WallpapersPage() {
                 {/* ─── tag bar (pill chips, ranked by frequency) ─── */}
                 <div className="flex flex-wrap items-center gap-2 mb-8">
                     <button
-                        onClick={() => handleTagChange("")}
-                        className={`text-[11px] font-semibold uppercase tracking-wide px-3.5 py-1.5 rounded-full transition-all duration-200 ${!activeTag
+                        onClick={() => setSearch("")}
+                        className={`text-[11px] font-semibold uppercase tracking-wide px-3.5 py-1.5 rounded-full transition-all duration-200 ${!search
                             ? isDark
                                 ? "bg-white text-zinc-900"
                                 : "bg-zinc-900 text-white"
@@ -387,8 +398,15 @@ export default function WallpapersPage() {
                     {allTags.slice(0, 40).map((t) => (
                         <button
                             key={t}
-                            onClick={() => handleTagChange(t === activeTag ? "" : t)}
-                            className={`text-[11px] font-semibold uppercase tracking-wide px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all duration-200 ${t === activeTag
+                            onClick={() => {
+                                // toggle: click again to clear
+                                if (search.toLowerCase() === t.toLowerCase()) {
+                                    setSearch("");
+                                } else {
+                                    setSearch(t);
+                                }
+                            }}
+                            className={`text-[11px] font-semibold uppercase tracking-wide px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all duration-200 ${search.toLowerCase() === t.toLowerCase()
                                 ? isDark
                                     ? "bg-white text-zinc-900"
                                     : "bg-zinc-900 text-white"
@@ -411,7 +429,7 @@ export default function WallpapersPage() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onFocus={() => setShowAutocomplete(true)}
-                        onBlur={() => setShowAutocomplete(false)}
+                        onBlur={() => { setTimeout(() => setShowAutocomplete(false), 150); }}
                         aria-label="search wallpapers"
                         className={`w-full pl-14 pr-14 py-5 bg-transparent text-base outline-none rounded-full ${isDark ? "text-white placeholder:text-zinc-500" : "text-zinc-900 placeholder:text-zinc-400"}`}
                     />
@@ -432,8 +450,7 @@ export default function WallpapersPage() {
                                     key={t}
                                     onMouseDown={(e) => {
                                         e.preventDefault();
-                                        handleTagChange(t);
-                                        setSearch("");
+                                        setSearch(t);
                                         setShowAutocomplete(false);
                                     }}
                                     className={`w-full text-left px-4 py-2.5 text-sm rounded-xl transition-colors font-medium flex items-center justify-between group ${isDark ? "text-zinc-300 hover:bg-white/5" : "text-zinc-700 hover:bg-zinc-100"}`}
