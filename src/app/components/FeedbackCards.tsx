@@ -144,14 +144,14 @@ function CommentBox({
             </div>
 
             {/* Comment Body */}
-            <div className="flex-1 relative mb-6">
+            <div className="flex-1 relative mb-6 min-w-0">
                 {/* Pointer Arrow */}
                 <div className="absolute left-[-6px] top-3 w-3 h-3 bg-[#161b22] border-l border-t border-[#30363d] rotate-[-45deg]" />
                 
                 <div className={`border border-[#30363d] rounded-md overflow-hidden ${isMain ? 'bg-[#0d1117]' : 'bg-[#0d1117]'}`}>
-                    <div className="bg-[#161b22] border-b border-[#30363d] px-4 py-2.5 flex items-center justify-between text-[13px]">
-                        <div className="flex items-center gap-1.5 text-[#8b949e]">
-                            <span className="font-semibold text-[#c9d1d9]">{username}</span>
+                    <div className="bg-[#161b22] border-b border-[#30363d] px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+                        <div className="flex flex-wrap items-center gap-1.5 text-[#8b949e] min-w-0">
+                            <span className="font-semibold text-[#c9d1d9] truncate max-w-[120px] sm:max-w-none">{username}</span>
                             {isVerified && (
                                 <span className="text-blue-500" title="Verified Moderator">
                                     <BadgeCheck className="w-4 h-4 fill-blue-500 text-[#161b22]" />
@@ -279,7 +279,7 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                 <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-xs ${myAvatar.color}`}>
                     {myAvatar.initial}
                 </div>
-                <div className="flex-1 relative">
+                <div className="flex-1 relative min-w-0">
                     <div className="absolute left-[-6px] top-3 w-3 h-3 bg-[#0d1117] border-l border-t border-[#30363d] rotate-[-45deg] z-10" />
                     <div className="border border-[#30363d] rounded-md bg-[#0d1117] flex flex-col">
                         <div className="bg-[#161b22] border-b border-[#30363d] rounded-t-md">
@@ -372,18 +372,18 @@ function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: num
         >
             {/* Header */}
             <div className="p-5 border-b border-[#30363d] bg-[#0d1117]">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h2 className="text-2xl font-normal tracking-tight flex items-center gap-2 mb-2">
-                            Feedback from {group.username} 
-                            <span className="text-[#8b949e] font-light">#{first.id}</span>
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <h2 className="text-xl sm:text-2xl font-normal tracking-tight flex flex-wrap items-center gap-2 mb-2 break-words">
+                            Feedback from <span className="truncate max-w-[150px] sm:max-w-none">{group.username}</span>
+                            <span className="text-[#8b949e] font-light text-sm sm:text-base">#{first.id}</span>
                         </h2>
-                        <div className="flex items-center gap-2">
-                            <span className="bg-[#238636] text-white px-3 py-1 rounded-full text-[13px] font-medium flex items-center gap-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="bg-[#238636] text-white px-3 py-1 rounded-full text-[13px] font-medium flex items-center gap-1.5 flex-shrink-0">
                                 <PlaySquare className="w-3.5 h-3.5" />
                                 Open
                             </span>
-                            <span className="text-[#8b949e] text-[13px]">
+                            <span className="text-[#8b949e] text-[13px] break-words">
                                 <span className="font-semibold text-[#c9d1d9]">{group.username}</span> opened this issue {timeAgo(first.createdAt)}
                             </span>
                         </div>
@@ -417,12 +417,12 @@ function IssueCard({ group, index, isAdmin }: { group: FeedbackGroup; index: num
                         <div className="relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-[#21262d] border border-[#30363d]">
                             <Tag className="w-3.5 h-3.5 text-[#8b949e]" />
                         </div>
-                        <div className="flex items-center gap-1.5 text-[13px] text-[#8b949e] py-1.5">
-                            <span className="font-semibold text-[#c9d1d9]">{group.username}</span>
+                        <div className="flex flex-wrap items-center gap-1.5 text-[13px] text-[#8b949e] py-1.5 min-w-0">
+                            <span className="font-semibold text-[#c9d1d9] truncate max-w-[120px] sm:max-w-none">{group.username}</span>
                             added
-                            <div className="flex gap-1">
+                            <div className="flex flex-wrap gap-1">
                                 {labels.map(label => (
-                                    <span key={label} className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getLabelColor(label)}`}>
+                                    <span key={label} className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getLabelColor(label)} whitespace-nowrap`}>
                                         {label}
                                     </span>
                                 ))}
