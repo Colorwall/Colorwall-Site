@@ -6,6 +6,8 @@ import {
     X, ImagePlus, FileText, Loader2,
     CheckCircle2, AlertCircle, Edit3, Image as ImageIcon, Smile, Paperclip, Tag
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export interface FeedbackFormProps {
     defaultUsername?: string;
@@ -206,8 +208,24 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                             onChange={(e) => setText(e.target.value)}
                                         />
                                     ) : (
-                                        <div className="w-full min-h-[200px] p-3 text-[14px] text-[#c9d1d9] whitespace-pre-wrap font-sans">
-                                            {text || 'Nothing to preview'}
+                                        <div className="w-full min-h-[200px] p-4 text-[14px] text-[#c9d1d9] font-sans">
+                                            {text ? (
+                                                <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-hidden">
+                                                    <ReactMarkdown 
+                                                        remarkPlugins={[remarkGfm]}
+                                                        components={{
+                                                            img: ({node, ...props}) => {
+                                                                if (!props.src) return null;
+                                                                return <img {...props} alt={props.alt || ''} />;
+                                                            }
+                                                        }}
+                                                    >
+                                                        {text}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            ) : (
+                                                <div className="text-[#8b949e]">Nothing to preview</div>
+                                            )}
                                         </div>
                                     )}
 

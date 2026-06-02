@@ -347,8 +347,24 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                                         onChange={(e) => setReplyText(e.target.value)}
                                     />
                                 ) : (
-                                    <div className="w-full min-h-[100px] p-3 text-[14px] text-[#c9d1d9] whitespace-pre-wrap">
-                                        {replyText || 'Nothing to preview'}
+                                    <div className="w-full min-h-[100px] p-4 text-[14px] text-[#c9d1d9] font-sans">
+                                        {replyText ? (
+                                            <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-hidden">
+                                                <ReactMarkdown 
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={{
+                                                        img: ({node, ...props}) => {
+                                                            if (!props.src) return null;
+                                                            return <img {...props} alt={props.alt || ''} />;
+                                                        }
+                                                    }}
+                                                >
+                                                    {replyText}
+                                                </ReactMarkdown>
+                                            </div>
+                                        ) : (
+                                            <div className="text-[#8b949e]">Nothing to preview</div>
+                                        )}
                                     </div>
                                 )}
                                 
