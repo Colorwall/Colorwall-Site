@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Tag, Trash2, Loader2, PlaySquare, Eye, Edit3, Image as ImageIcon, Smile, Paperclip, Check, X, BadgeCheck } from 'lucide-react';
 import { useTheme } from '@/app/contexts/ThemeContext';
 import ReactMarkdown from 'react-markdown';
@@ -229,23 +229,47 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
     const [localReplies, setLocalReplies] = useState<{id: string, text: string, username: string, createdAt: Date, isVerified?: boolean}[]>(initialReplies || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+    const [images, setImages] = useState<File[]>([]);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const addImages = (files: FileList | null) => {
+        if (!files) return;
+        const allowed = 5 - images.length;
+        const next = Array.from(files).filter(f => f.type.startsWith('image/')).slice(0, allowed);
+        setImages(prev => [...prev, ...next]);
+        const newPreviews = next.map(f => URL.createObjectURL(f));
+        setPreviews(prev => [...prev, ...newPreviews]);
+    };
+
+    const removeImage = (idx: number) => {
+        setImages(prev => prev.filter((_, i) => i !== idx));
+        setPreviews(prev => prev.filter((_, i) => i !== idx));
+    };
 
     const handleReply = async () => {
-        if (!replyText.trim() || isSubmitting) return;
+        if ((!replyText.trim() && images.length === 0) || isSubmitting) return;
         setIsSubmitting(true);
         const username = typeof window !== 'undefined' ? (localStorage.getItem('cw_username') || 'Anonymous') : 'Anonymous';
+
+        const fd = new FormData();
+        fd.append('threadId', threadId);
+        fd.append('username', username);
+        fd.append('text', replyText.trim());
+        images.forEach(img => fd.append('images', img));
 
         try {
             const res = await fetch('/api/feedback/reply', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ threadId, username, text: replyText.trim() })
+                body: fd
             });
             const data = await res.json();
             
             if (data.success && data.reply) {
                 setLocalReplies([...localReplies, data.reply]);
                 setReplyText('');
+                setImages([]);
+                setPreviews([]);
                 setActiveTab('write');
             } else {
                 alert(`Error: ${data.error}`);
@@ -301,9 +325,10 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                         
                         <div className="p-2 relative bg-[#0d1117]">
                             <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:border-[#8b949e]">
+                                <input type="file" multiple accept="image/*" className="hidden" ref={imageInputRef} onChange={e => addImages(e.target.files)} />
                                 <div className="px-2 py-1.5 flex gap-1 border-b border-[#30363d] bg-[#0d1117] rounded-t-md">
                                     <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><Edit3 className="w-4 h-4" /></button>
-                                    <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><ImageIcon className="w-4 h-4" /></button>
+                                    <button onClick={() => imageInputRef.current?.click()} className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><ImageIcon className="w-4 h-4" /></button>
                                 </div>
                                 {activeTab === 'write' ? (
                                     <textarea 
@@ -317,6 +342,20 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                                         {replyText || 'Nothing to preview'}
                                     </div>
                                 )}
+                                
+                                {previews.length > 0 && (
+                                    <div className="px-3 pb-3 flex flex-wrap gap-2">
+                                        {previews.map((src, i) => (
+                                            <div key={i} className="relative w-16 h-16 rounded border border-[#30363d] overflow-hidden group">
+                                                <img src={src} alt="" className="w-full h-full object-cover" />
+                                                <button onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                    <X className="w-4 h-4 text-white" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
                                 <div className="flex items-center justify-between px-3 py-2 border-t border-[#30363d] border-dashed">
                                     <span className="text-xs text-[#8b949e] flex items-center gap-1"><Paperclip className="w-3 h-3"/> Attach files by dragging & dropping</span>
                                     <button className="text-[#8b949e] hover:text-[#c9d1d9]"><Smile className="w-4 h-4" /></button>
@@ -327,9 +366,9 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                         <div className="p-2 flex justify-end gap-2 bg-[#0d1117] rounded-b-md">
                             <button 
                                 onClick={handleReply}
-                                disabled={!replyText.trim() || isSubmitting}
+                                disabled={(!replyText.trim() && images.length === 0) || isSubmitting}
                                 className={`px-4 py-1.5 rounded-md text-[13px] font-semibold transition-colors ${
-                                    !replyText.trim() || isSubmitting 
+                                    (!replyText.trim() && images.length === 0) || isSubmitting 
                                         ? 'bg-[#238636]/50 text-white/50 cursor-not-allowed' 
                                         : 'bg-[#238636] text-white hover:bg-[#2ea043]'
                                 }`}

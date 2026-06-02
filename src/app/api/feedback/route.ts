@@ -131,7 +131,7 @@ export async function GET(req: Request) {
                 } catch(e) {}
                 text = text.replace(metaMatch[0], '').trim();
                 // Also remove image and log preview sections appended
-                text = text.replace(/### Attached Images[\s\S]*/, '').trim();
+                text = text.replace(/### Images[\s\S]*/, '').trim();
                 text = text.replace(/### Logs[\s\S]*/, '').trim();
             }
             
