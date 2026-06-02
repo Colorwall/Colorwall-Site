@@ -6,6 +6,7 @@ import { Footer } from "@/app/components/Footer";
 import { Download, Loader2, Search, X, ImageIcon } from "lucide-react";
 import { GradientHeading } from "../components/landing/GradientHeading";
 import React from "react";
+import Masonry from "react-masonry-css";
 
 type Wallpaper = { url: string; title: string; tags: string[]; source?: "archive" | "yapude" };
 
@@ -163,6 +164,11 @@ function Lightbox({ w, onClose }: { w: Wallpaper; onClose: () => void }) {
 }
 
 // ─── page ─────────────────────────────────────────────────────────────────────
+
+const masonryBreakpoints = {
+    default: 2,
+    640: 1 // 1 column on mobile (sm in tailwind is 640px)
+};
 
 export default function WallpapersPage() {
     const { theme } = useTheme();
@@ -452,20 +458,28 @@ export default function WallpapersPage() {
 
                 {/* ─── skeleton initial state ─── */}
                 {initialLoad && (
-                    <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
+                    <Masonry
+                        breakpointCols={masonryBreakpoints}
+                        className="flex w-auto -ml-4"
+                        columnClassName="pl-4 bg-clip-padding"
+                    >
                         {Array.from({ length: 20 }).map((_, i) => (
                             <Skeleton key={i} isDark={isDark} />
                         ))}
-                    </div>
+                    </Masonry>
                 )}
 
                 {/* ─── masonry grid ─── */}
                 {!initialLoad && items.length > 0 && (
-                    <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
+                    <Masonry
+                        breakpointCols={masonryBreakpoints}
+                        className="flex w-auto -ml-4"
+                        columnClassName="pl-4 bg-clip-padding"
+                    >
                         {items.map((w, i) => (
                             <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
                         ))}
-                    </div>
+                    </Masonry>
                 )}
 
                 {/* ─── empty state ─── */}
@@ -479,11 +493,15 @@ export default function WallpapersPage() {
 
                 {/* ─── loading more skeletons ─── */}
                 {loading && !initialLoad && (
-                    <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5 mt-4">
+                    <Masonry
+                        breakpointCols={masonryBreakpoints}
+                        className="flex w-auto -ml-4 mt-4"
+                        columnClassName="pl-4 bg-clip-padding"
+                    >
                         {Array.from({ length: 8 }).map((_, i) => (
                             <Skeleton key={`load-${i}`} isDark={isDark} />
                         ))}
-                    </div>
+                    </Masonry>
                 )}
 
                 {/* ─── infinite scroll sentinel ─── */}

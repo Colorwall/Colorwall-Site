@@ -6,6 +6,8 @@ import {
     X, ImagePlus, FileText, Loader2,
     CheckCircle2, AlertCircle, Edit3, Image as ImageIcon, Smile, Paperclip, Tag
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export interface FeedbackFormProps {
     defaultUsername?: string;
@@ -47,6 +49,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const [errMsg,   setErrMsg]   = useState('');
     const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+    const [isDragging, setIsDragging] = useState(false);
 
     const imageInputRef = useRef<HTMLInputElement>(null);
     const logInputRef   = useRef<HTMLInputElement>(null);
@@ -171,7 +174,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                         value={username}
                                         onChange={e => setUsername(e.target.value)}
                                         maxLength={64}
-                                        placeholder="Enter your Username (ex-> CuteChud911)"
+                                        placeholder="Enter Any Username (ex. CuteChud911)"
                                         className="w-full bg-transparent text-[16px] text-[#c9d1d9] outline-none placeholder-[#8b949e] font-semibold"
                                     />
                                 </div>
@@ -192,7 +195,25 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                             </div>
                             
                             <div className="p-2 relative bg-[#0d1117]">
-                                <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:border-[#8b949e]">
+                                <div 
+                                    className={`bg-[#0d1117] border rounded-md transition-colors ${isDragging ? 'border-indigo-500 bg-[#161b22]' : 'border-[#30363d] focus-within:border-[#8b949e]'}`}
+                                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                                    onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setIsDragging(false);
+                                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                            const imgFiles = new DataTransfer();
+                                            const logFs = new DataTransfer();
+                                            Array.from(e.dataTransfer.files).forEach(f => {
+                                                if (f.type.startsWith('image/')) imgFiles.items.add(f);
+                                                else logFs.items.add(f);
+                                            });
+                                            if (imgFiles.files.length > 0) addImages(imgFiles.files);
+                                            if (logFs.files.length > 0) addLogs(logFs.files);
+                                        }
+                                    }}
+                                >
                                     <div className="px-2 py-1.5 flex gap-1 border-b border-[#30363d] bg-[#0d1117] rounded-t-md">
                                         <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><Edit3 className="w-4 h-4" /></button>
                                         <button onClick={() => imageInputRef.current?.click()} className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]" title="Upload images"><ImageIcon className="w-4 h-4" /></button>
@@ -206,8 +227,24 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                             onChange={(e) => setText(e.target.value)}
                                         />
                                     ) : (
-                                        <div className="w-full min-h-[200px] p-3 text-[14px] text-[#c9d1d9] whitespace-pre-wrap font-sans">
-                                            {text || 'Nothing to preview'}
+                                        <div className="w-full min-h-[200px] p-4 text-[14px] text-[#c9d1d9] font-sans">
+                                            {text ? (
+                                                <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-hidden">
+                                                    <ReactMarkdown 
+                                                        remarkPlugins={[remarkGfm]}
+                                                        components={{
+                                                            img: ({node, ...props}) => {
+                                                                if (!props.src) return null;
+                                                                return <img {...props} alt={props.alt || ''} />;
+                                                            }
+                                                        }}
+                                                    >
+                                                        {text}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            ) : (
+                                                <div className="text-[#8b949e]">Nothing to preview</div>
+                                            )}
                                         </div>
                                     )}
 

@@ -129,7 +129,7 @@ export const Navbar = () => {
                 className={`backdrop-blur-xl shadow-xl border rounded-[20px] overflow-hidden transition-all duration-300 ${base}`}
             >
                 <div className="flex items-center justify-between h-14 md:h-16 px-2 sm:px-4 md:px-6 gap-1 sm:gap-2">
-                    <Link href="/" className="group flex items-center opacity-90 hover:opacity-100 transition-opacity shrink-0 relative">
+                    <Link href="/" className="hidden sm:flex group items-center opacity-90 hover:opacity-100 transition-opacity shrink-0 relative">
                         <img src="/colorwall.png" alt="ColorWall logo" className="h-6 md:h-7 object-contain" />
                         <span className={`absolute left-[76px] top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-widest uppercase whitespace-nowrap opacity-0 group-hover:opacity-100 shadow-xl transition-all pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]
               ${isDark ? "bg-[#0a0a0a]/90 border border-white/10 text-white" : "bg-white/90 border border-black/10 text-black"} hidden md:block`}>
