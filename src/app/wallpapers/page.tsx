@@ -229,15 +229,16 @@ export default function WallpapersPage() {
                 nextTokenRef.current = null;
                 currentPageRef.current = 1;
 
-                const freshParams = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE) });
+                const freshParams = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE), _t: String(Date.now()) });
                 if (query) freshParams.set("q", query);
-                const freshRes = await fetch(`/api/wallpapers?${freshParams}`);
+                const freshRes = await fetch(`/api/wallpapers?${freshParams}`, { cache: "no-store" });
                 if (freshRes.ok) {
                     const freshData = await freshRes.json();
                     nextTokenRef.current = freshData.nextToken || null;
                     currentPageRef.current = 1;
                     setHasMore(freshData.hasMore);
                     if (freshData.tags) setAllTags(freshData.tags);
+                    setItems(freshData.items);
                 }
                 return;
             }
@@ -286,7 +287,8 @@ export default function WallpapersPage() {
     useEffect(() => {
         if (!sentinelRef.current) return;
         const observer = new IntersectionObserver(
-            () => {
+            (entries) => {
+                if (!entries[0].isIntersecting) return;
                 // check refs directly — no stale closures
                 if (!loadingRef.current) {
                     const nextPage = currentPageRef.current + 1;
