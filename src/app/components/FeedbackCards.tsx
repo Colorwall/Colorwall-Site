@@ -65,13 +65,14 @@ function getLabelColor(label: string) {
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
 function ExpandableImageGrid({ images }: { images: string[] }) {
-    if (images.length === 0) return null;
+    const validImages = images.filter(Boolean);
+    if (validImages.length === 0) return null;
     return (
-        <div className={`mt-3 grid gap-2 ${images.length === 1 ? 'grid-cols-1 max-w-sm' : 'grid-cols-2 max-w-md'}`}>
-            {images.map((src, idx) => (
+        <div className={`mt-3 grid gap-2 ${validImages.length === 1 ? 'grid-cols-1 max-w-sm' : 'grid-cols-2 max-w-md'}`}>
+            {validImages.map((src, idx) => (
                 <a key={idx} href={src} target="_blank" rel="noreferrer"
                     className="relative block overflow-hidden rounded-lg border border-[#30363d]"
-                    style={{ aspectRatio: images.length === 1 ? '16/9' : '1/1' }}
+                    style={{ aspectRatio: validImages.length === 1 ? '16/9' : '1/1' }}
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
@@ -200,7 +201,15 @@ function CommentBox({
                             </div>
                         ) : (
                             <div className="prose prose-invert prose-sm max-w-none break-words overflow-x-hidden">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                <ReactMarkdown 
+                                    remarkPlugins={[remarkGfm]}
+                                    components={{
+                                        img: ({node, ...props}) => {
+                                            if (!props.src) return null;
+                                            return <img {...props} alt={props.alt || ''} />;
+                                        }
+                                    }}
+                                >
                                     {currentBody}
                                 </ReactMarkdown>
                             </div>
