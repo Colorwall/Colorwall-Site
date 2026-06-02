@@ -10,6 +10,7 @@ import React from "react";
 type Wallpaper = { url: string; title: string; tags: string[]; source?: "archive" | "yapude" };
 
 const PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 350;
 
 // ─── wsrv.nl thumbnail proxy ──────────────────────────────────────────────────
 // routes images through wsrv.nl for resized thumbnails in the grid,
@@ -37,28 +38,6 @@ async function autoDownload(url: string, filename: string): Promise<void> {
         console.error("auto-download failed, opening in new tab:", err);
         window.open(url, "_blank");
     }
-}
-
-// ─── fuzzy search helper ──────────────────────────────────────────────────────
-// Returns match score: 4 (exact title), 3 (exact tag), 2 (fuzzy title), 1 (fuzzy tag), 0 (no match)
-function getMatchScore(query: string, text: string, isTag: boolean) {
-    if (!query) return 0;
-    const q = query.toLowerCase();
-    const t = text.toLowerCase();
-
-    // direct match
-    if (t.includes(q)) return isTag ? 3 : 4;
-
-    // fuzzy match (subsequence)
-    let qIdx = 0;
-    let tIdx = 0;
-    while (qIdx < q.length && tIdx < t.length) {
-        if (q[qIdx] === t[tIdx]) {
-            qIdx++;
-        }
-        tIdx++;
-    }
-    return qIdx === q.length ? (isTag ? 1 : 2) : 0;
 }
 
 
@@ -195,15 +174,14 @@ export default function WallpapersPage() {
     const [initialLoad, setInitialLoad] = useState(true);
     const [total, setTotal] = useState(0);
     const [allTags, setAllTags] = useState<string[]>([]);
-    const [activeTag, setActiveTag] = useState("");
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [showAutocomplete, setShowAutocomplete] = useState(false);
     const [lightbox, setLightbox] = useState<Wallpaper | null>(null);
 
-    // Random suggestions for empty search
+    // random suggestions for empty search
     const randomSuggestions = React.useMemo(() => {
         if (!showAutocomplete || search || allTags.length === 0) return [];
-        // simple random shuffle for 8 suggestions
         return [...allTags].sort(() => Math.random() - 0.5).slice(0, 8);
     }, [showAutocomplete, search, allTags]);
 
@@ -211,23 +189,27 @@ export default function WallpapersPage() {
     const nextTokenRef = useRef<string | null>(null);
     const currentPageRef = useRef(1);
     const loadingRef = useRef(false);
-    const activeTagRef = useRef("");
+    const currentQueryRef = useRef("");
 
     const sentinelRef = useRef<HTMLDivElement>(null);
 
-    // keep tag ref in sync
-    useEffect(() => { activeTagRef.current = activeTag; }, [activeTag]);
+    // ─── debounce search input ────────────────────────────────────────────────
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, SEARCH_DEBOUNCE_MS);
+        return () => clearTimeout(timer);
+    }, [search]);
 
-    // ─── fetch a page ─────────────────────────────────────────────────────────
-    // uses refs for loading guard so the callback identity never changes
-    const fetchPage = useCallback(async (page: number, tag: string, reset: boolean) => {
+    // ─── fetch a page (server-side search) ────────────────────────────────────
+    const fetchPage = useCallback(async (page: number, query: string, reset: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
         setLoading(true);
 
         try {
             const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
-            if (tag) params.set("tag", tag);
+            if (query) params.set("q", query);
             // attach token for pages > 1
             if (page > 1 && nextTokenRef.current) {
                 params.set("token", nextTokenRef.current);
@@ -242,11 +224,10 @@ export default function WallpapersPage() {
                 currentPageRef.current = 1;
 
                 const freshParams = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE) });
-                if (tag) freshParams.set("tag", tag);
+                if (query) freshParams.set("q", query);
                 const freshRes = await fetch(`/api/wallpapers?${freshParams}`);
                 if (freshRes.ok) {
                     const freshData = await freshRes.json();
-                    // don't reset items — just update the token so next scroll works
                     nextTokenRef.current = freshData.nextToken || null;
                     currentPageRef.current = 1;
                     setHasMore(freshData.hasMore);
@@ -263,6 +244,7 @@ export default function WallpapersPage() {
             setTotal(data.total);
             nextTokenRef.current = data.nextToken || null;
             currentPageRef.current = page;
+            currentQueryRef.current = query;
             if (data.tags) setAllTags(data.tags);
         } catch (err) {
             console.error("failed to fetch wallpapers:", err);
@@ -279,12 +261,20 @@ export default function WallpapersPage() {
         fetchPage(1, "", true);
     }, [fetchPage]);
 
-    // tag click = just set the search text so it filters client-side
-    // don't change the api scope — we want ALL wallpapers loaded, tags just filter visually
-    const handleTagChange = useCallback((tag: string) => {
-        setActiveTag("");
-        setSearch(tag);
-    }, []);
+    // ─── re-fetch when debounced search changes ──────────────────────────────
+    // sends search to server for full-index filtering
+    const prevSearchRef = useRef("");
+    useEffect(() => {
+        // skip the initial empty search (handled by initial load)
+        if (debouncedSearch === prevSearchRef.current) return;
+        prevSearchRef.current = debouncedSearch;
+
+        // reset pagination and fetch from page 1 with new query
+        nextTokenRef.current = null;
+        currentPageRef.current = 1;
+        setHasMore(true);
+        fetchPage(1, debouncedSearch, true);
+    }, [debouncedSearch, fetchPage]);
 
     // infinite scroll observer — stable deps, no loading in deps
     useEffect(() => {
@@ -294,7 +284,7 @@ export default function WallpapersPage() {
                 // check refs directly — no stale closures
                 if (!loadingRef.current) {
                     const nextPage = currentPageRef.current + 1;
-                    fetchPage(nextPage, activeTagRef.current, false);
+                    fetchPage(nextPage, currentQueryRef.current, false);
                 }
             },
             { rootMargin: "600px" }
@@ -311,35 +301,6 @@ export default function WallpapersPage() {
         window.addEventListener("keydown", handler);
         return () => window.removeEventListener("keydown", handler);
     }, []);
-
-    // client-side search filter with categorization
-    const displayGroups = (() => {
-        const query = search.trim();
-        if (!query) return { all: items };
-
-        const scored = items.map(w => {
-            let score = getMatchScore(query, w.title, false);
-            if (score === 0) {
-                for (const tag of w.tags) {
-                    const tagScore = getMatchScore(query, tag, true);
-                    if (tagScore > score) score = tagScore;
-                }
-            }
-            return { w, score };
-        }).filter(item => item.score > 0);
-
-        // Sort by score descending (best matches first)
-        scored.sort((a, b) => b.score - a.score);
-
-        const exact = scored.filter(i => i.score >= 3).map(i => i.w);
-        const fuzzy = scored.filter(i => i.score < 3).map(i => i.w);
-
-        return { exact, fuzzy };
-    })();
-
-    const hasResults = search
-        ? (displayGroups.exact!.length > 0 || displayGroups.fuzzy!.length > 0)
-        : displayGroups.all!.length > 0;
 
     return (
         <div
@@ -439,8 +400,15 @@ export default function WallpapersPage() {
                             <X className="w-5 h-5" />
                         </button>
                     )}
+
+                    {/* server-side search indicator */}
+                    {search && loading && (
+                        <div className="absolute right-14 top-1/2 -translate-y-1/2">
+                            <Loader2 className={`w-4 h-4 animate-spin ${isDark ? "text-zinc-500" : "text-zinc-400"}`} />
+                        </div>
+                    )}
                     
-                    {/* Autocomplete Dropdown */}
+                    {/* autocomplete dropdown */}
                     {showAutocomplete && (search || randomSuggestions.length > 0) && (
                         <div className={`absolute left-0 right-0 top-full mt-2 rounded-2xl border p-2 z-[60] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 ${isDark ? "bg-[#0d1117] border-[#30363d]" : "bg-white border-zinc-200"}`}>
                             {!search && <h4 className={`text-[10px] font-bold uppercase tracking-widest px-4 pt-3 pb-2 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>Random Suggestions</h4>}
@@ -468,6 +436,20 @@ export default function WallpapersPage() {
                     )}
                 </div>
 
+                {/* ─── search info bar ─── */}
+                {debouncedSearch && !loading && items.length > 0 && (
+                    <div className={`flex items-center gap-2 mb-6 text-xs ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
+                        <Search className="w-3.5 h-3.5" />
+                        <span>
+                            showing <span className="font-mono font-semibold">{total.toLocaleString()}</span> results for &ldquo;<span className={`font-medium ${isDark ? "text-white" : "text-zinc-800"}`}>{debouncedSearch}</span>&rdquo;
+                        </span>
+                        <button onClick={() => setSearch("")}
+                            className={`ml-2 px-2 py-0.5 rounded-md transition-colors ${isDark ? "bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300" : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600"}`}>
+                            clear
+                        </button>
+                    </div>
+                )}
+
                 {/* ─── skeleton initial state ─── */}
                 {initialLoad && (
                     <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
@@ -477,48 +459,17 @@ export default function WallpapersPage() {
                     </div>
                 )}
 
-                {/* ─── masonry grid (no search) ─── */}
-                {!initialLoad && !search && displayGroups.all && displayGroups.all.length > 0 && (
+                {/* ─── masonry grid ─── */}
+                {!initialLoad && items.length > 0 && (
                     <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
-                        {displayGroups.all.map((w, i) => (
+                        {items.map((w, i) => (
                             <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
                         ))}
                     </div>
                 )}
 
-                {/* ─── search results groups ─── */}
-                {!initialLoad && search && hasResults && (
-                    <div className="space-y-10">
-                        {displayGroups.exact!.length > 0 && (
-                            <div>
-                                <h3 className={`text-xs font-mono font-bold tracking-widest uppercase mb-4 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Exact Matches</h3>
-                                <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
-                                    {displayGroups.exact!.map((w, i) => (
-                                        <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {displayGroups.exact!.length > 0 && displayGroups.fuzzy!.length > 0 && (
-                            <hr className={`border-t ${isDark ? "border-white/10" : "border-zinc-200"}`} />
-                        )}
-
-                        {displayGroups.fuzzy!.length > 0 && (
-                            <div>
-                                <h3 className={`text-xs font-mono font-bold tracking-widest uppercase mb-4 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Related Matches</h3>
-                                <div className="columns-1 sm:columns-2 lg:columns-2 xl:columns-2 gap-5">
-                                    {displayGroups.fuzzy!.map((w, i) => (
-                                        <WallpaperCard key={`${w.url}-${i}`} w={w} isDark={isDark} onClick={() => setLightbox(w)} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
                 {/* ─── empty state ─── */}
-                {!initialLoad && !hasResults && !loading && (
+                {!initialLoad && items.length === 0 && !loading && (
                     <div className="flex flex-col items-center justify-center py-32">
                         <ImageIcon className={`w-12 h-12 mb-4 ${isDark ? "text-zinc-700" : "text-zinc-300"}`} />
                         <p className={`text-lg font-semibold mb-1 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>no wallpapers found</p>
