@@ -43,3 +43,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated wallpaper index (rebuilt at deploy time)
+/data/
+
+# temp scripts
+fetch_sample.ps1

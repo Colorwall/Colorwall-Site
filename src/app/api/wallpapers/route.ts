@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
 
 // ─── rate limiter (in-memory, per-ip sliding window) ──────────────────────────
 // 60 requests per minute per ip — enough for normal browsing, blocks hammering
@@ -75,105 +77,153 @@ function isBot(headersList: Headers): boolean {
 }
 
 // ─── shared secret for hash validation ────────────────────────────────────────
-// not real security — just raises the bar so bots can't blindly paginate
 const HASH_SECRET = "cw-wallpaper-archive-2026";
 
-// ─── source config ────────────────────────────────────────────────────────────
+// ─── types ────────────────────────────────────────────────────────────────────
 
 type SourceId = "archive" | "yapude";
-
-interface SourceConfig {
-    id: SourceId;
-    url: string;
-    ttl: number; // cache ttl in ms
-}
-
-// ttls bumped to 6 hours — the readmes don't change that frequently
-// and downloading 14.5 MB (yapude) every 30 min was destroying cold start times on vercel
-const SOURCES: SourceConfig[] = [
-    {
-        id: "archive",
-        url: "https://raw.githubusercontent.com/LaxentaInc/Wallpaper-Archive/main/README.md",
-        ttl: 1000 * 60 * 60 * 6, // 6 hours
-    },
-    {
-        id: "yapude",
-        url: "https://raw.githubusercontent.com/yapude/wallpapers/main/README.md",
-        ttl: 1000 * 60 * 60 * 6, // 6 hours — was 30 min but that downloads 14.5 MB way too often
-    },
-];
-
-// ─── in-memory cache (per source) ─────────────────────────────────────────────
-
 type WallpaperEntry = { url: string; title: string; tags: string[]; source: SourceId };
 
-type SourceCache = { data: WallpaperEntry[]; fetchedAt: number; etag?: string };
+// ─── pre-built index format (from build-wallpaper-index.mjs) ──────────────────
+// compact format: entries are [prefixIndex, filename, title, [tags], source]
 
-const caches: Record<SourceId, SourceCache | null> = {
-    archive: null,
-    yapude: null,
-};
-
-// ─── parser ───────────────────────────────────────────────────────────────────
-// both repos use the same markdown table format:
-// | <img src="..."> | **Title** ... | tag1, tag2, ... |
-
-function parseReadme(raw: string, source: SourceId): WallpaperEntry[] {
-    const entries: WallpaperEntry[] = [];
-    const rowRegex = /\|\s*<img\s+src="([^"]+)"[^>]*>\s*\|\s*\*\*([^*]+)\*\*.*?\|\s*([^|]*)\|/g;
-    let match: RegExpExecArray | null;
-    while ((match = rowRegex.exec(raw)) !== null) {
-        const url = match[1].trim();
-        const title = match[2].trim().replace(/\s*(Desktop|Laptop|PC)\s+Wallpaper\s*(4K)?$/i, "").trim();
-        const tagsRaw = match[3].trim();
-        const tags = tagsRaw
-            ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
-            : [];
-        entries.push({ url, title, tags, source });
-    }
-    
-    // Shuffle the array to randomize the wallpaper order
-    for (let i = entries.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [entries[i], entries[j]] = [entries[j], entries[i]];
-    }
-    
-    return entries;
+interface IndexFile {
+    version: number;
+    builtAt: string;
+    totalEntries: number;
+    totalTags: number;
+    tags: string[];
+    prefixes: string[];
+    entries: [number, string, string, string[], string][];
 }
 
-// ─── deduplication & merging ──────────────────────────────────────────────────
-// deduplicate by url — keep the entry with more tags (richer metadata)
+// ─── in-memory index (loaded once from pre-built json) ────────────────────────
 
-function deduplicateByUrl(entries: WallpaperEntry[]): WallpaperEntry[] {
-    const seen = new Map<string, WallpaperEntry>();
-    for (const entry of entries) {
-        const existing = seen.get(entry.url);
-        if (!existing || entry.tags.length > existing.tags.length) {
-            seen.set(entry.url, entry);
+interface LoadedIndex {
+    entries: WallpaperEntry[];
+    tags: string[];
+    builtAt: string;
+    // reverse index: lowercased tag -> set of entry indices for fast tag search
+    tagIndex: Map<string, Set<number>>;
+}
+
+let loadedIndex: LoadedIndex | null = null;
+
+function getIndex(): LoadedIndex | null {
+    if (loadedIndex) return loadedIndex;
+
+    // try to load from pre-built data file
+    const dataPath = join(process.cwd(), "data", "wallpapers.json");
+    if (!existsSync(dataPath)) {
+        console.warn("wallpaper index not found at", dataPath);
+        console.warn("run `npm run index:wallpapers` to generate it");
+        return null;
+    }
+
+    try {
+        const startMs = Date.now();
+        const raw = readFileSync(dataPath, "utf-8");
+        const data: IndexFile = JSON.parse(raw);
+
+        // expand compact format back to full entries
+        const entries: WallpaperEntry[] = data.entries.map(([pi, filename, title, tags, source]) => ({
+            url: data.prefixes[pi] + filename,
+            title,
+            tags,
+            source: source as SourceId,
+        }));
+
+        // build reverse tag index for fast lookups
+        const tagIndex = new Map<string, Set<number>>();
+        for (let i = 0; i < entries.length; i++) {
+            for (const tag of entries[i].tags) {
+                const lower = tag.toLowerCase();
+                let set = tagIndex.get(lower);
+                if (!set) {
+                    set = new Set();
+                    tagIndex.set(lower, set);
+                }
+                set.add(i);
+            }
         }
+
+        loadedIndex = {
+            entries,
+            tags: data.tags,
+            builtAt: data.builtAt,
+            tagIndex,
+        };
+
+        const elapsed = Date.now() - startMs;
+        console.log(`loaded wallpaper index: ${entries.length.toLocaleString()} entries, ${tagIndex.size.toLocaleString()} unique tags in ${elapsed}ms`);
+        return loadedIndex;
+    } catch (err) {
+        console.error("failed to load wallpaper index:", err);
+        return null;
     }
-    return Array.from(seen.values());
 }
 
-// ─── interleave two arrays for variety ────────────────────────────────────────
-// alternates picks from each source so the user sees a mix
+// ─── server-side search ───────────────────────────────────────────────────────
+// searches across titles and tags. returns entries sorted by relevance.
 
-function interleave(a: WallpaperEntry[], b: WallpaperEntry[]): WallpaperEntry[] {
-    const result: WallpaperEntry[] = [];
-    const maxLen = Math.max(a.length, b.length);
-    for (let i = 0; i < maxLen; i++) {
-        if (i < a.length) result.push(a[i]);
-        if (i < b.length) result.push(b[i]);
+function searchEntries(query: string, idx: LoadedIndex): WallpaperEntry[] {
+    const q = query.toLowerCase().trim();
+    if (!q) return idx.entries;
+
+    // FAST PATH: exact tag lookup
+    // if the query matches a tag exactly (e.g. they clicked a tag or typed one completely),
+    // return those results instantly instead of scanning 156k entries.
+    const exactIndices = idx.tagIndex.get(q);
+    if (exactIndices && exactIndices.size > 0) {
+        const res: WallpaperEntry[] = [];
+        for (const i of exactIndices) {
+            res.push(idx.entries[i]);
+        }
+        return res;
     }
-    return result;
+
+    // SLOW PATH: linear scan for partial/fuzzy matches
+    type Scored = { entry: WallpaperEntry; score: number };
+    const results: Scored[] = [];
+
+    for (let i = 0; i < idx.entries.length; i++) {
+        const entry = idx.entries[i];
+        let score = 0;
+
+        // tag contains query (partial)
+        for (let j = 0; j < entry.tags.length; j++) {
+            if (entry.tags[j].toLowerCase().includes(q)) {
+                score = 7;
+                break;
+            }
+        }
+
+        // title contains query
+        if (score === 0 && entry.title.toLowerCase().includes(q)) {
+            score = 5;
+        }
+
+        // fuzzy title match (subsequence)
+        if (score === 0) {
+            const title = entry.title.toLowerCase();
+            let qi = 0;
+            for (let ti = 0; ti < title.length && qi < q.length; ti++) {
+                if (q[qi] === title[ti]) qi++;
+            }
+            if (qi === q.length) score = 2;
+        }
+
+        if (score > 0) results.push({ entry, score });
+    }
+
+    // sort by score descending
+    results.sort((a, b) => b.score - a.score);
+    return results.map(r => r.entry);
 }
 
 // ─── simple hash for token validation ─────────────────────────────────────────
-// token = hex(simple hash of: secret + page + minute-window)
-// client generates same hash, api checks it matches
 
 function computeToken(page: number, minuteWindow: number): string {
-    // simple fnv-1a style hash — no crypto needed, just a speed bump
     const input = `${HASH_SECRET}:${page}:${minuteWindow}`;
     let hash = 0x811c9dc5;
     for (let i = 0; i < input.length; i++) {
@@ -187,51 +237,6 @@ function validateToken(token: string, page: number): boolean {
     const now = Math.floor(Date.now() / 60000);
     // allow current minute and previous minute (2 minute window)
     return token === computeToken(page, now) || token === computeToken(page, now - 1);
-}
-
-// ─── fetch & cache a single source ────────────────────────────────────────────
-// uses etag-based conditional requests so we skip re-downloading 14.5 MB
-// when the content hasn't actually changed
-
-async function fetchSource(config: SourceConfig): Promise<WallpaperEntry[]> {
-    const cached = caches[config.id];
-    if (cached && Date.now() - cached.fetchedAt < config.ttl) {
-        return cached.data;
-    }
-
-    try {
-        // build conditional request headers if we have a cached etag
-        const fetchHeaders: Record<string, string> = {};
-        if (cached?.etag) {
-            fetchHeaders["If-None-Match"] = cached.etag;
-        }
-
-        const res = await fetch(config.url, {
-            cache: "no-store",
-            headers: fetchHeaders,
-        });
-
-        // 304 = content unchanged, just refresh the timestamp
-        if (res.status === 304 && cached) {
-            caches[config.id] = { ...cached, fetchedAt: Date.now() };
-            return cached.data;
-        }
-
-        if (!res.ok) throw new Error(`github returned ${res.status}`);
-        const raw = await res.text();
-        const parsed = parseReadme(raw, config.id);
-        const etag = res.headers.get("etag") || undefined;
-        caches[config.id] = { data: parsed, fetchedAt: Date.now(), etag };
-        return parsed;
-    } catch (err) {
-        if (cached) {
-            // serve stale data if available
-            console.error(`failed to refresh ${config.id} cache, serving stale:`, err);
-            return cached.data;
-        }
-        console.error(`failed to fetch ${config.id} source:`, err);
-        return []; // graceful — return empty instead of crashing
-    }
 }
 
 // ─── route ────────────────────────────────────────────────────────────────────
@@ -274,10 +279,29 @@ export async function GET(request: Request) {
         );
     }
 
+    // ── load pre-built index ──────────────────────────────────────────────────
+    const idx = getIndex();
+    if (!idx) {
+        return NextResponse.json(
+            {
+                status: "no_index",
+                error: "wallpaper index not built yet — run `npm run index:wallpapers`",
+                items: [],
+                total: 0,
+                page: 1,
+                limit: 20,
+                hasMore: false,
+                nextToken: null,
+            },
+            { status: 503 }
+        );
+    }
+
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(24, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
     const tag = searchParams.get("tag") || "";
+    const query = searchParams.get("q") || "";
     const token = searchParams.get("token") || "";
 
     // validate token — page 1 is always free (initial load), rest need token
@@ -288,70 +312,45 @@ export async function GET(request: Request) {
         );
     }
 
-    // fetch both sources in parallel — if one fails, the other still works
-    const results = await Promise.allSettled(
-        SOURCES.map((src) => fetchSource(src))
-    );
+    // ── filter / search ───────────────────────────────────────────────────────
+    let items = idx.entries;
 
-    // collect entries from each source
-    const sourceEntries: WallpaperEntry[][] = results.map((r) =>
-        r.status === "fulfilled" ? r.value : []
-    );
-
-    // if both sources returned nothing, return error
-    if (sourceEntries.every((arr) => arr.length === 0)) {
-        return NextResponse.json(
-            { error: "failed to fetch wallpaper sources" },
-            { status: 502 }
-        );
+    // server-side search by query string
+    if (query) {
+        items = searchEntries(query, idx);
     }
-
-    // interleave then deduplicate for variety across sources
-    const merged = interleave(sourceEntries[0], sourceEntries[1]);
-    const allEntries = deduplicateByUrl(merged);
-
-    let items = allEntries;
-
-    // filter by tag
-    if (tag) {
+    // filter by exact tag (legacy support)
+    else if (tag) {
         const lower = tag.toLowerCase();
-        items = items.filter((w) => w.tags.some((t) => t.toLowerCase() === lower));
+        const indices = idx.tagIndex.get(lower);
+        items = indices ? Array.from(indices).map(i => idx.entries[i]) : [];
     }
 
     const total = items.length;
     const start = (page - 1) * limit;
     const slice = items.slice(start, start + limit);
 
-    // generate token for the next page so the client can request it
+    // generate token for the next page
     const nextPage = page + 1;
     const nextMinute = Math.floor(Date.now() / 60000);
     const nextToken = start + limit < total ? computeToken(nextPage, nextMinute) : null;
 
-    // collect tags ranked by frequency — most popular first (only on page 1)
+    // send tags on page 1 when not searching
     let allTags: string[] | undefined;
-    if (page === 1) {
-        const tagCounts = new Map<string, number>();
-        for (const w of allEntries) {
-            for (const t of w.tags) {
-                const lower = t.toLowerCase();
-                tagCounts.set(lower, (tagCounts.get(lower) || 0) + 1);
-            }
-        }
-        // sort by count descending, keep tags with >= 2 occurrences
-        allTags = [...tagCounts.entries()]
-            .filter(([, count]) => count >= 2)
-            .sort((a, b) => b[1] - a[1])
-            .map(([tag]) => tag);
+    if (page === 1 && !query) {
+        allTags = idx.tags;
     }
 
     return NextResponse.json(
         {
+            status: "ready",
             items: slice,
             total,
             page,
             limit,
             hasMore: start + limit < total,
             nextToken,
+            builtAt: idx.builtAt,
             ...(allTags ? { tags: allTags } : {}),
         },
         {
