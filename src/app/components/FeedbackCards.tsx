@@ -240,6 +240,7 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
     const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
     const [images, setImages] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+    const [isDragging, setIsDragging] = useState(false);
     const imageInputRef = useRef<HTMLInputElement>(null);
 
     const addImages = (files: FileList | null) => {
@@ -333,7 +334,18 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                         </div>
                         
                         <div className="p-2 relative bg-[#0d1117]">
-                            <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:border-[#8b949e]">
+                            <div 
+                                className={`bg-[#0d1117] border rounded-md transition-colors ${isDragging ? 'border-indigo-500 bg-[#161b22]' : 'border-[#30363d] focus-within:border-[#8b949e]'}`}
+                                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                                onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setIsDragging(false);
+                                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                        addImages(e.dataTransfer.files);
+                                    }
+                                }}
+                            >
                                 <input type="file" multiple accept="image/*" className="hidden" ref={imageInputRef} onChange={e => addImages(e.target.files)} />
                                 <div className="px-2 py-1.5 flex gap-1 border-b border-[#30363d] bg-[#0d1117] rounded-t-md">
                                     <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><Edit3 className="w-4 h-4" /></button>

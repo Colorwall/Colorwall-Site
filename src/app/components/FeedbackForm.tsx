@@ -49,6 +49,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
     const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
     const [errMsg,   setErrMsg]   = useState('');
     const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+    const [isDragging, setIsDragging] = useState(false);
 
     const imageInputRef = useRef<HTMLInputElement>(null);
     const logInputRef   = useRef<HTMLInputElement>(null);
@@ -194,7 +195,25 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                             </div>
                             
                             <div className="p-2 relative bg-[#0d1117]">
-                                <div className="bg-[#0d1117] border border-[#30363d] rounded-md focus-within:border-[#8b949e]">
+                                <div 
+                                    className={`bg-[#0d1117] border rounded-md transition-colors ${isDragging ? 'border-indigo-500 bg-[#161b22]' : 'border-[#30363d] focus-within:border-[#8b949e]'}`}
+                                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                                    onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setIsDragging(false);
+                                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                            const imgFiles = new DataTransfer();
+                                            const logFs = new DataTransfer();
+                                            Array.from(e.dataTransfer.files).forEach(f => {
+                                                if (f.type.startsWith('image/')) imgFiles.items.add(f);
+                                                else logFs.items.add(f);
+                                            });
+                                            if (imgFiles.files.length > 0) addImages(imgFiles.files);
+                                            if (logFs.files.length > 0) addLogs(logFs.files);
+                                        }
+                                    }}
+                                >
                                     <div className="px-2 py-1.5 flex gap-1 border-b border-[#30363d] bg-[#0d1117] rounded-t-md">
                                         <button className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]"><Edit3 className="w-4 h-4" /></button>
                                         <button onClick={() => imageInputRef.current?.click()} className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] rounded hover:bg-[#21262d]" title="Upload images"><ImageIcon className="w-4 h-4" /></button>
