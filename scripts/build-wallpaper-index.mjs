@@ -29,6 +29,11 @@ const SOURCES = [
         url: "https://raw.githubusercontent.com/yapude/wallpapers/main/README.md",
         prefix: "https://raw.githubusercontent.com/yapude/wallpapers/main/assets/",
     },
+    {
+        id: "yapude",
+        url: "https://raw.githubusercontent.com/yapude/wallpapers/main/README2.md",
+        prefix: "https://raw.githubusercontent.com/yapude/wallpapers/main/assets/",
+    },
 ];
 
 // ─── filler tags to strip from yapude (generic seo spam) ──────────────────────
