@@ -174,7 +174,7 @@ export const Navbar = () => {
                                 aria-label="GitHub" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                 <GithubIcon />
                             </a>
-                            <a href="https://discord.gg/cHVwPkBC7p" target="_blank" rel="noopener noreferrer"
+                            <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer"
                                 aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 ${isDark ? "text-white/50 hover:text-[#5865F2] hover:bg-[#5865F2]/10" : "text-black/40 hover:text-[#5865F2] hover:bg-[#5865F2]/8"}`}>
                                 <DiscordIcon />
                             </a>
@@ -241,7 +241,7 @@ export const Navbar = () => {
                                     aria-label="GitHub" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                     <GithubIcon />
                                 </a>
-                                <a href="https://discord.gg/cHVwPkBC7p" target="_blank" rel="noopener noreferrer"
+                                <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer"
                                     aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 ${isDark ? "text-white/50 hover:text-[#5865F2] hover:bg-[#5865F2]/10" : "text-black/40 hover:text-[#5865F2] hover:bg-[#5865F2]/8"}`}>
                                     <DiscordIcon />
                                 </a>

@@ -180,7 +180,7 @@ export const HeroSection = () => {
 
                     {/* discord */}
                     <a
-                        href="https://discord.gg/cHVwPkBC7p"
+                        href="https://discord.gg/QYwhay7r2V"
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setLoadingButton("discord")}

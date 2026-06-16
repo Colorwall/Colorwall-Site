@@ -22,7 +22,7 @@ const TECH = ["rust", "ts", "js", "react", "nextjs", "vite", "tauri", "electron"
 
 const LINKS = {
     github: "https://github.com/LaxentaInc",
-    discord: "https://discord.gg/cHVwPkBC7p",
+    discord: "https://discord.gg/QYwhay7r2V",
     org: "https://github.com/Colorwall",
 };
 
