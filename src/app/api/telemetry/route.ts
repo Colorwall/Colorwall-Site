@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { getDb } from '@/lib/mongodb';
 
 function sanitizeString(value: string | null | undefined): string {
     if (!value) return 'Unknown';
@@ -35,47 +35,36 @@ export async function POST(req: Request) {
         const cpuBrand = sanitizeString(body.cpu_brand).slice(0, 128);
         const ramGb = Number(body.ram_gb) || 0;
         
-        // We use Vercel KV sets (SADD) to store unique device IDs per category.
-        // This ensures if a user opens the app 100 times, they are only counted once in each category.
-        
-        const pipeline = kv.pipeline();
-
-        // 1. Total Unique Devices
-        pipeline.sadd('telemetry:total_devices', deviceId);
-
-        // 2. App Versions Distribution
-        if (appVersion !== 'Unknown') {
-            pipeline.sadd(`telemetry:app_version:${appVersion}`, deviceId);
-        }
-
-        // 3. OS Versions
-        if (osVersion !== 'Unknown') {
-            pipeline.sadd(`telemetry:os_version:${osVersion}`, deviceId);
-        }
-        
-        // 4. OS Name (e.g. Windows)
-        if (osName !== 'Unknown') {
-            pipeline.sadd(`telemetry:os_name:${osName}`, deviceId);
-        }
-
-        // 5. CPU Brands
-        if (cpuBrand !== 'Unknown') {
-            pipeline.sadd(`telemetry:cpu_brand:${cpuBrand}`, deviceId);
-        }
-
-        // 6. RAM Buckets (e.g. 8GB, 16GB, 32GB)
+        let ramBucket = 'Other';
         if (ramGb > 0) {
-            let ramBucket = 'Other';
             if (ramGb <= 4) ramBucket = '<= 4GB';
             else if (ramGb <= 8) ramBucket = '8GB';
             else if (ramGb <= 16) ramBucket = '16GB';
             else if (ramGb <= 32) ramBucket = '32GB';
             else ramBucket = '> 32GB';
-            
-            pipeline.sadd(`telemetry:ram:${ramBucket}`, deviceId);
         }
 
-        await pipeline.exec();
+        const db = await getDb();
+        
+        // Upsert the device telemetry record
+        await db.collection('telemetry').updateOne(
+            { device_id: deviceId },
+            { 
+                $set: {
+                    app_version: appVersion,
+                    os_version: osVersion,
+                    os_name: osName,
+                    cpu_brand: cpuBrand,
+                    ram_bucket: ramBucket,
+                    ram_gb: ramGb,
+                    last_ping: new Date()
+                },
+                $setOnInsert: {
+                    first_seen: new Date()
+                }
+            },
+            { upsert: true }
+        );
 
         return NextResponse.json({ success: true }, {
             headers: { 'Access-Control-Allow-Origin': '*' }
