@@ -66,7 +66,7 @@ export default async function TelemetryDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-8 md:p-12 font-sans selection:bg-blue-500/30">
+        <div className="min-h-screen bg-[#050505] text-white pt-32 pb-16 px-8 md:px-12 font-sans selection:bg-blue-500/30">
             {/* Header */}
             <div className="max-w-6xl mx-auto mb-12">
                 <div className="flex items-center gap-3 mb-2">
