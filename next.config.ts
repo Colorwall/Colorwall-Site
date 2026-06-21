@@ -77,6 +77,24 @@ const nextConfig: NextConfig = {
             value: 'Content-Type'
           }
         ],
+      },
+      // CORS for Telemetry API
+      {
+        source: '/api/telemetry/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type'
+          }
+        ],
       }
     ];
   },
