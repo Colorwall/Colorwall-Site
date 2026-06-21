@@ -1,12 +1,29 @@
-import { kv } from '@vercel/kv';
+import { getDb } from '@/lib/mongodb';
 import { Activity, Users, Monitor, Cpu, HardDrive, BarChart3, PieChart, Info } from 'lucide-react';
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function TelemetryDashboard() {
-    const allKeys = await kv.keys('telemetry:*');
+    let allDevices: any[] = [];
+    try {
+        const db = await getDb();
+        allDevices = await db.collection('telemetry').find({}).toArray();
+    } catch (err) {
+        console.warn('MongoDB not configured yet. Skipping telemetry fetch during build.');
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
+                <div className="bg-white/5 border border-white/10 p-8 rounded-2xl flex flex-col items-center max-w-md text-center">
+                    <Activity className="w-12 h-12 text-rose-500 mb-4 opacity-50" />
+                    <h2 className="text-xl font-semibold mb-2">MongoDB Missing</h2>
+                    <p className="text-white/60">
+                        Please check your MongoDB connection in .env.local
+                    </p>
+                </div>
+            </div>
+        );
+    }
     
-    if (allKeys.length === 0) {
+    if (allDevices.length === 0) {
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
                 <div className="bg-white/5 border border-white/10 p-8 rounded-2xl flex flex-col items-center max-w-md text-center">
@@ -20,12 +37,6 @@ export default async function TelemetryDashboard() {
         );
     }
 
-    const pipeline = kv.pipeline();
-    for (const key of allKeys) {
-        pipeline.scard(key);
-    }
-    const counts = (await pipeline.exec()) as number[];
-
     const data: Record<string, Record<string, number>> = {
         app_version: {},
         os_version: {},
@@ -33,23 +44,21 @@ export default async function TelemetryDashboard() {
         cpu_brand: {},
         ram: {},
     };
-    let totalDevices = 0;
+    
+    const totalDevices = allDevices.length;
 
-    allKeys.forEach((key, idx) => {
-        const count = counts[idx];
-        const parts = key.split(':'); // e.g. telemetry:app_version:v4.1.1
-        
-        if (parts[1] === 'total_devices') {
-            totalDevices = count;
-            return;
-        }
-
-        if (parts.length >= 3) {
-            const category = parts[1];
-            const value = parts.slice(2).join(':'); // Rejoin in case value had colons
+    allDevices.forEach((device) => {
+        const inc = (category: string, value: string) => {
+            if (!value || value === 'Unknown') return;
             if (!data[category]) data[category] = {};
-            data[category][value] = count;
-        }
+            data[category][value] = (data[category][value] || 0) + 1;
+        };
+
+        inc('app_version', device.app_version);
+        inc('os_version', device.os_version);
+        inc('os_name', device.os_name);
+        inc('cpu_brand', device.cpu_brand);
+        inc('ram', device.ram_bucket);
     });
 
     const sortMetrics = (metrics: Record<string, number>) => {
