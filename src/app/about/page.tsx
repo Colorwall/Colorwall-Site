@@ -105,8 +105,8 @@ export default function AboutPage() {
         
         // Hijack the wheel globally
         const handleWheel = (e: WheelEvent) => {
-            // A simple accumulation factor, adjust sensitivity if needed
-            const delta = e.deltaY * 0.0005; 
+            e.preventDefault();
+            const delta = e.deltaY * 0.0012;
             scrollProgress.current = Math.min(1, Math.max(0, scrollProgress.current + delta));
         };
         

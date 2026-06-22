@@ -60,8 +60,8 @@ export function buildShader(source: string, defines: Record<string, string | num
 export const SHADERS = {
   groundVert: extracted.groundVert,
   groundFrag: extracted.groundFrag.replace(
-    /#include <aboutHeroVisualFinal_frag>[\s\S]*$/,
-    '#include <aboutHeroVisualFinal_frag>\ngl_FragColor.a = 1.0;',
+    /#include <aboutHeroVisualFinal_frag>[\s\S]*?gl_FragColor\.a=[^}]+\}/,
+    '#include <aboutHeroVisualFinal_frag>\ngl_FragColor.a = 1.0;}',
   ),
   rockVert: extracted['vert$8'],
   rockFrag: extracted['frag$c'],

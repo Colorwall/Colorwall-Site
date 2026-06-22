@@ -15,9 +15,12 @@ import {
   createPersonTexture,
   createRocksChannelTexture,
 } from './useLusionGeometry';
-import { useCameraSpline, sampleSpline, scrollToSplineT } from './hooks/useCameraSpline';
+import { useCameraSpline, sampleSpline, getScrollPhases } from './hooks/useCameraSpline';
 import { useAboutUniforms } from './hooks/useAboutUniforms';
 import { buildShader, SHADERS } from './shaders/buildShader';
+import { ParticleField } from './components/ParticleField';
+import { AboutHalo } from './components/AboutHalo';
+import { AboutFog } from './components/AboutFog';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
@@ -29,16 +32,26 @@ function CameraRig({
   scrollProgress: { current: number };
   spline: NonNullable<ReturnType<typeof useCameraSpline>>;
 }) {
+  const lookTarget = useMemo(() => new THREE.Vector3(), []);
+  const smoothPos = useMemo(() => new THREE.Vector3(0, 7.3, -5), []);
+
   useFrame((state) => {
-    const t = scrollToSplineT(scrollProgress.current);
-    const { position, lookAt } = sampleSpline(spline, t);
-    state.camera.position.lerp(position, 0.12);
-    const currentLook = new THREE.Vector3();
-    state.camera.getWorldDirection(currentLook);
-    const targetDir = lookAt.clone().sub(state.camera.position).normalize();
-    currentLook.lerp(targetDir, 0.08);
-    const lookTarget = state.camera.position.clone().add(currentLook);
+    const phases = getScrollPhases(scrollProgress.current);
+    const { position, lookAt } = sampleSpline(spline, phases.splineT);
+
+    // Lusion: camera eases toward spline with reduced strength as zoom progresses
+    const follow = THREE.MathUtils.lerp(0.14, 0.05, phases.initialSplineRatio);
+    smoothPos.lerp(position, follow);
+    state.camera.position.copy(smoothPos);
+
+    lookTarget.copy(lookAt);
     state.camera.lookAt(lookTarget);
+
+    if (state.camera instanceof THREE.PerspectiveCamera) {
+      const dolly = THREE.MathUtils.smoothstep(phases.initialSplineRatio, 0.4, 0.8);
+      state.camera.fov = 60 + THREE.MathUtils.lerp(0, -10, dolly);
+      state.camera.updateProjectionMatrix();
+    }
   });
   return null;
 }
@@ -575,6 +588,10 @@ export function WebGLAboutScene({
       {rock3 && rockTextures3 && (
         <RockGroup typeIndex={3} geometry={rock3} rocksTexture={rocksTexture} animPos={rockTextures3.posTex} animOrient={rockTextures3.orientTex} shared={shared} scrollProgress={scrollProgress} />
       )}
+
+      <ParticleField shared={shared} scrollProgress={scrollProgress} />
+      <AboutHalo shared={shared} scrollProgress={scrollProgress} />
+      <AboutFog shared={shared} />
     </>
   );
 }

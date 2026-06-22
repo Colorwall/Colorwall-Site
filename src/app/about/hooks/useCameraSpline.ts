@@ -7,6 +7,14 @@ export interface SplineFrame {
   quaternion: THREE.Quaternion;
 }
 
+export interface ScrollPhases {
+  introRatio: number;
+  initialSplineRatio: number;
+  panningSplineRatio: number;
+  hudRatio: number;
+  splineT: number;
+}
+
 export function useCameraSpline(url = '/lusion-assets/camera_spline.buf') {
   const [frames, setFrames] = useState<SplineFrame[] | null>(null);
 
@@ -42,6 +50,15 @@ export function useCameraSpline(url = '/lusion-assets/camera_spline.buf') {
   return frames;
 }
 
+export function getScrollPhases(scroll: number): ScrollPhases {
+  const introRatio = Math.min(scroll / 0.85, 1);
+  const initialSplineRatio = Math.min(scroll / 0.7, 1);
+  const panningSplineRatio = scroll > 0.7 ? (scroll - 0.7) / 0.3 : 0;
+  const hudRatio = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
+  const splineT = initialSplineRatio * 149 + panningSplineRatio * 50;
+  return { introRatio, initialSplineRatio, panningSplineRatio, hudRatio, splineT };
+}
+
 export function sampleSpline(frames: SplineFrame[], t: number) {
   const clamped = Math.max(0, Math.min(frames.length - 1, t));
   const floor = Math.floor(clamped);
@@ -56,12 +73,11 @@ export function sampleSpline(frames: SplineFrame[], t: number) {
   return { position, quaternion, lookAt };
 }
 
-export function scrollToSplineT(scroll: number) {
-  const initialRatio = Math.min(scroll / 0.7, 1);
-  const panRatio = scroll > 0.7 ? (scroll - 0.7) / 0.3 : 0;
-  return initialRatio * 149 + panRatio * 50;
-}
-
 export function introRatioFromScroll(scroll: number) {
   return Math.min(scroll / 0.85, 1);
+}
+
+// Legacy helper
+export function scrollToSplineT(scroll: number) {
+  return getScrollPhases(scroll).splineT;
 }

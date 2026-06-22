@@ -19,6 +19,7 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     u_blueNoiseTexelSize: { value: new THREE.Vector2(1 / 128, 1 / 128) },
     u_blueNoiseCoordOffset: { value: new THREE.Vector2() },
     u_sceneRatio: { value: 1 },
+    u_sceneHideRatio: { value: 0 },
     u_hudRatio: { value: 0 },
     u_noiseStableFactor: { value: 0 },
     u_bgColor: { value: new THREE.Color('#000000') },
@@ -33,6 +34,7 @@ export function useAboutUniforms(scrollRef: { current: number }) {
       THREE.MathUtils.smoothstep(intro, 0.01, 0.15),
       0.85,
     );
+    uniforms.current.u_sceneHideRatio.value = THREE.MathUtils.smoothstep(intro, 0.85, 1);
     uniforms.current.u_hudRatio.value = hud;
     uniforms.current.u_noiseStableFactor.value = THREE.MathUtils.smoothstep(intro, 0, 0.2);
 
