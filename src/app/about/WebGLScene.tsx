@@ -39,6 +39,7 @@ function CameraRig({
 }) {
   const smoothPos = useMemo(() => new THREE.Vector3(0, 7.3, -5), []);
   const smoothQuat = useMemo(() => new THREE.Quaternion(), []);
+  const initialized = useRef(false);
   // Lusion spline forward is +Z; Three.js camera looks down -Z.
   const cameraOffset = useMemo(
     () => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI),
@@ -48,6 +49,12 @@ function CameraRig({
   useFrame((state) => {
     const phases = getScrollPhases(scrollProgress.current);
     const { position, quaternion } = sampleSpline(spline, phases.splineT);
+
+    if (!initialized.current) {
+      smoothPos.copy(position);
+      smoothQuat.copy(quaternion);
+      initialized.current = true;
+    }
 
     const follow = getCameraFollowStrength(phases.initialSplineRatio);
     smoothPos.lerp(position, follow);
@@ -90,13 +97,13 @@ function BloomPipeline({ scrollProgress }: { scrollProgress: { current: number }
     const intro = Math.min(scroll / 0.85, 1);
     const hud = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
 
-    let bloomAmount = THREE.MathUtils.lerp(3, 1.5, THREE.MathUtils.smoothstep(intro, 0.1, 0.85));
+    let bloomAmount = THREE.MathUtils.lerp(1.8, 1.5, THREE.MathUtils.smoothstep(intro, 0.1, 0.85));
     if (intro > 0.85) bloomAmount = THREE.MathUtils.lerp(bloomAmount, 10, (intro - 0.85) / 0.15);
     bloomAmount = THREE.MathUtils.lerp(bloomAmount, 12.5, hud * 0.5);
 
     const bloomPass = composer.current.passes[1] as UnrealBloomPass;
     bloomPass.strength = bloomAmount;
-    bloomPass.threshold = THREE.MathUtils.lerp(0.92, 0.8, intro);
+    bloomPass.threshold = THREE.MathUtils.lerp(0.97, 0.82, intro);
     composer.current.render();
   }, 1);
 
@@ -373,6 +380,8 @@ function Person({
       },
       vertexShader: buildShader(SHADERS.personVert, { BONE_COUNT }),
       fragmentShader: buildShader(SHADERS.personFrag),
+      depthWrite: true,
+      depthTest: true,
     });
   }, [personTexture, shared, bonePoses, boneOrients, lightMixer]);
 
@@ -413,7 +422,7 @@ function Person({
   });
 
   return (
-    <mesh geometry={geometry} material={material} frustumCulled={false} renderOrder={15} />
+    <mesh geometry={geometry} material={material} frustumCulled={false} renderOrder={50} />
   );
 }
 
@@ -574,19 +583,6 @@ export function WebGLAboutScene({
         />
       )}
 
-      {personGeometry && personAnim && (
-        <Person
-          geometry={personGeometry}
-          personTexture={personTexture}
-          animData={personAnim}
-          shared={shared}
-        />
-      )}
-
-      {personAnim && (
-        <PersonShadow shadowTexture={shadowTexture} shared={shared} animData={personAnim} />
-      )}
-
       {rock0 && rockTextures0 && (
         <RockGroup typeIndex={0} geometry={rock0} rocksTexture={rocksTexture} animPos={rockTextures0.posTex} animOrient={rockTextures0.orientTex} shared={shared} scrollProgress={scrollProgress} />
       )}
@@ -602,6 +598,20 @@ export function WebGLAboutScene({
 
       <ParticleField shared={shared} scrollProgress={scrollProgress} />
       <AboutHalo shared={shared} scrollProgress={scrollProgress} />
+
+      {personGeometry && personAnim && (
+        <Person
+          geometry={personGeometry}
+          personTexture={personTexture}
+          animData={personAnim}
+          shared={shared}
+        />
+      )}
+
+      {personAnim && (
+        <PersonShadow shadowTexture={shadowTexture} shared={shared} animData={personAnim} />
+      )}
+
       <AboutFog shared={shared} />
     </>
   );

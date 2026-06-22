@@ -3,6 +3,7 @@
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Canvas } from '@react-three/fiber';
 import { WebGLAboutScene } from "./WebGLScene";
+import { DEFAULT_SCROLL } from "./scrollConfig";
 import { useState, useEffect, useRef } from "react";
 
 function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
@@ -97,8 +98,8 @@ export default function AboutPage() {
     // Prevent SSR hydration crashes with WebGL portals
     const [mounted, setMounted] = useState(false);
     
-    // Virtual Scroll State (0 to 1)
-    const scrollProgress = useRef(0);
+    // Virtual scroll (0–1); start one wheel notch out from spline origin
+    const scrollProgress = useRef(DEFAULT_SCROLL);
 
     useEffect(() => {
         setMounted(true);

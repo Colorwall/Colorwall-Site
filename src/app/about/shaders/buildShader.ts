@@ -66,7 +66,10 @@ export const SHADERS = {
   rockVert: extracted['vert$8'],
   rockFrag: extracted['frag$c'],
   personVert: extracted['vert$6'],
-  personFrag: extracted['frag$9'],
+  personFrag: extracted['frag$9'].replace(
+    'gl_FragColor.rgb+=getScatter(cameraPosition,v_worldPosition);',
+    'gl_FragColor.r=max(gl_FragColor.r,color.r*0.92);',
+  ),
   shadowVert: extracted.shadowVert,
   shadowFrag: extracted.shadowFrag,
   groundShadowFrag: extracted['frag$b'],

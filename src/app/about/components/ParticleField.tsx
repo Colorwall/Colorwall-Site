@@ -65,7 +65,7 @@ varying float v_brightness;
 void main() {
   vec4 info = texture2D(u_simCurrPosLifeTexture, simUv.xy);
   float life = smoothstep(0.0, 0.1, info.w) * smoothstep(1.0, 0.9, info.w);
-  float size = mix(0.06, 0.175, u_isEmissive) * life * (1.0 - u_sceneHideRatio);
+  float size = mix(0.04, 0.12, u_isEmissive) * life * (1.0 - u_sceneHideRatio);
   vec3 pos = position * size + info.xyz;
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -83,8 +83,8 @@ varying float v_brightness;
 #include <getScatter>
 void main() {
   float scatter = getScatter(cameraPosition, v_worldPosition) * u_emissiveRatio;
-  float diff = v_brightness * (0.35 + u_isEmissive * 0.65);
-  float spec = scatter * (1.0 + u_noiseStableFactor);
+  float diff = v_brightness * (0.2 + u_isEmissive * 0.35);
+  float spec = scatter * (0.35 + u_noiseStableFactor * 0.25);
   float outColor = diff + spec;
   gl_FragColor = vec4(vec3(outColor), outColor);
 }
@@ -206,7 +206,7 @@ export function ParticleField({
 
     const scroll = scrollProgress.current;
     const intro = Math.min(scroll / 0.85, 1);
-    const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.45;
+    const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.22;
     const hideRatio = THREE.MathUtils.smoothstep(intro, 0.85, 1);
 
     noiseTime.current += delta * 0.4;
