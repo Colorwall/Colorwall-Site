@@ -2,7 +2,6 @@
 
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Canvas } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 import { WebGLAboutScene } from "./WebGLScene";
 import { useState, useEffect, useRef } from "react";
 
@@ -17,8 +16,8 @@ function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'ligh
       if (!heroRef.current || !infoRef.current) return;
       const r = scrollProgress.current; // 0 to 1
 
-      // Phase 1: Massive Hero Text (0.0 to 0.4)
-      const heroOpacity = Math.max(0, 1 - (r / 0.3));
+      // Phase 1: Hero text fades quickly so the 3D scene is visible
+      const heroOpacity = Math.max(0, 1 - (r / 0.12));
       heroRef.current.style.opacity = `${heroOpacity}`;
       // Slight scale out as we zoom
       heroRef.current.style.transform = `scale(${1 + r * 0.5})`;
@@ -49,7 +48,7 @@ function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'ligh
       >
         <h1 
           className="font-sans font-bold tracking-widest whitespace-nowrap text-white"
-          style={{ fontSize: '18vw', letterSpacing: '0.05em' }}
+          style={{ fontSize: '14vw', letterSpacing: '0.05em' }}
         >
           COLORWALL
         </h1>
@@ -83,7 +82,7 @@ function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'ligh
   );
 }
 
-export function AboutContent({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
+function AboutContent({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
   return (
     <div className="absolute inset-0 w-full pointer-events-none z-10">
       <CinematicTextOverlay theme={theme} scrollProgress={scrollProgress} />
@@ -118,17 +117,15 @@ export default function AboutPage() {
     if (!mounted) return null;
 
     return (
-        <div className={`relative h-screen w-full overflow-hidden ${isDark ? "bg-[#080809]" : "bg-slate-50"}`}>
+        <div className={`relative h-screen w-full overflow-hidden ${isDark ? "bg-black" : "bg-slate-50"}`}>
             
             {/* The 3D WebGL Canvas */}
-            <Canvas camera={{ position: [0, 0, 10], fov: 35 }} style={{ width: '100vw', height: '100vh', position: 'absolute', inset: 0, zIndex: 0 }}>
-                <ambientLight intensity={isDark ? 0.5 : 2} />
-                <directionalLight position={[10, 10, 5]} intensity={1.5} />
-                
-                {/* 3D Scene */}
+            <Canvas
+                gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+                camera={{ position: [0, 7.3, -5], fov: 60, near: 1, far: 100 }}
+                style={{ width: '100vw', height: '100vh', position: 'absolute', inset: 0, zIndex: 0 }}
+            >
                 <WebGLAboutScene theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
-                
-                <Environment preset={isDark ? "city" : "studio"} />
             </Canvas>
 
             {/* DOM Overlay correctly placed OUTSIDE the WebGL Canvas in the standard DOM tree */}

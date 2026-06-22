@@ -1,124 +1,174 @@
 import { useState, useEffect } from 'react';
 import * as THREE from 'three';
+import { fetchLusionBuffer } from './parseLusionBuffer';
 
-interface PackedComponent {
-  from: number;
-  delta: number;
-}
-
-interface BufferAttributeDef {
-  id: string;
-  needsPack: boolean;
-  componentSize: number;
-  storageType: 'Float32Array' | 'Int16Array' | 'Uint16Array' | 'Uint8Array';
-  packedComponents?: PackedComponent[];
-}
-
-interface BufferHeader {
-  vertexCount: number;
-  indexCount: number;
-  attributes: BufferAttributeDef[];
-  meshType: string;
-}
-
-/**
- * Decodes Lusion's proprietary compressed WebGL binary format.
- * Lusion packs attributes like Position, UV, Normals into tight Uint16/Uint8 arrays
- * and compresses them using Draco-style quantization (from + delta).
- */
 export function useLusionGeometry(url: string) {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
 
   useEffect(() => {
-    fetch(url)
-      .then(res => res.arrayBuffer())
-      .then(buffer => {
-        const dataView = new DataView(buffer);
-        
-        // 1. Read the JSON Header Length (first 4 bytes, Little Endian)
-        const jsonLength = dataView.getUint32(0, true);
-        
-        // 2. Read the JSON String
-        const decoder = new TextDecoder('utf-8');
-        const jsonString = decoder.decode(new Uint8Array(buffer, 4, jsonLength));
-        const header: BufferHeader = JSON.parse(jsonString);
-        
-        // 3. Parse the binary chunks sequentially
-        let byteOffset = 4 + jsonLength;
-        // Align to 4 bytes just in case
-        if (byteOffset % 4 !== 0) byteOffset += 4 - (byteOffset % 4);
-
-        const geo = new THREE.BufferGeometry();
-
-        header.attributes.forEach(attr => {
-          const isIndex = attr.id === 'indices';
-          const count = isIndex ? header.indexCount : header.vertexCount;
-          const totalElements = count * attr.componentSize;
-          
-          let byteLength = 0;
-          let typedArray: Float32Array | Int16Array | Uint16Array | Uint8Array;
-          
-          if (attr.storageType === 'Float32Array') {
-            byteLength = totalElements * 4;
-            typedArray = new Float32Array(buffer.slice(byteOffset, byteOffset + byteLength));
-          } else if (attr.storageType === 'Uint16Array') {
-            byteLength = totalElements * 2;
-            typedArray = new Uint16Array(buffer.slice(byteOffset, byteOffset + byteLength));
-          } else if (attr.storageType === 'Int16Array') {
-            byteLength = totalElements * 2;
-            typedArray = new Int16Array(buffer.slice(byteOffset, byteOffset + byteLength));
-          } else if (attr.storageType === 'Uint8Array') {
-            byteLength = totalElements * 1;
-            typedArray = new Uint8Array(buffer.slice(byteOffset, byteOffset + byteLength));
-          } else {
-            throw new Error(`Unknown storage type: ${attr.storageType}`);
-          }
-          
-          byteOffset += byteLength;
-          if (byteOffset % 4 !== 0) byteOffset += 4 - (byteOffset % 4);
-
-          // 4. Decode Quantized (Packed) Data
-          if (attr.needsPack && attr.packedComponents) {
-            const unpacked = new Float32Array(totalElements);
-            
-            for (let i = 0; i < count; i++) {
-              for (let c = 0; c < attr.componentSize; c++) {
-                const packDef = attr.packedComponents[c];
-                const rawVal = typedArray[i * attr.componentSize + c];
-                
-                let normalized = 0;
-                if (attr.storageType === 'Uint16Array') {
-                    normalized = rawVal / 65535.0;
-                } else if (attr.storageType === 'Int16Array') {
-                    // CRITICAL MATH FIX: Int16 goes from -32768 to 32767. 
-                    // Map it to 0.0 - 1.0 by adding 32768 and dividing by 65535!
-                    normalized = (rawVal + 32768) / 65535.0;
-                } else if (attr.storageType === 'Uint8Array') {
-                    normalized = rawVal / 255.0;
-                }
-                
-                // Formula: from + normalized * delta
-                unpacked[i * attr.componentSize + c] = packDef.from + (normalized * packDef.delta);
-              }
-            }
-            
-            if (attr.id === 'position') geo.setAttribute('position', new THREE.BufferAttribute(unpacked, attr.componentSize));
-            else if (attr.id === 'normal') geo.setAttribute('normal', new THREE.BufferAttribute(unpacked, attr.componentSize));
-            else if (attr.id === 'boneWeights') geo.setAttribute('skinWeight', new THREE.BufferAttribute(unpacked, attr.componentSize));
-            else if (attr.id === 'uv') geo.setAttribute('uv', new THREE.BufferAttribute(unpacked, attr.componentSize));
-          } else {
-            // Unpacked raw data
-            if (attr.id === 'indices') geo.setIndex(new THREE.BufferAttribute(typedArray, 1));
-            else if (attr.id === 'uv') geo.setAttribute('uv', new THREE.BufferAttribute(typedArray, attr.componentSize));
-            else if (attr.id === 'boneIndices') geo.setAttribute('skinIndex', new THREE.BufferAttribute(typedArray, attr.componentSize));
-            else geo.setAttribute(attr.id, new THREE.BufferAttribute(typedArray, attr.componentSize));
-          }
-        });
-
-        setGeometry(geo);
+    fetchLusionBuffer(url)
+      .then(({ geometry: geo }) => {
+        if (geo) setGeometry(geo);
       })
-      .catch(err => console.error("Failed to parse Lusion geometry:", url, err));
+      .catch((err) => console.error('Failed to parse Lusion geometry:', url, err));
   }, [url]);
 
   return geometry;
+}
+
+export function useLusionAnimation(url: string) {
+  const [data, setData] = useState<{
+    positions: Float32Array;
+    orients: Float32Array;
+    frameCount: number;
+    boneCount: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetchLusionBuffer(url).then(({ header, raw }) => {
+      const orient = raw.orient as Float32Array;
+      const positionAttr = header.attributes.find((a) => a.id === 'position')!;
+      const count = header.vertexCount;
+      const componentCount = positionAttr.componentSize;
+
+      let positions: Float32Array;
+      if (positionAttr.needsPack && positionAttr.packedComponents) {
+        const packed = raw.position as Uint16Array | Int16Array;
+        positions = new Float32Array(count * 3);
+        const packs = positionAttr.packedComponents;
+        for (let i = 0; i < count; i++) {
+          for (let c = 0; c < 3; c++) {
+            let normalized = 0;
+            const rawVal = packed[i * componentCount + c];
+            if (positionAttr.storageType === 'Uint16Array') {
+              normalized = rawVal / 65535;
+            } else if (positionAttr.storageType === 'Int16Array') {
+              normalized = (rawVal + 32768) / 65535;
+            }
+            positions[i * 3 + c] = packs[c].from + normalized * packs[c].delta;
+          }
+        }
+      } else {
+        positions = raw.position as Float32Array;
+      }
+
+      const boneCount = url.includes('person_idle') ? 54 : 16;
+      const frameCount = count / boneCount;
+
+      setData({ positions, orients: orient, frameCount, boneCount });
+    });
+  }, [url]);
+
+  return data;
+}
+
+export function createRockDataTextures(
+  positions: Float32Array,
+  orients: Float32Array,
+  pieceCount = 16,
+  frameCount = 120,
+) {
+  const posData = new Float32Array(positions.length / 3 * 4);
+  const randByPiece: number[] = [];
+
+  for (let i = 0, u = 0, f = 0; u < positions.length; i++, u += 3, f += 4) {
+    posData[f] = positions[u];
+    posData[f + 1] = positions[u + 1];
+    posData[f + 2] = positions[u + 2];
+    if (i < pieceCount) randByPiece[i] = Math.random();
+    posData[f + 3] = randByPiece[i % pieceCount];
+  }
+
+  const posTex = new THREE.DataTexture(posData, pieceCount, frameCount, THREE.RGBAFormat, THREE.FloatType);
+  posTex.needsUpdate = true;
+  posTex.minFilter = THREE.NearestFilter;
+  posTex.magFilter = THREE.NearestFilter;
+
+  const orientTex = new THREE.DataTexture(orients, pieceCount, frameCount, THREE.RGBAFormat, THREE.FloatType);
+  orientTex.needsUpdate = true;
+  orientTex.minFilter = THREE.NearestFilter;
+  orientTex.magFilter = THREE.NearestFilter;
+
+  return { posTex, orientTex };
+}
+
+export function createPersonTexture(
+  lightTex: THREE.Texture,
+  baseTex: THREE.Texture,
+): THREE.Texture {
+  const lightImg = lightTex.image as HTMLImageElement;
+  const baseImg = baseTex.image as HTMLImageElement;
+  const w = lightImg.width;
+  const h = lightImg.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+
+  ctx.drawImage(lightImg, 0, 0);
+  const lightData = ctx.getImageData(0, 0, w, h);
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(baseImg, 0, 0);
+  const baseData = ctx.getImageData(0, 0, w, h);
+
+  for (let i = 0; i < lightData.data.length; i += 4) {
+    const r = baseData.data[i];
+    const g = baseData.data[i + 1];
+    const b = baseData.data[i + 2];
+    const shade = 0.299 * r + 0.587 * g + 0.114 * b;
+    lightData.data[i + 3] = shade;
+  }
+
+  ctx.putImageData(lightData, 0, 0);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
+  tex.needsUpdate = true;
+  tex.colorSpace = THREE.LinearSRGBColorSpace;
+  return tex;
+}
+
+export function createRocksChannelTexture(rocksTex: THREE.Texture): THREE.Texture {
+  const img = rocksTex.image as HTMLImageElement;
+  const w = 512;
+  const h = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(img, 0, 0, w, h);
+  const src = ctx.getImageData(0, 0, w, h);
+  const out = ctx.createImageData(w, h);
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const si = (y * w + x) * 4;
+      const oi = si;
+      const u = (x / w) * 0.5;
+      const v = (y / h) * 0.5;
+
+      const sample = (ox: number, oy: number) => {
+        const sx = Math.floor(ox * w * 2) % (w * 2);
+        const sy = Math.floor(oy * h * 2) % (h * 2);
+        const idx = (sy * w + sx) * 4;
+        return src.data[idx + 1];
+      };
+
+      out.data[oi] = sample(u, v);
+      out.data[oi + 1] = sample(u + 0.5, v);
+      out.data[oi + 2] = sample(u, v + 0.5);
+      out.data[oi + 3] = sample(u + 0.5, v + 0.5);
+    }
+  }
+
+  ctx.putImageData(out, 0, 0);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
+  tex.needsUpdate = true;
+  tex.colorSpace = THREE.LinearSRGBColorSpace;
+  return tex;
 }
