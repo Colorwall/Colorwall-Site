@@ -8,7 +8,6 @@ import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { AmbientProvider } from "@/app/contexts/AmbientContext";
 import { Analytics } from '@vercel/analytics/next';
 import { SmoothScroller } from "@/app/components/SmoothScroller";
-import { FluidBackground } from "@/app/components/ui/FluidBackground";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -191,7 +190,6 @@ export default function RootLayout({
           <AmbientProvider>
           <Navbar />
           <GlobalAmbientPlayer />
-          <FluidBackground />
           <div className="relative min-h-screen flex flex-col">
             {/* Background elements for glass effect depth */}
             {/* <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none z-0" /> */}

@@ -13,11 +13,7 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { BottomCTA } from "@/app/components/landing/BottomCTA";
 import { Footer } from "@/app/components/Footer";
-// lazy-load linewaves so the ogl webgl library stays out of the initial bundle
-const LineWaves = dynamic(() => import("@/app/components/ui/LineWaves"), {
-    ssr: false,
-    loading: () => <div className="w-full h-full" />,
-});
+
 const LightPillar = dynamic(() => import("@/app/components/ui/LightPillar"), {
     ssr: false,
 });
@@ -30,7 +26,6 @@ export default function ColorWallLanding() {
     const [showCinematicMenu, setShowCinematicMenu] = useState(false);
     const [cinematicConfig, setCinematicConfig] = useState({
         lightPillar: true,
-        lineWaves: true,
         sideRays: true
     });
     // Protect against inspection shortcuts if desired
@@ -72,18 +67,6 @@ export default function ColorWallLanding() {
                     <div id="previews" className="pb-12 -mt-48 pt-48 relative z-0">
                         <div className="relative w-full overflow-hidden flex items-center justify-center py-40 mb-16">
                             <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)" }}>
-                                {(!cinematicMode || cinematicConfig.lineWaves) && (
-                                    <LineWaves
-                                        color1={theme === "dark" ? "#4c1d95" : "#ffb6ff"}
-                                        color2={theme === "dark" ? "#00d8ff" : "#e100ff"}
-                                        color3={theme === "dark" ? "#1e1b4b" : "#fdf4ff"}
-                                        brightness={theme === "dark" ? 0.8 : 1.2}
-                                        enableMouseInteraction={true}
-                                        mouseInfluence={5.0}
-                                        innerLineCount={12}
-                                        outerLineCount={14}
-                                    />
-                                )}
                             </div>
                             <div className="text-center px-4 relative z-10 pointer-events-none">
                                 <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-3xl sm:text-4xl font-bold drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}>
@@ -129,10 +112,6 @@ export default function ColorWallLanding() {
                             <label className="flex items-center justify-between text-xs cursor-pointer group">
                                 <span className={theme === 'dark' ? 'text-white/70 group-hover:text-white' : 'text-black/70 group-hover:text-black'}>Side Rays (Features)</span>
                                 <input type="checkbox" className="accent-violet-500 w-4 h-4" checked={cinematicConfig.sideRays} onChange={(e) => setCinematicConfig(c => ({...c, sideRays: e.target.checked}))} disabled={!cinematicMode} />
-                            </label>
-                            <label className="flex items-center justify-between text-xs cursor-pointer group">
-                                <span className={theme === 'dark' ? 'text-white/70 group-hover:text-white' : 'text-black/70 group-hover:text-black'}>Line Waves (Previews)</span>
-                                <input type="checkbox" className="accent-violet-500 w-4 h-4" checked={cinematicConfig.lineWaves} onChange={(e) => setCinematicConfig(c => ({...c, lineWaves: e.target.checked}))} disabled={!cinematicMode} />
                             </label>
                         </div>
                         {!cinematicMode && (
