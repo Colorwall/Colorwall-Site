@@ -62,7 +62,7 @@ export default function ColorWallLanding() {
 
                 <FeatureTabs theme={theme} />
 
-                {/* ════ Breather Section ════ */}
+                {/* ════ Breather Section ════
                 <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 py-16 sm:py-24 flex flex-col items-center">
                     <p className={`text-xl sm:text-2xl font-semibold italic mb-8 ${theme === "dark" ? "text-violet-200" : "text-violet-800"} drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
                         Take a break, let the engine do the work.
@@ -77,7 +77,7 @@ export default function ColorWallLanding() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                     </div>
-                </div>
+                </div> */}
 
             </div>
 

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GradientHeading } from "./GradientHeading";
+import ScrollStack, { ScrollStackItem } from "../ui/ScrollStack";
 // Custom Animated Premium Icons
 const FastIcon = () => (
     <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] group-hover:scale-125 transition-all duration-500 origin-center group-hover:-translate-y-1 group-hover:translate-x-1">
@@ -197,6 +199,8 @@ const features = [
 ];
 
 export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
+    const [activeView, setActiveView] = useState<'stack' | 'grid'>('grid');
+
     return (
         <section className="py-32 px-4 sm:px-8">
             {/* <p className={`text-center mt-6 text-sm font-mono ${theme === "dark" ? "text-white/30" : "text-black/30"}`}>
@@ -208,65 +212,119 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
-                    className="mb-24"
+                    className="mb-24 flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
                 >
-                    <p className={`text-xs font-mono uppercase tracking-[0.2em] mb-4 ml-1
-                        ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>
-                        the app is still under development and constantly updates! 
-                        Read capablities below:
-                    </p>
-                    <GradientHeading
-                        text={"Performance\nwithout compromise"}
-                        theme={theme}
-                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight whitespace-pre-wrap leading-[1.1]"
-                    />
+                    <div>
+                        <p className={`text-xs font-mono uppercase tracking-[0.2em] mb-4 ml-1
+                            ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>
+                            the app is still under development and constantly updates! 
+                            Read capablities below:
+                        </p>
+                        <GradientHeading
+                            text={"Performance\nwithout compromise"}
+                            theme={theme}
+                            className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight whitespace-pre-wrap leading-[1.1]"
+                        />
+                    </div>
+                    
+                    {/* View Toggle */}
+                    <div className={`flex p-1 rounded-full border shrink-0 ${theme === 'dark' ? 'border-white/10 bg-[#0f0f11]' : 'border-black/10 bg-[#fafafa]'}`}>
+                        <button 
+                            onClick={() => setActiveView('stack')} 
+                            className={`px-4 py-2 rounded-full text-sm font-mono transition-colors ${activeView === 'stack' ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/10 text-black') : (theme === 'dark' ? 'text-white/50 hover:text-white' : 'text-black/50 hover:text-black')}`}
+                        >
+                            Stack View
+                        </button>
+                        <button 
+                            onClick={() => setActiveView('grid')} 
+                            className={`px-4 py-2 rounded-full text-sm font-mono transition-colors ${activeView === 'grid' ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/10 text-black') : (theme === 'dark' ? 'text-white/50 hover:text-white' : 'text-black/50 hover:text-black')}`}
+                        >
+                            Grid View
+                        </button>
+                    </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-                    {features.map((f, i) => (
-                        <motion.div
-                            key={f.title}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: i * 0.1, duration: 0.6 }}
-                            className="group relative"
+                {activeView === 'grid' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+                        {features.map((f, i) => (
+                            <motion.div
+                                key={f.title}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.1, duration: 0.6 }}
+                                className="group relative"
+                            >
+                                {/* "tech spec" top line */}
+                                <div className={`w-full h-[1px] mb-6 transition-all duration-500 origin-left
+                                    ${theme === "dark"
+                                        ? "bg-white/10 group-hover:bg-blue-500/50 group-hover:w-full"
+                                        : "bg-black/10 group-hover:bg-blue-500/50 group-hover:w-full"}`}
+                                />
+
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className={`text-4xl font-mono font-light tracking-tighter opacity-20 group-hover:opacity-40 transition-opacity duration-300
+                                            ${theme === "dark" ? "text-white" : "text-black"}`}>
+                                            {f.id}
+                                        </span>
+                                        <f.icon />
+                                    </div>
+
+                                    <div>
+                                        <h3 className={`text-xl font-mono font-bold mb-3 tracking-wide group-hover:-translate-y-0.5 transition-transform duration-300
+                                            ${theme === "dark" ? "text-white" : "text-black"}`}>
+                                            {f.title}
+                                        </h3>
+                                        <p className={`text-sm leading-relaxed max-w-[90%]
+                                            ${theme === "dark" ? "text-white/50" : "text-black/60"}`}>
+                                            {f.desc}
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="w-full relative">
+                        <ScrollStack 
+                            useWindowScroll={true} 
+                            itemDistance={80}
+                            itemStackDistance={40}
+                            itemScale={0.05}
                         >
-                            {/* "tech spec" top line */}
-                            <div className={`w-full h-[1px] mb-6 transition-all duration-500 origin-left
-                                ${theme === "dark"
-                                    ? "bg-white/10 group-hover:bg-blue-500/50 group-hover:w-full"
-                                    : "bg-black/10 group-hover:bg-blue-500/50 group-hover:w-full"}`}
-                            />
+                            {features.map((f, i) => (
+                                <ScrollStackItem 
+                                    key={f.title} 
+                                    itemClassName={`border ${theme === 'dark' ? 'bg-[#0f0f11] border-white/10' : 'bg-[#fafafa] border-black/10'}`}
+                                >
+                                    <div className="group relative h-full flex flex-col justify-between">
+                                        <div className="flex items-center justify-between">
+                                            <span className={`text-4xl sm:text-5xl lg:text-7xl font-mono font-light tracking-tighter opacity-10 group-hover:opacity-30 transition-opacity duration-300
+                                                ${theme === "dark" ? "text-white" : "text-black"}`}>
+                                                {f.id}
+                                            </span>
+                                            <div className="scale-150 origin-right">
+                                                <f.icon />
+                                            </div>
+                                        </div>
 
-                            <div className="flex flex-col gap-4">
-                                <div className="flex items-center justify-between">
-                                    <span className={`text-4xl font-mono font-light tracking-tighter opacity-20 group-hover:opacity-40 transition-opacity duration-300
-                                        ${theme === "dark" ? "text-white" : "text-black"}`}>
-                                        {f.id}
-                                    </span>
-                                    <f.icon />
-                                </div>
-
-                                <div>
-                                    <h3 className={`text-xl font-mono font-bold mb-3 tracking-wide group-hover:-translate-y-0.5 transition-transform duration-300
-                                        ${theme === "dark" ? "text-white" : "text-black"}`}>
-                                        {f.title}
-                                    </h3>
-                                    <p className={`text-sm leading-relaxed max-w-[90%]
-                                        ${theme === "dark" ? "text-white/50" : "text-black/60"}`}>
-                                        {f.desc}
-                                    </p>
-
-                                </div>
-                            </div>
-
-
-
-                        </motion.div>
-
-                    ))}
-                </div>
+                                        <div>
+                                            <h3 className={`text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-wide group-hover:-translate-y-1 transition-transform duration-300
+                                                ${theme === "dark" ? "text-white" : "text-black"}`}>
+                                                {f.title}
+                                            </h3>
+                                            <p className={`text-lg leading-relaxed max-w-2xl
+                                                ${theme === "dark" ? "text-white/60" : "text-black/60"}`}>
+                                                {f.desc}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </ScrollStackItem>
+                            ))}
+                        </ScrollStack>
+                    </div>
+                )}
             </div>
 
         </section>
