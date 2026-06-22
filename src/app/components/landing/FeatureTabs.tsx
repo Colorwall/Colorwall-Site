@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { GradientHeading } from "./GradientHeading";
+import ShapeBlur from "../ui/ShapeBlur";
+import BorderGlow from "../ui/BorderGlow";
 
 interface Feature {
     id: string;
@@ -110,45 +112,53 @@ export const FeatureTabs = ({ theme }: { theme: "dark" | "light" }) => {
                                 <button
                                     key={feature.id}
                                     onClick={() => setActiveTab(idx)}
-                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] group
+                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group overflow-hidden
                                         ${isActive 
-                                            ? (theme === "dark" ? "border-blue-500 bg-white/5" : "border-blue-500 bg-black/5") 
-                                            : "border-transparent hover:border-blue-500/30"
+                                            ? (theme === "dark" ? "bg-white/5" : "bg-black/5") 
+                                            : ""
                                         }
                                     `}
                                 >
-                                    <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
-                                        ${isActive 
-                                            ? (theme === "dark" ? "text-white" : "text-black") 
-                                            : (theme === "dark" ? "text-white/40 group-hover:text-white/70" : "text-black/40 group-hover:text-black/70")
-                                        }
-                                    `}>
-                                        {feature.title}
-                                    </h3>
-                                    
-                                    <AnimatePresence initial={false}>
-                                        {isActive && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: "auto", opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className={`inline-flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-mono tracking-widest uppercase
-                                                    ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
+                                    {isActive && (
+                                        <div className={`absolute inset-0 z-0 pointer-events-none transition-opacity duration-700 ${theme === 'dark' ? 'opacity-30' : 'opacity-10 invert'}`}>
+                                            <ShapeBlur variation={0} shapeSize={0.98} roundness={0.15} borderSize={0.02} circleSize={0.4} circleEdge={0.8} />
+                                        </div>
+                                    )}
+
+                                    <div className="relative z-10">
+                                        <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
+                                            ${isActive 
+                                                ? (theme === "dark" ? "text-white" : "text-black") 
+                                                : (theme === "dark" ? "text-white/40 group-hover:text-white/70" : "text-black/40 group-hover:text-black/70")
+                                            }
+                                        `}>
+                                            {feature.title}
+                                        </h3>
+                                        
+                                        <AnimatePresence initial={false}>
+                                            {isActive && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="overflow-hidden"
                                                 >
-                                                    <span className="w-4 h-[1px] bg-current opacity-50" />
-                                                    {feature.badge}
-                                                </div>
-                                                <p className={`text-sm sm:text-base leading-relaxed
-                                                    ${theme === "dark" ? "text-white/60" : "text-black/60"}`}
-                                                >
-                                                    {feature.description}
-                                                </p>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                                    <div className={`inline-flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-mono tracking-widest uppercase
+                                                        ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
+                                                    >
+                                                        <span className="w-4 h-[1px] bg-current opacity-50" />
+                                                        {feature.badge}
+                                                    </div>
+                                                    <p className={`text-sm sm:text-base leading-relaxed
+                                                        ${theme === "dark" ? "text-white/60" : "text-black/60"}`}
+                                                    >
+                                                        {feature.description}
+                                                    </p>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
                                 </button>
                             );
                         })}
@@ -156,7 +166,12 @@ export const FeatureTabs = ({ theme }: { theme: "dark" | "light" }) => {
                 </div>
 
                 {/* Right Side: Image Showcase */}
-                <div className="relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video rounded-2xl sm:rounded-[2rem] overflow-hidden group shadow-2xl">
+                <BorderGlow 
+                    className="relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video overflow-hidden group shadow-2xl"
+                    borderRadius={32}
+                    backgroundColor={theme === 'dark' ? '#0f0f11' : '#f4f4f5'}
+                    glowColor={theme === 'dark' ? '220 100 60' : '220 80 50'}
+                >
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
@@ -194,7 +209,7 @@ export const FeatureTabs = ({ theme }: { theme: "dark" | "light" }) => {
                             ))}
                         </div>
                     )}
-                </div>
+                </BorderGlow>
 
             </div>
         </section>
