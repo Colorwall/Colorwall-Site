@@ -75,27 +75,37 @@ export function useLusionGeometry(url: string) {
           }
           
           byteOffset += byteLength;
-          // Align to 4 bytes for next chunk
           if (byteOffset % 4 !== 0) byteOffset += 4 - (byteOffset % 4);
 
           // 4. Decode Quantized (Packed) Data
           if (attr.needsPack && attr.packedComponents) {
-            // Unpack to Float32
             const unpacked = new Float32Array(totalElements);
-            const maxVal = attr.storageType === 'Uint16Array' ? 65535 : 255;
             
             for (let i = 0; i < count; i++) {
               for (let c = 0; c < attr.componentSize; c++) {
                 const packDef = attr.packedComponents[c];
                 const rawVal = typedArray[i * attr.componentSize + c];
-                // Formula: from + (value / max) * delta
-                unpacked[i * attr.componentSize + c] = packDef.from + (rawVal / maxVal) * packDef.delta;
+                
+                let normalized = 0;
+                if (attr.storageType === 'Uint16Array') {
+                    normalized = rawVal / 65535.0;
+                } else if (attr.storageType === 'Int16Array') {
+                    // CRITICAL MATH FIX: Int16 goes from -32768 to 32767. 
+                    // Map it to 0.0 - 1.0 by adding 32768 and dividing by 65535!
+                    normalized = (rawVal + 32768) / 65535.0;
+                } else if (attr.storageType === 'Uint8Array') {
+                    normalized = rawVal / 255.0;
+                }
+                
+                // Formula: from + normalized * delta
+                unpacked[i * attr.componentSize + c] = packDef.from + (normalized * packDef.delta);
               }
             }
             
             if (attr.id === 'position') geo.setAttribute('position', new THREE.BufferAttribute(unpacked, attr.componentSize));
             else if (attr.id === 'normal') geo.setAttribute('normal', new THREE.BufferAttribute(unpacked, attr.componentSize));
             else if (attr.id === 'boneWeights') geo.setAttribute('skinWeight', new THREE.BufferAttribute(unpacked, attr.componentSize));
+            else if (attr.id === 'uv') geo.setAttribute('uv', new THREE.BufferAttribute(unpacked, attr.componentSize));
           } else {
             // Unpacked raw data
             if (attr.id === 'indices') geo.setIndex(new THREE.BufferAttribute(typedArray, 1));

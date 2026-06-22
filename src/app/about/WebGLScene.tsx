@@ -8,102 +8,97 @@ import { useLusionGeometry } from './useLusionGeometry';
 import { useTexture } from '@react-three/drei';
 
 function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
+  // Load ALL Geometries
   const personGeometry = useLusionGeometry('/lusion-assets/person.buf');
   const terrainGeometry = useLusionGeometry('/lusion-assets/terrain.buf');
+  const bgBoxGeometry = useLusionGeometry('/lusion-assets/bg_box.buf');
+  const rock1Geometry = useLusionGeometry('/lusion-assets/rock_1.buf');
+  const rock2Geometry = useLusionGeometry('/lusion-assets/rock_2.buf');
+  const rock3Geometry = useLusionGeometry('/lusion-assets/rock_3.buf');
 
+  // Load ALL Textures
   const personTexture = useTexture('/lusion-assets/person_light.webp');
   const terrainTexture = useTexture('/lusion-assets/terrain_shadow_light_height.webp');
+  const rocksTexture = useTexture('/lusion-assets/rocks.webp');
 
-  // Fix extremely dark/faint textures by applying the correct sRGB color space
+  // CRITICAL: Prevent Three.js from flipping the UVs upside down!
+  personTexture.flipY = false;
+  terrainTexture.flipY = false;
+  rocksTexture.flipY = false;
+
   personTexture.colorSpace = THREE.SRGBColorSpace;
   terrainTexture.colorSpace = THREE.SRGBColorSpace;
+  rocksTexture.colorSpace = THREE.SRGBColorSpace;
 
   const pointsRef = useRef<THREE.Group>(null);
   const pillarRef = useRef<THREE.Mesh>(null);
-
-  // Astronaut Point Shader
-  const shaderMaterialPerson = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uTexture: { value: personTexture },
-        uOpacity: { value: 1.0 },
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = 15.0 * (1.0 / -mvPosition.z);
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D uTexture;
-        uniform float uOpacity;
-        varying vec2 vUv;
-        void main() {
-          vec4 texColor = texture2D(uTexture, vUv);
-          if (texColor.a < 0.1) discard;
-          // Apply exposure boost
-          gl_FragColor = vec4(texColor.rgb * 1.5, texColor.a * uOpacity);
-        }
-      `,
-      transparent: true,
-      blending: THREE.NormalBlending, 
-      depthWrite: false,
-    });
-  }, [personTexture]);
-
-  // Terrain Point Shader
-  const shaderMaterialTerrain = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uTexture: { value: terrainTexture },
-        uOpacity: { value: 0.8 },
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = 8.0 * (1.0 / -mvPosition.z);
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D uTexture;
-        uniform float uOpacity;
-        varying vec2 vUv;
-        void main() {
-          vec4 texColor = texture2D(uTexture, vUv);
-          gl_FragColor = vec4(texColor.rgb, texColor.a * uOpacity);
-        }
-      `,
-      transparent: true,
-      blending: THREE.AdditiveBlending, // Additive looks better for the terrain grid
-      depthWrite: false,
-    });
-  }, [terrainTexture]);
+  const rocksRef = useRef<THREE.Group>(null);
 
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
     
-    // Very slow panning of the entire environment to give it life
+    // Slow environmental panning
     pointsRef.current.rotation.y = Math.sin(_.clock.elapsedTime * 0.1) * 0.05;
     
-    const r = scrollProgress.current;
-    shaderMaterialPerson.uniforms.uOpacity.value = 1.0 - (r * 0.8);
-    shaderMaterialTerrain.uniforms.uOpacity.value = 0.8 - (r * 0.5);
+    // Animate floating rocks swirling around the sky
+    if (rocksRef.current) {
+        rocksRef.current.rotation.y -= delta * 0.1;
+        rocksRef.current.position.y = Math.sin(_.clock.elapsedTime * 0.5) * 0.2;
+    }
 
+    const r = scrollProgress.current;
+    
     if (pillarRef.current) {
-        // Pillar fades out as we zoom out
         (pillarRef.current.material as THREE.MeshBasicMaterial).opacity = 0.15 * (1 - r);
     }
   });
 
+  // Generate 12 scattered rocks
+  const rockPlacements = useMemo(() => {
+      const arr = [];
+      for(let i=0; i<12; i++) {
+          const type = i % 3; // 0, 1, or 2
+          // Scatter them in a cylinder around the center
+          const angle = (i / 12) * Math.PI * 2;
+          const radius = 4 + Math.random() * 11;
+          const x = Math.cos(angle) * radius;
+          const z = Math.sin(angle) * radius;
+          const y = 2 + Math.random() * 10;
+          const rotX = Math.random() * Math.PI;
+          const rotY = Math.random() * Math.PI;
+          const rotZ = Math.random() * Math.PI;
+          const scale = 0.5 + Math.random() * 1.5;
+          arr.push({ type, x, y, z, rotX, rotY, rotZ, scale });
+      }
+      return arr;
+  }, []);
+
   return (
     <group ref={pointsRef} position={[0, -0.5, 0]}>
-      {/* Massive Divine Light Pillar from the Lusion reference image */}
+
+      {/* Floating Rocks Swirl (Solid Meshes) */}
+      <group ref={rocksRef}>
+          {rockPlacements.map((pos, i) => {
+              let geo = rock1Geometry;
+              if (pos.type === 1) geo = rock2Geometry;
+              if (pos.type === 2) geo = rock3Geometry;
+
+              if (!geo) return null;
+              
+              return (
+                  <mesh 
+                    key={i} 
+                    geometry={geo} 
+                    position={[pos.x, pos.y, pos.z]} 
+                    rotation={[pos.rotX, pos.rotY, pos.rotZ]}
+                    scale={[pos.scale, pos.scale, pos.scale]}
+                  >
+                      <meshBasicMaterial map={rocksTexture} transparent={true} alphaTest={0.1} depthWrite={true} />
+                  </mesh>
+              );
+          })}
+      </group>
+
       <mesh ref={pillarRef} position={[0, 15, 0]}>
         <cylinderGeometry args={[2.5, 0.5, 30, 32, 1, true]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} />
@@ -114,16 +109,20 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
         <meshBasicMaterial color="#ffffff" transparent opacity={0.05} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Procedural Energy Meteor (Particle Emulation) above the astronaut */}
       <EnergyMeteor />
 
-      {/* Scale is 1x so they sit accurately in world space! */}
+      {/* Astronaut Solid Mesh */}
       {personGeometry && (
-        <points geometry={personGeometry} material={shaderMaterialPerson} scale={[1, 1, 1]} position={[0, 0, 0]} />
+        <mesh geometry={personGeometry} scale={[1, 1, 1]} position={[0, 0, 0]}>
+            <meshBasicMaterial map={personTexture} transparent={true} depthWrite={true} />
+        </mesh>
       )}
 
+      {/* Terrain Solid Mesh */}
       {terrainGeometry && (
-        <points geometry={terrainGeometry} material={shaderMaterialTerrain} scale={[1, 1, 1]} position={[0, 0, 0]} />
+        <mesh geometry={terrainGeometry} scale={[1, 1, 1]} position={[0, 0, 0]}>
+            <meshBasicMaterial map={terrainTexture} transparent={true} depthWrite={true} />
+        </mesh>
       )}
     </group>
   );
@@ -249,7 +248,7 @@ function EnergyMeteor() {
   return (
     <points ref={meshRef} position={[0, 4, 0]}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <primitive object={material} attach="material" />
     </points>
