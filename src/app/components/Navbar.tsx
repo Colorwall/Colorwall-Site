@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Users, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Clover } from "lucide-react";
+import GooeyNav from "./ui/GooeyNav";
 
 const SunIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -137,8 +138,22 @@ export const Navbar = () => {
                         </span>
                     </Link>
 
-                    <nav className="flex items-center justify-evenly md:justify-center gap-1 sm:gap-2 flex-1 mx-1">
-                        {navLinks.map((link) => {
+                    <nav className="hidden md:flex items-center justify-center flex-1 mx-1">
+                        <GooeyNav
+                            items={navLinks.map(l => ({ label: l.name, href: l.href, icon: l.icon }))}
+                            initialActiveIndex={Math.max(0, navLinks.findIndex(l => l.href === pathname))}
+                            particleCount={12}
+                            particleDistances={[60, 10]}
+                            particleR={80}
+                            animationTime={500}
+                            timeVariance={200}
+                            colors={[1, 2, 3, 1, 2, 3, 1, 4]} // These map to custom CSS variables if needed
+                        />
+                    </nav>
+
+                    {/* Mobile standard nav mapping */}
+                    <nav className="flex md:hidden items-center justify-evenly gap-1 flex-1 mx-1">
+                        {navLinks.slice(0, 4).map((link) => {
                             const isActive = pathname === link.href;
                             const isExternal = link.href.startsWith("http");
                             return (
@@ -148,20 +163,18 @@ export const Navbar = () => {
                                     target={isExternal ? "_blank" : undefined}
                                     rel={isExternal ? "noopener noreferrer" : undefined}
                                     onClick={(event) => handleNavClick(event, link.href, isExternal)}
-                                    prefetch={['/download', '/about'].includes(link.href) ? undefined : false}
                                     title={link.name}
-                                    className={`p-2.5 sm:p-3 md:px-3 md:py-2 rounded-xl text-xs font-mono font-semibold tracking-widest uppercase transition-all duration-200 flex items-center md:gap-2
-                    ${isActive
+                                    className={`p-2.5 rounded-xl transition-all duration-200 flex items-center
+                                        ${isActive
                                             ? isDark ? "bg-white/10 text-white" : "bg-black/6 text-black"
                                             : isDark ? "text-white/60 hover:text-white hover:bg-white/7" : "text-black/50 hover:text-black hover:bg-black/4"
                                         }`}
                                 >
                                     {loadingRoute === link.href ? (
-                                        <Loader2 size={18} strokeWidth={2} className="animate-spin md:w-4 md:h-4" />
+                                        <Loader2 size={18} strokeWidth={2} className="animate-spin" />
                                     ) : (
-                                        <link.icon size={18} strokeWidth={2} className="md:w-4 md:h-4" />
+                                        <link.icon size={18} strokeWidth={2} />
                                     )}
-                                    <span className="hidden md:block">{link.name}</span>
                                 </Link>
                             );
                         })}
