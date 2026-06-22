@@ -1,166 +1,127 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Text, Image as DreiImage, useScroll, Scroll, ScrollControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { LiquidLens } from '@/app/components/ui/LiquidLens'; // We'll keep this for the droplet
 
-// --- 3D Components ---
-
-function HeroSection({ theme }: { theme: 'dark' | 'light' }) {
-  const { width } = useThree((state) => state.viewport);
-  const fontSize = width < 8 ? width * 0.12 : width * 0.1;
-
-  return (
-    <group position={[0, 0, -2]}>
-      <Text
-        position={[0, 1.2, 0]}
-        fontSize={fontSize}
-        color={theme === 'dark' ? '#ffffff' : '#000000'}
-        anchorX="center"
-        anchorY="middle"
-        letterSpacing={-0.05}
-        fontWeight="bold"
-      >
-        Built by one
-      </Text>
-      <Text
-        position={[0, -1.2, 0]}
-        fontSize={fontSize}
-        color={theme === 'dark' ? '#a5b4fc' : '#4f46e5'}
-        anchorX="center"
-        anchorY="middle"
-        letterSpacing={-0.05}
-        fontWeight="bold"
-      >
-        stubborn dev.
-      </Text>
-    </group>
-  );
-}
-
-function DevCard({ theme, yOffset }: { theme: 'dark' | 'light', yOffset: number }) {
-  const { width, height } = useThree((state) => state.viewport);
-  const isMobile = width < 8;
-  const cardWidth = isMobile ? width * 0.8 : width * 0.5;
+/**
+ * Custom hook to load raw binary .buf files and cast them to Float32Arrays.
+ * Lusion stores point cloud geometry directly as binary buffers to save space.
+ */
+function useBinaryGeometry(url: string) {
+  const [positions, setPositions] = useState<Float32Array | null>(null);
   
-  return (
-    <group position={[0, yOffset, -2]}>
-      {/* Background Plane */}
-      <mesh position={[0, 0, -0.1]}>
-        <planeGeometry args={[cardWidth, isMobile ? 5 : 4]} />
-        <meshBasicMaterial color={theme === 'dark' ? '#111111' : '#ffffff'} />
-      </mesh>
-      
-      {/* Avatar Placeholder */}
-      <mesh position={[-cardWidth/2 + 1.5, 0, 0]}>
-        <planeGeometry args={[2, 2]} />
-        <meshBasicMaterial color={theme === 'dark' ? '#333333' : '#dddddd'} />
-      </mesh>
-
-      {/* Text Group */}
-      <group position={[-cardWidth/2 + 3.5, 0.5, 0]}>
-        <Text fontSize={0.5} color={theme === 'dark' ? '#ffffff' : '#000000'} anchorX="left" fontWeight="bold">
-          Oliver Laxenta
-        </Text>
-        <Text position={[0, -0.6, 0]} fontSize={0.25} color={theme === 'dark' ? '#888888' : '#666666'} anchorX="left">
-          @LaxentaInc · Laxenta Inc
-        </Text>
-        <Text position={[0, -1.5, 0]} fontSize={0.3} maxWidth={cardWidth - 4} color={theme === 'dark' ? '#aaaaaa' : '#444444'} anchorX="left" lineHeight={1.5}>
-          Nunca te amé, pero lo estaba intentando. Well i am not spainish but the quote is for a specific someone who is.
-        </Text>
-      </group>
-    </group>
-  );
-}
-
-function ProjectsGrid({ theme, yOffset }: { theme: 'dark' | 'light', yOffset: number }) {
-  const { width } = useThree((state) => state.viewport);
+  useEffect(() => {
+    fetch(url)
+      .then(res => res.arrayBuffer())
+      .then(buffer => {
+        // Cast the raw ArrayBuffer to 32-bit floats
+        setPositions(new Float32Array(buffer));
+      })
+      .catch(err => console.error("Failed to load geometry:", url, err));
+  }, [url]);
   
-  return (
-    <group position={[0, yOffset, -2]}>
-      <Text position={[0, 3, 0]} fontSize={0.8} color={theme === 'dark' ? '#ffffff' : '#000000'} fontWeight="bold">
-        Projects
-      </Text>
-      
-      {/* Project 1 */}
-      <group position={[-width * 0.25, 0, 0]}>
-        <mesh position={[0, 0, -0.1]}>
-          <planeGeometry args={[width * 0.4, 4]} />
-          <meshBasicMaterial color={theme === 'dark' ? '#111111' : '#ffffff'} />
-        </mesh>
-        <Text position={[-width * 0.18, 1, 0]} fontSize={0.4} color={theme === 'dark' ? '#ffffff' : '#000000'} anchorX="left" fontWeight="bold">
-          ColorWall
-        </Text>
-        <Text position={[-width * 0.18, 0, 0]} fontSize={0.25} maxWidth={width * 0.36} color={theme === 'dark' ? '#888888' : '#666666'} anchorX="left" lineHeight={1.5}>
-          8K live wallpaper & desktop customization engine for Windows 10/11 — shaders, particles, store, library — all in 10mb.
-        </Text>
-      </group>
+  return positions;
+}
 
-      {/* Project 2 */}
-      <group position={[width * 0.25, 0, 0]}>
-        <mesh position={[0, 0, -0.1]}>
-          <planeGeometry args={[width * 0.4, 4]} />
-          <meshBasicMaterial color={theme === 'dark' ? '#111111' : '#ffffff'} />
-        </mesh>
-        <Text position={[-width * 0.18, 1, 0]} fontSize={0.4} color={theme === 'dark' ? '#ffffff' : '#000000'} anchorX="left" fontWeight="bold">
-          MTS Migrator
-        </Text>
-        <Text position={[-width * 0.18, 0, 0]} fontSize={0.25} maxWidth={width * 0.36} color={theme === 'dark' ? '#888888' : '#666666'} anchorX="left" lineHeight={1.5}>
-          full code migrator of a javascript project to typescript with type inference and patching with ast!
-        </Text>
-      </group>
+function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
+  // Load the successfully pirated assets from lusion.dev
+  const personPositions = useBinaryGeometry('/lusion-assets/person.buf');
+  const terrainPositions = useBinaryGeometry('/lusion-assets/terrain.buf');
+
+  const pointsRef = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (!pointsRef.current) return;
+    // Extremely slow, eerie rotation
+    pointsRef.current.rotation.y += delta * 0.05;
+    
+    // Fade out as you zoom away
+    const r = scrollProgress.current;
+    pointsRef.current.children.forEach(child => {
+        if (child instanceof THREE.Points) {
+            const mat = child.material as THREE.PointsMaterial;
+            if (mat && mat.opacity !== undefined) {
+                // Approximate a fade base on the original opacities
+                const baseOpacity = child === pointsRef.current?.children[0] ? 0.8 : 0.4;
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, baseOpacity * (1 - r * 0.8), 0.1);
+            }
+        }
+    });
+  });
+
+  return (
+    <group ref={pointsRef}>
+      {/* Astronaut Point Cloud */}
+      {personPositions && (
+        <points scale={[15, 15, 15]} position={[0, -2, 0]}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[personPositions, 3]} />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.03}
+            color={theme === 'dark' ? '#ffffff' : '#000000'}
+            transparent
+            opacity={0.8}
+            depthWrite={false}
+            sizeAttenuation
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
+      )}
+
+      {/* Terrain Point Cloud */}
+      {terrainPositions && (
+        <points scale={[15, 15, 15]} position={[0, -2, 0]}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[terrainPositions, 3]} />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.02}
+            color={theme === 'dark' ? '#a5b4fc' : '#4f46e5'}
+            transparent
+            opacity={0.4}
+            depthWrite={false}
+            sizeAttenuation
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
+      )}
     </group>
   );
 }
 
-function StackGrid({ theme, yOffset }: { theme: 'dark' | 'light', yOffset: number }) {
-  const icons = ['rust', 'ts', 'js', 'react', 'nextjs', 'vite', 'tauri', 'electron'];
-  
-  return (
-    <group position={[0, yOffset, -2]}>
-      <Text position={[0, 2, 0]} fontSize={0.8} color={theme === 'dark' ? '#ffffff' : '#000000'} fontWeight="bold">
-        Stack
-      </Text>
-      
-      {icons.map((icon, i) => {
-        const row = Math.floor(i / 4);
-        const col = i % 4;
-        const x = (col - 1.5) * 2.5;
-        const y = -row * 2.5;
-        
-        return (
-          <group key={icon} position={[x, y, 0]}>
-            <mesh>
-              <planeGeometry args={[1.5, 1.5]} />
-              <meshBasicMaterial color={theme === 'dark' ? '#333333' : '#dddddd'} />
-            </mesh>
-            <Text position={[0, 0, 0.1]} fontSize={0.2} color={theme === 'dark' ? '#ffffff' : '#000000'}>
-              {icon}
-            </Text>
-          </group>
-        );
-      })}
-    </group>
-  );
+/**
+ * Custom scrollbar-less camera rig.
+ * Reads the raw, hijacked wheel events and moves the camera into the sky.
+ */
+function CameraRig({ scrollProgress }: { scrollProgress: { current: number } }) {
+  useFrame((state) => {
+    const r = scrollProgress.current; // 0 to 1
+    
+    // Start low and close (y = -3, z = 5)
+    // End high up and far (y = 10, z = 25)
+    const targetY = -3 + (r * 13);
+    const targetZ = 5 + (r * 20);
+    
+    // Start looking straight, end looking down and sideways
+    const targetRotX = r * -0.4;
+    const targetRotY = r * 0.3;
+
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.05);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY, 0.05);
+    state.camera.rotation.x = THREE.MathUtils.lerp(state.camera.rotation.x, targetRotX, 0.05);
+    state.camera.rotation.y = THREE.MathUtils.lerp(state.camera.rotation.y, targetRotY, 0.05);
+  });
+  return null;
 }
 
-export function WebGLAboutScene({ theme }: { theme: 'dark' | 'light' }) {
-  const { height } = useThree((state) => state.viewport);
-
+export function WebGLAboutScene({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
   return (
     <>
-      {/* 
-        This Scroll component renders its children in 3D space, 
-        but their Y positions are driven by the HTML scrollbar automatically!
-      */}
-      <Scroll>
-        <HeroSection theme={theme} />
-        <DevCard theme={theme} yOffset={-height} />
-        <ProjectsGrid theme={theme} yOffset={-height * 2} />
-        <StackGrid theme={theme} yOffset={-height * 3} />
-      </Scroll>
+      <fog attach="fog" args={[theme === 'dark' ? '#080809' : '#f8fafc', 5, 30]} />
+      <CameraRig scrollProgress={scrollProgress} />
+      <RealParticleField theme={theme} scrollProgress={scrollProgress} />
     </>
   );
 }
