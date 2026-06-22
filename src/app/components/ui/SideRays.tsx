@@ -146,7 +146,7 @@ void main() {
   if (iFlipY > 0.5) fragCoord.y = iResolution.y - fragCoord.y;
 
   vec2 coord = vec2(fragCoord.x, iResolution.y - fragCoord.y);
-  vec2 rayPos = vec2(iResolution.x * 1.1, -0.5 * iResolution.y);
+  vec2 rayPos = vec2(iResolution.x * 0.05, -0.1 * iResolution.y);
 
   float tiltRad = iTilt * 3.14159265 / 180.0;
   float cs = cos(tiltRad);

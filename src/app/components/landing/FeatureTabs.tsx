@@ -84,13 +84,16 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
     return (
         <section className="relative py-16 sm:py-24 px-4 sm:px-8 w-full max-w-[1400px] mx-auto min-h-[80vh] flex items-center">
             {enableSideRays && (
-                <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[100vw] z-0 pointer-events-none">
+                <div 
+                    className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[100vw] z-0 pointer-events-none" 
+                    style={{ maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)" }}
+                >
                     <SideRays 
-                        speed={1.5}
-                        rayColor1={theme === 'dark' ? '#ffffff' : '#f8fafc'}
-                        rayColor2={theme === 'dark' ? '#e2e8f0' : '#cbd5e1'}
+                        speed={0.5}
+                        rayColor1={theme === 'dark' ? '#178be4ff' : '#ffffff'} // Soft Violet to match waves
+                        rayColor2={theme === 'dark' ? '#cc3131ff' : '#cbd5e1'} // Cyan to match waves
                         intensity={theme === 'dark' ? 2.5 : 1.5}
-                        spread={1.5}
+                        spread={2.5}
                         origin="top-right"
                         tilt={-5}
                         saturation={theme === 'dark' ? 1.0 : 1.0}
