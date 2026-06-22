@@ -34,49 +34,145 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
   const pillarRef = useRef<THREE.Mesh>(null);
   const rocksRef = useRef<THREE.Group>(null);
 
+  // Astronaut Shader (Decoding Light/Shadow maps)
+  const shaderMaterialPerson = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: personTexture },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          // Green channel seems to be the primary light highlight
+          float light = texColor.g;
+          
+          // Pure cinematic grayscale lighting
+          vec3 baseColor = vec3(0.2); 
+          vec3 finalColor = baseColor + vec3(0.9) * light;
+          
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `,
+    });
+  }, [personTexture]);
+
+  // Terrain Shader (Decoding Shadow/Light/Height maps)
+  const shaderMaterialTerrain = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: terrainTexture },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          // R = shadow, G = light, B = height
+          float shadow = texColor.r;
+          float light = texColor.g;
+          
+          // Dark moody base terrain
+          vec3 baseColor = vec3(0.02);
+          vec3 litColor = baseColor + vec3(0.8) * light;
+          
+          // Apply harsh dramatic shadow
+          litColor *= (1.0 - shadow * 0.85);
+          
+          gl_FragColor = vec4(litColor, 1.0);
+        }
+      `,
+    });
+  }, [terrainTexture]);
+
+  // Rocks Shader
+  const shaderMaterialRocks = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: rocksTexture },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          float light = texColor.g;
+          vec3 finalColor = vec3(0.05) + vec3(0.9) * light;
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `,
+    });
+  }, [rocksTexture]);
+
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
     
-    // Slow environmental panning
+    // Slow cinematic panning
     pointsRef.current.rotation.y = Math.sin(_.clock.elapsedTime * 0.1) * 0.05;
     
-    // Animate floating rocks swirling around the sky
+    // Animate floating rocks swirling upwards
     if (rocksRef.current) {
-        rocksRef.current.rotation.y -= delta * 0.1;
-        rocksRef.current.position.y = Math.sin(_.clock.elapsedTime * 0.5) * 0.2;
+        rocksRef.current.rotation.y -= delta * 0.05;
+        rocksRef.current.position.y = Math.sin(_.clock.elapsedTime * 0.2) * 0.5;
     }
 
     const r = scrollProgress.current;
-    
     if (pillarRef.current) {
         (pillarRef.current.material as THREE.MeshBasicMaterial).opacity = 0.15 * (1 - r);
     }
   });
 
-  // Generate 12 scattered rocks
+  // Generate an epic spiraling cone of rocks
   const rockPlacements = useMemo(() => {
       const arr = [];
-      for(let i=0; i<12; i++) {
-          const type = i % 3; // 0, 1, or 2
-          // Scatter them in a cylinder around the center
-          const angle = (i / 12) * Math.PI * 2;
-          const radius = 4 + Math.random() * 11;
-          const x = Math.cos(angle) * radius;
-          const z = Math.sin(angle) * radius;
-          const y = 2 + Math.random() * 10;
+      for(let i=0; i<60; i++) { // More dense rock swarm
+          const type = i % 3;
+          
+          const progress = i / 60; // 0 to 1
+          const y = 1.5 + progress * 15; // Rising up to the meteor
+          const radius = 1.0 + progress * 8.0; // Cone opening up
+          const angle = progress * Math.PI * 12; // Spiraling tightly
+          
+          const offset = Math.random() * 2.5;
+          const x = Math.cos(angle) * (radius + offset);
+          const z = Math.sin(angle) * (radius + offset);
+          
           const rotX = Math.random() * Math.PI;
           const rotY = Math.random() * Math.PI;
           const rotZ = Math.random() * Math.PI;
-          const scale = 0.5 + Math.random() * 1.5;
+          const scale = 0.2 + Math.random() * 0.6; // Smaller, realistic debris
+          
           arr.push({ type, x, y, z, rotX, rotY, rotZ, scale });
       }
       return arr;
   }, []);
 
   return (
-    <group ref={pointsRef} position={[0, -0.5, 0]}>
+    <group ref={pointsRef} position={[0, -1.0, 0]}>
 
-      {/* Floating Rocks Swirl (Solid Meshes) */}
+      {/* Epic Floating Rock Swarm */}
       <group ref={rocksRef}>
           {rockPlacements.map((pos, i) => {
               let geo = rock1Geometry;
@@ -89,21 +185,20 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
                   <mesh 
                     key={i} 
                     geometry={geo} 
+                    material={shaderMaterialRocks}
                     position={[pos.x, pos.y, pos.z]} 
                     rotation={[pos.rotX, pos.rotY, pos.rotZ]}
                     scale={[pos.scale, pos.scale, pos.scale]}
-                  >
-                      <meshBasicMaterial map={rocksTexture} transparent={true} alphaTest={0.1} depthWrite={true} />
-                  </mesh>
+                  />
               );
           })}
       </group>
 
+      {/* Cinematic Light Pillar */}
       <mesh ref={pillarRef} position={[0, 15, 0]}>
         <cylinderGeometry args={[2.5, 0.5, 30, 32, 1, true]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
-
       <mesh position={[0, 15, 0]}>
         <cylinderGeometry args={[4, 1.5, 30, 32, 1, true]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.05} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} />
@@ -111,18 +206,14 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
 
       <EnergyMeteor />
 
-      {/* Astronaut Solid Mesh */}
+      {/* Solid Astronaut with Lighting Map */}
       {personGeometry && (
-        <mesh geometry={personGeometry} scale={[1, 1, 1]} position={[0, 0, 0]}>
-            <meshBasicMaterial map={personTexture} transparent={true} depthWrite={true} />
-        </mesh>
+        <mesh geometry={personGeometry} material={shaderMaterialPerson} scale={[1, 1, 1]} position={[0, 0, 0]} />
       )}
 
-      {/* Terrain Solid Mesh */}
+      {/* Massive Terrain with Shadow/Height Map */}
       {terrainGeometry && (
-        <mesh geometry={terrainGeometry} scale={[1, 1, 1]} position={[0, 0, 0]}>
-            <meshBasicMaterial map={terrainTexture} transparent={true} depthWrite={true} />
-        </mesh>
+        <mesh geometry={terrainGeometry} material={shaderMaterialTerrain} scale={[1.5, 1.5, 1.5]} position={[0, 0, 0]} />
       )}
     </group>
   );
@@ -262,13 +353,13 @@ function CameraRig({ scrollProgress }: { scrollProgress: { current: number } }) 
   useFrame((state) => {
     const r = scrollProgress.current; // 0 to 1
     
-    // Start high up (y = 4, z = 7) directly targeting the energy meteor!
-    // End extremely high and far (y = 12, z = 25)
-    const targetY = 4.0 + (r * 8.0);
-    const targetZ = 7.0 + (r * 18.0);
+    // Epic cinematic ground-level framing!
+    // Start low to the ground, looking forward at the astronaut and meteor
+    const targetY = 1.0 + (r * 3.0); 
+    const targetZ = 12.0 + (r * 15.0); 
     
-    // Look straight ahead at the meteor initially, then tilt down toward the astronaut as we zoom out
-    const targetRotX = r * -0.3;
+    // Keep camera relatively level, very slight tilt
+    const targetRotX = r * -0.1;
     const targetRotY = 0;
 
     state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.05);
