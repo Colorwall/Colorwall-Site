@@ -69,12 +69,12 @@ export default function ColorWallLanding() {
                             <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)" }}>
                             </div>
                             <div className="text-center px-4 relative z-10 pointer-events-none">
-                                <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-3xl sm:text-4xl font-bold drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}>
-                                  <GradientHeading text="Seems too good to be true?" theme={"dark"} />
+                                <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-5xl md:text-7xl lg:text-8xl font-medium tracking-tighter leading-none mb-4`}>
+                                    Seems too good to be true?
                                 </div>
 
-                                <div className={`${theme === "dark" ? "text-violet-200" : "text-violet-800"} block mt-3 text-xl sm:text-2xl font-semibold italic drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
-                                    It is &lt;3 That's why I built it!
+                                <div className={`${theme === "dark" ? "text-white/60" : "text-black/60"} block mt-2 text-2xl md:text-3xl tracking-tight`}>
+                                    It is. That's why I built it.
                                 </div>
                             </div>
                         </div>
