@@ -4,11 +4,10 @@ import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useProtection } from "@/hooks/use-protection";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { HeroSection } from "@/app/components/landing/HeroSection";
 import { FeaturesSection } from "@/app/components/landing/FeaturesSection";
-import { ShowcaseCard } from "@/app/components/landing/ShowcaseCard";
-import { HomeShowcase } from "@/app/components/landing/HomeShowcase";
+import { FeatureTabs } from "@/app/components/landing/FeatureTabs";
+import Image from "next/image";
 import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
@@ -23,44 +22,8 @@ import { GradientHeading } from "./components/landing/GradientHeading";
 
 export default function ColorWallLanding() {
     const { theme } = useTheme();
-    const carouselRef = useRef<HTMLDivElement>(null);
-
     // Protect against inspection shortcuts if desired
     useProtection();
-
-    // Horizontal wheel scroll interceptor for the carousel
-    useEffect(() => {
-        const el = carouselRef.current;
-        if (!el) return;
-
-        const handleWheel = (e: WheelEvent) => {
-            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                const isScrollingDown = e.deltaY > 0;
-                const maxScrollLeft = el.scrollWidth - el.clientWidth;
-                
-                // Allow a tiny margin of error for float values
-                if (isScrollingDown && el.scrollLeft < maxScrollLeft - 2) {
-                    e.preventDefault();
-                    el.scrollBy({ left: e.deltaY * 1.5, behavior: 'auto' });
-                } else if (!isScrollingDown && el.scrollLeft > 2) {
-                    e.preventDefault();
-                    el.scrollBy({ left: e.deltaY * 1.5, behavior: 'auto' });
-                }
-            }
-        };
-
-        el.addEventListener('wheel', handleWheel, { passive: false });
-        return () => el.removeEventListener('wheel', handleWheel);
-    }, []);
-
-    const scrollCarousel = (dir: "left" | "right") => {
-        if (!carouselRef.current) return;
-        const scrollAmount = carouselRef.current.clientWidth * 0.8;
-        carouselRef.current.scrollBy({
-            left: dir === "left" ? -scrollAmount : scrollAmount,
-            behavior: "smooth"
-        });
-    };
 
     return (
         <div className={`relative min-h-screen select-none ${theme === "dark" ? "bg-black text-white" : "bg-white text-black"}`}>
@@ -97,109 +60,22 @@ export default function ColorWallLanding() {
                     </div>
                 </div>
 
-                <HomeShowcase theme={theme} />
+                <FeatureTabs theme={theme} />
 
-                <ShowcaseCard
-                    title="STORE"
-                    description="Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — no account needed."
-                    badge="8 SOURCES · 4K · UNIFIED"
-                    imageSrcs={["/STORE.webp", "/modal.webp"]}
-                    index={0}
-                    theme={theme}
-                />
-
-                <ShowcaseCard
-                    title="LIBRARY"
-                    description="Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store."
-                    badge="LOCAL · OFFLINE · CUTE"
-                    imageSrc="/Library.webp"
-                    index={1}
-                    theme={theme}
-                />
-
-                <ShowcaseCard
-                    title="CUSTOMISE"
-                    description="unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets."
-                    badge="RUST · TAURI · LOW OVERHEAD"
-                    imageSrcs={["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]}
-                    index={2}
-                    theme={theme}
-                    layout="vertical"
-                    imageFit="contain"
-                />
-
-                <ShowcaseCard
-                    title="WIDGETS"
-                    description="desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable."
-                    badge="HTML · JS · PINNED"
-                    imageSrcs={["/widgets.webp"]}
-                    index={3}
-                    theme={theme}
-                    layout="vertical"
-                    imageFit="contain"
-                />
-
-                {/* ════ Scrollable Carousel for Studio & Interactive ════ */}
-                <div className="w-full relative group max-w-[1400px] mx-auto">
-                    
-                    {/* Navigation Buttons */}
-                    <div className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-4 z-20 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button 
-                            aria-label="Scroll carousel left"
-                            onClick={() => scrollCarousel("left")}
-                            className={`p-3 rounded-full backdrop-blur-md border shadow-lg transition-transform hover:scale-110 active:scale-95
-                                ${theme === "dark" ? "bg-black/50 border-white/10 text-white hover:bg-black/80" : "bg-white/50 border-black/10 text-black hover:bg-white/80"}`}
-                        >
-                            <ChevronLeft size={24} />
-                        </button>
-                    </div>
-
-                    <div className="absolute top-1/2 -translate-y-1/2 right-2 sm:right-4 z-20 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button 
-                            aria-label="Scroll carousel right"
-                            onClick={() => scrollCarousel("right")}
-                            className={`p-3 rounded-full backdrop-blur-md border shadow-lg transition-transform hover:scale-110 active:scale-95
-                                ${theme === "dark" ? "bg-black/50 border-white/10 text-white hover:bg-black/80" : "bg-white/50 border-black/10 text-black hover:bg-white/80"}`}
-                        >
-                            <ChevronRight size={24} />
-                        </button>
-                    </div>
-
-                    <div 
-                        ref={carouselRef}
-                        className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 px-4 sm:px-8 hide-scrollbar scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none]" 
-                    >
-                        {/* Slide 1: Studio Editor */}
-                        <div className="w-full min-w-[90vw] md:min-w-[75vw] lg:min-w-[60vw] snap-center shrink-0">
-                            <ShowcaseCard
-                                title="STUDIO"
-                                description="build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly."
-                                badge="NODE-BASED · D3D11 · PARTICLES"
-                                imageSrcs={["/studio.webp"]}
-                                index={4}
-                                theme={theme}
-                                layout="vertical"
-                                imageFit="contain"
-                            />
-                        </div>
-
-                        {/* Slide 2: Interactive */}
-                        <div className="w-full min-w-[90vw] md:min-w-[75vw] lg:min-w-[60vw] snap-center shrink-0">
-                            <ShowcaseCard
-                                title="INTERACTIVE"
-                                description="wallpapers that come alive. fully interactive html5 canvases and webgl shaders that respond to your mouse movements and clicks. your desktop is now a playground."
-                                badge="WEBGL · DYNAMIC · INTERACTIVE"
-                                imageSrcs={["/INTERACTIVES.webp"]}
-                                index={5}
-                                theme={theme}
-                                layout="vertical"
-                                imageFit="contain"
-                            />
-                        </div>
-                    </div>
-                    {/* Visual hint for scrollability */}
-                    <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-mono flex items-center gap-2 opacity-50 ${theme === "dark" ? "text-white" : "text-black"}`}>
-                        <span className="animate-pulse">← hover to scroll or use arrows →</span>
+                {/* ════ Breather Section ════ */}
+                <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 py-16 sm:py-24 flex flex-col items-center">
+                    <p className={`text-xl sm:text-2xl font-semibold italic mb-8 ${theme === "dark" ? "text-violet-200" : "text-violet-800"} drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]`}>
+                        Take a break, let the engine do the work.
+                    </p>
+                    <div className="relative w-full max-w-3xl rounded-[2rem] overflow-hidden shadow-2xl hover:scale-[1.02] transition-transform duration-500">
+                        <Image 
+                            src="/MillenniumEvent.webp"
+                            alt="Millennium Event Chibi"
+                            width={1920}
+                            height={1080}
+                            className="w-full h-auto object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                     </div>
                 </div>
 

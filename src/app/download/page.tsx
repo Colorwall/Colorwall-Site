@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Download, ShieldCheck, AlertTriangle } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
 import { SecurityReport } from "@/app/components/SecurityReport";
-import { HomeShowcase } from "@/app/components/landing/HomeShowcase";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useState, useEffect, useRef } from "react";
 
@@ -196,8 +195,18 @@ export default function DownloadPage() {
                     </motion.div>
 
                     {/* App UI Showcase */}
-                    <div className="pt-8">
-                        <HomeShowcase theme={theme} />
+                    <div className="pt-8 px-4 sm:px-8">
+                        <div className="max-w-7xl mx-auto relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50 border border-white/5 bg-black/5">
+                            <Image
+                                src="/HOME.webp"
+                                alt="colorwall full interface"
+                                width={1920}
+                                height={1080}
+                                className="w-full h-auto"
+                                style={{ height: 'auto' }}
+                            />
+                            <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none ${isDark ? "from-black/30" : "from-white/20"}`} />
+                        </div>
                     </div>
 
                     {/* Security Report Section */}

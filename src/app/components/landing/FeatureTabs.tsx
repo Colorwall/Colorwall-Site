@@ -1,0 +1,202 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { GradientHeading } from "./GradientHeading";
+
+interface Feature {
+    id: string;
+    title: string;
+    description: string;
+    badge: string;
+    imageSrcs: string[];
+}
+
+const features: Feature[] = [
+    {
+        id: "store",
+        title: "STORE",
+        description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — no account needed.",
+        badge: "8 SOURCES · 4K · UNIFIED",
+        imageSrcs: ["/STORE.webp", "/modal.webp"]
+    },
+    {
+        id: "library",
+        title: "LIBRARY",
+        description: "Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store.",
+        badge: "LOCAL · OFFLINE · CUTE",
+        imageSrcs: ["/Library.webp"]
+    },
+    {
+        id: "customise",
+        title: "CUSTOMISE",
+        description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
+        badge: "RUST · TAURI · LOW OVERHEAD",
+        imageSrcs: ["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
+    },
+    {
+        id: "widgets",
+        title: "WIDGETS",
+        description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
+        badge: "HTML · JS · PINNED",
+        imageSrcs: ["/widgets.webp"]
+    },
+    {
+        id: "studio",
+        title: "STUDIO",
+        description: "build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
+        badge: "NODE-BASED · D3D11 · PARTICLES",
+        imageSrcs: ["/studio.webp"]
+    },
+    {
+        id: "interactive",
+        title: "INTERACTIVE",
+        description: "wallpapers that come alive. fully interactive html5 canvases and webgl shaders that respond to your mouse movements and clicks. your desktop is now a playground.",
+        badge: "WEBGL · DYNAMIC · INTERACTIVE",
+        imageSrcs: ["/INTERACTIVES.webp"]
+    }
+];
+
+export const FeatureTabs = ({ theme }: { theme: "dark" | "light" }) => {
+    const [activeTab, setActiveTab] = useState(0);
+    const [currentImgIndex, setCurrentImgIndex] = useState(0);
+    
+    // Auto-rotate images if multiple are present
+    useEffect(() => {
+        const activeFeature = features[activeTab];
+        if (activeFeature.imageSrcs.length <= 1) return;
+        
+        const interval = setInterval(() => {
+            setCurrentImgIndex((prev) => (prev + 1) % activeFeature.imageSrcs.length);
+        }, 3500);
+        return () => clearInterval(interval);
+    }, [activeTab]);
+
+    // Reset image index when switching tabs
+    useEffect(() => {
+        setCurrentImgIndex(0);
+    }, [activeTab]);
+
+    return (
+        <section className="py-16 sm:py-24 px-4 sm:px-8 w-full max-w-[1400px] mx-auto min-h-[80vh] flex items-center">
+            <div className="grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 w-full items-center">
+                
+                {/* Left Side: Tabs Navigation */}
+                <div className="flex flex-col gap-4">
+                    {/* Title Area */}
+                    <div className="mb-8">
+                        <p className={`text-sm font-mono tracking-widest uppercase mb-4
+                            ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>
+                            Discover Capabilities
+                        </p>
+                        <GradientHeading 
+                            text="Everything you need."
+                            theme={theme}
+                            className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight"
+                        />
+                    </div>
+
+                    {/* Tab List */}
+                    <div className="flex flex-col gap-3 relative">
+                        {/* Connecting Line for design aesthetics */}
+                        <div className={`absolute left-0 top-4 bottom-4 w-px 
+                            ${theme === "dark" ? "bg-white/10" : "bg-black/10"}`} 
+                        />
+
+                        {features.map((feature, idx) => {
+                            const isActive = activeTab === idx;
+                            return (
+                                <button
+                                    key={feature.id}
+                                    onClick={() => setActiveTab(idx)}
+                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] group
+                                        ${isActive 
+                                            ? (theme === "dark" ? "border-blue-500 bg-white/5" : "border-blue-500 bg-black/5") 
+                                            : "border-transparent hover:border-blue-500/30"
+                                        }
+                                    `}
+                                >
+                                    <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
+                                        ${isActive 
+                                            ? (theme === "dark" ? "text-white" : "text-black") 
+                                            : (theme === "dark" ? "text-white/40 group-hover:text-white/70" : "text-black/40 group-hover:text-black/70")
+                                        }
+                                    `}>
+                                        {feature.title}
+                                    </h3>
+                                    
+                                    <AnimatePresence initial={false}>
+                                        {isActive && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className={`inline-flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-mono tracking-widest uppercase
+                                                    ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
+                                                >
+                                                    <span className="w-4 h-[1px] bg-current opacity-50" />
+                                                    {feature.badge}
+                                                </div>
+                                                <p className={`text-sm sm:text-base leading-relaxed
+                                                    ${theme === "dark" ? "text-white/60" : "text-black/60"}`}
+                                                >
+                                                    {feature.description}
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Right Side: Image Showcase */}
+                <div className="relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video rounded-2xl sm:rounded-[2rem] overflow-hidden group shadow-2xl">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.02 }}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                            className="absolute inset-0 w-full h-full bg-black/5"
+                        >
+                            {features[activeTab].imageSrcs.map((src, i) => (
+                                <Image
+                                    key={src}
+                                    src={src}
+                                    alt={features[activeTab].title}
+                                    fill
+                                    className={`object-cover transition-opacity duration-1000 ease-in-out
+                                        ${i === currentImgIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                                    priority={activeTab === 0 && i === 0}
+                                />
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Indicators for multiple images */}
+                    {features[activeTab].imageSrcs.length > 1 && (
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                            {features[activeTab].imageSrcs.map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`h-1.5 transition-all duration-500 rounded-full
+                                        ${i === currentImgIndex
+                                            ? `w-8 ${theme === "dark" ? "bg-white" : "bg-black"}`
+                                            : `w-2 ${theme === "dark" ? "bg-white/30" : "bg-black/30"}`}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+            </div>
+        </section>
+    );
+};
