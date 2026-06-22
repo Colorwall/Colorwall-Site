@@ -112,7 +112,7 @@ export const Navbar = () => {
 
     return (
         <div
-            className="fixed top-2 md:top-4 z-[100] w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-5xl left-1/2 -translate-x-1/2 transition-all duration-300"
+            className="fixed top-2 md:top-4 z-[100] w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-6xl left-1/2 -translate-x-1/2 transition-all duration-300"
             style={{
                 transform: !isVisible ? "translateY(-150%)" : "translateY(0)",
                 opacity: isVisible ? 1 : 0,
