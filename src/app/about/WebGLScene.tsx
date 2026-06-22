@@ -15,7 +15,12 @@ import {
   createPersonTexture,
   createRocksChannelTexture,
 } from './useLusionGeometry';
-import { useCameraSpline, sampleSpline, getScrollPhases } from './hooks/useCameraSpline';
+import {
+  useCameraSpline,
+  sampleSpline,
+  getScrollPhases,
+  getCameraFollowStrength,
+} from './hooks/useCameraSpline';
 import { useAboutUniforms } from './hooks/useAboutUniforms';
 import { buildShader, SHADERS } from './shaders/buildShader';
 import { ParticleField } from './components/ParticleField';
@@ -32,20 +37,23 @@ function CameraRig({
   scrollProgress: { current: number };
   spline: NonNullable<ReturnType<typeof useCameraSpline>>;
 }) {
-  const lookTarget = useMemo(() => new THREE.Vector3(), []);
   const smoothPos = useMemo(() => new THREE.Vector3(0, 7.3, -5), []);
+  const smoothQuat = useMemo(() => new THREE.Quaternion(), []);
+  // Lusion spline forward is +Z; Three.js camera looks down -Z.
+  const cameraOffset = useMemo(
+    () => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI),
+    [],
+  );
 
   useFrame((state) => {
     const phases = getScrollPhases(scrollProgress.current);
-    const { position, lookAt } = sampleSpline(spline, phases.splineT);
+    const { position, quaternion } = sampleSpline(spline, phases.splineT);
 
-    // Lusion: camera eases toward spline with reduced strength as zoom progresses
-    const follow = THREE.MathUtils.lerp(0.14, 0.05, phases.initialSplineRatio);
+    const follow = getCameraFollowStrength(phases.initialSplineRatio);
     smoothPos.lerp(position, follow);
+    smoothQuat.slerp(quaternion, follow);
     state.camera.position.copy(smoothPos);
-
-    lookTarget.copy(lookAt);
-    state.camera.lookAt(lookTarget);
+    state.camera.quaternion.copy(smoothQuat).multiply(cameraOffset);
 
     if (state.camera instanceof THREE.PerspectiveCamera) {
       const dolly = THREE.MathUtils.smoothstep(phases.initialSplineRatio, 0.4, 0.8);
@@ -88,6 +96,7 @@ function BloomPipeline({ scrollProgress }: { scrollProgress: { current: number }
 
     const bloomPass = composer.current.passes[1] as UnrealBloomPass;
     bloomPass.strength = bloomAmount;
+    bloomPass.threshold = THREE.MathUtils.lerp(0.92, 0.8, intro);
     composer.current.render();
   }, 1);
 
@@ -403,7 +412,9 @@ function Person({
     material.uniforms.u_lightScatterRatio.value = shared.u_lightScatterRatio.value;
   });
 
-  return <mesh geometry={geometry} material={material} />;
+  return (
+    <mesh geometry={geometry} material={material} frustumCulled={false} renderOrder={15} />
+  );
 }
 
 function PersonShadow({

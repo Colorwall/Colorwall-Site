@@ -206,7 +206,7 @@ export function ParticleField({
 
     const scroll = scrollProgress.current;
     const intro = Math.min(scroll / 0.85, 1);
-    const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.75;
+    const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.45;
     const hideRatio = THREE.MathUtils.smoothstep(intro, 0.85, 1);
 
     noiseTime.current += delta * 0.4;

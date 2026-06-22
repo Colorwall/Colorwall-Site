@@ -29,9 +29,9 @@ varying vec3 v_worldPosition;
 void main() {
   vec3 noise = getBlueNoise(gl_FragCoord.xy + vec2(57., 27.));
   float scatter = getScatter(cameraPosition, v_worldPosition);
-  scatter *= u_sceneRatio * (1.0 - u_hudRatio);
-  scatter += noise.r * 0.004;
-  gl_FragColor = vec4(vec3(scatter), scatter * 0.5);
+  scatter *= u_sceneRatio * (1.0 - u_hudRatio) * 0.55;
+  scatter += noise.r * 0.002;
+  gl_FragColor = vec4(vec3(scatter), scatter * 0.35);
 }
 `;
 

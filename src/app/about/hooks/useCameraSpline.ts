@@ -59,6 +59,8 @@ export function getScrollPhases(scroll: number): ScrollPhases {
   return { introRatio, initialSplineRatio, panningSplineRatio, hudRatio, splineT };
 }
 
+const _forward = new THREE.Vector3();
+
 export function sampleSpline(frames: SplineFrame[], t: number) {
   const clamped = Math.max(0, Math.min(frames.length - 1, t));
   const floor = Math.floor(clamped);
@@ -68,9 +70,16 @@ export function sampleSpline(frames: SplineFrame[], t: number) {
   const position = frames[floor].position.clone().lerp(frames[ceil].position, fract);
   const quaternion = frames[floor].quaternion.clone().slerp(frames[ceil].quaternion, fract);
 
-  const lookAt = position.clone().add(new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion));
+  const lookAt = position
+    .clone()
+    .add(_forward.set(0, 0, 1).applyQuaternion(quaternion));
 
   return { position, quaternion, lookAt };
+}
+
+/** Lusion eases camera toward spline; weaker follow as zoom-out progresses. */
+export function getCameraFollowStrength(initialSplineRatio: number) {
+  return THREE.MathUtils.lerp(0.1, 0.035, initialSplineRatio);
 }
 
 export function introRatioFromScroll(scroll: number) {
