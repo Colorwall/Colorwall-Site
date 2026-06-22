@@ -27,7 +27,7 @@ import { AboutFog } from './components/AboutFog';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
-const PARTICLE_FOCUS = new THREE.Vector3(0, 7.5, 0);
+const PARTICLE_FOCUS = new THREE.Vector3(0, 8.2, 0);
 
 function CameraRig({
   scrollProgress,
@@ -46,7 +46,7 @@ function CameraRig({
 
     if (!initialized.current) {
       smoothPos.copy(position);
-      smoothLook.copy(lookAt);
+      smoothLook.copy(lookAt).lerp(PARTICLE_FOCUS, 0.92);
       initialized.current = true;
     }
 
@@ -54,9 +54,9 @@ function CameraRig({
     smoothPos.lerp(position, follow);
     smoothLook.lerp(lookAt, follow);
 
-    // Drone view: frame the particle burst above the light as the hero focal point
-    const focusT = THREE.MathUtils.smoothstep(phases.initialSplineRatio, 0.02, 0.55);
-    smoothLook.lerp(PARTICLE_FOCUS, focusT * 0.72);
+    // Default drone view: camera locked on the particle burst above the light
+    const focusT = THREE.MathUtils.lerp(0.92, 0.5, phases.initialSplineRatio);
+    smoothLook.lerp(PARTICLE_FOCUS, focusT);
 
     state.camera.position.copy(smoothPos);
     state.camera.lookAt(smoothLook);

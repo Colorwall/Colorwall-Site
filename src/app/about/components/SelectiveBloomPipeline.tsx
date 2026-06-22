@@ -20,7 +20,12 @@ uniform sampler2D tBase;
 uniform sampler2D tBloom;
 varying vec2 vUv;
 void main() {
-  gl_FragColor = vec4(texture2D(tBase, vUv).rgb + texture2D(tBloom, vUv).rgb, 1.0);
+  vec3 col = texture2D(tBase, vUv).rgb + texture2D(tBloom, vUv).rgb;
+  float luma = dot(col, vec3(0.299, 0.587, 0.114));
+  col = vec3(luma);
+  col = pow(col, vec3(1.05));
+  col = clamp(col * vec3(1.02, 1.0, 0.99), 0.0, 1.0);
+  gl_FragColor = vec4(col, 1.0);
 }
 `;
 
@@ -75,10 +80,10 @@ export function SelectiveBloomPipeline({
     const intro = Math.min(scroll / 0.85, 1);
     const hud = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
 
-    bloomPass.strength = THREE.MathUtils.lerp(2.0, 3.8, THREE.MathUtils.smoothstep(intro, 0, 0.4));
-    bloomPass.strength = THREE.MathUtils.lerp(bloomPass.strength, 5.0, hud * 0.35);
-    bloomPass.threshold = 0.05;
-    bloomPass.radius = 0.45;
+    bloomPass.strength = THREE.MathUtils.lerp(3.2, 5.2, THREE.MathUtils.smoothstep(intro, 0, 0.35));
+    bloomPass.strength = THREE.MathUtils.lerp(bloomPass.strength, 6.0, hud * 0.35);
+    bloomPass.threshold = 0.02;
+    bloomPass.radius = 0.55;
 
     const savedMask = camera.layers.mask;
 

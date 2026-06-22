@@ -6,10 +6,9 @@ import { useFBO } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { useLusionGeometry } from '../useLusionGeometry';
-import { buildShader } from '../shaders/buildShader';
+import { buildShader, SHADERS } from '../shaders/buildShader';
 import extracted from '../shaders/extracted.json';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
-
 import { BLOOM_LAYER } from '../layers';
 
 const SIM_W = 128;
@@ -57,50 +56,81 @@ function buildSimUvs() {
   return { column, emissive };
 }
 
-const PARTICLE_VERT = `
+const CORE_VERT = `
 attribute vec3 simUv;
 uniform sampler2D u_simCurrPosLifeTexture;
 uniform float u_isEmissive;
 uniform float u_sceneHideRatio;
-varying vec3 v_worldPosition;
 varying float v_brightness;
 void main() {
   vec4 info = texture2D(u_simCurrPosLifeTexture, simUv.xy);
   float life = smoothstep(0.0, 0.1, info.w) * smoothstep(1.0, 0.9, info.w);
-  float size = mix(0.04, 0.12, u_isEmissive) * life * (1.0 - u_sceneHideRatio);
+  float size = mix(0.05, 0.14, u_isEmissive) * life * (1.0 - u_sceneHideRatio);
   vec3 pos = position * size + info.xyz;
-  vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  gl_Position = projectionMatrix * mv;
-  v_worldPosition = (modelMatrix * vec4(pos, 1.0)).xyz;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   v_brightness = life;
 }
 `;
 
-const PARTICLE_FRAG = `
-uniform float u_isEmissive;
-uniform float u_emissiveRatio;
-varying vec3 v_worldPosition;
+const CORE_FRAG = `
 varying float v_brightness;
 void main() {
-  float core = v_brightness * (0.12 + u_isEmissive * 0.88);
-  float glow = v_brightness * u_isEmissive * 0.35;
-  float outColor = (core + glow) * (1.4 + u_emissiveRatio * 1.2);
-  gl_FragColor = vec4(vec3(outColor), 1.0);
+  float luma = v_brightness * 0.35;
+  gl_FragColor = vec4(vec3(luma), luma);
 }
 `;
+
+function makeParticleMaterial(
+  shared: ReturnType<typeof useAboutUniforms>['uniforms'],
+  simTex: THREE.Texture,
+  isEmissive: number,
+  lightFieldTex: THREE.Texture,
+) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      u_simCurrPosLifeTexture: { value: simTex },
+      u_simTextureSize: { value: new THREE.Vector2(SIM_W, SIM_H) },
+      u_sceneHideRatio: { value: 0 },
+      u_isEmissive: { value: isEmissive },
+      u_emissiveRatio: { value: 0 },
+      u_contrast: { value: 1 },
+      u_noiseStableFactor: shared.u_noiseStableFactor,
+      u_lightFieldSlicedTexture: { value: lightFieldTex },
+      u_lightScatterDivider: shared.u_lightScatterDivider,
+      u_lightScatterPowInv: shared.u_lightScatterPowInv,
+      u_lightScatterPos0: shared.u_lightScatterPos0,
+      u_lightScatterPos1: shared.u_lightScatterPos1,
+      u_lightScatterRatio: shared.u_lightScatterRatio,
+      u_blueNoiseTexture: shared.u_blueNoiseTexture,
+      u_blueNoiseTexelSize: shared.u_blueNoiseTexelSize,
+      u_blueNoiseCoordOffset: shared.u_blueNoiseCoordOffset,
+    },
+    vertexShader: buildShader(SHADERS.particleVert),
+    fragmentShader: buildShader(SHADERS.particleFrag),
+    depthWrite: true,
+    depthTest: true,
+    transparent: false,
+  });
+}
 
 export function ParticleField({
   shared,
   scrollProgress,
 }: {
-  shared: ReturnType<typeof useAboutUniforms>['uniforms'] & {
-    u_sceneHideRatio?: { value: number };
-  };
+  shared: ReturnType<typeof useAboutUniforms>['uniforms'];
   scrollProgress: { current: number };
 }) {
-  const sphereGeo = useLusionGeometry('/lusion-assets/sphere_l.buf');
+  const sphereL = useLusionGeometry('/lusion-assets/sphere_l.buf');
+  const sphereM = useLusionGeometry('/lusion-assets/sphere_m.buf');
   const simUvs = useMemo(() => buildSimUvs(), []);
   const defaultSim = useMemo(() => createDefaultSimTexture(), []);
+
+  const lightFieldTex = useMemo(() => {
+    const data = new Float32Array([1, 1, 1, 1]);
+    const tex = new THREE.DataTexture(data, 1, 1, THREE.RGBAFormat, THREE.FloatType);
+    tex.needsUpdate = true;
+    return tex;
+  }, []);
 
   const currFbo = useFBO(SIM_W, SIM_H, { type: THREE.FloatType });
   const prevFbo = useFBO(SIM_W, SIM_H, { type: THREE.FloatType });
@@ -132,48 +162,50 @@ export function ParticleField({
     });
   }, [defaultSim, prevFbo.texture, shared]);
 
-  const columnGeo = useMemo(() => {
-    const geo = new THREE.InstancedBufferGeometry();
-    return geo;
-  }, []);
-
-  const emissiveGeo = useMemo(() => {
-    const geo = new THREE.InstancedBufferGeometry();
-    return geo;
-  }, []);
+  const columnGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
+  const emissiveGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
+  const coreColumnGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
+  const coreEmissiveGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
 
   const columnMat = useMemo(
+    () => makeParticleMaterial(shared, currFbo.texture, 0, lightFieldTex),
+    [shared, currFbo.texture, lightFieldTex],
+  );
+  const emissiveMat = useMemo(
+    () => makeParticleMaterial(shared, currFbo.texture, 1, lightFieldTex),
+    [shared, currFbo.texture, lightFieldTex],
+  );
+
+  const coreColumnMat = useMemo(
     () =>
       new THREE.ShaderMaterial({
         uniforms: {
           u_simCurrPosLifeTexture: { value: currFbo.texture },
           u_isEmissive: { value: 0 },
-          u_emissiveRatio: { value: 0 },
           u_sceneHideRatio: { value: 0 },
         },
-        vertexShader: buildShader(PARTICLE_VERT),
-        fragmentShader: PARTICLE_FRAG,
-        transparent: false,
-        depthWrite: true,
-        depthTest: true,
+        vertexShader: CORE_VERT,
+        fragmentShader: CORE_FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
       }),
     [currFbo.texture],
   );
 
-  const emissiveMat = useMemo(
+  const coreEmissiveMat = useMemo(
     () =>
       new THREE.ShaderMaterial({
         uniforms: {
           u_simCurrPosLifeTexture: { value: currFbo.texture },
           u_isEmissive: { value: 1 },
-          u_emissiveRatio: { value: 0 },
           u_sceneHideRatio: { value: 0 },
         },
-        vertexShader: buildShader(PARTICLE_VERT),
-        fragmentShader: PARTICLE_FRAG,
-        transparent: false,
-        depthWrite: true,
-        depthTest: true,
+        vertexShader: CORE_VERT,
+        fragmentShader: CORE_FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
       }),
     [currFbo.texture],
   );
@@ -187,20 +219,26 @@ export function ParticleField({
   }, [quadMesh, quadScene, simMaterial]);
 
   useLayoutEffect(() => {
-    if (!sphereGeo) return;
-    for (const geo of [columnGeo, emissiveGeo]) {
-      if (sphereGeo.index) geo.setIndex(sphereGeo.index);
-      for (const name in sphereGeo.attributes) {
-        geo.setAttribute(name, sphereGeo.attributes[name]);
+    const sphere = sphereM || sphereL;
+    if (!sphere) return;
+    for (const geo of [columnGeo, emissiveGeo, coreColumnGeo, coreEmissiveGeo]) {
+      if (sphere.index) geo.setIndex(sphere.index);
+      for (const name in sphere.attributes) {
+        geo.setAttribute(name, sphere.attributes[name]);
       }
     }
     columnGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.column, 2));
     emissiveGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.emissive, 2));
-  }, [sphereGeo, columnGeo, emissiveGeo, simUvs]);
+    coreColumnGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.column, 2));
+    coreEmissiveGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.emissive, 2));
+  }, [sphereL, sphereM, columnGeo, emissiveGeo, coreColumnGeo, coreEmissiveGeo, simUvs]);
 
   const initialized = useRef(false);
+  const bloomRef = useRef<THREE.InstancedMesh>(null);
+  const bloomEmissiveRef = useRef<THREE.InstancedMesh>(null);
+  const layersSet = useRef(false);
 
-  useFrame(({ gl, clock }, delta) => {
+  useFrame(({ gl }, delta) => {
     if (!initialized.current) {
       initialized.current = true;
       simMaterial.uniforms.u_simPrevPosLifeTexture.value = defaultSim;
@@ -208,7 +246,7 @@ export function ParticleField({
 
     const scroll = scrollProgress.current;
     const intro = Math.min(scroll / 0.85, 1);
-    const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.25) * 0.85;
+    const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.75;
     const hideRatio = THREE.MathUtils.smoothstep(intro, 0.85, 1);
 
     noiseTime.current += delta * 0.4;
@@ -230,45 +268,59 @@ export function ParticleField({
     gl.render(quadScene, quadCam);
     gl.setRenderTarget(prevTarget);
 
-    columnMat.uniforms.u_simCurrPosLifeTexture.value = write.texture;
-    emissiveMat.uniforms.u_simCurrPosLifeTexture.value = write.texture;
-    columnMat.uniforms.u_emissiveRatio.value = emissiveRatio;
-    emissiveMat.uniforms.u_emissiveRatio.value = emissiveRatio;
-    columnMat.uniforms.u_sceneHideRatio.value = hideRatio;
-    emissiveMat.uniforms.u_sceneHideRatio.value = hideRatio;
-  });
-
-  const columnRef = useRef<THREE.InstancedMesh>(null);
-  const emissiveRef = useRef<THREE.InstancedMesh>(null);
-  const layersSet = useRef(false);
-
-  useFrame(() => {
-    if (layersSet.current || !columnRef.current || !emissiveRef.current) return;
-    for (const mesh of [columnRef.current, emissiveRef.current]) {
-      mesh.layers.disable(0);
-      mesh.layers.enable(BLOOM_LAYER);
+    const simTex = write.texture;
+    for (const mat of [columnMat, emissiveMat, coreColumnMat, coreEmissiveMat]) {
+      mat.uniforms.u_simCurrPosLifeTexture.value = simTex;
     }
-    layersSet.current = true;
+    for (const mat of [columnMat, emissiveMat]) {
+      mat.uniforms.u_emissiveRatio.value = emissiveRatio;
+      mat.uniforms.u_sceneHideRatio.value = hideRatio;
+      mat.uniforms.u_noiseStableFactor.value = shared.u_noiseStableFactor.value;
+      mat.uniforms.u_lightScatterPowInv.value = shared.u_lightScatterPowInv.value;
+      mat.uniforms.u_lightScatterRatio.value = shared.u_lightScatterRatio.value;
+    }
+    coreColumnMat.uniforms.u_sceneHideRatio.value = hideRatio;
+    coreEmissiveMat.uniforms.u_sceneHideRatio.value = hideRatio;
+
+    if (!layersSet.current && bloomRef.current && bloomEmissiveRef.current) {
+      for (const mesh of [bloomRef.current, bloomEmissiveRef.current]) {
+        mesh.layers.disable(0);
+        mesh.layers.enable(BLOOM_LAYER);
+      }
+      layersSet.current = true;
+    }
   });
 
-  if (!sphereGeo) return null;
+  if (!sphereL && !sphereM) return null;
 
   const columnCount = (SIM_W - 1) * SIM_H;
   const emissiveCount = SIM_H;
 
   return (
     <group position={LIGHT}>
+      {/* Dim cores — visible in base pass */}
       <instancedMesh
-        ref={columnRef}
-        args={[columnGeo, columnMat, columnCount]}
+        args={[coreColumnGeo, coreColumnMat, columnCount]}
         frustumCulled={false}
-        renderOrder={5}
+        renderOrder={4}
       />
       <instancedMesh
-        ref={emissiveRef}
+        args={[coreEmissiveGeo, coreEmissiveMat, emissiveCount]}
+        frustumCulled={false}
+        renderOrder={4}
+      />
+      {/* Lusion particle shaders — bloom layer only */}
+      <instancedMesh
+        ref={bloomRef}
+        args={[columnGeo, columnMat, columnCount]}
+        frustumCulled={false}
+        renderOrder={6}
+      />
+      <instancedMesh
+        ref={bloomEmissiveRef}
         args={[emissiveGeo, emissiveMat, emissiveCount]}
         frustumCulled={false}
-        renderOrder={5}
+        renderOrder={6}
       />
     </group>
   );

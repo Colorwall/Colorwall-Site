@@ -11,7 +11,7 @@ function extract(varName) {
   return src.substring(start + 1, end);
 }
 
-const names = ['frag$d', 'frag$7', 'vert$4', 'fragSim', 'motionVert', 'motionFrag', 'lightFieldVert', 'lightFieldFrag'];
+const names = ['vert$9', 'frag$d', 'frag$7', 'vert$4', 'fragSim', 'motionVert', 'motionFrag', 'lightFieldVert', 'lightFieldFrag'];
 const out = {};
 for (const n of names) {
   const s = extract(n);

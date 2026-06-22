@@ -21,14 +21,31 @@ vec2 getLightUv(vec3 lightToWorld) {
   return flatUv + vec2(0., isTop * 0.5);
 }`;
 
+// Analytic light-field stub (no 64³ volume) — clusters energy around the hero light
+const LIGHT_FIELD_SLICE = `#define GLSLIFY 1
+vec3 lightFieldPosToGrid(vec3 pos) {
+  return (pos - vec3(0.0, 8.0, 0.0)) * vec3(0.1, 0.14, 0.1) + vec3(32.0);
+}
+vec3 clampLightFieldGrid(vec3 grid) { return clamp(grid, vec3(0.5), vec3(63.5)); }
+vec3 clampedLightFieldPosToGrid(vec3 pos) { return clampLightFieldGrid(lightFieldPosToGrid(pos)); }
+vec4 sampleLightField(sampler2D tex, vec3 gridPos) {
+  vec3 wp = (gridPos - vec3(32.0)) / vec3(0.1, 0.14, 0.1) + vec3(0.0, 8.0, 0.0);
+  float d = length(wp - vec3(0.0, 8.0, 0.0));
+  float e = exp(-d * 0.38) * smoothstep(16.0, 0.8, d);
+  e = clamp(e + 0.06, 0.0, 1.0);
+  return vec4(e, e * 0.92, e * 0.88, e);
+}`;
+
 const CHUNKS: Record<string, string> = {
   getScatter: extracted.getScatter,
   getBlueNoise: GET_BLUE_NOISE,
   getLightUv: GET_LIGHT_UV,
+  lightFieldSlice: LIGHT_FIELD_SLICE,
   aboutHeroVisualFinal_vert: extracted.aboutHeroVisualFinalVert,
   // Lusion encodes luminance in .r and depth in .g for post-processing.
-  // Output grayscale directly since we composite with bloom only.
   aboutHeroVisualFinal_frag: 'gl_FragColor.rgb = vec3(gl_FragColor.r);',
+  // Particle bloom pass — bright luma only, no scatter bleed
+  particleBloomFinal_frag: 'float luma = mix(gl_FragColor.r, 1.0, u_emissiveRatio * 0.85); gl_FragColor = vec4(vec3(luma * 2.4), 1.0);',
 };
 
 export function buildShader(source: string, defines: Record<string, string | number> = {}) {
@@ -73,4 +90,8 @@ export const SHADERS = {
   shadowVert: extracted.shadowVert,
   shadowFrag: extracted.shadowFrag,
   groundShadowFrag: extracted['frag$b'],
+  particleVert: extracted['vert$9'],
+  particleFrag: extracted['frag$d']
+    .replace('shade+=getScatter(cameraPosition,v_worldPosition)*1.35;', '')
+    .replace('#include <aboutHeroVisualFinal_frag>', '#include <particleBloomFinal_frag>'),
 };

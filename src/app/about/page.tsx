@@ -2,6 +2,7 @@
 
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
 import { WebGLAboutScene } from "./WebGLScene";
 import { DEFAULT_SCROLL } from "./scrollConfig";
 import { useState, useEffect, useRef } from "react";
@@ -122,7 +123,12 @@ export default function AboutPage() {
             
             {/* The 3D WebGL Canvas */}
             <Canvas
-                gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+                gl={{
+                  antialias: true,
+                  alpha: false,
+                  powerPreference: 'high-performance',
+                  toneMapping: THREE.NoToneMapping,
+                }}
                 camera={{ position: [0, 7.3, -5], fov: 60, near: 1, far: 100 }}
                 style={{ width: '100vw', height: '100vh', position: 'absolute', inset: 0, zIndex: 0 }}
             >
