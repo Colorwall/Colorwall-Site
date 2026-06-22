@@ -8,36 +8,30 @@ import { useState, useEffect, useRef } from "react";
 
 function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
   const heroRef = useRef<HTMLDivElement>(null);
-  const aboutMeRef = useRef<HTMLDivElement>(null);
-  const colorwallRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let animationFrameId: number;
     
     const renderLoop = () => {
-      if (!heroRef.current || !aboutMeRef.current || !colorwallRef.current) return;
+      if (!heroRef.current || !infoRef.current) return;
       const r = scrollProgress.current; // 0 to 1
 
-      // Phase 1: Hero (0.0 to 0.3)
-      const heroOpacity = Math.max(0, 1 - (r / 0.25));
+      // Phase 1: Massive Hero Text (0.0 to 0.4)
+      const heroOpacity = Math.max(0, 1 - (r / 0.3));
       heroRef.current.style.opacity = `${heroOpacity}`;
-      heroRef.current.style.transform = `translateY(${r * 50}px)`;
+      // Slight scale out as we zoom
+      heroRef.current.style.transform = `scale(${1 + r * 0.5})`;
 
-      // Phase 2: About Me (0.3 to 0.6)
-      let aboutOpacity = 0;
-      if (r > 0.25 && r < 0.65) {
-        if (r < 0.35) aboutOpacity = (r - 0.25) / 0.1;
-        else if (r > 0.55) aboutOpacity = 1 - ((r - 0.55) / 0.1);
-        else aboutOpacity = 1;
+      // Phase 2: Dual Column Info Text (0.4 to 1.0)
+      let infoOpacity = 0;
+      if (r > 0.35) {
+        infoOpacity = Math.min(1, (r - 0.35) / 0.15);
       }
-      aboutMeRef.current.style.opacity = `${aboutOpacity}`;
-      aboutMeRef.current.style.transform = `translateY(${(0.45 - r) * 50}px)`;
+      infoRef.current.style.opacity = `${infoOpacity}`;
+      // Slide up slightly
+      infoRef.current.style.transform = `translateY(${(0.6 - r) * 30}px)`;
 
-      // Phase 3: ColorWall (0.6 to 1.0)
-      const cwOpacity = Math.max(0, Math.min(1, (r - 0.6) / 0.1));
-      colorwallRef.current.style.opacity = `${cwOpacity}`;
-      colorwallRef.current.style.transform = `translateY(${(0.8 - r) * 50}px)`;
-      
       animationFrameId = requestAnimationFrame(renderLoop);
     };
     
@@ -46,43 +40,42 @@ function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'ligh
   }, [scrollProgress]);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden pointer-events-none">
+    <div className="relative h-screen w-full overflow-hidden pointer-events-none flex items-center justify-center">
       
-      {/* 1. HERO TEXT */}
-      <div ref={heroRef} className="absolute inset-0 flex flex-col justify-end px-[4vw] pb-[8vh]">
-        <h1 className={`font-black leading-[0.82] tracking-tight whitespace-nowrap text-[16vw] md:text-[15vw] ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+      {/* 1. MASSIVE HERO TEXT (Phase 1) */}
+      <div 
+        ref={heroRef} 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <h1 
+          className="font-sans font-bold tracking-widest whitespace-nowrap text-white"
+          style={{ fontSize: '18vw', letterSpacing: '0.05em' }}
+        >
           COLORWALL
         </h1>
-        <p className={`mt-4 text-lg md:text-2xl font-medium tracking-wide ${theme === 'dark' ? 'text-white/70' : 'text-black/70'}`}>
-          A project built entirely by one stubborn developer.
-        </p>
       </div>
 
-      {/* 2. ABOUT ME TEXT */}
-      <div ref={aboutMeRef} className="absolute inset-0 flex items-center justify-center opacity-0">
-        <div className="max-w-3xl px-6 text-center">
-          <h2 className={`text-4xl md:text-6xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-            Oliver Laxenta
+      {/* 2. DUAL COLUMN INFO TEXT (Phase 2) */}
+      <div 
+        ref={infoRef} 
+        className="absolute inset-0 flex items-end justify-between px-[5vw] pb-[15vh] opacity-0 pointer-events-none"
+      >
+        {/* Left Column */}
+        <div className="text-white">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium leading-tight tracking-wide">
+            WE ARE<br />
+            COLORWALL<br />
+            A CREATIVE<br />
+            PRODUCTION STUDIO
           </h2>
-          <p className={`text-lg md:text-2xl leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>
-            I am an 18-year-old hobbyist developer. I build things because my dev friends have even worse ADHD than me, so they never helped much. 
-            <br/><br/>
-            Every line of code is written with love. Well kinda. Mostly out of coping from life.
-          </p>
         </div>
-      </div>
 
-      {/* 3. COLORWALL TEXT */}
-      <div ref={colorwallRef} className="absolute inset-0 flex items-center justify-center opacity-0">
-        <div className="max-w-4xl px-6 text-center">
-          <h2 className={`text-5xl md:text-7xl font-black mb-8 tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-            Welcome to the Void.
+        {/* Right Column (Italicized) */}
+        <div className="text-white text-right pb-1">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium italic leading-tight tracking-wide">
+            CRAFTING UNIQUE<br />
+            DIGITAL EXPERIENCES
           </h2>
-          <p className={`text-lg md:text-2xl leading-relaxed ${theme === 'dark' ? 'text-white/70' : 'text-black/70'}`}>
-            ColorWall is an 8K live wallpaper & desktop customization engine for Windows. Shaders, particles, store, library — all in 10MB.
-            <br/><br/>
-            Zero telemetry. Zero subscriptions. 0/72 on VirusTotal. Just a wallpaper engine that respects you.
-          </p>
         </div>
       </div>
 

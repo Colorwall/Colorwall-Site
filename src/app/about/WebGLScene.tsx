@@ -4,88 +4,102 @@ import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-/**
- * Custom hook to load raw binary .buf files and cast them to Float32Arrays.
- * Lusion stores point cloud geometry directly as binary buffers to save space.
- */
-function useBinaryGeometry(url: string) {
-  const [positions, setPositions] = useState<Float32Array | null>(null);
-  
-  useEffect(() => {
-    fetch(url)
-      .then(res => res.arrayBuffer())
-      .then(buffer => {
-        // Cast the raw ArrayBuffer to 32-bit floats
-        setPositions(new Float32Array(buffer));
-      })
-      .catch(err => console.error("Failed to load geometry:", url, err));
-  }, [url]);
-  
-  return positions;
-}
+import { useLusionGeometry } from './useLusionGeometry';
+import { useTexture } from '@react-three/drei';
 
 function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
-  // Load the successfully pirated assets from lusion.dev
-  const personPositions = useBinaryGeometry('/lusion-assets/person.buf');
-  const terrainPositions = useBinaryGeometry('/lusion-assets/terrain.buf');
+  // Decode the completely proprietary binary format!
+  const personGeometry = useLusionGeometry('/lusion-assets/person.buf');
+  const terrainGeometry = useLusionGeometry('/lusion-assets/terrain.buf');
+
+  // Load the webp textures
+  const personTexture = useTexture('/lusion-assets/person_light.webp');
+  const terrainTexture = useTexture('/lusion-assets/terrain_shadow_light_height.webp');
 
   const pointsRef = useRef<THREE.Group>(null);
+
+  // We write a custom shader that maps the UV of each point to the texture color
+  const shaderMaterialPerson = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: personTexture },
+        uOpacity: { value: 0.8 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = 2.5 * (10.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          gl_FragColor = vec4(texColor.rgb, texColor.a * uOpacity);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+  }, [personTexture]);
+
+  const shaderMaterialTerrain = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: terrainTexture },
+        uOpacity: { value: 0.5 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = 1.5 * (10.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          gl_FragColor = vec4(texColor.rgb, texColor.a * uOpacity);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+  }, [terrainTexture]);
 
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
     // Extremely slow, eerie rotation
-    pointsRef.current.rotation.y += delta * 0.05;
+    pointsRef.current.rotation.y += delta * 0.02;
     
     // Fade out as you zoom away
     const r = scrollProgress.current;
-    pointsRef.current.children.forEach(child => {
-        if (child instanceof THREE.Points) {
-            const mat = child.material as THREE.PointsMaterial;
-            if (mat && mat.opacity !== undefined) {
-                // Approximate a fade base on the original opacities
-                const baseOpacity = child === pointsRef.current?.children[0] ? 0.8 : 0.4;
-                mat.opacity = THREE.MathUtils.lerp(mat.opacity, baseOpacity * (1 - r * 0.8), 0.1);
-            }
-        }
-    });
+    shaderMaterialPerson.uniforms.uOpacity.value = 0.8 * (1 - r * 0.8);
+    shaderMaterialTerrain.uniforms.uOpacity.value = 0.5 * (1 - r * 0.5);
   });
 
   return (
     <group ref={pointsRef}>
       {/* Astronaut Point Cloud */}
-      {personPositions && (
-        <points scale={[15, 15, 15]} position={[0, -2, 0]}>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[personPositions, 3]} />
-          </bufferGeometry>
-          <pointsMaterial
-            size={0.03}
-            color={theme === 'dark' ? '#ffffff' : '#000000'}
-            transparent
-            opacity={0.8}
-            depthWrite={false}
-            sizeAttenuation
-            blending={THREE.AdditiveBlending}
-          />
-        </points>
+      {personGeometry && (
+        <points geometry={personGeometry} material={shaderMaterialPerson} scale={[18, 18, 18]} position={[0, -5, 0]} />
       )}
 
       {/* Terrain Point Cloud */}
-      {terrainPositions && (
-        <points scale={[15, 15, 15]} position={[0, -2, 0]}>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[terrainPositions, 3]} />
-          </bufferGeometry>
-          <pointsMaterial
-            size={0.02}
-            color={theme === 'dark' ? '#a5b4fc' : '#4f46e5'}
-            transparent
-            opacity={0.4}
-            depthWrite={false}
-            sizeAttenuation
-            blending={THREE.AdditiveBlending}
-          />
-        </points>
+      {terrainGeometry && (
+        <points geometry={terrainGeometry} material={shaderMaterialTerrain} scale={[18, 18, 18]} position={[0, -5, 0]} />
       )}
     </group>
   );
