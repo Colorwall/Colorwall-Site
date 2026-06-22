@@ -11,10 +11,16 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
   // Load ALL Geometries
   const personGeometry = useLusionGeometry('/lusion-assets/person.buf');
   const terrainGeometry = useLusionGeometry('/lusion-assets/terrain.buf');
-  const bgBoxGeometry = useLusionGeometry('/lusion-assets/bg_box.buf');
+  
+  const rock0Geometry = useLusionGeometry('/lusion-assets/rock_0.buf');
   const rock1Geometry = useLusionGeometry('/lusion-assets/rock_1.buf');
   const rock2Geometry = useLusionGeometry('/lusion-assets/rock_2.buf');
   const rock3Geometry = useLusionGeometry('/lusion-assets/rock_3.buf');
+
+  const sphereLGeometry = useLusionGeometry('/lusion-assets/sphere_l.buf');
+  const sphereMGeometry = useLusionGeometry('/lusion-assets/sphere_m.buf');
+  const sphereSGeometry = useLusionGeometry('/lusion-assets/sphere_s.buf');
+  const sphereXsGeometry = useLusionGeometry('/lusion-assets/sphere_xs.buf');
 
   // Load ALL Textures
   const personTexture = useTexture('/lusion-assets/person_light.webp');
@@ -34,7 +40,7 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
   const pillarRef = useRef<THREE.Mesh>(null);
   const rocksRef = useRef<THREE.Group>(null);
 
-  // Astronaut Shader (Decoding Light/Shadow maps)
+  // Astronaut Shader
   const shaderMaterialPerson = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
@@ -52,20 +58,16 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
         varying vec2 vUv;
         void main() {
           vec4 texColor = texture2D(uTexture, vUv);
-          // Green channel seems to be the primary light highlight
-          float light = texColor.g;
-          
-          // Pure cinematic grayscale lighting
-          vec3 baseColor = vec3(0.2); 
-          vec3 finalColor = baseColor + vec3(0.9) * light;
-          
+          // Convert the colorful baked lightmap to pure cinematic grayscale
+          float lum = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
+          vec3 finalColor = vec3(lum * 1.2); 
           gl_FragColor = vec4(finalColor, 1.0);
         }
       `,
     });
   }, [personTexture]);
 
-  // Terrain Shader (Decoding Shadow/Light/Height maps)
+  // Terrain Shader
   const shaderMaterialTerrain = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
@@ -83,24 +85,20 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
         varying vec2 vUv;
         void main() {
           vec4 texColor = texture2D(uTexture, vUv);
-          // R = shadow, G = light, B = height
-          float shadow = texColor.r;
-          float light = texColor.g;
+          // Convert the terrain map to grayscale. This perfectly captures the baked highlights on the ridges!
+          float lum = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
           
-          // Dark moody base terrain
-          vec3 baseColor = vec3(0.02);
-          vec3 litColor = baseColor + vec3(0.8) * light;
+          // Boost contrast for that dramatic, moody look
+          lum = pow(lum, 1.2);
+          vec3 finalColor = vec3(lum * 1.8);
           
-          // Apply harsh dramatic shadow
-          litColor *= (1.0 - shadow * 0.85);
-          
-          gl_FragColor = vec4(litColor, 1.0);
+          gl_FragColor = vec4(finalColor, 1.0);
         }
       `,
     });
   }, [terrainTexture]);
 
-  // Rocks Shader
+  // Debris Shader (Rocks and Spheres)
   const shaderMaterialRocks = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
@@ -118,11 +116,13 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
         varying vec2 vUv;
         void main() {
           vec4 texColor = texture2D(uTexture, vUv);
-          float light = texColor.g;
-          vec3 finalColor = vec3(0.05) + vec3(0.9) * light;
+          float lum = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
+          // Make debris incredibly bright to simulate the glowing meteor core
+          vec3 finalColor = vec3(lum * 2.5 + 0.2);
           gl_FragColor = vec4(finalColor, 1.0);
         }
       `,
+      side: THREE.DoubleSide
     });
   }, [rocksTexture]);
 
@@ -132,7 +132,7 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
     // Slow cinematic panning
     pointsRef.current.rotation.y = Math.sin(_.clock.elapsedTime * 0.1) * 0.05;
     
-    // Animate floating rocks swirling upwards
+    // Animate floating debris swirling upwards
     if (rocksRef.current) {
         rocksRef.current.rotation.y -= delta * 0.05;
         rocksRef.current.position.y = Math.sin(_.clock.elapsedTime * 0.2) * 0.5;
@@ -144,25 +144,27 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
     }
   });
 
-  // Generate an epic spiraling cone of rocks
+  // Generate an epic spiraling cone of rocks AND spheres to replace the fake Meteor
   const rockPlacements = useMemo(() => {
       const arr = [];
-      for(let i=0; i<60; i++) { // More dense rock swarm
-          const type = i % 3;
+      for(let i=0; i<200; i++) { // Massive dense debris swarm!
+          const type = i % 8; // 0-3 are rocks, 4-7 are spheres
           
-          const progress = i / 60; // 0 to 1
-          const y = 1.5 + progress * 15; // Rising up to the meteor
-          const radius = 1.0 + progress * 8.0; // Cone opening up
-          const angle = progress * Math.PI * 12; // Spiraling tightly
+          const progress = i / 200; // 0 to 1
+          const y = 1.5 + progress * 20; // Rising high into the beam
+          const radius = 0.5 + progress * 6.0; // Cone opening up
+          const angle = progress * Math.PI * 24; // Spiraling very tightly
           
-          const offset = Math.random() * 2.5;
+          const offset = Math.random() * 3.0;
           const x = Math.cos(angle) * (radius + offset);
           const z = Math.sin(angle) * (radius + offset);
           
           const rotX = Math.random() * Math.PI;
           const rotY = Math.random() * Math.PI;
           const rotZ = Math.random() * Math.PI;
-          const scale = 0.2 + Math.random() * 0.6; // Smaller, realistic debris
+          
+          let scale = 0.1 + Math.random() * 0.4;
+          if (type >= 4) scale *= 2.0; // Make spheres slightly larger
           
           arr.push({ type, x, y, z, rotX, rotY, rotZ, scale });
       }
@@ -172,12 +174,17 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
   return (
     <group ref={pointsRef} position={[0, -1.0, 0]}>
 
-      {/* Epic Floating Rock Swarm */}
+      {/* Epic Debris Swarm (Replaces EnergyMeteor) */}
       <group ref={rocksRef}>
           {rockPlacements.map((pos, i) => {
-              let geo = rock1Geometry;
-              if (pos.type === 1) geo = rock2Geometry;
-              if (pos.type === 2) geo = rock3Geometry;
+              let geo = rock0Geometry;
+              if (pos.type === 1) geo = rock1Geometry;
+              if (pos.type === 2) geo = rock2Geometry;
+              if (pos.type === 3) geo = rock3Geometry;
+              if (pos.type === 4) geo = sphereLGeometry;
+              if (pos.type === 5) geo = sphereMGeometry;
+              if (pos.type === 6) geo = sphereSGeometry;
+              if (pos.type === 7) geo = sphereXsGeometry;
 
               if (!geo) return null;
               
@@ -204,14 +211,12 @@ function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light',
         <meshBasicMaterial color="#ffffff" transparent opacity={0.05} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
 
-      <EnergyMeteor />
-
       {/* Solid Astronaut with Lighting Map */}
       {personGeometry && (
         <mesh geometry={personGeometry} material={shaderMaterialPerson} scale={[1, 1, 1]} position={[0, 0, 0]} />
       )}
 
-      {/* Massive Terrain with Shadow/Height Map */}
+      {/* Massive Terrain with Vertex Displacement and Shadow/Height Map */}
       {terrainGeometry && (
         <mesh geometry={terrainGeometry} material={shaderMaterialTerrain} scale={[1.5, 1.5, 1.5]} position={[0, 0, 0]} />
       )}
@@ -350,6 +355,17 @@ function EnergyMeteor() {
  * Custom scrollbar-less camera rig.
  */
 function CameraRig({ scrollProgress }: { scrollProgress: { current: number } }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    // Cinematic telephoto lens! 
+    // This flattens perspective and makes the terrain feel massive and imposing.
+    if (camera instanceof THREE.PerspectiveCamera) {
+      camera.fov = 45;
+      camera.updateProjectionMatrix();
+    }
+  }, [camera]);
+
   useFrame((state) => {
     const r = scrollProgress.current; // 0 to 1
     
