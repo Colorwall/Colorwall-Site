@@ -7,72 +7,100 @@ import * as THREE from 'three';
 import { useLusionGeometry } from './useLusionGeometry';
 import { useTexture } from '@react-three/drei';
 
-function LusionMeshes({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
-  // Decode the completely proprietary binary format!
+function RealParticleField({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
   const personGeometry = useLusionGeometry('/lusion-assets/person.buf');
   const terrainGeometry = useLusionGeometry('/lusion-assets/terrain.buf');
 
-  // Load the webp textures
   const personTexture = useTexture('/lusion-assets/person_light.webp');
   const terrainTexture = useTexture('/lusion-assets/terrain_shadow_light_height.webp');
 
-  // The textures might need to be flipped vertically depending on how Lusion exported them
-  personTexture.flipY = false;
-  terrainTexture.flipY = false;
-  personTexture.colorSpace = THREE.SRGBColorSpace;
-  terrainTexture.colorSpace = THREE.SRGBColorSpace;
+  const pointsRef = useRef<THREE.Group>(null);
 
-  const meshRef = useRef<THREE.Group>(null);
+  // Astronaut Point Shader
+  const shaderMaterialPerson = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: personTexture },
+        uOpacity: { value: 1.0 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          // Significantly larger point size so they merge into a "solid" shell
+          gl_PointSize = 15.0 * (1.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          // If the texture is dark, discard it so we don't draw black squares
+          if (texColor.a < 0.1) discard;
+          gl_FragColor = vec4(texColor.rgb, texColor.a * uOpacity);
+        }
+      `,
+      transparent: true,
+      blending: THREE.NormalBlending, // Normal blending looks more solid than additive
+      depthWrite: false,
+    });
+  }, [personTexture]);
+
+  // Terrain Point Shader
+  const shaderMaterialTerrain = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: terrainTexture },
+        uOpacity: { value: 0.8 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = 8.0 * (1.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec4 texColor = texture2D(uTexture, vUv);
+          gl_FragColor = vec4(texColor.rgb, texColor.a * uOpacity);
+        }
+      `,
+      transparent: true,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+  }, [terrainTexture]);
 
   useFrame((_, delta) => {
-    if (!meshRef.current) return;
+    if (!pointsRef.current) return;
     
-    // The user mentioned it "doesn't stay on ground". 
-    // This is because we're rotating the whole group! We should stop rotating it.
-    // Let's just slightly gently float the astronaut instead.
-    const time = _.clock.elapsedTime;
-    if (meshRef.current.children[0]) {
-      // Gentle floating animation for the astronaut
-      meshRef.current.children[0].position.y = Math.sin(time * 2) * 0.1;
-    }
+    // Very slow panning of the entire environment
+    pointsRef.current.rotation.y = Math.sin(_.clock.elapsedTime * 0.1) * 0.05;
     
-    // We can also apply the opacity fade as we zoom out
     const r = scrollProgress.current;
-    meshRef.current.children.forEach(child => {
-        if (child instanceof THREE.Mesh) {
-            const mat = child.material as THREE.MeshBasicMaterial;
-            if (mat && mat.opacity !== undefined) {
-                // Approximate a fade base on the original opacities
-                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 1 - r * 0.8, 0.1);
-            }
-        }
-    });
+    shaderMaterialPerson.uniforms.uOpacity.value = 1.0 - (r * 0.8);
+    shaderMaterialTerrain.uniforms.uOpacity.value = 0.8 - (r * 0.5);
   });
 
   return (
-    <group ref={meshRef} position={[0, -2, 0]}>
-      {/* Astronaut Mesh */}
+    <group ref={pointsRef} position={[0, -0.5, 0]}>
+      {/* Scale is 1x so they sit accurately in world space! */}
       {personGeometry && (
-        <mesh geometry={personGeometry} scale={[5, 5, 5]} position={[0, 0, 0]}>
-          <meshBasicMaterial 
-            map={personTexture} 
-            transparent={true} 
-            opacity={1.0}
-            depthWrite={true}
-          />
-        </mesh>
+        <points geometry={personGeometry} material={shaderMaterialPerson} scale={[1, 1, 1]} position={[0, 0, 0]} />
       )}
 
-      {/* Terrain Mesh */}
       {terrainGeometry && (
-        <mesh geometry={terrainGeometry} scale={[5, 5, 5]} position={[0, 0, 0]}>
-          <meshBasicMaterial 
-            map={terrainTexture} 
-            transparent={true}
-            opacity={0.8}
-            depthWrite={false}
-          />
-        </mesh>
+        <points geometry={terrainGeometry} material={shaderMaterialTerrain} scale={[1, 1, 1]} position={[0, 0, 0]} />
       )}
     </group>
   );
@@ -108,7 +136,7 @@ export function WebGLAboutScene({ theme, scrollProgress }: { theme: 'dark' | 'li
     <>
       <fog attach="fog" args={[theme === 'dark' ? '#080809' : '#f8fafc', 5, 30]} />
       <CameraRig scrollProgress={scrollProgress} />
-      <LusionMeshes theme={theme} scrollProgress={scrollProgress} />
+      <RealParticleField theme={theme} scrollProgress={scrollProgress} />
     </>
   );
 }
