@@ -31,9 +31,10 @@ void main() {
   float scatter = getScatter(cameraPosition, v_worldPosition);
   // Keep volumetric beam above the astronaut — no ground-level whiteout
   float heightFade = smoothstep(1.5, 7.0, v_worldPosition.y);
-  scatter *= u_sceneRatio * (1.0 - u_hudRatio) * 0.35 * heightFade;
-  scatter += noise.r * 0.001;
-  gl_FragColor = vec4(vec3(scatter), scatter * 0.25);
+  scatter *= u_sceneRatio * (1.0 - u_hudRatio) * 0.12 * heightFade;
+  scatter = min(scatter, 0.18);
+  scatter += noise.r * 0.0005;
+  gl_FragColor = vec4(vec3(scatter), scatter * 0.15);
 }
 `;
 

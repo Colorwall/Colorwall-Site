@@ -4,9 +4,7 @@ import { useRef, useMemo, useEffect, useLayoutEffect, type MutableRefObject } fr
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTexture, useFBO } from '@react-three/drei';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { SelectiveBloomPipeline } from './components/SelectiveBloomPipeline';
 
 import {
   useLusionGeometry,
@@ -29,6 +27,7 @@ import { AboutFog } from './components/AboutFog';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
+const PARTICLE_FOCUS = new THREE.Vector3(0, 7.5, 0);
 
 function CameraRig({
   scrollProgress,
@@ -38,29 +37,29 @@ function CameraRig({
   spline: NonNullable<ReturnType<typeof useCameraSpline>>;
 }) {
   const smoothPos = useMemo(() => new THREE.Vector3(0, 7.3, -5), []);
-  const smoothQuat = useMemo(() => new THREE.Quaternion(), []);
+  const smoothLook = useMemo(() => new THREE.Vector3(0, 7.3, 4), []);
   const initialized = useRef(false);
-  // Lusion spline forward is +Z; Three.js camera looks down -Z.
-  const cameraOffset = useMemo(
-    () => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI),
-    [],
-  );
 
   useFrame((state) => {
     const phases = getScrollPhases(scrollProgress.current);
-    const { position, quaternion } = sampleSpline(spline, phases.splineT);
+    const { position, lookAt } = sampleSpline(spline, phases.splineT);
 
     if (!initialized.current) {
       smoothPos.copy(position);
-      smoothQuat.copy(quaternion);
+      smoothLook.copy(lookAt);
       initialized.current = true;
     }
 
     const follow = getCameraFollowStrength(phases.initialSplineRatio);
     smoothPos.lerp(position, follow);
-    smoothQuat.slerp(quaternion, follow);
+    smoothLook.lerp(lookAt, follow);
+
+    // Drone view: frame the particle burst above the light as the hero focal point
+    const focusT = THREE.MathUtils.smoothstep(phases.initialSplineRatio, 0.02, 0.55);
+    smoothLook.lerp(PARTICLE_FOCUS, focusT * 0.72);
+
     state.camera.position.copy(smoothPos);
-    state.camera.quaternion.copy(smoothQuat).multiply(cameraOffset);
+    state.camera.lookAt(smoothLook);
 
     if (state.camera instanceof THREE.PerspectiveCamera) {
       const dolly = THREE.MathUtils.smoothstep(phases.initialSplineRatio, 0.4, 0.8);
@@ -68,45 +67,6 @@ function CameraRig({
       state.camera.updateProjectionMatrix();
     }
   });
-  return null;
-}
-
-function BloomPipeline({ scrollProgress }: { scrollProgress: { current: number } }) {
-  const { gl, scene, camera, size } = useThree();
-  const composer = useRef<EffectComposer | null>(null);
-
-  useLayoutEffect(() => {
-    const comp = new EffectComposer(gl);
-    comp.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(size.width, size.height), 3, 0.25, 0.8);
-    comp.addPass(bloom);
-    composer.current = comp;
-
-    return () => {
-      comp.dispose();
-    };
-  }, [gl, scene, camera, size.width, size.height]);
-
-  useLayoutEffect(() => {
-    composer.current?.setSize(size.width, size.height);
-  }, [size.width, size.height]);
-
-  useFrame(() => {
-    if (!composer.current) return;
-    const scroll = scrollProgress.current;
-    const intro = Math.min(scroll / 0.85, 1);
-    const hud = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
-
-    let bloomAmount = THREE.MathUtils.lerp(1.8, 1.5, THREE.MathUtils.smoothstep(intro, 0.1, 0.85));
-    if (intro > 0.85) bloomAmount = THREE.MathUtils.lerp(bloomAmount, 10, (intro - 0.85) / 0.15);
-    bloomAmount = THREE.MathUtils.lerp(bloomAmount, 12.5, hud * 0.5);
-
-    const bloomPass = composer.current.passes[1] as UnrealBloomPass;
-    bloomPass.strength = bloomAmount;
-    bloomPass.threshold = THREE.MathUtils.lerp(0.97, 0.82, intro);
-    composer.current.render();
-  }, 1);
-
   return null;
 }
 
@@ -571,7 +531,7 @@ export function WebGLAboutScene({
       <fog attach="fog" args={['#000000', 15, 90]} />
 
       {spline && <CameraRig scrollProgress={scrollProgress} spline={spline} />}
-      <BloomPipeline scrollProgress={scrollProgress} />
+      <SelectiveBloomPipeline scrollProgress={scrollProgress} />
       <GroundShadowPass shared={shared} groundShadowRef={groundShadowRef} />
 
       {terrainGeometry && (
