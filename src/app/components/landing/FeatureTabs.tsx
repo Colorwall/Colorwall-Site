@@ -89,9 +89,9 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                     style={{ maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)" }}
                 >
                     <SideRays 
-                        speed={0.5}
-                        rayColor1={theme === 'dark' ? '#178be4ff' : '#ffffff'} // Soft Violet to match waves
-                        rayColor2={theme === 'dark' ? '#cc3131ff' : '#cbd5e1'} // Cyan to match waves
+                        speed={1.5}
+                        rayColor1={theme === 'dark' ? '#00d8ff' : '#0ea5e9'} // Electric Cyan
+                        rayColor2={theme === 'dark' ? '#6d28d9' : '#8b5cf6'} // Deep Violet
                         intensity={theme === 'dark' ? 2.5 : 1.5}
                         spread={2.5}
                         origin="top-right"
@@ -133,11 +133,8 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                                 <button
                                     key={feature.id}
                                     onClick={() => setActiveTab(idx)}
-                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group overflow-hidden
-                                        ${isActive 
-                                            ? (theme === "dark" ? "bg-white/5" : "bg-black/5") 
-                                            : ""
-                                        }
+                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
+                                        ${isActive ? (theme === 'dark' ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'shadow-[0_0_40px_rgba(0,0,0,0.05)]') : ''}
                                     `}
                                 >
                                     {isActive && (

@@ -164,7 +164,7 @@ void main() {
   vec4 color = rays1 * (1.0 - iBlend) * 0.9 + rays2 * iBlend * 0.9;
 
   float distanceToLight = length(fragCoord.xy - vec2(rayPos.x, iResolution.y - rayPos.y)) / iResolution.y;
-  float brightness = iIntensity * 0.4 / pow(max(distanceToLight, 0.001), iFalloff);
+  float brightness = iIntensity * 0.4 / pow(max(distanceToLight, 0.08), iFalloff);
   color.rgb *= brightness;
 
   float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
