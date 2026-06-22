@@ -56,7 +56,6 @@ function SceneText({ theme }: { theme: 'dark' | 'light' }) {
       <Text
         position={[0, 1.5, 0]}
         fontSize={fontSize}
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2"
         color={theme === 'dark' ? '#ffffff' : '#000000'}
         anchorX="center"
         anchorY="middle"
@@ -68,7 +67,6 @@ function SceneText({ theme }: { theme: 'dark' | 'light' }) {
       <Text
         position={[0, -1.5, 0]}
         fontSize={fontSize}
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2"
         color={theme === 'dark' ? '#ffffff' : '#000000'}
         anchorX="center"
         anchorY="middle"
