@@ -6,6 +6,7 @@ import Image from "next/image";
 import { GradientHeading } from "./GradientHeading";
 import ShapeBlur from "../ui/ShapeBlur";
 import BorderGlow from "../ui/BorderGlow";
+import SideRays from "../ui/SideRays";
 
 interface Feature {
     id: string;
@@ -60,7 +61,7 @@ const features: Feature[] = [
     }
 ];
 
-export const FeatureTabs = ({ theme }: { theme: "dark" | "light" }) => {
+export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" | "light", enableSideRays?: boolean }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
     
@@ -81,8 +82,25 @@ export const FeatureTabs = ({ theme }: { theme: "dark" | "light" }) => {
     }, [activeTab]);
 
     return (
-        <section className="py-16 sm:py-24 px-4 sm:px-8 w-full max-w-[1400px] mx-auto min-h-[80vh] flex items-center">
-            <div className="grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 w-full items-center">
+        <section className="relative py-16 sm:py-24 px-4 sm:px-8 w-full max-w-[1400px] mx-auto min-h-[80vh] flex items-center">
+            {enableSideRays && (
+                <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[100vw] z-0 pointer-events-none">
+                    <SideRays 
+                        speed={1.5}
+                        rayColor1={theme === 'dark' ? '#ffffff' : '#f8fafc'}
+                        rayColor2={theme === 'dark' ? '#e2e8f0' : '#cbd5e1'}
+                        intensity={theme === 'dark' ? 2.5 : 1.5}
+                        spread={1.5}
+                        origin="top-right"
+                        tilt={-5}
+                        saturation={theme === 'dark' ? 1.0 : 1.0}
+                        blend={0.5}
+                        falloff={0.6}
+                        opacity={1.0}
+                    />
+                </div>
+            )}
+            <div className="relative z-10 grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 w-full items-center">
                 
                 {/* Left Side: Tabs Navigation */}
                 <div className="flex flex-col gap-4">
