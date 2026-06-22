@@ -45,7 +45,8 @@ const CHUNKS: Record<string, string> = {
   // Lusion encodes luminance in .r and depth in .g for post-processing.
   aboutHeroVisualFinal_frag: 'gl_FragColor.rgb = vec3(gl_FragColor.r);',
   // Particle bloom pass — bright luma only, no scatter bleed
-  particleBloomFinal_frag: 'float luma = mix(gl_FragColor.r, 1.0, u_emissiveRatio * 0.85); gl_FragColor = vec4(vec3(luma * 2.4), 1.0);',
+  particleBloomFinal_frag:
+    'float luma = mix(gl_FragColor.r, 1.0, u_emissiveRatio * 0.55); gl_FragColor = vec4(vec3(luma * 2.1), 1.0);',
 };
 
 export function buildShader(source: string, defines: Record<string, string | number> = {}) {
@@ -91,7 +92,13 @@ export const SHADERS = {
   shadowFrag: extracted.shadowFrag,
   groundShadowFrag: extracted['frag$b'],
   particleVert: extracted['vert$9'],
+  // Base pass — visible particle bodies (matches Lusion frag$d output)
   particleFrag: extracted['frag$d']
+    .replace('shade+=getScatter(cameraPosition,v_worldPosition)*1.35;', '')
+    .replace('#include <aboutHeroVisualFinal_frag>', '#include <aboutHeroVisualFinal_frag>'),
+  // Bloom mask pass — bright cores only
+  particleFragBloom: extracted['frag$d']
+    .replace('vec3 noise=getBlueNoise(gl_FragCoord.xy);', 'vec3 noise=vec3(0.5);')
     .replace('shade+=getScatter(cameraPosition,v_worldPosition)*1.35;', '')
     .replace('#include <aboutHeroVisualFinal_frag>', '#include <particleBloomFinal_frag>'),
 };

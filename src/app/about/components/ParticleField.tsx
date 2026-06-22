@@ -13,7 +13,6 @@ import { BLOOM_LAYER } from '../layers';
 
 const SIM_W = 128;
 const SIM_H = 192;
-const LIGHT = new THREE.Vector3(0, 8, 0);
 
 function createDefaultSimTexture() {
   const count = SIM_W * SIM_H;
@@ -56,35 +55,13 @@ function buildSimUvs() {
   return { column, emissive };
 }
 
-const CORE_VERT = `
-attribute vec3 simUv;
-uniform sampler2D u_simCurrPosLifeTexture;
-uniform float u_isEmissive;
-uniform float u_sceneHideRatio;
-varying float v_brightness;
-void main() {
-  vec4 info = texture2D(u_simCurrPosLifeTexture, simUv.xy);
-  float life = smoothstep(0.0, 0.1, info.w) * smoothstep(1.0, 0.9, info.w);
-  float size = mix(0.05, 0.14, u_isEmissive) * life * (1.0 - u_sceneHideRatio);
-  vec3 pos = position * size + info.xyz;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  v_brightness = life;
-}
-`;
-
-const CORE_FRAG = `
-varying float v_brightness;
-void main() {
-  float luma = v_brightness * 0.35;
-  gl_FragColor = vec4(vec3(luma), luma);
-}
-`;
-
 function makeParticleMaterial(
   shared: ReturnType<typeof useAboutUniforms>['uniforms'],
   simTex: THREE.Texture,
   isEmissive: number,
   lightFieldTex: THREE.Texture,
+  fragmentKey: 'particleFrag' | 'particleFragBloom',
+  bloomPass = false,
 ) {
   return new THREE.ShaderMaterial({
     uniforms: {
@@ -106,10 +83,11 @@ function makeParticleMaterial(
       u_blueNoiseCoordOffset: shared.u_blueNoiseCoordOffset,
     },
     vertexShader: buildShader(SHADERS.particleVert),
-    fragmentShader: buildShader(SHADERS.particleFrag),
-    depthWrite: true,
-    depthTest: true,
-    transparent: false,
+    fragmentShader: buildShader(SHADERS[fragmentKey]),
+    depthWrite: !bloomPass,
+    depthTest: !bloomPass,
+    transparent: bloomPass,
+    blending: bloomPass ? THREE.AdditiveBlending : THREE.NormalBlending,
   });
 }
 
@@ -164,50 +142,22 @@ export function ParticleField({
 
   const columnGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
   const emissiveGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
-  const coreColumnGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
-  const coreEmissiveGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
 
-  const columnMat = useMemo(
-    () => makeParticleMaterial(shared, currFbo.texture, 0, lightFieldTex),
+  const baseColumnMat = useMemo(
+    () => makeParticleMaterial(shared, currFbo.texture, 0, lightFieldTex, 'particleFrag'),
     [shared, currFbo.texture, lightFieldTex],
   );
-  const emissiveMat = useMemo(
-    () => makeParticleMaterial(shared, currFbo.texture, 1, lightFieldTex),
+  const baseEmissiveMat = useMemo(
+    () => makeParticleMaterial(shared, currFbo.texture, 1, lightFieldTex, 'particleFrag'),
     [shared, currFbo.texture, lightFieldTex],
   );
-
-  const coreColumnMat = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        uniforms: {
-          u_simCurrPosLifeTexture: { value: currFbo.texture },
-          u_isEmissive: { value: 0 },
-          u_sceneHideRatio: { value: 0 },
-        },
-        vertexShader: CORE_VERT,
-        fragmentShader: CORE_FRAG,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    [currFbo.texture],
+  const bloomColumnMat = useMemo(
+    () => makeParticleMaterial(shared, currFbo.texture, 0, lightFieldTex, 'particleFragBloom', true),
+    [shared, currFbo.texture, lightFieldTex],
   );
-
-  const coreEmissiveMat = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        uniforms: {
-          u_simCurrPosLifeTexture: { value: currFbo.texture },
-          u_isEmissive: { value: 1 },
-          u_sceneHideRatio: { value: 0 },
-        },
-        vertexShader: CORE_VERT,
-        fragmentShader: CORE_FRAG,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    [currFbo.texture],
+  const bloomEmissiveMat = useMemo(
+    () => makeParticleMaterial(shared, currFbo.texture, 1, lightFieldTex, 'particleFragBloom', true),
+    [shared, currFbo.texture, lightFieldTex],
   );
 
   useLayoutEffect(() => {
@@ -221,7 +171,7 @@ export function ParticleField({
   useLayoutEffect(() => {
     const sphere = sphereM || sphereL;
     if (!sphere) return;
-    for (const geo of [columnGeo, emissiveGeo, coreColumnGeo, coreEmissiveGeo]) {
+    for (const geo of [columnGeo, emissiveGeo]) {
       if (sphere.index) geo.setIndex(sphere.index);
       for (const name in sphere.attributes) {
         geo.setAttribute(name, sphere.attributes[name]);
@@ -229,16 +179,16 @@ export function ParticleField({
     }
     columnGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.column, 2));
     emissiveGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.emissive, 2));
-    coreColumnGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.column, 2));
-    coreEmissiveGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.emissive, 2));
-  }, [sphereL, sphereM, columnGeo, emissiveGeo, coreColumnGeo, coreEmissiveGeo, simUvs]);
+  }, [sphereL, sphereM, columnGeo, emissiveGeo, simUvs]);
 
   const initialized = useRef(false);
-  const bloomRef = useRef<THREE.InstancedMesh>(null);
+  const bloomColumnRef = useRef<THREE.InstancedMesh>(null);
   const bloomEmissiveRef = useRef<THREE.InstancedMesh>(null);
   const layersSet = useRef(false);
 
   useFrame(({ gl }, delta) => {
+    const dt = Math.min(delta, 0.033);
+
     if (!initialized.current) {
       initialized.current = true;
       simMaterial.uniforms.u_simPrevPosLifeTexture.value = defaultSim;
@@ -249,11 +199,12 @@ export function ParticleField({
     const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.75;
     const hideRatio = THREE.MathUtils.smoothstep(intro, 0.85, 1);
 
-    noiseTime.current += delta * 0.4;
-    noiseScaleTime.current += delta;
+    noiseTime.current += dt * 0.4;
+    noiseScaleTime.current += dt;
     simMaterial.uniforms.u_noiseTime.value = noiseTime.current;
-    simMaterial.uniforms.u_noiseScale.value = 10 * Math.abs(Math.sin(noiseScaleTime.current * 0.7));
-    simMaterial.uniforms.u_introDeltaTime.value = delta;
+    simMaterial.uniforms.u_noiseScale.value =
+      7.5 + 2.5 * (0.5 + 0.5 * Math.sin(noiseScaleTime.current * 0.7));
+    simMaterial.uniforms.u_introDeltaTime.value = dt;
     simMaterial.uniforms.u_noiseStableFactor.value = shared.u_noiseStableFactor.value;
 
     const read = swap.current ? currFbo : prevFbo;
@@ -269,27 +220,23 @@ export function ParticleField({
     gl.setRenderTarget(prevTarget);
 
     const simTex = write.texture;
-    for (const mat of [columnMat, emissiveMat, coreColumnMat, coreEmissiveMat]) {
+    for (const mat of [baseColumnMat, baseEmissiveMat, bloomColumnMat, bloomEmissiveMat]) {
       mat.uniforms.u_simCurrPosLifeTexture.value = simTex;
-    }
-    for (const mat of [columnMat, emissiveMat]) {
       mat.uniforms.u_emissiveRatio.value = emissiveRatio;
       mat.uniforms.u_sceneHideRatio.value = hideRatio;
       mat.uniforms.u_noiseStableFactor.value = shared.u_noiseStableFactor.value;
       mat.uniforms.u_lightScatterPowInv.value = shared.u_lightScatterPowInv.value;
       mat.uniforms.u_lightScatterRatio.value = shared.u_lightScatterRatio.value;
     }
-    coreColumnMat.uniforms.u_sceneHideRatio.value = hideRatio;
-    coreEmissiveMat.uniforms.u_sceneHideRatio.value = hideRatio;
 
-    if (!layersSet.current && bloomRef.current && bloomEmissiveRef.current) {
-      for (const mesh of [bloomRef.current, bloomEmissiveRef.current]) {
+    if (!layersSet.current && bloomColumnRef.current && bloomEmissiveRef.current) {
+      for (const mesh of [bloomColumnRef.current, bloomEmissiveRef.current]) {
         mesh.layers.disable(0);
         mesh.layers.enable(BLOOM_LAYER);
       }
       layersSet.current = true;
     }
-  });
+  }, -1);
 
   if (!sphereL && !sphereM) return null;
 
@@ -297,30 +244,30 @@ export function ParticleField({
   const emissiveCount = SIM_H;
 
   return (
-    <group position={LIGHT}>
-      {/* Dim cores — visible in base pass */}
+    <group>
+      {/* Base pass — always visible like Lusion */}
       <instancedMesh
-        args={[coreColumnGeo, coreColumnMat, columnCount]}
+        args={[columnGeo, baseColumnMat, columnCount]}
         frustumCulled={false}
-        renderOrder={4}
+        renderOrder={5}
       />
       <instancedMesh
-        args={[coreEmissiveGeo, coreEmissiveMat, emissiveCount]}
+        args={[emissiveGeo, baseEmissiveMat, emissiveCount]}
         frustumCulled={false}
-        renderOrder={4}
+        renderOrder={5}
       />
-      {/* Lusion particle shaders — bloom layer only */}
+      {/* Bloom mask — additive glow, no depth fight */}
       <instancedMesh
-        ref={bloomRef}
-        args={[columnGeo, columnMat, columnCount]}
+        ref={bloomColumnRef}
+        args={[columnGeo, bloomColumnMat, columnCount]}
         frustumCulled={false}
-        renderOrder={6}
+        renderOrder={7}
       />
       <instancedMesh
         ref={bloomEmissiveRef}
-        args={[emissiveGeo, emissiveMat, emissiveCount]}
+        args={[emissiveGeo, bloomEmissiveMat, emissiveCount]}
         frustumCulled={false}
-        renderOrder={6}
+        renderOrder={7}
       />
     </group>
   );
