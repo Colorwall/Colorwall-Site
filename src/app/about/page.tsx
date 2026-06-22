@@ -1,38 +1,49 @@
 'use client';
 
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { useScroll } from '@react-three/drei';
+import { useTheme } from "@/app/contexts/ThemeContext";
+import { Canvas } from '@react-three/fiber';
+import { Environment } from '@react-three/drei';
+import { WebGLAboutScene } from "./WebGLScene";
+import { useState, useEffect, useRef } from "react";
 
 function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const aboutMeRef = useRef<HTMLDivElement>(null);
   const colorwallRef = useRef<HTMLDivElement>(null);
 
-  useFrame(() => {
-    if (!heroRef.current || !aboutMeRef.current || !colorwallRef.current) return;
-    const r = scrollProgress.current; // 0 to 1
+  useEffect(() => {
+    let animationFrameId: number;
+    
+    const renderLoop = () => {
+      if (!heroRef.current || !aboutMeRef.current || !colorwallRef.current) return;
+      const r = scrollProgress.current; // 0 to 1
 
-    // Phase 1: Hero (0.0 to 0.3)
-    const heroOpacity = Math.max(0, 1 - (r / 0.25));
-    heroRef.current.style.opacity = `${heroOpacity}`;
-    heroRef.current.style.transform = `translateY(${r * 50}px)`;
+      // Phase 1: Hero (0.0 to 0.3)
+      const heroOpacity = Math.max(0, 1 - (r / 0.25));
+      heroRef.current.style.opacity = `${heroOpacity}`;
+      heroRef.current.style.transform = `translateY(${r * 50}px)`;
 
-    // Phase 2: About Me (0.3 to 0.6)
-    let aboutOpacity = 0;
-    if (r > 0.25 && r < 0.65) {
-      if (r < 0.35) aboutOpacity = (r - 0.25) / 0.1;
-      else if (r > 0.55) aboutOpacity = 1 - ((r - 0.55) / 0.1);
-      else aboutOpacity = 1;
-    }
-    aboutMeRef.current.style.opacity = `${aboutOpacity}`;
-    aboutMeRef.current.style.transform = `translateY(${(0.45 - r) * 50}px)`;
+      // Phase 2: About Me (0.3 to 0.6)
+      let aboutOpacity = 0;
+      if (r > 0.25 && r < 0.65) {
+        if (r < 0.35) aboutOpacity = (r - 0.25) / 0.1;
+        else if (r > 0.55) aboutOpacity = 1 - ((r - 0.55) / 0.1);
+        else aboutOpacity = 1;
+      }
+      aboutMeRef.current.style.opacity = `${aboutOpacity}`;
+      aboutMeRef.current.style.transform = `translateY(${(0.45 - r) * 50}px)`;
 
-    // Phase 3: ColorWall (0.6 to 1.0)
-    const cwOpacity = Math.max(0, Math.min(1, (r - 0.6) / 0.1));
-    colorwallRef.current.style.opacity = `${cwOpacity}`;
-    colorwallRef.current.style.transform = `translateY(${(0.8 - r) * 50}px)`;
-  });
+      // Phase 3: ColorWall (0.6 to 1.0)
+      const cwOpacity = Math.max(0, Math.min(1, (r - 0.6) / 0.1));
+      colorwallRef.current.style.opacity = `${cwOpacity}`;
+      colorwallRef.current.style.transform = `translateY(${(0.8 - r) * 50}px)`;
+      
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+    
+    renderLoop();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [scrollProgress]);
 
   return (
     <div className="relative h-screen w-full overflow-hidden pointer-events-none">
@@ -87,12 +98,6 @@ export function AboutContent({ theme, scrollProgress }: { theme: 'dark' | 'light
   );
 }
 
-import { useTheme } from "@/app/contexts/ThemeContext";
-import { Canvas } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
-import { WebGLAboutScene } from "./WebGLScene";
-import { useState, useEffect } from "react";
-
 export default function AboutPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -130,11 +135,11 @@ export default function AboutPage() {
                 {/* 3D Scene */}
                 <WebGLAboutScene theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
                 
-                {/* DOM Overlay handled as a native R3F child via custom update loop */}
-                <AboutContent theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
-                
                 <Environment preset={isDark ? "city" : "studio"} />
             </Canvas>
+
+            {/* DOM Overlay correctly placed OUTSIDE the WebGL Canvas in the standard DOM tree */}
+            <AboutContent theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
 
             {/* A tiny minimalist return button */}
             <a 
