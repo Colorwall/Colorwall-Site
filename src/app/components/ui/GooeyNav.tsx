@@ -5,7 +5,7 @@ import Link from 'next/link';
 interface GooeyNavItem {
   label: string;
   href: string;
-  icon?: React.ElementType;
+  icon?: React.ComponentType<{ size?: number; strokeWidth?: number }>;
 }
 
 export interface GooeyNavProps {
@@ -81,7 +81,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         setTimeout(() => {
           try {
             element.removeChild(particle);
-          } catch {}
+          } catch { }
         }, t);
       }, 30);
     }
@@ -303,9 +303,8 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             {items.map((item, index) => (
               <li
                 key={index}
-                className={`rounded-full relative cursor-pointer transition-[background-color_color_box-shadow] duration-300 ease shadow-[0_0_0.5px_1.5px_transparent] text-white ${
-                  activeIndex === index ? 'active' : ''
-                }`}
+                className={`rounded-full relative cursor-pointer transition-[background-color_color_box-shadow] duration-300 ease shadow-[0_0_0.5px_1.5px_transparent] text-white ${activeIndex === index ? 'active' : ''
+                  }`}
               >
                 <Link
                   href={item.href}

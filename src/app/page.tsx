@@ -21,6 +21,7 @@ const LineWaves = dynamic(() => import("@/app/components/ui/LineWaves"), {
 const LightPillar = dynamic(() => import("@/app/components/ui/LightPillar"), {
     ssr: false,
 });
+
 import { GradientHeading } from "./components/landing/GradientHeading";
 
 export default function ColorWallLanding() {
@@ -105,6 +106,7 @@ export default function ColorWallLanding() {
             <SecurityReport theme={theme} className="py-24" />
 
             <FAQSection theme={theme} />
+
 
             {/* <BottomCTA theme={theme} /> */}
 

@@ -372,7 +372,6 @@ const LightPillar: React.FC<LightPillarProps> = ({
       }
       if (rendererRef.current) {
         rendererRef.current.dispose();
-        rendererRef.current.forceContextLoss();
         if (container.contains(rendererRef.current.domElement)) {
           container.removeChild(rendererRef.current.domElement);
         }

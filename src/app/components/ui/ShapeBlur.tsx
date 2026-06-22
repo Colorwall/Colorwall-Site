@@ -263,7 +263,6 @@ const ShapeBlur: FC<ShapeBlurProps> = ({
         mount.removeChild(renderer.domElement);
       }
       renderer.dispose();
-      renderer.forceContextLoss();
     };
   }, [variation, pixelRatioProp, shapeSize, roundness, borderSize, circleSize, circleEdge]);
 
