@@ -7,6 +7,8 @@ import { useLusionGeometry } from '../useLusionGeometry';
 import { buildShader } from '../shaders/buildShader';
 import extracted from '../shaders/extracted.json';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
+import React from 'react';
+import { BLOOM_LAYER } from '../layers';
 
 // Lusion AboutHeroHalo — exact vert$4 + frag$7 from lusion_bundle.js / bg_box.buf
 export function AboutHalo({
@@ -64,7 +66,15 @@ export function AboutHalo({
     material.uniforms.u_resolution.value.set(state.size.width, state.size.height);
   });
 
+  const meshRef = React.useRef<THREE.Mesh>(null);
+
+  React.useEffect(() => {
+    if (meshRef.current) {
+      meshRef.current.layers.enable(BLOOM_LAYER);
+    }
+  }, []);
+
   if (!geometry) return null;
 
-  return <mesh geometry={geometry} material={material} position={[0, 8, 0]} renderOrder={10} frustumCulled={false} />;
+  return <mesh ref={meshRef} geometry={geometry} material={material} position={[0, 8, 0]} renderOrder={10} frustumCulled={false} />;
 }
