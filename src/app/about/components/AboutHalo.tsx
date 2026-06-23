@@ -44,7 +44,7 @@ export function AboutHalo({
         depthWrite: false,
         depthTest: true,
         blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide,
+        side: THREE.BackSide,
       }),
     [shared],
   );
