@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useEffect, useLayoutEffect, type MutableRefObject } from 'react';
+import { useRef, useMemo, useEffect, useLayoutEffect, type MutableRefObject, type ReactNode } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTexture, useFBO } from '@react-three/drei';
@@ -24,6 +24,7 @@ import { buildShader, SHADERS } from './shaders/buildShader';
 import { ParticleField } from './components/ParticleField';
 import { AboutHalo } from './components/AboutHalo';
 import { AboutFog } from './components/AboutFog';
+import { AboutHeroLines } from './components/AboutHeroLines';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
@@ -438,6 +439,43 @@ function PersonShadow({
   );
 }
 
+function SceneLayer({
+  shared,
+  children,
+}: {
+  shared: ReturnType<typeof useAboutUniforms>['uniforms'];
+  children: ReactNode;
+}) {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.visible =
+        shared.u_sceneRatio.value > 0 && shared.u_hudRatio.value < 1;
+    }
+  });
+
+  return <group ref={ref}>{children}</group>;
+}
+
+function HudLayer({
+  shared,
+  children,
+}: {
+  shared: ReturnType<typeof useAboutUniforms>['uniforms'];
+  children: ReactNode;
+}) {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.visible = shared.u_hudRatio.value > 0;
+    }
+  });
+
+  return <group ref={ref}>{children}</group>;
+}
+
 function fit(t: number, a: number, b: number, c: number, d: number) {
   return THREE.MathUtils.lerp(c, d, THREE.MathUtils.clamp((t - a) / (b - a), 0, 1));
 }
@@ -521,8 +559,9 @@ export function WebGLAboutScene({
     uniforms.u_lightShadowTexture.value = defaultShadowMap;
   }, [blueNoiseTexture, defaultShadowMap, uniforms]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     sync();
+    uniforms.u_introTime.value += delta;
   });
 
   const shared = uniforms;
@@ -545,36 +584,42 @@ export function WebGLAboutScene({
         />
       )}
 
-      {rock0 && rockTextures0 && (
-        <RockGroup typeIndex={0} geometry={rock0} rocksTexture={rocksTexture} animPos={rockTextures0.posTex} animOrient={rockTextures0.orientTex} shared={shared} scrollProgress={scrollProgress} />
-      )}
-      {rock1 && rockTextures1 && (
-        <RockGroup typeIndex={1} geometry={rock1} rocksTexture={rocksTexture} animPos={rockTextures1.posTex} animOrient={rockTextures1.orientTex} shared={shared} scrollProgress={scrollProgress} />
-      )}
-      {rock2 && rockTextures2 && (
-        <RockGroup typeIndex={2} geometry={rock2} rocksTexture={rocksTexture} animPos={rockTextures2.posTex} animOrient={rockTextures2.orientTex} shared={shared} scrollProgress={scrollProgress} />
-      )}
-      {rock3 && rockTextures3 && (
-        <RockGroup typeIndex={3} geometry={rock3} rocksTexture={rocksTexture} animPos={rockTextures3.posTex} animOrient={rockTextures3.orientTex} shared={shared} scrollProgress={scrollProgress} />
-      )}
+      <SceneLayer shared={shared}>
+        {rock0 && rockTextures0 && (
+          <RockGroup typeIndex={0} geometry={rock0} rocksTexture={rocksTexture} animPos={rockTextures0.posTex} animOrient={rockTextures0.orientTex} shared={shared} scrollProgress={scrollProgress} />
+        )}
+        {rock1 && rockTextures1 && (
+          <RockGroup typeIndex={1} geometry={rock1} rocksTexture={rocksTexture} animPos={rockTextures1.posTex} animOrient={rockTextures1.orientTex} shared={shared} scrollProgress={scrollProgress} />
+        )}
+        {rock2 && rockTextures2 && (
+          <RockGroup typeIndex={2} geometry={rock2} rocksTexture={rocksTexture} animPos={rockTextures2.posTex} animOrient={rockTextures2.orientTex} shared={shared} scrollProgress={scrollProgress} />
+        )}
+        {rock3 && rockTextures3 && (
+          <RockGroup typeIndex={3} geometry={rock3} rocksTexture={rocksTexture} animPos={rockTextures3.posTex} animOrient={rockTextures3.orientTex} shared={shared} scrollProgress={scrollProgress} />
+        )}
 
-      <ParticleField shared={shared} scrollProgress={scrollProgress} />
-      <AboutHalo shared={shared} scrollProgress={scrollProgress} />
+        <ParticleField shared={shared} scrollProgress={scrollProgress} />
+        <AboutHalo shared={shared} scrollProgress={scrollProgress} />
 
-      {personGeometry && personAnim && (
-        <Person
-          geometry={personGeometry}
-          personTexture={personTexture}
-          animData={personAnim}
-          shared={shared}
-        />
-      )}
+        {personGeometry && personAnim && (
+          <Person
+            geometry={personGeometry}
+            personTexture={personTexture}
+            animData={personAnim}
+            shared={shared}
+          />
+        )}
 
-      {personAnim && (
-        <PersonShadow shadowTexture={shadowTexture} shared={shared} animData={personAnim} />
-      )}
+        {personAnim && (
+          <PersonShadow shadowTexture={shadowTexture} shared={shared} animData={personAnim} />
+        )}
 
-      <AboutFog shared={shared} />
+        <AboutFog shared={shared} />
+      </SceneLayer>
+
+      <HudLayer shared={shared}>
+        <AboutHeroLines shared={shared} />
+      </HudLayer>
     </>
   );
 }

@@ -26,6 +26,7 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     u_blueNoiseCoordOffset: { value: new THREE.Vector2() },
     u_sceneRatio: { value: 1 },
     u_sceneHideRatio: { value: 0 },
+    u_introTime: { value: 0 },
     u_hudRatio: { value: 0 },
     u_noiseStableFactor: { value: 0 },
     u_bgColor: { value: new THREE.Color('#000000') },

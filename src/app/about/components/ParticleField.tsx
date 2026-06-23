@@ -195,6 +195,7 @@ export function ParticleField({
   }, [sphereL, sphereM, columnGeo, emissiveGeo, simUvs]);
 
   const initialized = useRef(false);
+  const groupRef = useRef<THREE.Group>(null);
   const bloomColumnRef = useRef<THREE.InstancedMesh>(null);
   const bloomEmissiveRef = useRef<THREE.InstancedMesh>(null);
   const layersSet = useRef(false);
@@ -210,7 +211,7 @@ export function ParticleField({
     const scroll = scrollProgress.current;
     const intro = Math.min(scroll / 0.85, 1);
     const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.75;
-    const hideRatio = THREE.MathUtils.smoothstep(intro, 0.85, 1);
+    const hideRatio = shared.u_sceneHideRatio.value;
 
     noiseTime.current += dt * 0.4;
     noiseScaleTime.current += dt;
@@ -242,6 +243,10 @@ export function ParticleField({
       mat.uniforms.u_lightScatterRatio.value = shared.u_lightScatterRatio.value;
     }
 
+    if (groupRef.current) {
+      groupRef.current.visible = shared.u_hudRatio.value < 1;
+    }
+
     if (!layersSet.current && bloomColumnRef.current && bloomEmissiveRef.current) {
       for (const mesh of [bloomColumnRef.current, bloomEmissiveRef.current]) {
         mesh.layers.disable(0);
@@ -257,7 +262,7 @@ export function ParticleField({
   const emissiveCount = SIM_H;
 
   return (
-    <group>
+    <group ref={groupRef}>
       {/* Base pass — always visible like Lusion */}
       <instancedMesh
         args={[columnGeo, baseColumnMat, columnCount]}

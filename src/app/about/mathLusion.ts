@@ -38,8 +38,7 @@ export function introRatioFromScroll(scroll: number) {
   return saturate(scroll / INTRO_SCROLL_END);
 }
 
-/** HUD fade — platform + halo dim after mid-intro (aligned with scatter falloff). */
+/** HUD contour draw — Lusion ramps hudRatio on page 2→3 scroll. */
 export function hudRatioFromIntro(intro: number) {
-  const hudEnd = 1 + (1.75 * 0.5) / LUSION_INTRO_VIEWPORTS;
-  return fit(intro, 0.75, hudEnd, 0, 1, cubicIn);
+  return fit(intro, 0.7, 0.85, 0, 1, cubicOut);
 }
