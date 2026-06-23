@@ -42,7 +42,7 @@ export function AboutHalo({
         transparent: true,
         premultipliedAlpha: true,
         depthWrite: false,
-        depthTest: false,
+        depthTest: true,
         blending: THREE.AdditiveBlending,
         side: THREE.DoubleSide,
       }),
