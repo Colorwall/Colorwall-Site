@@ -35,29 +35,24 @@ export function useAboutUniforms(scrollRef: { current: number }) {
   });
 
   const sync = () => {
-    const intro = introRatioFromScroll(scrollRef.current);
+    const scroll = scrollRef.current;
+    const intro = introRatioFromScroll(scroll);
+    // Use the exact hudRatio calculation from getScrollPhases for consistency
+    const hudRatio = scroll > 0.85 ? Math.min((scroll - 0.85) / 0.15, 1) : 0;
 
-    // Lusion AboutHero.syncProperties — scene fades in early, then HUD dims platform/light
+    // Lusion AboutHero.syncProperties
     uniforms.current.u_sceneRatio.value = fit(intro, 0.01, 0.1, 0, 1, cubicOut);
     uniforms.current.u_sceneHideRatio.value = fit(intro, 0.85, 1, 0, 1);
-    
-    // Do not ramp hudRatio to 1, because that transitions the terrain to black.
-    // We want the astronaut area to stay fully lit.
-    uniforms.current.u_hudRatio.value = 0;
+    uniforms.current.u_hudRatio.value = hudRatio;
     uniforms.current.u_noiseStableFactor.value = fit(intro, 0, 0.4, 0, 1);
 
     // Lusion AboutHeroScatter.update
-    // Drive this with true time rather than scroll so it acts as an intro animation
-    const timeElapsed = (performance.now() - loadTime.current) / 1000;
-    const timeIntro = Math.min(timeElapsed / 3.0, 1.0); // 3-second intro
-
-    let scatterPow = fit(timeIntro, 0, 0.2, 2, 0.7);
-    scatterPow = fit(timeIntro, 0.7, 0.85, scatterPow, 0.4);
+    let scatterPow = fit(intro, 0, 0.2, 2, 0.7);
+    scatterPow = fit(intro, 0.7, 0.85, scatterPow, 0.4);
     uniforms.current.u_lightScatterPowInv.value = scatterPow;
     
-    // We do not go all the way to 0 here because our port lacks the LightField volume
-    // so we need the scatter to remain and light the scene at a resting state.
-    uniforms.current.u_lightScatterRatio.value = fit(timeIntro, 0.7, 0.85, 1.0, 1.0, cubicIn);
+    // Lusion correctly fades the ambient scatter to 0 from 0.7 to 0.85
+    uniforms.current.u_lightScatterRatio.value = fit(intro, 0.7, 0.85, 1.0, 0.0, cubicIn);
   };
 
   return { uniforms: uniforms.current, sync, lightPosition };

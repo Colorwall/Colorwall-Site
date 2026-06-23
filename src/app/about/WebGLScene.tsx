@@ -725,8 +725,6 @@ export function WebGLAboutScene({
 
       <HudLayer shared={shared}>
         <AboutHeroLines shared={shared} />
-        {/* Debug plane to visualize the generated shadow map */}
-        <DebugPlane shared={shared} />
       </HudLayer>
     </>
   );

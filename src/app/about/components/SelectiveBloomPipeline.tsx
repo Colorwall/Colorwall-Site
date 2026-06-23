@@ -19,15 +19,34 @@ void main() {
 const COMPOSITE_FRAG = `
 uniform sampler2D tBase;
 uniform sampler2D tBloom;
+uniform vec3 u_colorBurn;
+uniform float u_colorBurnAlpha;
+uniform vec3 u_colorDodge;
+uniform float u_colorDodgeAlpha;
 varying vec2 vUv;
+
+vec3 colorDodge(vec3 src, vec3 dst) {
+  return mix(step(0.0, src) * (min(vec3(1.0), dst / (1.0 - src))), vec3(1.0), step(1.0, dst));
+}
+
+vec3 colorBurn(vec3 src, vec3 dst) {
+  return mix(step(0.0, src) * (1.0 - min(vec3(1.0), (1.0 - dst) / src)), vec3(1.0), step(1.0, dst));
+}
+
 void main() {
-  // Lusion renders the scene as a data buffer: R = Luminance, G = Depth, B = Mask
+  // Lusion renders the scene as a data buffer: R = Luminance
   float baseLum = texture2D(tBase, vUv).r;
   float bloomLum = texture2D(tBloom, vUv).r;
-  
   vec3 col = vec3(baseLum + bloomLum);
-  col = pow(col, vec3(1.05));
-  col = clamp(col * vec3(1.02, 1.0, 0.99), 0.0, 1.0);
+  
+  // Clamp HDR bloom to 0-1 before color grading to prevent mix() extrapolation and math explosion
+  col = clamp(col, 0.0, 1.0);
+  
+  // Apply Lusion's exact AboutPageHeroEfx composite
+  vec3 burned = mix(col, colorBurn(u_colorBurn, col), u_colorBurnAlpha);
+  vec3 dodged = mix(col, colorDodge(u_colorDodge, col), u_colorDodgeAlpha);
+  col = mix(burned, dodged, col); // Lusion mixes between burned and dodged based on original luminance!
+  
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -53,6 +72,10 @@ export function SelectiveBloomPipeline({
         uniforms: {
           tBase: { value: null as THREE.Texture | null },
           tBloom: { value: null as THREE.Texture | null },
+          u_colorBurn: { value: new THREE.Color() },
+          u_colorBurnAlpha: { value: 1.0 },
+          u_colorDodge: { value: new THREE.Color() },
+          u_colorDodgeAlpha: { value: 1.0 },
         },
         vertexShader: COMPOSITE_VERT,
         fragmentShader: COMPOSITE_FRAG,
@@ -91,6 +114,22 @@ export function SelectiveBloomPipeline({
     bloomPass.strength = bloomStrength;
     bloomPass.threshold = 0.02;
     bloomPass.radius = 0.55;
+
+    // Apply exact Lusion Post-Processing Colors
+    const sceneColorBurn = new THREE.Color('#00f0ff');
+    const sceneColorDodge = new THREE.Color('#005aff');
+    const sceneColorBurnAlpha = 0.15;
+    const sceneColorDodgeAlpha = 0.12;
+
+    const hudColorBurn = new THREE.Color('#79a8ff');
+    const hudColorDodge = new THREE.Color('#a5ff44');
+    const hudColorBurnAlpha = 1.0;
+    const hudColorDodgeAlpha = 0.7;
+
+    compositeMat.uniforms.u_colorBurn.value.copy(sceneColorBurn).lerp(hudColorBurn, hud);
+    compositeMat.uniforms.u_colorDodge.value.copy(sceneColorDodge).lerp(hudColorDodge, hud);
+    compositeMat.uniforms.u_colorBurnAlpha.value = THREE.MathUtils.lerp(sceneColorBurnAlpha, hudColorBurnAlpha, hud * hud);
+    compositeMat.uniforms.u_colorDodgeAlpha.value = THREE.MathUtils.lerp(sceneColorDodgeAlpha, hudColorDodgeAlpha, hud * hud);
 
     const savedMask = camera.layers.mask;
 
