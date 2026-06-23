@@ -30,6 +30,10 @@ export function sineOut(t: number) {
   return Math.sin((t * Math.PI) / 2);
 }
 
+export function sineInOut(t: number) {
+  return -0.5 * (Math.cos(Math.PI * t) - 1);
+}
+
 /** Hero intro ratio — Lusion uses u / (RANGE_START_WAIT + RANGE_PAGE_12). */
 export const INTRO_SCROLL_END = 0.85;
 const LUSION_INTRO_VIEWPORTS = 3.5 + 1.75; // RANGE_START_WAIT + RANGE_PAGE_12

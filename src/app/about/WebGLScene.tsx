@@ -26,10 +26,10 @@ import { AboutHalo } from './components/AboutHalo';
 import { AboutFog } from './components/AboutFog';
 import { AboutHeroLines } from './components/AboutHeroLines';
 import { SHADOW_LAYER } from './layers';
+import { fit, sineInOut } from './mathLusion';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
-const PARTICLE_FOCUS = new THREE.Vector3(0, 8.2, 0);
 
 function CameraRig({
   scrollProgress,
@@ -48,7 +48,7 @@ function CameraRig({
 
     if (!initialized.current) {
       smoothPos.copy(position);
-      smoothLook.copy(lookAt).lerp(PARTICLE_FOCUS, 0.92);
+      smoothLook.copy(lookAt);
       initialized.current = true;
     }
 
@@ -58,18 +58,15 @@ function CameraRig({
     smoothPos.lerp(position, ease);
     smoothLook.lerp(lookAt, ease);
 
-    // Default drone view: camera locked on the particle burst above the light
-    const focusT = THREE.MathUtils.lerp(0.92, 0.5, phases.initialSplineRatio);
-    smoothLook.lerp(PARTICLE_FOCUS, focusT);
+    // Apply dolly zoom
+    const fovOffset = fit(phases.initialSplineRatio, 0.4, 0.8, 0, -10, sineInOut);
+    if (state.camera instanceof THREE.PerspectiveCamera) {
+      state.camera.fov = 60 + fovOffset;
+      state.camera.updateProjectionMatrix();
+    }
 
     state.camera.position.copy(smoothPos);
     state.camera.lookAt(smoothLook);
-
-    if (state.camera instanceof THREE.PerspectiveCamera) {
-      const dolly = THREE.MathUtils.smoothstep(phases.initialSplineRatio, 0.4, 0.8);
-      state.camera.fov = 60 + THREE.MathUtils.lerp(0, -10, dolly);
-      state.camera.updateProjectionMatrix();
-    }
   });
   return null;
 }
@@ -568,9 +565,7 @@ function HudLayer({
   return <group ref={ref}>{children}</group>;
 }
 
-function fit(t: number, a: number, b: number, c: number, d: number) {
-  return THREE.MathUtils.lerp(c, d, THREE.MathUtils.clamp((t - a) / (b - a), 0, 1));
-}
+
 
 function DebugPlane({ shared }: { shared: ReturnType<typeof useAboutUniforms>['uniforms'] }) {
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
