@@ -4,8 +4,7 @@ import { useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useLusionGeometry } from '../useLusionGeometry';
-import { buildShader } from '../shaders/buildShader';
-import extracted from '../shaders/extracted.json';
+import { buildShader, SHADERS } from '../shaders/buildShader';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
 import React from 'react';
 import { BLOOM_LAYER } from '../layers';
@@ -18,15 +17,6 @@ export function AboutHalo({
   scrollProgress?: { current: number };
 }) {
   const geometry = useLusionGeometry('/lusion-assets/bg_box.buf');
-
-  const haloFrag = useMemo(
-    () =>
-      (extracted['frag$7'] as string).replace(
-        'gl_FragColor.r+=noise.r*0.004;}',
-        'gl_FragColor.r+=noise.r*0.004;gl_FragColor.rgb=vec3(gl_FragColor.r);gl_FragColor.a=gl_FragColor.r*0.15;}',
-      ),
-    [],
-  );
 
   const material = useMemo(
     () =>
@@ -47,15 +37,15 @@ export function AboutHalo({
           u_resolution: { value: new THREE.Vector2(1, 1) },
           u_currSceneTexture: { value: null },
         },
-        vertexShader: buildShader(extracted['vert$4'] as string),
-        fragmentShader: buildShader(haloFrag),
+        vertexShader: buildShader(SHADERS.haloVert),
+        fragmentShader: buildShader(SHADERS.haloFrag),
         transparent: true,
         depthWrite: false,
         depthTest: false,
         blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide,
+        side: THREE.BackSide,
       }),
-    [shared, haloFrag],
+    [shared],
   );
 
   useFrame((state) => {
@@ -76,5 +66,5 @@ export function AboutHalo({
 
   if (!geometry) return null;
 
-  return <mesh ref={meshRef} geometry={geometry} material={material} position={[0, 8, 0]} renderOrder={10} frustumCulled={false} />;
+  return <mesh ref={meshRef} geometry={geometry} material={material} position={[0, 0, 0]} renderOrder={10} frustumCulled={false} />;
 }

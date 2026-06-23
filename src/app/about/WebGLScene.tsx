@@ -25,6 +25,7 @@ import { ParticleField } from './components/ParticleField';
 import { AboutHalo } from './components/AboutHalo';
 import { AboutFog } from './components/AboutFog';
 import { AboutHeroLines } from './components/AboutHeroLines';
+import { SHADOW_LAYER } from './layers';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
@@ -82,6 +83,7 @@ function GroundShadowPass({
 }) {
   const fbo = useFBO(768, 768, { type: THREE.HalfFloatType });
   const prevFbo = useFBO(768, 768, { type: THREE.HalfFloatType });
+  const { gl } = useThree();
   const swap = useRef(false);
   const quadScene = useMemo(() => new THREE.Scene(), []);
   const quadCam = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), []);
@@ -126,6 +128,23 @@ function GroundShadowPass({
     };
   }, [material, quadMesh, quadScene]);
 
+  useLayoutEffect(() => {
+    const prevTarget = gl.getRenderTarget();
+    const prevClearColor = gl.getClearColor(new THREE.Color());
+    const prevClearAlpha = gl.getClearAlpha();
+
+    gl.setRenderTarget(prevFbo);
+    gl.setClearColor(0xffffff, 1);
+    gl.clear();
+    
+    gl.setRenderTarget(fbo);
+    gl.setClearColor(0xffffff, 1);
+    gl.clear();
+
+    gl.setClearColor(prevClearColor, prevClearAlpha);
+    gl.setRenderTarget(prevTarget);
+  }, [fbo, prevFbo]);
+
   useFrame(({ gl }) => {
     const read = swap.current ? fbo : prevFbo;
     const write = swap.current ? prevFbo : fbo;
@@ -139,12 +158,49 @@ function GroundShadowPass({
 
     const prevTarget = gl.getRenderTarget();
     gl.setRenderTarget(write);
-    gl.setClearColor(0xffffff, 1);
-    gl.clear();
+    
+    // We do not clear here, because we want to accumulate over the previous frame
     gl.render(quadScene, quadCam);
     gl.setRenderTarget(prevTarget);
 
     groundShadowRef.current = write.texture;
+  });
+
+  return null;
+}
+
+function LightShadowPass({
+  shared,
+}: {
+  shared: ReturnType<typeof useAboutUniforms>['uniforms'];
+}) {
+  const fbo = useFBO(1024, 2048, { type: THREE.HalfFloatType });
+  const { gl, scene, camera } = useThree();
+
+  useFrame(() => {
+    const prevTarget = gl.getRenderTarget();
+    const prevAutoClear = gl.autoClear;
+    const prevClearColor = gl.getClearColor(new THREE.Color());
+    const prevClearAlpha = gl.getClearAlpha();
+
+    // We need to render only the shadow layer.
+    const prevLayers = camera.layers.mask;
+    camera.layers.set(SHADOW_LAYER);
+
+    gl.setRenderTarget(fbo);
+    gl.autoClear = false;
+    gl.setClearColor(0xffffff, 1);
+    gl.clear();
+
+    gl.render(scene, camera);
+
+    // Restore state
+    camera.layers.mask = prevLayers;
+    gl.setRenderTarget(prevTarget);
+    gl.autoClear = prevAutoClear;
+    gl.setClearColor(prevClearColor, prevClearAlpha);
+
+    shared.u_lightShadowTexture.value = fbo.texture;
   });
 
   return null;
@@ -282,6 +338,29 @@ function RockGroup({
     });
   }, [rocksTexture, channelMixer, animPos, animOrient, shared]);
 
+  const shadowMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        u_lightPosition: shared.u_lightPosition,
+        u_lightShadowMaxDistance: shared.u_lightShadowMaxDistance,
+        u_posRandTexture: { value: animPos },
+        u_orientTexture: { value: animOrient },
+        u_animationTextureSize: { value: new THREE.Vector2(16, 120) },
+        u_time: { value: 0 },
+        u_globalTime: { value: 0 },
+        u_scale: { value: 1 },
+        u_noiseStableFactor: shared.u_noiseStableFactor,
+        u_hudRatio: shared.u_hudRatio,
+        u_lightShadowTextureTexelSize: shared.u_lightShadowTextureTexelSize,
+      },
+      vertexShader: buildShader(SHADERS.rockVert, { IS_SHADOW: 1 }),
+      fragmentShader: buildShader(SHADERS.lightShadowMapFrag),
+      side: THREE.DoubleSide,
+      depthTest: true,
+      depthWrite: true,
+    });
+  }, [animPos, animOrient, shared]);
+
   useFrame((state, delta) => {
     time.current += delta;
     const intro = Math.min(scrollProgress.current / 0.85, 1);
@@ -292,14 +371,27 @@ function RockGroup({
     material.uniforms.u_noiseStableFactor.value = shared.u_noiseStableFactor.value;
     material.uniforms.u_lightScatterPowInv.value = shared.u_lightScatterPowInv.value;
     material.uniforms.u_lightScatterRatio.value = shared.u_lightScatterRatio.value;
+
+    shadowMaterial.uniforms.u_time.value = time.current;
+    shadowMaterial.uniforms.u_globalTime.value = state.clock.elapsedTime;
+    shadowMaterial.uniforms.u_scale.value = THREE.MathUtils.smoothstep(intro, 0, 0.2);
+    shadowMaterial.uniforms.u_hudRatio.value = shared.u_hudRatio.value;
+    shadowMaterial.uniforms.u_noiseStableFactor.value = shared.u_noiseStableFactor.value;
   });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[instancedGeometry, material, ROCK_COUNT]}
-      frustumCulled={false}
-    />
+    <group>
+      <instancedMesh
+        ref={meshRef}
+        args={[instancedGeometry, material, ROCK_COUNT]}
+        frustumCulled={false}
+      />
+      <instancedMesh
+        args={[instancedGeometry, shadowMaterial, ROCK_COUNT]}
+        frustumCulled={false}
+        layers={SHADOW_LAYER}
+      />
+    </group>
   );
 }
 
@@ -480,6 +572,24 @@ function fit(t: number, a: number, b: number, c: number, d: number) {
   return THREE.MathUtils.lerp(c, d, THREE.MathUtils.clamp((t - a) / (b - a), 0, 1));
 }
 
+function DebugPlane({ shared }: { shared: ReturnType<typeof useAboutUniforms>['uniforms'] }) {
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+  
+  useFrame(() => {
+    if (materialRef.current) {
+      materialRef.current.map = shared.u_lightShadowTexture.value;
+      materialRef.current.needsUpdate = true;
+    }
+  });
+
+  return (
+    <mesh position={[-3, -3, -10]}>
+      <planeGeometry args={[2, 4]} />
+      <meshBasicMaterial ref={materialRef} color="white" />
+    </mesh>
+  );
+}
+
 export function WebGLAboutScene({
   scrollProgress,
 }: {
@@ -573,6 +683,7 @@ export function WebGLAboutScene({
 
       {spline && <CameraRig scrollProgress={scrollProgress} spline={spline} />}
       <SelectiveBloomPipeline scrollProgress={scrollProgress} />
+      <LightShadowPass shared={shared} />
       <GroundShadowPass shared={shared} groundShadowRef={groundShadowRef} />
 
       {terrainGeometry && (
@@ -619,6 +730,8 @@ export function WebGLAboutScene({
 
       <HudLayer shared={shared}>
         <AboutHeroLines shared={shared} />
+        {/* Debug plane to visualize the generated shadow map */}
+        <DebugPlane shared={shared} />
       </HudLayer>
     </>
   );
