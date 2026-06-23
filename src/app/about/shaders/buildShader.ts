@@ -1,5 +1,8 @@
 import extracted from './extracted.json';
 
+// From public/lusion-assets shaders — lightFieldSlice.glsl (matches lusion_bundle.js sliceShader)
+const LIGHT_FIELD_SLICE = `uniform vec2 u_lightFieldSlicedTextureSize;uniform vec2 u_lightFieldSliceColRowCount;uniform vec3 u_lightFieldGridCount;uniform vec3 u_lightFieldVolumeOffset;uniform vec3 u_lightFieldVolumeSize;vec2 lightFieldGridToUv(vec3 grid){vec2 uv=grid.xy;vec2 colRow=floor(vec2(mod(grid.z,u_lightFieldSliceColRowCount.x),grid.z/u_lightFieldSliceColRowCount.x));uv+=colRow*u_lightFieldGridCount.xy+.5;return uv/u_lightFieldSlicedTextureSize;}vec3 lightFieldGridToUv3(vec3 grid){return grid/u_lightFieldGridCount;}vec3 clampLightFieldGrid(vec3 grid){return clamp(grid,vec3(.5),u_lightFieldGridCount-vec3(.5));}vec3 lightFieldPosToGrid(vec3 pos){return(pos-u_lightFieldVolumeOffset)/u_lightFieldVolumeSize*u_lightFieldGridCount;}vec3 clampedLightFieldPosToGrid(vec3 pos){return clampLightFieldGrid(lightFieldPosToGrid(pos));}vec4 sampleLightField(sampler2D tex,vec3 gridPos){gridPos.z-=.5;vec2 uv1=lightFieldGridToUv(clampLightFieldGrid(vec3(gridPos.xy,floor(gridPos.z)+.5)));vec2 uv2=lightFieldGridToUv(clampLightFieldGrid(vec3(gridPos.xy,ceil(gridPos.z)+.5)));return mix(texture2D(tex,uv1),texture2D(tex,uv2),fract(gridPos.z));}`;
+
 const GET_BLUE_NOISE = `#define GLSLIFY 1
 uniform sampler2D u_blueNoiseTexture;
 uniform vec2 u_blueNoiseTexelSize;
@@ -21,30 +24,14 @@ vec2 getLightUv(vec3 lightToWorld) {
   return flatUv + vec2(0., isTop * 0.5);
 }`;
 
-// Analytic light-field stub (no 64³ volume) — clusters energy around the hero light
-const LIGHT_FIELD_SLICE = `#define GLSLIFY 1
-vec3 lightFieldPosToGrid(vec3 pos) {
-  return (pos - vec3(0.0, 8.0, 0.0)) * vec3(0.1, 0.14, 0.1) + vec3(32.0);
-}
-vec3 clampLightFieldGrid(vec3 grid) { return clamp(grid, vec3(0.5), vec3(63.5)); }
-vec3 clampedLightFieldPosToGrid(vec3 pos) { return clampLightFieldGrid(lightFieldPosToGrid(pos)); }
-vec4 sampleLightField(sampler2D tex, vec3 gridPos) {
-  vec3 wp = (gridPos - vec3(32.0)) / vec3(0.1, 0.14, 0.1) + vec3(0.0, 8.0, 0.0);
-  float d = length(wp - vec3(0.0, 8.0, 0.0));
-  float e = exp(-d * 0.38) * smoothstep(16.0, 0.8, d);
-  e = clamp(e + 0.06, 0.0, 1.0);
-  return vec4(e, e * 0.92, e * 0.88, e);
-}`;
-
 const CHUNKS: Record<string, string> = {
   getScatter: extracted.getScatter,
   getBlueNoise: GET_BLUE_NOISE,
   getLightUv: GET_LIGHT_UV,
   lightFieldSlice: LIGHT_FIELD_SLICE,
   aboutHeroVisualFinal_vert: extracted.aboutHeroVisualFinalVert,
-  // Lusion encodes luminance in .r and depth in .g for post-processing.
+  // Lusion encodes luminance in .r — prepass .rrra also handles this at composite time.
   aboutHeroVisualFinal_frag: 'gl_FragColor.rgb = vec3(gl_FragColor.r);',
-  // Particle bloom pass — bright luma only, no scatter bleed
   particleBloomFinal_frag:
     'float luma = mix(gl_FragColor.r, 1.0, u_emissiveRatio * 0.55); gl_FragColor = vec4(vec3(luma * 2.1), 1.0);',
 };
@@ -79,26 +66,34 @@ export const SHADERS = {
   groundVert: extracted.groundVert,
   groundFrag: extracted.groundFrag.replace(
     /#include <aboutHeroVisualFinal_frag>[\s\S]*?gl_FragColor\.a=[^}]+\}/,
-    '#include <aboutHeroVisualFinal_frag>\ngl_FragColor.a = 1.0;}',
+    `#include <aboutHeroVisualFinal_frag>
+gl_FragColor.r=mix(gl_FragColor.r,shadow*(1.-abs(N.y)),u_hudRatio);
+gl_FragColor.r*=u_sceneRatio;
+gl_FragColor.rgb=vec3(gl_FragColor.r);
+gl_FragColor.a=1.0;}`,
   ),
   rockVert: extracted['vert$8'],
-  rockFrag: extracted['frag$c'],
+  rockFrag: extracted['frag$c'].replace(
+    '#include <aboutHeroVisualFinal_frag>\n}',
+    '#include <aboutHeroVisualFinal_frag>\ngl_FragColor.rgb=vec3(gl_FragColor.r);gl_FragColor.a=1.0;}',
+  ),
   personVert: extracted['vert$6'],
   personFrag: extracted['frag$9'].replace(
-    'gl_FragColor.rgb+=getScatter(cameraPosition,v_worldPosition);',
-    'gl_FragColor.r=max(gl_FragColor.r,color.r*0.92);',
+    'gl_FragColor.r*=u_sceneRatio*(1.-u_hudRatio);}',
+    'gl_FragColor.r*=u_sceneRatio*(1.-u_hudRatio);gl_FragColor.rgb=vec3(gl_FragColor.r);gl_FragColor.a=1.0;}',
   ),
   shadowVert: extracted.shadowVert,
   shadowFrag: extracted.shadowFrag,
   groundShadowFrag: extracted['frag$b'],
   particleVert: extracted['vert$9'],
-  // Base pass — visible particle bodies (matches Lusion frag$d output)
-  particleFrag: extracted['frag$d']
-    .replace('shade+=getScatter(cameraPosition,v_worldPosition)*1.35;', '')
-    .replace('#include <aboutHeroVisualFinal_frag>', '#include <aboutHeroVisualFinal_frag>'),
-  // Bloom mask pass — bright cores only
+  particleFrag: extracted['frag$d'].replace(
+    'gl_FragColor=vec4(mix(shade,smoothstep(0.,1.,shade),0.5),v_depth,1.,mix(v_diff*v_diff+v_emission,1.,u_emissiveRatio));',
+    'gl_FragColor=vec4(mix(shade,smoothstep(0.,1.,shade),0.5),v_depth,1.,mix(v_diff*v_diff+v_emission,1.,u_emissiveRatio));\n#include <aboutHeroVisualFinal_frag>\ngl_FragColor.a=1.0;',
+  ),
   particleFragBloom: extracted['frag$d']
     .replace('vec3 noise=getBlueNoise(gl_FragCoord.xy);', 'vec3 noise=vec3(0.5);')
-    .replace('shade+=getScatter(cameraPosition,v_worldPosition)*1.35;', '')
-    .replace('#include <aboutHeroVisualFinal_frag>', '#include <particleBloomFinal_frag>'),
+    .replace(
+      'gl_FragColor=vec4(mix(shade,smoothstep(0.,1.,shade),0.5),v_depth,1.,mix(v_diff*v_diff+v_emission,1.,u_emissiveRatio));',
+      'gl_FragColor=vec4(mix(shade,smoothstep(0.,1.,shade),0.5),v_depth,1.,mix(v_diff*v_diff+v_emission,1.,u_emissiveRatio));\n#include <particleBloomFinal_frag>',
+    ),
 };

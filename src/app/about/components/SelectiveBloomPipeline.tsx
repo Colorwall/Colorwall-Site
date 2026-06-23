@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useLayoutEffect } from 'react';
+import { useMemo, useLayoutEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useFBO } from '@react-three/drei';
 import * as THREE from 'three';
@@ -87,7 +87,6 @@ export function SelectiveBloomPipeline({
 
     const savedMask = camera.layers.mask;
 
-    // Crisp base — terrain, rocks, astronaut, halo (no bloom-layer particles)
     camera.layers.set(0);
     camera.layers.disable(BLOOM_LAYER);
     gl.setRenderTarget(baseTarget);
@@ -95,7 +94,6 @@ export function SelectiveBloomPipeline({
     gl.clear();
     gl.render(scene, camera);
 
-    // Particle-only mask
     camera.layers.set(BLOOM_LAYER);
     gl.setRenderTarget(bloomMaskTarget);
     gl.setClearColor(0x000000, 1);
@@ -104,7 +102,6 @@ export function SelectiveBloomPipeline({
 
     camera.layers.mask = savedMask;
 
-    // Copy mask into bloom read buffer
     blitMesh.material = new THREE.MeshBasicMaterial({ map: bloomMaskTarget.texture });
     gl.setRenderTarget(bloomReadTarget);
     gl.clear();

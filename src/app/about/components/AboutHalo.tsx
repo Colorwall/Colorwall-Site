@@ -5,47 +5,26 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useLusionGeometry } from '../useLusionGeometry';
 import { buildShader } from '../shaders/buildShader';
+import extracted from '../shaders/extracted.json';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
 
-const HALO_VERT = `
-varying vec3 v_worldPosition;
-varying vec3 v_viewPosition;
-varying vec2 v_uv;
-void main() {
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  gl_Position = projectionMatrix * mv;
-  v_worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-  v_viewPosition = -mv.xyz;
-  v_uv = uv;
-}
-`;
-
-const HALO_FRAG = `
-uniform float u_sceneRatio;
-uniform float u_hudRatio;
-varying vec3 v_worldPosition;
-#include <getScatter>
-#include <getBlueNoise>
-void main() {
-  vec3 noise = getBlueNoise(gl_FragCoord.xy + vec2(57., 27.));
-  float scatter = getScatter(cameraPosition, v_worldPosition);
-  // Keep volumetric beam above the astronaut — no ground-level whiteout
-  float heightFade = smoothstep(1.5, 7.0, v_worldPosition.y);
-  scatter *= u_sceneRatio * (1.0 - u_hudRatio) * 0.12 * heightFade;
-  scatter = min(scatter, 0.18);
-  scatter += noise.r * 0.0005;
-  gl_FragColor = vec4(vec3(scatter), scatter * 0.15);
-}
-`;
-
+// Lusion AboutHeroHalo — exact vert$4 + frag$7 from lusion_bundle.js / bg_box.buf
 export function AboutHalo({
   shared,
-  scrollProgress,
 }: {
   shared: ReturnType<typeof useAboutUniforms>['uniforms'];
-  scrollProgress: { current: number };
+  scrollProgress?: { current: number };
 }) {
   const geometry = useLusionGeometry('/lusion-assets/bg_box.buf');
+
+  const haloFrag = useMemo(
+    () =>
+      (extracted['frag$7'] as string).replace(
+        'gl_FragColor.r+=noise.r*0.004;}',
+        'gl_FragColor.r+=noise.r*0.004;gl_FragColor.rgb=vec3(gl_FragColor.r);gl_FragColor.a=gl_FragColor.r*0.15;}',
+      ),
+    [],
+  );
 
   const material = useMemo(
     () =>
@@ -61,27 +40,31 @@ export function AboutHalo({
           u_blueNoiseTexture: shared.u_blueNoiseTexture,
           u_blueNoiseTexelSize: shared.u_blueNoiseTexelSize,
           u_blueNoiseCoordOffset: shared.u_blueNoiseCoordOffset,
+          u_lightPosition: shared.u_lightPosition,
+          u_bgColor: shared.u_bgColor,
+          u_resolution: { value: new THREE.Vector2(1, 1) },
+          u_currSceneTexture: { value: null },
         },
-        vertexShader: HALO_VERT,
-        fragmentShader: buildShader(HALO_FRAG),
+        vertexShader: buildShader(extracted['vert$4'] as string),
+        fragmentShader: buildShader(haloFrag),
         transparent: true,
         depthWrite: false,
+        depthTest: false,
         blending: THREE.AdditiveBlending,
         side: THREE.DoubleSide,
       }),
-    [shared],
+    [shared, haloFrag],
   );
 
-  useFrame(() => {
+  useFrame((state) => {
     material.uniforms.u_sceneRatio.value = shared.u_sceneRatio.value;
     material.uniforms.u_hudRatio.value = shared.u_hudRatio.value;
     material.uniforms.u_lightScatterPowInv.value = shared.u_lightScatterPowInv.value;
     material.uniforms.u_lightScatterRatio.value = shared.u_lightScatterRatio.value;
+    material.uniforms.u_resolution.value.set(state.size.width, state.size.height);
   });
 
   if (!geometry) return null;
 
-  return (
-    <mesh geometry={geometry} material={material} position={[0, 8, 0]} renderOrder={10} frustumCulled={false} />
-  );
+  return <mesh geometry={geometry} material={material} position={[0, 8, 0]} renderOrder={10} frustumCulled={false} />;
 }

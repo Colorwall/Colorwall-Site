@@ -55,6 +55,10 @@ function buildSimUvs() {
   return { column, emissive };
 }
 
+const GRID_COUNT = new THREE.Vector3(64, 64, 64);
+const GRID_SIZE = 8 / 63;
+const VOLUME_SIZE = new THREE.Vector3(8, GRID_SIZE * 63, GRID_SIZE * 63);
+
 function makeParticleMaterial(
   shared: ReturnType<typeof useAboutUniforms>['uniforms'],
   simTex: THREE.Texture,
@@ -63,6 +67,10 @@ function makeParticleMaterial(
   fragmentKey: 'particleFrag' | 'particleFragBloom',
   bloomPass = false,
 ) {
+  const volOffset = new THREE.Vector3();
+  volOffset.copy(VOLUME_SIZE).multiplyScalar(0.5).sub(shared.u_lightPosition.value).multiplyScalar(-1);
+  volOffset.addScalar(-GRID_SIZE / 2);
+
   return new THREE.ShaderMaterial({
     uniforms: {
       u_simCurrPosLifeTexture: { value: simTex },
@@ -73,6 +81,11 @@ function makeParticleMaterial(
       u_contrast: { value: 1 },
       u_noiseStableFactor: shared.u_noiseStableFactor,
       u_lightFieldSlicedTexture: { value: lightFieldTex },
+      u_lightFieldSlicedTextureSize: { value: new THREE.Vector2(1, 1) },
+      u_lightFieldSliceColRowCount: { value: new THREE.Vector2(1, 1) },
+      u_lightFieldGridCount: { value: GRID_COUNT.clone() },
+      u_lightFieldVolumeOffset: { value: volOffset },
+      u_lightFieldVolumeSize: { value: VOLUME_SIZE.clone() },
       u_lightScatterDivider: shared.u_lightScatterDivider,
       u_lightScatterPowInv: shared.u_lightScatterPowInv,
       u_lightScatterPos0: shared.u_lightScatterPos0,

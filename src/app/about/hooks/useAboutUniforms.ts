@@ -38,9 +38,11 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     uniforms.current.u_hudRatio.value = hud;
     uniforms.current.u_noiseStableFactor.value = THREE.MathUtils.smoothstep(intro, 0, 0.2);
 
-    const scatterPow = intro < 0.7
-      ? THREE.MathUtils.lerp(1.2, 0.45, intro / 0.7)
-      : THREE.MathUtils.lerp(0.45, 0.3, (intro - 0.7) / 0.15);
+    const scatterPow = intro < 0.2
+      ? THREE.MathUtils.lerp(2.0, 0.7, intro / 0.2)
+      : intro < 0.7
+        ? THREE.MathUtils.lerp(0.7, 0.45, (intro - 0.2) / 0.5)
+        : THREE.MathUtils.lerp(0.45, 0.4, (intro - 0.7) / 0.15);
     uniforms.current.u_lightScatterPowInv.value = scatterPow;
     uniforms.current.u_lightScatterRatio.value = intro > 0.7
       ? 1 - THREE.MathUtils.smoothstep(intro, 0.7, 0.85)
