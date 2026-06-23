@@ -86,7 +86,7 @@ export function AboutHeroLetters({
     
     return new THREE.ShaderMaterial({
       uniforms: {
-        u_time: shared.u_time,
+        u_time: shared.u_introTime,
         u_showRatio: { value: 1.0 },
         u_letterTexture: { value: letterTexture },
       },
