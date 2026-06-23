@@ -6,6 +6,7 @@ import { useFBO } from '@react-three/drei';
 import * as THREE from 'three';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { BLOOM_LAYER } from '../layers';
+import { fit, hudRatioFromIntro, introRatioFromScroll, sineOut } from '../mathLusion';
 
 const COMPOSITE_VERT = `
 varying vec2 vUv;
@@ -76,12 +77,13 @@ export function SelectiveBloomPipeline({
   }, [bloomPass, size.width, size.height]);
 
   useFrame(() => {
-    const scroll = scrollProgress.current;
-    const intro = Math.min(scroll / 0.85, 1);
-    const hud = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
+    const intro = introRatioFromScroll(scrollProgress.current);
+    const hud = hudRatioFromIntro(intro);
 
-    bloomPass.strength = THREE.MathUtils.lerp(3.2, 5.2, THREE.MathUtils.smoothstep(intro, 0, 0.35));
-    bloomPass.strength = THREE.MathUtils.lerp(bloomPass.strength, 6.0, hud * 0.35);
+    let bloomStrength = fit(intro, 0.1, 0.85, 3.2, 5.2, sineOut);
+    bloomStrength = fit(intro, 0.85, 1, bloomStrength, 6.0);
+    bloomStrength = fit(hud, 0, 0.5, bloomStrength, 6.0);
+    bloomPass.strength = bloomStrength;
     bloomPass.threshold = 0.02;
     bloomPass.radius = 0.55;
 

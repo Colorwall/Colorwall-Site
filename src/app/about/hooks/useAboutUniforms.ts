@@ -1,6 +1,12 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { introRatioFromScroll } from './useCameraSpline';
+import {
+  cubicIn,
+  cubicOut,
+  fit,
+  hudRatioFromIntro,
+  introRatioFromScroll,
+} from '../mathLusion';
 
 export function useAboutUniforms(scrollRef: { current: number }) {
   const lightPosition = useMemo(() => new THREE.Vector3(0, 8, 0), []);
@@ -26,27 +32,19 @@ export function useAboutUniforms(scrollRef: { current: number }) {
   });
 
   const sync = () => {
-    const scroll = scrollRef.current;
-    const intro = introRatioFromScroll(scroll);
-    const hud = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
+    const intro = introRatioFromScroll(scrollRef.current);
 
-    uniforms.current.u_sceneRatio.value = Math.max(
-      THREE.MathUtils.smoothstep(intro, 0.01, 0.15),
-      0.85,
-    );
-    uniforms.current.u_sceneHideRatio.value = THREE.MathUtils.smoothstep(intro, 0.85, 1);
-    uniforms.current.u_hudRatio.value = hud;
-    uniforms.current.u_noiseStableFactor.value = THREE.MathUtils.smoothstep(intro, 0, 0.2);
+    // Lusion AboutHero.syncProperties — scene fades in early, then HUD dims platform/light
+    uniforms.current.u_sceneRatio.value = fit(intro, 0.01, 0.1, 0, 1, cubicOut);
+    uniforms.current.u_sceneHideRatio.value = fit(intro, 0.85, 1, 0, 1);
+    uniforms.current.u_hudRatio.value = hudRatioFromIntro(intro);
+    uniforms.current.u_noiseStableFactor.value = fit(intro, 0, 0.4, 0, 1);
 
-    const scatterPow = intro < 0.2
-      ? THREE.MathUtils.lerp(2.0, 0.7, intro / 0.2)
-      : intro < 0.7
-        ? THREE.MathUtils.lerp(0.7, 0.45, (intro - 0.2) / 0.5)
-        : THREE.MathUtils.lerp(0.45, 0.4, (intro - 0.7) / 0.15);
+    // Lusion AboutHeroScatter.update
+    let scatterPow = fit(intro, 0, 0.2, 2, 0.7);
+    scatterPow = fit(intro, 0.7, 0.85, scatterPow, 0.4);
     uniforms.current.u_lightScatterPowInv.value = scatterPow;
-    uniforms.current.u_lightScatterRatio.value = intro > 0.7
-      ? 1 - THREE.MathUtils.smoothstep(intro, 0.7, 0.85)
-      : 1;
+    uniforms.current.u_lightScatterRatio.value = fit(intro, 0.7, 0.85, 1, 0, cubicIn);
   };
 
   return { uniforms: uniforms.current, sync, lightPosition };

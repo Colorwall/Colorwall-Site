@@ -40,7 +40,7 @@ function CameraRig({
   const smoothLook = useMemo(() => new THREE.Vector3(0, 7.3, 4), []);
   const initialized = useRef(false);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const phases = getScrollPhases(scrollProgress.current);
     const { position, lookAt } = sampleSpline(spline, phases.splineT);
 
@@ -51,8 +51,10 @@ function CameraRig({
     }
 
     const follow = getCameraFollowStrength(phases.initialSplineRatio);
-    smoothPos.lerp(position, follow);
-    smoothLook.lerp(lookAt, follow);
+    const dt = Math.min(delta, 0.05);
+    const ease = 1 - Math.exp(-follow * 60 * dt);
+    smoothPos.lerp(position, ease);
+    smoothLook.lerp(lookAt, ease);
 
     // Default drone view: camera locked on the particle burst above the light
     const focusT = THREE.MathUtils.lerp(0.92, 0.5, phases.initialSplineRatio);

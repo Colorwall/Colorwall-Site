@@ -4,8 +4,8 @@ import { useTheme } from "@/app/contexts/ThemeContext";
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import { WebGLAboutScene } from "./WebGLScene";
-import { DEFAULT_SCROLL } from "./scrollConfig";
 import { useState, useEffect, useRef } from "react";
+import { useVirtualScroll } from "./hooks/useVirtualScroll";
 
 function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -99,21 +99,10 @@ export default function AboutPage() {
     // Prevent SSR hydration crashes with WebGL portals
     const [mounted, setMounted] = useState(false);
     
-    // Virtual scroll (0–1); start one wheel notch out from spline origin
-    const scrollProgress = useRef(DEFAULT_SCROLL);
+    const scrollProgress = useVirtualScroll();
 
     useEffect(() => {
         setMounted(true);
-        
-        // Hijack the wheel globally
-        const handleWheel = (e: WheelEvent) => {
-            e.preventDefault();
-            const delta = e.deltaY * 0.0012;
-            scrollProgress.current = Math.min(1, Math.max(0, scrollProgress.current + delta));
-        };
-        
-        window.addEventListener('wheel', handleWheel, { passive: false });
-        return () => window.removeEventListener('wheel', handleWheel);
     }, []);
 
     if (!mounted) return null;

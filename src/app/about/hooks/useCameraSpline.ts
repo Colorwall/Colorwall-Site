@@ -52,9 +52,9 @@ export function useCameraSpline(url = '/lusion-assets/camera_spline.buf') {
 
 export function getScrollPhases(scroll: number): ScrollPhases {
   const introRatio = Math.min(scroll / 0.85, 1);
-  const initialSplineRatio = Math.min(scroll / 0.7, 1);
-  const panningSplineRatio = scroll > 0.7 ? (scroll - 0.7) / 0.3 : 0;
-  const hudRatio = scroll > 0.35 ? Math.min((scroll - 0.35) / 0.15, 1) : 0;
+  const initialSplineRatio = introRatio;
+  const panningSplineRatio = scroll > 0.85 ? (scroll - 0.85) / 0.15 : 0;
+  const hudRatio = scroll > 0.85 ? Math.min((scroll - 0.85) / 0.15, 1) : 0;
   const splineT = initialSplineRatio * 149 + panningSplineRatio * 50;
   return { introRatio, initialSplineRatio, panningSplineRatio, hudRatio, splineT };
 }
@@ -82,9 +82,7 @@ export function getCameraFollowStrength(initialSplineRatio: number) {
   return THREE.MathUtils.lerp(0.1, 0.035, initialSplineRatio);
 }
 
-export function introRatioFromScroll(scroll: number) {
-  return Math.min(scroll / 0.85, 1);
-}
+export { introRatioFromScroll } from '../mathLusion';
 
 // Legacy helper
 export function scrollToSplineT(scroll: number) {
