@@ -57,7 +57,7 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     
     // We do not go all the way to 0 here because our port lacks the LightField volume
     // so we need the scatter to remain and light the scene at a resting state.
-    uniforms.current.u_lightScatterRatio.value = fit(timeIntro, 0.7, 0.85, 1.0, 0.35, cubicIn);
+    uniforms.current.u_lightScatterRatio.value = fit(timeIntro, 0.7, 0.85, 1.0, 1.0, cubicIn);
   };
 
   return { uniforms: uniforms.current, sync, lightPosition };

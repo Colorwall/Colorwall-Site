@@ -62,10 +62,13 @@ export function SelectiveBloomPipeline({
     [],
   );
 
-  const bloomPass = useMemo(
-    () => new UnrealBloomPass(new THREE.Vector2(size.width, size.height), 2.5, 0.4, 0.12),
-    [size.width, size.height],
-  );
+  const bloomPass = useMemo(() => {
+    const pass = new UnrealBloomPass(new THREE.Vector2(size.width, size.height), 2.0, 1.0, 0.85);
+    pass.threshold = 0;
+    pass.strength = 2.0;
+    pass.radius = 1.0;
+    return pass;
+  }, [size.width, size.height]);
 
   useLayoutEffect(() => {
     quadScene.add(blitMesh);
