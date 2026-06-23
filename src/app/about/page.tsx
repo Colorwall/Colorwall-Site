@@ -64,18 +64,18 @@ function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'ligh
         {/* Left Column */}
         <div className="text-white">
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium leading-tight tracking-wide">
-            WE ARE<br />
+            WE MADE<br />
             COLORWALL<br />
-            A CREATIVE<br />
-            PRODUCTION STUDIO
+            THE WALLPAPER ENGINE<br />
+            OF THE FUTURE 
           </h2>
         </div>
 
         {/* Right Column (Italicized) */}
         <div className="text-white text-right pb-1">
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium italic leading-tight tracking-wide">
-            CRAFTING UNIQUE<br />
-            DIGITAL EXPERIENCES
+            PRODUCED BY<br />
+            OLIVER LAXENTA
           </h2>
         </div>
       </div>
