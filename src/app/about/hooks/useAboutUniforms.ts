@@ -1,5 +1,6 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import {
   cubicIn,
   cubicOut,
@@ -10,6 +11,7 @@ import {
 
 export function useAboutUniforms(scrollRef: { current: number }) {
   const lightPosition = useMemo(() => new THREE.Vector3(0, 8, 0), []);
+  const loadTime = useRef(performance.now());
 
   const uniforms = useRef({
     u_lightPosition: { value: lightPosition },
@@ -38,14 +40,24 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     // Lusion AboutHero.syncProperties — scene fades in early, then HUD dims platform/light
     uniforms.current.u_sceneRatio.value = fit(intro, 0.01, 0.1, 0, 1, cubicOut);
     uniforms.current.u_sceneHideRatio.value = fit(intro, 0.85, 1, 0, 1);
-    uniforms.current.u_hudRatio.value = hudRatioFromIntro(intro);
+    
+    // Do not ramp hudRatio to 1, because that transitions the terrain to black.
+    // We want the astronaut area to stay fully lit.
+    uniforms.current.u_hudRatio.value = 0;
     uniforms.current.u_noiseStableFactor.value = fit(intro, 0, 0.4, 0, 1);
 
     // Lusion AboutHeroScatter.update
-    let scatterPow = fit(intro, 0, 0.2, 2, 0.7);
-    scatterPow = fit(intro, 0.7, 0.85, scatterPow, 0.4);
+    // Drive this with true time rather than scroll so it acts as an intro animation
+    const timeElapsed = (performance.now() - loadTime.current) / 1000;
+    const timeIntro = Math.min(timeElapsed / 3.0, 1.0); // 3-second intro
+
+    let scatterPow = fit(timeIntro, 0, 0.2, 2, 0.7);
+    scatterPow = fit(timeIntro, 0.7, 0.85, scatterPow, 0.4);
     uniforms.current.u_lightScatterPowInv.value = scatterPow;
-    uniforms.current.u_lightScatterRatio.value = fit(intro, 0.7, 0.85, 1, 0, cubicIn);
+    
+    // We do not go all the way to 0 here because our port lacks the LightField volume
+    // so we need the scatter to remain and light the scene at a resting state.
+    uniforms.current.u_lightScatterRatio.value = fit(timeIntro, 0.7, 0.85, 1.0, 0.35, cubicIn);
   };
 
   return { uniforms: uniforms.current, sync, lightPosition };
