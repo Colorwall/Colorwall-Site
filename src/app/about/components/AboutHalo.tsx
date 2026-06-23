@@ -38,16 +38,13 @@ export function AboutHalo({
           u_currSceneTexture: { value: null },
         },
         vertexShader: buildShader(SHADERS.haloVert),
-        fragmentShader: buildShader(SHADERS.haloFrag).replace(
-          'gl_FragColor.rgb=vec3(gl_FragColor.r);',
-          'gl_FragColor.rgb=vec3(1.0, 0.0, 0.0);'
-        ),
+        fragmentShader: buildShader(SHADERS.haloFrag),
         transparent: true,
         premultipliedAlpha: true,
         depthWrite: false,
         depthTest: false,
         blending: THREE.AdditiveBlending,
-        side: THREE.BackSide,
+        side: THREE.DoubleSide,
       }),
     [shared],
   );
@@ -67,7 +64,7 @@ export function AboutHalo({
     <mesh
       geometry={geometry}
       material={material}
-      position={[0, 0, 0]}
+      
       renderOrder={10}
       frustumCulled={false}
       onUpdate={(self) => self.layers.enable(BLOOM_LAYER)}
