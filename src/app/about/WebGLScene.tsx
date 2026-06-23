@@ -25,6 +25,7 @@ import { ParticleField } from './components/ParticleField';
 import { AboutHalo } from './components/AboutHalo';
 import { AboutFog } from './components/AboutFog';
 import { AboutHeroLines } from './components/AboutHeroLines';
+import { AboutHeroLetters } from './components/AboutHeroLetters';
 import { SHADOW_LAYER } from './layers';
 import { fit, sineInOut } from './mathLusion';
 
@@ -690,6 +691,8 @@ export function WebGLAboutScene({
           groundShadowRef={groundShadowRef}
         />
       )}
+
+      <AboutHeroLetters shared={shared} scrollProgress={scrollProgress} />
 
       <SceneLayer shared={shared}>
         {rock0 && rockTextures0 && (
