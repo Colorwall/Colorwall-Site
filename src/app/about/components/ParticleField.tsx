@@ -63,7 +63,6 @@ function makeParticleMaterial(
   shared: ReturnType<typeof useAboutUniforms>['uniforms'],
   simTex: THREE.Texture,
   isEmissive: number,
-  lightFieldTex: THREE.Texture,
   fragmentKey: 'particleFrag' | 'particleFragBloom',
   bloomPass = false,
 ) {
@@ -80,7 +79,7 @@ function makeParticleMaterial(
       u_emissiveRatio: { value: 0 },
       u_contrast: { value: 1 },
       u_noiseStableFactor: shared.u_noiseStableFactor,
-      u_lightFieldSlicedTexture: { value: lightFieldTex },
+      u_lightFieldSlicedTexture: { value: null },
       u_lightFieldSlicedTextureSize: { value: new THREE.Vector2(1, 1) },
       u_lightFieldSliceColRowCount: { value: new THREE.Vector2(1, 1) },
       u_lightFieldGridCount: { value: GRID_COUNT.clone() },
@@ -116,16 +115,21 @@ export function ParticleField({
   const simUvs = useMemo(() => buildSimUvs(), []);
   const defaultSim = useMemo(() => createDefaultSimTexture(), []);
 
-  const lightFieldTex = useMemo(() => {
-    const data = new Float32Array([1, 1, 1, 1]);
-    const tex = new THREE.DataTexture(data, 1, 1, THREE.RGBAFormat, THREE.FloatType);
-    tex.needsUpdate = true;
-    return tex;
-  }, []);
-
   const currFbo = useFBO(SIM_W, SIM_H, { type: THREE.FloatType });
   const prevFbo = useFBO(SIM_W, SIM_H, { type: THREE.FloatType });
   const swap = useRef(false);
+
+  const drawnSliceFbo = useFBO(512, 512, { type: THREE.FloatType });
+  const sliceFbo1 = useFBO(512, 512, { type: THREE.FloatType });
+  const sliceFbo2 = useFBO(512, 512, { type: THREE.FloatType });
+  const sliceSwap = useRef(false);
+
+  const volOffset = useMemo(() => {
+    const o = new THREE.Vector3();
+    o.copy(VOLUME_SIZE).multiplyScalar(0.5).sub(shared.u_lightPosition.value).multiplyScalar(-1);
+    o.addScalar(-GRID_SIZE / 2);
+    return o;
+  }, [shared.u_lightPosition]);
   const noiseTime = useRef(0);
   const noiseScaleTime = useRef(Math.random());
   const quadScene = useMemo(() => new THREE.Scene(), []);
@@ -153,24 +157,90 @@ export function ParticleField({
     });
   }, [defaultSim, prevFbo.texture, shared]);
 
+  const lightFieldGeo = useMemo(() => {
+    const count = SIM_W * SIM_H;
+    const positions = new Float32Array(count * 3);
+    for (let p = 0, g = 0; p < count; p++, g += 3) {
+      positions[g + 0] = (p % SIM_W + 0.5) / SIM_W;
+      positions[g + 1] = (Math.floor(p / SIM_W) + 0.5) / SIM_H;
+      positions[g + 2] = 0;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, []);
+
+  const lightFieldMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        u_simCurrPosLifeTexture: { value: null },
+        u_noiseStableFactor: shared.u_noiseStableFactor,
+        u_lightFieldSlicedTextureSize: { value: new THREE.Vector2(512, 512) },
+        u_lightFieldSliceColRowCount: { value: new THREE.Vector2(8, 8) },
+        u_lightFieldGridCount: { value: GRID_COUNT },
+        u_lightFieldVolumeOffset: { value: volOffset },
+        u_lightFieldVolumeSize: { value: VOLUME_SIZE }
+      },
+      vertexShader: buildShader(SHADERS.lightFieldVert),
+      fragmentShader: buildShader(SHADERS.lightFieldFrag),
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.MaxEquation,
+      blendSrc: THREE.OneFactor,
+      blendDst: THREE.OneFactor,
+      blendEquationAlpha: THREE.MaxEquation,
+      blendSrcAlpha: THREE.OneFactor,
+      blendDstAlpha: THREE.OneFactor,
+      depthTest: false,
+      depthWrite: false,
+      transparent: true,
+    });
+  }, [shared, volOffset]);
+
+  const lightFieldScene = useMemo(() => {
+    const scene = new THREE.Scene();
+    scene.add(new THREE.Points(lightFieldGeo, lightFieldMaterial));
+    return scene;
+  }, [lightFieldGeo, lightFieldMaterial]);
+
+  const sliceBlendMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        u_lightFieldSlicedTextureSize: { value: new THREE.Vector2(512, 512) },
+        u_lightFieldSliceColRowCount: { value: new THREE.Vector2(8, 8) },
+        u_lightFieldGridCount: { value: GRID_COUNT },
+        u_lightFieldVolumeOffset: { value: volOffset },
+        u_lightFieldVolumeSize: { value: VOLUME_SIZE },
+        u_prevSliceTexture: { value: null },
+        u_drawnSliceTexture: { value: null }
+      },
+      vertexShader: `
+        varying vec2 v_uv;
+        void main() { v_uv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+      `,
+      fragmentShader: buildShader(SHADERS.sliceBlendFrag),
+      depthTest: false,
+      depthWrite: false,
+    });
+  }, [volOffset]);
+
   const columnGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
   const emissiveGeo = useMemo(() => new THREE.InstancedBufferGeometry(), []);
 
   const baseColumnMat = useMemo(
-    () => makeParticleMaterial(shared, currFbo.texture, 0, lightFieldTex, 'particleFrag'),
-    [shared, currFbo.texture, lightFieldTex],
+    () => makeParticleMaterial(shared, currFbo.texture, 0, 'particleFrag'),
+    [shared, currFbo.texture],
   );
   const baseEmissiveMat = useMemo(
-    () => makeParticleMaterial(shared, currFbo.texture, 1, lightFieldTex, 'particleFrag'),
-    [shared, currFbo.texture, lightFieldTex],
+    () => makeParticleMaterial(shared, currFbo.texture, 1, 'particleFrag'),
+    [shared, currFbo.texture],
   );
   const bloomColumnMat = useMemo(
-    () => makeParticleMaterial(shared, currFbo.texture, 0, lightFieldTex, 'particleFragBloom', true),
-    [shared, currFbo.texture, lightFieldTex],
+    () => makeParticleMaterial(shared, currFbo.texture, 0, 'particleFragBloom', true),
+    [shared, currFbo.texture],
   );
   const bloomEmissiveMat = useMemo(
-    () => makeParticleMaterial(shared, currFbo.texture, 1, lightFieldTex, 'particleFragBloom', true),
-    [shared, currFbo.texture, lightFieldTex],
+    () => makeParticleMaterial(shared, currFbo.texture, 1, 'particleFragBloom', true),
+    [shared, currFbo.texture],
   );
 
   useLayoutEffect(() => {
@@ -231,10 +301,35 @@ export function ParticleField({
     gl.setClearColor(0x000000, 0);
     gl.clear();
     gl.render(quadScene, quadCam);
-    gl.setRenderTarget(prevTarget);
 
     const simTex = write.texture;
+
+    // STEP 3: Splat positions into drawn slice buffer
+    gl.setRenderTarget(drawnSliceFbo);
+    gl.setClearColor(0x000000, 0);
+    gl.clear();
+    lightFieldMaterial.uniforms.u_simCurrPosLifeTexture.value = simTex;
+    gl.render(lightFieldScene, quadCam);
+
+    // STEP 4: Temporal decay blend into current slice buffer
+    const sRead = sliceSwap.current ? sliceFbo1 : sliceFbo2;
+    const sWrite = sliceSwap.current ? sliceFbo2 : sliceFbo1;
+    sliceSwap.current = !sliceSwap.current;
+
+    gl.setRenderTarget(sWrite);
+    gl.setClearColor(0x000000, 0);
+    gl.clear();
+    sliceBlendMaterial.uniforms.u_prevSliceTexture.value = sRead.texture;
+    sliceBlendMaterial.uniforms.u_drawnSliceTexture.value = drawnSliceFbo.texture;
+    quadMesh.material = sliceBlendMaterial;
+    gl.render(quadScene, quadCam);
+    quadMesh.material = simMaterial; // restore for sim next frame
+
+    gl.setRenderTarget(prevTarget);
+
+    const finalLightField = sWrite.texture;
     for (const mat of [baseColumnMat, baseEmissiveMat, bloomColumnMat, bloomEmissiveMat]) {
+      mat.uniforms.u_lightFieldSlicedTexture.value = finalLightField;
       mat.uniforms.u_simCurrPosLifeTexture.value = simTex;
       mat.uniforms.u_emissiveRatio.value = emissiveRatio;
       mat.uniforms.u_sceneHideRatio.value = hideRatio;
