@@ -104,7 +104,10 @@ gl_FragColor.a=1.0;}`,
   sliceBlendFrag: SLICE_BLEND_FRAG,
   lightFieldVert: extracted.lightFieldVert.replace('attribute vec3 position;', ''),
   lightFieldFrag: extracted.lightFieldFrag,
-  haloVert: extracted['vert$4'],
+  haloVert: extracted['vert$4'].replace(
+    'gl_Position.z=1.*(gl_Position.w);',
+    'gl_Position.z=0.9999*(gl_Position.w);'
+  ),
   haloFrag: extracted['frag$7'].replace(
     'gl_FragColor.a=0.;gl_FragColor.r+=noise.r*0.004;}',
     'gl_FragColor.a=0.;gl_FragColor.r+=noise.r*0.004;gl_FragColor.rgb=vec3(gl_FragColor.r);gl_FragColor.a=1.0;}'

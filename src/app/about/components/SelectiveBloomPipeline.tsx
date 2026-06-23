@@ -21,9 +21,11 @@ uniform sampler2D tBase;
 uniform sampler2D tBloom;
 varying vec2 vUv;
 void main() {
-  vec3 col = texture2D(tBase, vUv).rgb + texture2D(tBloom, vUv).rgb;
-  float luma = dot(col, vec3(0.299, 0.587, 0.114));
-  col = vec3(luma);
+  // Lusion renders the scene as a data buffer: R = Luminance, G = Depth, B = Mask
+  float baseLum = texture2D(tBase, vUv).r;
+  float bloomLum = texture2D(tBloom, vUv).r;
+  
+  vec3 col = vec3(baseLum + bloomLum);
   col = pow(col, vec3(1.05));
   col = clamp(col * vec3(1.02, 1.0, 0.99), 0.0, 1.0);
   gl_FragColor = vec4(col, 1.0);

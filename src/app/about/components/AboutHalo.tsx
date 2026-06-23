@@ -38,8 +38,12 @@ export function AboutHalo({
           u_currSceneTexture: { value: null },
         },
         vertexShader: buildShader(SHADERS.haloVert),
-        fragmentShader: buildShader(SHADERS.haloFrag),
+        fragmentShader: buildShader(SHADERS.haloFrag).replace(
+          'gl_FragColor.rgb=vec3(gl_FragColor.r);',
+          'gl_FragColor.rgb=vec3(1.0, 0.0, 0.0);'
+        ),
         transparent: true,
+        premultipliedAlpha: true,
         depthWrite: false,
         depthTest: false,
         blending: THREE.AdditiveBlending,
@@ -56,15 +60,17 @@ export function AboutHalo({
     material.uniforms.u_resolution.value.set(state.size.width, state.size.height);
   });
 
-  const meshRef = React.useRef<THREE.Mesh>(null);
-
-  React.useEffect(() => {
-    if (meshRef.current) {
-      meshRef.current.layers.enable(BLOOM_LAYER);
-    }
-  }, []);
-
+  console.log('halo geometry:', geometry);
   if (!geometry) return null;
 
-  return <mesh ref={meshRef} geometry={geometry} material={material} position={[0, 0, 0]} renderOrder={10} frustumCulled={false} />;
+  return (
+    <mesh
+      geometry={geometry}
+      material={material}
+      position={[0, 0, 0]}
+      renderOrder={10}
+      frustumCulled={false}
+      onUpdate={(self) => self.layers.enable(BLOOM_LAYER)}
+    />
+  );
 }
