@@ -1,4 +1,4 @@
-/** Lusion AboutPageHeroEfx — matches fragmentShader$1 from lusion_bundle.js */
+/** Buffer AboutPageHeroEfx — matches fragmentShader$1 from buffer_bundle.js */
 export const COLOR_GRADE_FRAG = `
 uniform sampler2D tScene;
 uniform vec3 u_colorBurn;
@@ -24,7 +24,7 @@ void main() {
 }
 `;
 
-/** Lusion Bloom highPassFrag USE_HALO — lens ghost reflections from bright scene areas */
+/** Buffer Bloom highPassFrag USE_HALO — lens ghost reflections from bright scene areas */
 export const LENS_HALO_FRAG = `
 uniform sampler2D tScene;
 uniform vec2 u_resolution;

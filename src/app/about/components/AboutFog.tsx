@@ -9,7 +9,7 @@ import type { useAboutUniforms } from '../hooks/useAboutUniforms';
 
 const FOG_COUNT = 32;
 
-// Lusion AboutHeroFog — vert$5 + frag$8 from lusion_source.js
+// Buffer AboutHeroFog — vert$5 + frag$8 from buffer_source.js
 const FOG_VERT = `#define GLSLIFY 1
 varying vec3 v_worldPosition;varying vec2 v_uv;varying float v_depth;varying float v_instanceId;varying float v_opacity;attribute float a_instanceId;attribute vec3 a_instancePos;attribute vec3 a_instanceRands;uniform float u_introTime;uniform float u_sceneRatio;uniform float u_hudRatio;vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}float mod289(float x){return x-floor(x*(1.0/289.0))*289.0;}vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}float permute(float x){return mod289(((x*34.0)+1.0)*x);}vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}float taylorInvSqrt(float r){return 1.79284291400159-0.85373472095314*r;}vec4 grad4(float j,vec4 ip){const vec4 ones=vec4(1.0,1.0,1.0,-1.0);vec4 p,s;p.xyz=floor(fract(vec3(j)*ip.xyz)*7.0)*ip.z-1.0;p.w=1.5-dot(abs(p.xyz),ones.xyz);s=vec4(lessThan(p,vec4(0.0)));p.xyz=p.xyz+(s.xyz*2.0-1.0)*s.www;return p;}
 #define F4 0.309016994374947451
@@ -62,7 +62,7 @@ export function AboutFog({
   const copyCam = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), []);
   const copyMesh = useMemo(() => new THREE.Mesh(new THREE.PlaneGeometry(2, 2)), []);
 
-  const fogTexture = useTexture('/lusion-assets/fog.png');
+  const fogTexture = useTexture('/shaders/fog.png');
   fogTexture.wrapS = fogTexture.wrapT = THREE.RepeatWrapping;
   fogTexture.colorSpace = THREE.LinearSRGBColorSpace;
 

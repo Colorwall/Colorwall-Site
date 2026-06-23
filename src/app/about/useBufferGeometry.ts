@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
 import * as THREE from 'three';
-import { fetchLusionBuffer } from './parseLusionBuffer';
+import { fetchBuffer } from './parseBuffer';
 
-export function useLusionGeometry(url: string) {
+export function useBufferGeometry(url: string) {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
 
   useEffect(() => {
-    fetchLusionBuffer(url)
+    fetchBuffer(url)
       .then(({ geometry: geo }) => {
         if (geo) setGeometry(geo);
       })
-      .catch((err) => console.error('Failed to parse Lusion geometry:', url, err));
+      .catch((err) => console.error('Failed to parse Buffer geometry:', url, err));
   }, [url]);
 
   return geometry;
 }
 
-export function useLusionAnimation(url: string) {
+export function useBufferAnimation(url: string) {
   const [data, setData] = useState<{
     positions: Float32Array;
     orients: Float32Array;
@@ -25,7 +25,7 @@ export function useLusionAnimation(url: string) {
   } | null>(null);
 
   useEffect(() => {
-    fetchLusionBuffer(url).then(({ header, raw }) => {
+    fetchBuffer(url).then(({ header, raw }) => {
       const orient = raw.orient as Float32Array;
       const positionAttr = header.attributes.find((a) => a.id === 'position')!;
       const count = header.vertexCount;

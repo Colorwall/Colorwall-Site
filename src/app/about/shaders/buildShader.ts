@@ -1,6 +1,6 @@
 import extracted from './extracted.json';
 
-// From public/lusion-assets shaders — lightFieldSlice.glsl (matches lusion_bundle.js sliceShader)
+// From public/shaders shaders — lightFieldSlice.glsl (matches buffer_bundle.js sliceShader)
 const LIGHT_FIELD_SLICE = `uniform vec2 u_lightFieldSlicedTextureSize;uniform vec2 u_lightFieldSliceColRowCount;uniform vec3 u_lightFieldGridCount;uniform vec3 u_lightFieldVolumeOffset;uniform vec3 u_lightFieldVolumeSize;vec2 lightFieldGridToUv(vec3 grid){vec2 uv=grid.xy;vec2 colRow=floor(vec2(mod(grid.z,u_lightFieldSliceColRowCount.x),grid.z/u_lightFieldSliceColRowCount.x));uv+=colRow*u_lightFieldGridCount.xy+.5;return uv/u_lightFieldSlicedTextureSize;}vec3 lightFieldGridToUv3(vec3 grid){return grid/u_lightFieldGridCount;}vec3 clampLightFieldGrid(vec3 grid){return clamp(grid,vec3(.5),u_lightFieldGridCount-vec3(.5));}vec3 lightFieldPosToGrid(vec3 pos){return(pos-u_lightFieldVolumeOffset)/u_lightFieldVolumeSize*u_lightFieldGridCount;}vec3 clampedLightFieldPosToGrid(vec3 pos){return clampLightFieldGrid(lightFieldPosToGrid(pos));}vec4 sampleLightField(sampler2D tex,vec3 gridPos){gridPos.z-=.5;vec2 uv1=lightFieldGridToUv(clampLightFieldGrid(vec3(gridPos.xy,floor(gridPos.z)+.5)));vec2 uv2=lightFieldGridToUv(clampLightFieldGrid(vec3(gridPos.xy,ceil(gridPos.z)+.5)));return mix(texture2D(tex,uv1),texture2D(tex,uv2),fract(gridPos.z));}`;
 
 const GET_BLUE_NOISE = `#define GLSLIFY 1
@@ -35,7 +35,7 @@ const CHUNKS: Record<string, string> = {
   getLightUv: GET_LIGHT_UV,
   lightFieldSlice: LIGHT_FIELD_SLICE,
   aboutHeroVisualFinal_vert: extracted.aboutHeroVisualFinalVert,
-  // Lusion encodes luminance in .r — prepass .rrra also handles this at composite time.
+  // Buffer encodes luminance in .r — prepass .rrra also handles this at composite time.
   aboutHeroVisualFinal_frag: 'gl_FragColor.rgb = vec3(gl_FragColor.r);',
   particleBloomFinal_frag:
     'float luma = mix(gl_FragColor.r, 1.0, u_emissiveRatio * 0.55); gl_FragColor = vec4(vec3(luma * 2.1), 1.0);',

@@ -7,7 +7,7 @@ import { buildShader } from '../shaders/buildShader';
 import { buildTerrainLinesGeometry } from '../buildTerrainLinesGeometry';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
 
-// Lusion vert$7 + frag$a — tube contours along terrain_lines.buf
+// Buffer vert$7 + frag$a — tube contours along terrain_lines.buf
 const TERRAIN_LINES_VERT = `#define GLSLIFY 1
 attribute float t;
 attribute float totalLength;

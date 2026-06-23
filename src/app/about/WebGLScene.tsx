@@ -7,12 +7,12 @@ import { useTexture, useFBO } from '@react-three/drei';
 import { SelectiveBloomPipeline } from './components/SelectiveBloomPipeline';
 
 import {
-  useLusionGeometry,
-  useLusionAnimation,
+  useBufferGeometry,
+  useBufferAnimation,
   createRockDataTextures,
   createPersonTexture,
   createRocksChannelTexture,
-} from './useLusionGeometry';
+} from './useBufferGeometry';
 import {
   useCameraSpline,
   sampleSpline,
@@ -26,7 +26,7 @@ import { AboutHalo } from './components/AboutHalo';
 import { AboutFog } from './components/AboutFog';
 import { AboutHeroLines } from './components/AboutHeroLines';
 import { SHADOW_LAYER } from './layers';
-import { fit, sineInOut } from './mathLusion';
+import { fit, sineInOut } from './mathUtils';
 
 const ROCK_COUNT = 64;
 const BONE_COUNT = 54;
@@ -400,7 +400,7 @@ function Person({
 }: {
   geometry: THREE.BufferGeometry;
   personTexture: THREE.Texture;
-  animData: NonNullable<ReturnType<typeof useLusionAnimation>>;
+  animData: NonNullable<ReturnType<typeof useBufferAnimation>>;
   shared: ReturnType<typeof useAboutUniforms>['uniforms'];
 }) {
   const time = useRef(0);
@@ -485,7 +485,7 @@ function PersonShadow({
 }: {
   shadowTexture: THREE.Texture;
   shared: ReturnType<typeof useAboutUniforms>['uniforms'];
-  animData: NonNullable<ReturnType<typeof useLusionAnimation>>;
+  animData: NonNullable<ReturnType<typeof useBufferAnimation>>;
 }) {
   const lightMixer = useMemo(() => new THREE.Vector3(1, 0, 0), []);
   const time = useRef(0);
@@ -603,25 +603,25 @@ export function WebGLAboutScene({
     return tex;
   }, []);
 
-  const terrainGeometry = useLusionGeometry('/lusion-assets/terrain.buf');
-  const personGeometry = useLusionGeometry('/lusion-assets/person.buf');
-  const rock0 = useLusionGeometry('/lusion-assets/rock_0.buf');
-  const rock1 = useLusionGeometry('/lusion-assets/rock_1.buf');
-  const rock2 = useLusionGeometry('/lusion-assets/rock_2.buf');
-  const rock3 = useLusionGeometry('/lusion-assets/rock_3.buf');
+  const terrainGeometry = useBufferGeometry('/shaders/terrain.buf');
+  const personGeometry = useBufferGeometry('/shaders/person.buf');
+  const rock0 = useBufferGeometry('/shaders/rock_0.buf');
+  const rock1 = useBufferGeometry('/shaders/rock_1.buf');
+  const rock2 = useBufferGeometry('/shaders/rock_2.buf');
+  const rock3 = useBufferGeometry('/shaders/rock_3.buf');
 
-  const personAnim = useLusionAnimation('/lusion-assets/person_idle.buf');
-  const rockAnim0 = useLusionAnimation('/lusion-assets/rock_animation_0.buf');
-  const rockAnim1 = useLusionAnimation('/lusion-assets/rock_animation_1.buf');
-  const rockAnim2 = useLusionAnimation('/lusion-assets/rock_animation_2.buf');
-  const rockAnim3 = useLusionAnimation('/lusion-assets/rock_animation_3.buf');
+  const personAnim = useBufferAnimation('/shaders/person_idle.buf');
+  const rockAnim0 = useBufferAnimation('/shaders/rock_animation_0.buf');
+  const rockAnim1 = useBufferAnimation('/shaders/rock_animation_1.buf');
+  const rockAnim2 = useBufferAnimation('/shaders/rock_animation_2.buf');
+  const rockAnim3 = useBufferAnimation('/shaders/rock_animation_3.buf');
 
-  const terrainTexture = useTexture('/lusion-assets/terrain_shadow_light_height.webp');
-  const personLightTexture = useTexture('/lusion-assets/person_light.webp');
-  const personBaseTexture = useTexture('/lusion-assets/person.webp');
-  const rocksRawTexture = useTexture('/lusion-assets/rocks.webp');
-  const shadowTexture = useTexture('/lusion-assets/ground_person_shadow.webp');
-  const blueNoiseTexture = useTexture('/lusion-assets/LDR_RGB1_0.png');
+  const terrainTexture = useTexture('/shaders/terrain_shadow_light_height.webp');
+  const personLightTexture = useTexture('/shaders/person_light.webp');
+  const personBaseTexture = useTexture('/shaders/person.webp');
+  const rocksRawTexture = useTexture('/shaders/rocks.webp');
+  const shadowTexture = useTexture('/shaders/ground_person_shadow.webp');
+  const blueNoiseTexture = useTexture('/shaders/LDR_RGB1_0.png');
 
   terrainTexture.flipY = true;
   terrainTexture.colorSpace = THREE.LinearSRGBColorSpace;

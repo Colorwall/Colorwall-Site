@@ -55,7 +55,7 @@ function unpackAttribute(
   return unpacked;
 }
 
-export function parseLusionBuffer(buffer: ArrayBuffer): {
+export function parseBuffer(buffer: ArrayBuffer): {
   header: BufferHeader;
   geometry: THREE.BufferGeometry | null;
   raw: RawAttributes;
@@ -137,8 +137,8 @@ function setGeometryAttribute(
   geo.setAttribute(name, new THREE.BufferAttribute(array, itemSize));
 }
 
-export async function fetchLusionBuffer(url: string) {
+export async function fetchBuffer(url: string) {
   const res = await fetch(url);
   const buffer = await res.arrayBuffer();
-  return parseLusionBuffer(buffer);
+  return parseBuffer(buffer);
 }

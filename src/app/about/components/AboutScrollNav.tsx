@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { SCROLL_NAV_COMPLETE_AT, SCROLL_NAV_SHOW_START } from '../scrollConfig';
-import { fit, cubicOut } from '../mathLusion';
+import { fit, cubicOut } from '../mathUtils';
 
 export function AboutScrollNav({
   scrollProgress,

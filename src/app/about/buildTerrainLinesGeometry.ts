@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fetchLusionBuffer } from './parseLusionBuffer';
+import { fetchBuffer } from './parseBuffer';
 
 const THRESHOLDS = [
   60, 245, 806, 966, 991, 1026, 1191, 1853, 2061, 3111, 4279, 4309, 4338, 5265, 5316, 5447,
@@ -10,7 +10,7 @@ const THRESHOLDS = [
 const SEGMENT_COUNT = 3;
 
 export async function buildTerrainLinesGeometry() {
-  const { raw } = await fetchLusionBuffer('/lusion-assets/terrain_lines.buf');
+  const { raw } = await fetchBuffer('/shaders/terrain_lines.buf');
   const t = raw.position as Float32Array;
   const n = t.length / 3;
 

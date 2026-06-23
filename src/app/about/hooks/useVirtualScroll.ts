@@ -2,13 +2,13 @@
 
 import { useEffect, useRef } from 'react';
 import { DEFAULT_SCROLL, SCROLL_MAX } from '../scrollConfig';
-import { INTRO_SCROLL_END } from '../mathLusion';
+import { INTRO_SCROLL_END } from '../mathUtils';
 
 function saturateToMax(v: number) {
   return Math.max(0, Math.min(SCROLL_MAX, v));
 }
 
-/** Lusion ScrollPane — wheelEaseCoeff and viewport-normalized deltas. */
+/** Buffer ScrollPane — wheelEaseCoeff and viewport-normalized deltas. */
 const WHEEL_EASE_COEFF = 12;
 const SCROLL_PER_VIEWPORT = INTRO_SCROLL_END / (3.5 + 1.75);
 
@@ -37,7 +37,14 @@ export function useVirtualScroll() {
       const diff = target - current;
 
       if (wheelScrolling.current) {
-        const step = diff * (1 - Math.exp(-WHEEL_EASE_COEFF * dt));
+        let step = diff * (1 - Math.exp(-WHEEL_EASE_COEFF * dt));
+        
+        // clamp the maximum scroll step size to limit the peak velocity per frame.
+        // this prevents the virtual scroll from going too fast if the user scrolls hard,
+        // ensuring the webgl camera animation (c:\Users\MY-PC\Documents\Colorwall-Site\src\app\about\WebGLScene.tsx) stays smooth and controllable.
+        const maxStep = 1.2 * dt; 
+        step = Math.max(-maxStep, Math.min(maxStep, step));
+
         if (Math.abs(diff) < 0.00015) {
           scrollProgress.current = target;
           wheelScrolling.current = false;
@@ -57,7 +64,16 @@ export function useVirtualScroll() {
       e.preventDefault();
       const vh = window.innerHeight || 1;
       const delta = (normalizeWheelPixels(e) / vh) * SCROLL_PER_VIEWPORT;
-      targetScroll.current = saturateToMax(targetScroll.current + delta);
+      
+      // cap the target scroll so it can never be too far ahead of the current scroll position.
+      // this stops the accumulated wheel delta from building up infinitely, which would 
+      // otherwise cause an endless high-speed scroll after violent wheel spins.
+      const maxLead = 0.08;
+      const newTarget = saturateToMax(targetScroll.current + delta);
+      targetScroll.current = Math.max(
+        scrollProgress.current - maxLead,
+        Math.min(scrollProgress.current + maxLead, newTarget)
+      );
       wheelScrolling.current = true;
     };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { fetchLusionBuffer } from '../parseLusionBuffer';
+import { fetchBuffer } from '../parseBuffer';
 
 export interface SplineFrame {
   position: THREE.Vector3;
@@ -15,11 +15,11 @@ export interface ScrollPhases {
   splineT: number;
 }
 
-export function useCameraSpline(url = '/lusion-assets/camera_spline.buf') {
+export function useCameraSpline(url = '/shaders/camera_spline.buf') {
   const [frames, setFrames] = useState<SplineFrame[] | null>(null);
 
   useEffect(() => {
-    fetchLusionBuffer(url).then(({ header, raw }) => {
+    fetchBuffer(url).then(({ header, raw }) => {
       const count = header.vertexCount;
       const orient = raw.orient as Float32Array;
       const positionPacked = raw.position as Uint16Array;
@@ -77,12 +77,12 @@ export function sampleSpline(frames: SplineFrame[], t: number) {
   return { position, quaternion, lookAt };
 }
 
-/** Lusion eases camera toward spline; weaker follow as zoom-out progresses. */
+/** Buffer eases camera toward spline; weaker follow as zoom-out progresses. */
 export function getCameraFollowStrength(initialSplineRatio: number) {
   return THREE.MathUtils.lerp(0.1, 0.035, initialSplineRatio);
 }
 
-export { introRatioFromScroll } from '../mathLusion';
+export { introRatioFromScroll } from '../mathUtils';
 
 // Legacy helper
 export function scrollToSplineT(scroll: number) {

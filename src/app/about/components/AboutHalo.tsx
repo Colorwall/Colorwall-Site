@@ -3,20 +3,20 @@
 import { useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useLusionGeometry } from '../useLusionGeometry';
+import { useBufferGeometry } from '../useBufferGeometry';
 import { buildShader, SHADERS } from '../shaders/buildShader';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
 import React from 'react';
 import { BLOOM_LAYER } from '../layers';
 
-// Lusion AboutHeroHalo — exact vert$4 + frag$7 from lusion_bundle.js / bg_box.buf
+// Buffer AboutHeroHalo — exact vert$4 + frag$7 from buffer_bundle.js / bg_box.buf
 export function AboutHalo({
   shared,
 }: {
   shared: ReturnType<typeof useAboutUniforms>['uniforms'];
   scrollProgress?: { current: number };
 }) {
-  const geometry = useLusionGeometry('/lusion-assets/bg_box.buf');
+  const geometry = useBufferGeometry('/shaders/bg_box.buf');
 
   const material = useMemo(
     () =>

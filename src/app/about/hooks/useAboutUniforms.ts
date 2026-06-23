@@ -7,7 +7,7 @@ import {
   fit,
   hudRatioFromIntro,
   introRatioFromScroll,
-} from '../mathLusion';
+} from '../mathUtils';
 
 export function useAboutUniforms(scrollRef: { current: number }) {
   const lightPosition = useMemo(() => new THREE.Vector3(0, 8, 0), []);
@@ -40,18 +40,18 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     // Use the exact hudRatio calculation from getScrollPhases for consistency
     const hudRatio = scroll > 0.85 ? Math.min((scroll - 0.85) / 0.15, 1) : 0;
 
-    // Lusion AboutHero.syncProperties
+    // Buffer AboutHero.syncProperties
     uniforms.current.u_sceneRatio.value = fit(intro, 0.01, 0.1, 0, 1, cubicOut);
     uniforms.current.u_sceneHideRatio.value = fit(intro, 0.85, 1, 0, 1);
     uniforms.current.u_hudRatio.value = hudRatio;
     uniforms.current.u_noiseStableFactor.value = fit(intro, 0, 0.4, 0, 1);
 
-    // Lusion AboutHeroScatter.update
+    // Buffer AboutHeroScatter.update
     let scatterPow = fit(intro, 0, 0.2, 2, 0.7);
     scatterPow = fit(intro, 0.7, 0.85, scatterPow, 0.4);
     uniforms.current.u_lightScatterPowInv.value = scatterPow;
     
-    // Lusion correctly fades the ambient scatter to 0 from 0.7 to 0.85
+    // Buffer correctly fades the ambient scatter to 0 from 0.7 to 0.85
     uniforms.current.u_lightScatterRatio.value = fit(intro, 0.7, 0.85, 1.0, 0.0, cubicIn);
   };
 

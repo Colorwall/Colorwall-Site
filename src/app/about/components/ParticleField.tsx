@@ -5,7 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { useFBO } from '@react-three/drei';
 import * as THREE from 'three';
 
-import { useLusionGeometry } from '../useLusionGeometry';
+import { useBufferGeometry } from '../useBufferGeometry';
 import { buildShader, SHADERS } from '../shaders/buildShader';
 import extracted from '../shaders/extracted.json';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
@@ -135,10 +135,10 @@ export function ParticleField({
   shared: ReturnType<typeof useAboutUniforms>['uniforms'];
   scrollProgress: { current: number };
 }) {
-  const sphereL = useLusionGeometry('/lusion-assets/sphere_l.buf');
-  const sphereM = useLusionGeometry('/lusion-assets/sphere_m.buf');
-  const sphereS = useLusionGeometry('/lusion-assets/sphere_s.buf');
-  const sphereXs = useLusionGeometry('/lusion-assets/sphere_xs.buf');
+  const sphereL = useBufferGeometry('/shaders/sphere_l.buf');
+  const sphereM = useBufferGeometry('/shaders/sphere_m.buf');
+  const sphereS = useBufferGeometry('/shaders/sphere_s.buf');
+  const sphereXs = useBufferGeometry('/shaders/sphere_xs.buf');
   const lodGeometries = useMemo(
     () => [sphereL, sphereM, sphereS, sphereXs],
     [sphereL, sphereM, sphereS, sphereXs],
@@ -399,7 +399,7 @@ export function ParticleField({
 
   return (
     <group ref={groupRef}>
-      {/* Base pass — always visible like Lusion */}
+      {/* Base pass — always visible like Buffer */}
       <instancedMesh
         args={[columnGeo, baseColumnMat, columnCount]}
         frustumCulled={false}
