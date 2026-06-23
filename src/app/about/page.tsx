@@ -6,49 +6,58 @@ import * as THREE from 'three';
 import { WebGLAboutScene } from "./WebGLScene";
 import { useState, useEffect, useRef } from "react";
 import { useVirtualScroll } from "./hooks/useVirtualScroll";
+import { TEXT_PHASES } from "./scrollConfig";
+import { AboutScrollNav } from "./components/AboutScrollNav";
+import { AboutScrollIndicator } from "./components/AboutScrollIndicator";
 
-function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
+function phaseOpacity(r: number, start: number, peak: number, end: number) {
+  if (r < start || r > end) return 0;
+  if (r <= peak) return (r - start) / (peak - start);
+  return 1 - (r - peak) / (end - peak);
+}
+
+function CinematicTextOverlay({
+  scrollProgress,
+}: {
+  scrollProgress: { current: number };
+}) {
   const heroRef = useRef<HTMLDivElement>(null);
-  const infoRef = useRef<HTMLDivElement>(null);
+  const phaseRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     let animationFrameId: number;
-    
+
     const renderLoop = () => {
-      if (!heroRef.current || !infoRef.current) return;
-      const r = scrollProgress.current; // 0 to 1
+      const r = scrollProgress.current;
 
-      // Phase 1: Hero text fades quickly so the 3D scene is visible
-      const heroOpacity = Math.max(0, 1 - (r / 0.12));
-      heroRef.current.style.opacity = `${heroOpacity}`;
-      // Slight scale out as we zoom
-      heroRef.current.style.transform = `scale(${1 + r * 0.5})`;
-
-      // Phase 2: Dual Column Info Text (0.4 to 1.0)
-      let infoOpacity = 0;
-      if (r > 0.35) {
-        infoOpacity = Math.min(1, (r - 0.35) / 0.15);
+      if (heroRef.current) {
+        const heroOpacity = Math.max(0, 1 - r / 0.12);
+        heroRef.current.style.opacity = `${heroOpacity}`;
+        heroRef.current.style.transform = `scale(${1 + r * 0.5})`;
       }
-      infoRef.current.style.opacity = `${infoOpacity}`;
-      // Slide up slightly
-      infoRef.current.style.transform = `translateY(${(0.6 - r) * 30}px)`;
+
+      TEXT_PHASES.forEach((phase, i) => {
+        const el = phaseRefs.current[i];
+        if (!el) return;
+        const opacity = phaseOpacity(r, phase.start, phase.peak, phase.end);
+        el.style.opacity = `${opacity}`;
+        el.style.transform = `translateY(${(1 - opacity) * 20}px)`;
+      });
 
       animationFrameId = requestAnimationFrame(renderLoop);
     };
-    
+
     renderLoop();
     return () => cancelAnimationFrame(animationFrameId);
   }, [scrollProgress]);
 
   return (
     <div className="relative h-screen w-full overflow-hidden pointer-events-none flex items-center justify-center">
-      
-      {/* 1. MASSIVE HERO TEXT (Phase 1) */}
-      <div 
-        ref={heroRef} 
+      <div
+        ref={heroRef}
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
-        <h1 
+        <h1
           className="font-sans font-bold tracking-widest whitespace-nowrap text-white"
           style={{ fontSize: '14vw', letterSpacing: '0.05em' }}
         >
@@ -56,38 +65,50 @@ function CinematicTextOverlay({ theme, scrollProgress }: { theme: 'dark' | 'ligh
         </h1>
       </div>
 
-      {/* 2. DUAL COLUMN INFO TEXT (Phase 2) */}
-      <div 
-        ref={infoRef} 
-        className="absolute inset-0 flex items-end justify-between px-[5vw] pb-[15vh] opacity-0 pointer-events-none"
-      >
-        {/* Left Column */}
-        <div className="text-white">
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium leading-tight tracking-wide">
-            WE MADE<br />
-            COLORWALL<br />
-            THE WALLPAPER ENGINE<br />
-            OF THE FUTURE 
-          </h2>
+      {TEXT_PHASES.map((phase, i) => (
+        <div
+          key={phase.id}
+          ref={(el) => {
+            phaseRefs.current[i] = el;
+          }}
+          className="absolute inset-0 flex items-end justify-between px-[5vw] pb-[15vh] opacity-0 pointer-events-none"
+        >
+          <div className="text-white">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium leading-tight tracking-wide">
+              {phase.left.map((line, j) => (
+                <span key={j}>
+                  {line}
+                  {j < phase.left.length - 1 && <br />}
+                </span>
+              ))}
+            </h2>
+          </div>
+          <div className="text-white text-right pb-1">
+            <h2
+              className={`text-3xl md:text-5xl lg:text-6xl font-medium leading-tight tracking-wide ${phase.rightItalic ? 'italic' : ''}`}
+            >
+              {phase.right.map((line, j) => (
+                <span key={j}>
+                  {line}
+                  {j < phase.right.length - 1 && <br />}
+                </span>
+              ))}
+            </h2>
+          </div>
         </div>
-
-        {/* Right Column (Italicized) */}
-        <div className="text-white text-right pb-1">
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium italic leading-tight tracking-wide">
-            PRODUCED BY<br />
-            OLIVER LAXENTA
-          </h2>
-        </div>
-      </div>
-
+      ))}
     </div>
   );
 }
 
-function AboutContent({ theme, scrollProgress }: { theme: 'dark' | 'light', scrollProgress: { current: number } }) {
+function AboutContent({
+  scrollProgress,
+}: {
+  scrollProgress: { current: number };
+}) {
   return (
     <div className="absolute inset-0 w-full pointer-events-none z-10">
-      <CinematicTextOverlay theme={theme} scrollProgress={scrollProgress} />
+      <CinematicTextOverlay scrollProgress={scrollProgress} />
     </div>
   );
 }
@@ -125,7 +146,10 @@ export default function AboutPage() {
             </Canvas>
 
             {/* DOM Overlay correctly placed OUTSIDE the WebGL Canvas in the standard DOM tree */}
-            <AboutContent theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
+            <AboutContent scrollProgress={scrollProgress} />
+
+            <AboutScrollNav scrollProgress={scrollProgress} isDark={isDark} />
+            <AboutScrollIndicator scrollProgress={scrollProgress} isDark={isDark} />
 
             {/* A tiny minimalist return button */}
             <a 

@@ -11,8 +11,33 @@ import extracted from '../shaders/extracted.json';
 import type { useAboutUniforms } from '../hooks/useAboutUniforms';
 import { BLOOM_LAYER } from '../layers';
 
-const SIM_W = 128;
-const SIM_H = 192;
+const SIM_W = 96;
+const SIM_H = 128;
+
+function pickParticleLod(intro: number, isSmallScreen: boolean) {
+  const early = intro < 0.3;
+  const mid = !early && intro < 0.7;
+  if (isSmallScreen) {
+    return {
+      column: early ? 2 : 3,
+      emissive: early ? 1 : mid ? 2 : 3,
+    };
+  }
+  return {
+    column: early ? 1 : mid ? 2 : 3,
+    emissive: early ? 0 : mid ? 1 : 3,
+  };
+}
+
+function applyLodGeometry(
+  geo: THREE.InstancedBufferGeometry,
+  lodGeo: THREE.BufferGeometry,
+) {
+  if (lodGeo.index) geo.setIndex(lodGeo.index);
+  for (const name in lodGeo.attributes) {
+    geo.setAttribute(name, lodGeo.attributes[name]);
+  }
+}
 
 function createDefaultSimTexture() {
   const count = SIM_W * SIM_H;
@@ -112,6 +137,12 @@ export function ParticleField({
 }) {
   const sphereL = useLusionGeometry('/lusion-assets/sphere_l.buf');
   const sphereM = useLusionGeometry('/lusion-assets/sphere_m.buf');
+  const sphereS = useLusionGeometry('/lusion-assets/sphere_s.buf');
+  const sphereXs = useLusionGeometry('/lusion-assets/sphere_xs.buf');
+  const lodGeometries = useMemo(
+    () => [sphereL, sphereM, sphereS, sphereXs],
+    [sphereL, sphereM, sphereS, sphereXs],
+  );
   const simUvs = useMemo(() => buildSimUvs(), []);
   const defaultSim = useMemo(() => createDefaultSimTexture(), []);
 
@@ -252,23 +283,22 @@ export function ParticleField({
   }, [quadMesh, quadScene, simMaterial]);
 
   useLayoutEffect(() => {
-    const sphere = sphereM || sphereL;
-    if (!sphere) return;
-    for (const geo of [columnGeo, emissiveGeo]) {
-      if (sphere.index) geo.setIndex(sphere.index);
-      for (const name in sphere.attributes) {
-        geo.setAttribute(name, sphere.attributes[name]);
-      }
-    }
+    const lod = pickParticleLod(0, window.innerWidth < 768);
+    const columnSphere = lodGeometries[lod.column];
+    const emissiveSphere = lodGeometries[lod.emissive];
+    if (!columnSphere || !emissiveSphere) return;
+    applyLodGeometry(columnGeo, columnSphere);
+    applyLodGeometry(emissiveGeo, emissiveSphere);
     columnGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.column, 2));
     emissiveGeo.setAttribute('simUv', new THREE.InstancedBufferAttribute(simUvs.emissive, 2));
-  }, [sphereL, sphereM, columnGeo, emissiveGeo, simUvs]);
+  }, [lodGeometries, columnGeo, emissiveGeo, simUvs]);
 
   const initialized = useRef(false);
   const groupRef = useRef<THREE.Group>(null);
   const bloomColumnRef = useRef<THREE.InstancedMesh>(null);
   const bloomEmissiveRef = useRef<THREE.InstancedMesh>(null);
   const layersSet = useRef(false);
+  const lastLod = useRef({ column: -1, emissive: -1 });
 
   useFrame(({ gl }, delta) => {
     const dt = Math.min(delta, 0.033);
@@ -282,6 +312,17 @@ export function ParticleField({
     const intro = Math.min(scroll / 0.85, 1);
     const emissiveRatio = THREE.MathUtils.smoothstep(intro, 0, 0.2) * 0.75;
     const hideRatio = shared.u_sceneHideRatio.value;
+
+    const lod = pickParticleLod(intro, window.innerWidth < 768);
+    if (lod.column !== lastLod.current.column || lod.emissive !== lastLod.current.emissive) {
+      const columnSphere = lodGeometries[lod.column];
+      const emissiveSphere = lodGeometries[lod.emissive];
+      if (columnSphere && emissiveSphere) {
+        applyLodGeometry(columnGeo, columnSphere);
+        applyLodGeometry(emissiveGeo, emissiveSphere);
+        lastLod.current = lod;
+      }
+    }
 
     noiseTime.current += dt * 0.4;
     noiseScaleTime.current += dt;
@@ -351,7 +392,7 @@ export function ParticleField({
     }
   }, -1);
 
-  if (!sphereL && !sphereM) return null;
+  if (!lodGeometries.some(Boolean)) return null;
 
   const columnCount = (SIM_W - 1) * SIM_H;
   const emissiveCount = SIM_H;

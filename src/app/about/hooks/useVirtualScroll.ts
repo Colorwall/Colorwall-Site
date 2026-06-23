@@ -1,8 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { DEFAULT_SCROLL } from '../scrollConfig';
-import { INTRO_SCROLL_END, saturate } from '../mathLusion';
+import { DEFAULT_SCROLL, SCROLL_MAX } from '../scrollConfig';
+import { INTRO_SCROLL_END } from '../mathLusion';
+
+function saturateToMax(v: number) {
+  return Math.max(0, Math.min(SCROLL_MAX, v));
+}
 
 /** Lusion ScrollPane — wheelEaseCoeff and viewport-normalized deltas. */
 const WHEEL_EASE_COEFF = 12;
@@ -38,7 +42,7 @@ export function useVirtualScroll() {
           scrollProgress.current = target;
           wheelScrolling.current = false;
         } else {
-          scrollProgress.current = saturate(current + step);
+          scrollProgress.current = saturateToMax(current + step);
         }
       } else if (Math.abs(diff) > 0.00015) {
         scrollProgress.current += diff * (1 - Math.exp(-8 * dt));
@@ -53,7 +57,7 @@ export function useVirtualScroll() {
       e.preventDefault();
       const vh = window.innerHeight || 1;
       const delta = (normalizeWheelPixels(e) / vh) * SCROLL_PER_VIEWPORT;
-      targetScroll.current = saturate(targetScroll.current + delta);
+      targetScroll.current = saturateToMax(targetScroll.current + delta);
       wheelScrolling.current = true;
     };
 
