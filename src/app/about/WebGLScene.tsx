@@ -503,8 +503,10 @@ function PersonShadow({
       fragmentShader: buildShader(SHADERS.shadowFrag),
       transparent: true,
       depthWrite: false,
-      premultipliedAlpha: true,
-      blending: THREE.MultiplyBlending,
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.AddEquation,
+      blendSrc: THREE.ZeroFactor,
+      blendDst: THREE.SrcColorFactor,
     });
   }, [shadowTexture, shared, lightMixer]);
 
@@ -521,9 +523,8 @@ function PersonShadow({
   });
 
   return (
-    <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={10}>
+    <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={10} material={material}>
       <planeGeometry args={[1.5, 1.5]} />
-      <primitive object={material} attach="material" />
     </mesh>
   );
 }
