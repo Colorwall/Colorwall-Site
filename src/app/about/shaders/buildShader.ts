@@ -102,6 +102,6 @@ gl_FragColor.a=1.0;}`,
       'gl_FragColor=vec4(mix(shade,smoothstep(0.,1.,shade),0.5),v_depth,1.,mix(v_diff*v_diff+v_emission,1.,u_emissiveRatio));\n#include <particleBloomFinal_frag>',
     ),
   sliceBlendFrag: SLICE_BLEND_FRAG,
-  lightFieldVert: extracted.lightFieldVert,
+  lightFieldVert: extracted.lightFieldVert.replace('attribute vec3 position;', ''),
   lightFieldFrag: extracted.lightFieldFrag,
 };
