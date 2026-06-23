@@ -110,6 +110,13 @@ export const Navbar = () => {
         ? "hover:text-white hover:bg-white/8 text-white/50"
         : "hover:text-black hover:bg-black/5 text-black/40";
 
+    // hide the navbar on /about page to give the webgl scene (src/app/about/webglscene.tsx) 
+    // full viewport access without overlay interruptions. we return null here after 
+    // all react hooks to safely unmount the component without breaking hook rules.
+    if (pathname === "/about") {
+        return null;
+    }
+
     return (
         <div
             className="fixed top-2 md:top-4 z-[100] w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-6xl left-1/2 -translate-x-1/2 transition-all duration-300"
