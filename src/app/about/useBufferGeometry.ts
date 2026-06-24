@@ -5,13 +5,17 @@ import { fetchBuffer } from './parseBuffer';
 export function useBufferGeometry(url: string) {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
 
-  useEffect(() => {
-    fetchBuffer(url)
-      .then(({ geometry: geo }) => {
-        if (geo) setGeometry(geo);
-      })
-      .catch((err) => console.error('Failed to parse Buffer geometry:', url, err));
-  }, [url]);
+useEffect(() => {
+  fetchBuffer(url)
+    .then(({ geometry: geo }) => {
+      if (geo) {
+        geo.computeBoundingBox();
+        geo.computeBoundingSphere();
+        setGeometry(geo);
+      }
+    })
+    .catch((err) => console.error('Failed to parse Buffer geometry:', url, err));
+}, [url]);
 
   return geometry;
 }
