@@ -22,6 +22,9 @@ const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/Nakamasa_Ichika_With_Balloon_Blue_Archive_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Nakamasa_Ichika_With_Balloon_Blue_Archive_Live_Wallpaper.webp" },
     { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm", poster: "/videos/posters/Plana___Arona__Blue_Archive_.webp" },
     { src: "/videos/mycutekoii.webm", type: "video/webm", poster: "/videos/posters/mycutekoii.webp" },
+    { src: "/videos/Crimson_Divide_Soul.mp4", type: "video/mp4", poster: "/videos/posters/Crimson_Divide_Soul.webp" },
+    { src: "/videos/Violet_Evergarden_Blue_Glow_Live_Wallpaper_live_wallpaper_video__4K_HD_.mp4", type: "video/mp4", poster: "/videos/posters/Violet_Evergarden_Blue_Glow_Live_Wallpaper_live_wallpaper_video__4K_HD_.webp" },
+    { src: "/videos/background.mp4", type: "video/mp4", poster: "/videos/posters/background.webp" },
 ];
 
 const HeroBackground = React.memo(() => (

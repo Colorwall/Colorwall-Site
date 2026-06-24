@@ -9,6 +9,7 @@ import { useVirtualScroll } from "./hooks/useVirtualScroll";
 import { TEXT_PHASES } from "./scrollConfig";
 import { AboutScrollNav } from "./components/AboutScrollNav";
 import { AboutScrollIndicator } from "./components/AboutScrollIndicator";
+import { usePageReady } from "@/hooks/usePageReady";
 
 function phaseOpacity(r: number, start: number, peak: number, end: number) {
   if (r < start || r > end) return 0;
@@ -120,6 +121,9 @@ export default function AboutPage() {
     // Prevent SSR hydration crashes with WebGL portals
     const [mounted, setMounted] = useState(false);
     
+    // defer heavy webgl mounting until html/css finishes painting and browser is idle
+    const isPageReady = usePageReady();
+    
     const scrollProgress = useVirtualScroll();
 
     useEffect(() => {
@@ -132,18 +136,20 @@ export default function AboutPage() {
         <div className={`relative h-screen w-full overflow-hidden ${isDark ? "bg-black" : "bg-slate-50"}`}>
             
             {/* The 3D WebGL Canvas */}
-            <Canvas
-                gl={{
-                  antialias: true,
-                  alpha: false,
-                  powerPreference: 'high-performance',
-                  toneMapping: THREE.NoToneMapping,
-                }}
-                camera={{ position: [0, 7.3, -5], fov: 60, near: 1, far: 100 }}
-                style={{ width: '100vw', height: '100vh', position: 'absolute', inset: 0, zIndex: 0 }}
-            >
-                <WebGLAboutScene theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
-            </Canvas>
+            {isPageReady && (
+                <Canvas
+                    gl={{
+                      antialias: true,
+                      alpha: false,
+                      powerPreference: 'high-performance',
+                      toneMapping: THREE.NoToneMapping,
+                    }}
+                    camera={{ position: [0, 7.3, -5], fov: 60, near: 1, far: 100 }}
+                    style={{ width: '100vw', height: '100vh', position: 'absolute', inset: 0, zIndex: 0 }}
+                >
+                    <WebGLAboutScene theme={theme as 'dark' | 'light'} scrollProgress={scrollProgress} />
+                </Canvas>
+            )}
 
             {/* DOM Overlay correctly placed OUTSIDE the WebGL Canvas in the standard DOM tree */}
             <AboutContent scrollProgress={scrollProgress} />

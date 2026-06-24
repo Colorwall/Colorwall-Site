@@ -19,6 +19,13 @@ const LightPillar = dynamic(() => import("@/app/components/ui/LightPillar"), {
 });
 
 import { GradientHeading } from "./components/landing/GradientHeading";
+import { usePageReady } from "@/hooks/usePageReady";
+
+const DeferredLightPillar = (props: any) => {
+    const isPageReady = usePageReady(1500);
+    if (!isPageReady) return null;
+    return <LightPillar {...props} />;
+};
 
 export default function ColorWallLanding() {
     const { theme } = useTheme();
@@ -47,7 +54,7 @@ export default function ColorWallLanding() {
                                  maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)", 
                                  WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)" 
                              }}>
-                            <LightPillar 
+                            <DeferredLightPillar 
                                 topColor={theme === 'dark' ? '#5227FF' : '#4f46e5'} 
                                 bottomColor={theme === 'dark' ? '#FF9FFC' : '#db2777'} 
                                 mixBlendMode={theme === 'dark' ? 'screen' : 'normal'}
