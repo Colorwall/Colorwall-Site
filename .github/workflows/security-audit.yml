@@ -1,0 +1,71 @@
+name: Security Audit & Auto-Fix
+
+on:
+  schedule:
+    # Run weekly on Sundays at midnight
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  audit-and-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run pnpm audit
+        id: audit
+        run: |
+          # If audit fails (exit code > 0), set output vulnerabilities_found to true
+          pnpm audit --audit-level=moderate || echo "vulnerabilities_found=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run Update & Fixes
+        if: steps.audit.outputs.vulnerabilities_found == 'true'
+        run: |
+          # Update packages to the latest compatible versions
+          pnpm update --depth=infinity
+          
+      - name: Verify Project Builds
+        if: steps.audit.outputs.vulnerabilities_found == 'true'
+        run: |
+          pnpm exec tsc --noEmit
+          pnpm run build
+
+      - name: Create Pull Request with Fixes
+        if: steps.audit.outputs.vulnerabilities_found == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "security: automated pnpm vulnerability fixes"
+          branch: security/auto-vulnerability-fix
+          title: "🔒 Automated Security Vulnerability Fixes"
+          body: |
+            This is an automated PR generated to resolve security vulnerabilities detected by `pnpm audit`.
+            
+            ### Changes
+            - Upgraded vulnerable dependencies using `pnpm update`.
+            - Verified project builds successfully and passes TypeScript type checking.
+            
+            Please review the changes and merge when ready.
+          labels: |
+            security
+            dependencies
+          draft: false
