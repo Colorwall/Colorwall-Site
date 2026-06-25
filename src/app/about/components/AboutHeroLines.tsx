@@ -116,7 +116,6 @@ export function AboutHeroLines({
         depthWrite: false,
         depthTest: true,
         side: THREE.DoubleSide,
-        extensions: { derivatives: true },
       }),
     [shared],
   );
