@@ -103,12 +103,8 @@ export const Navbar = () => {
         setTimeout(() => router.push(href), 50);
     };
 
-    const base = isDark
-        ? "bg-[#0a0a0a]/50 border-white/10 text-white/80"
-        : "bg-white/50 border-black/10 text-black/80";
-    const iconBtn = isDark
-        ? "hover:text-white hover:bg-white/8 text-white/50"
-        : "hover:text-black hover:bg-black/5 text-black/40";
+    const base = "bg-[#0a0a0a]/50 border-white/10 text-white/80";
+    const iconBtn = "hover:text-white hover:bg-white/8 text-white/50";
 
     // hide the navbar on /about page to give the webgl scene (src/app/about/webglscene.tsx) 
     // full viewport access without overlay interruptions. we return null here after 
@@ -140,7 +136,7 @@ export const Navbar = () => {
                     <Link href="/" className="hidden sm:flex group items-center opacity-90 hover:opacity-100 transition-opacity shrink-0 relative">
                         <img src="/colorwall.png" alt="ColorWall logo" className="h-6 md:h-7 object-contain" />
                         <span className={`absolute left-[76px] top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-widest uppercase whitespace-nowrap opacity-0 group-hover:opacity-100 shadow-xl transition-all pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]
-              ${isDark ? "bg-[#0a0a0a]/90 border border-white/10 text-white" : "bg-white/90 border border-black/10 text-black"} hidden md:block`}>
+              bg-[#0a0a0a]/90 border border-white/10 text-white hidden md:block`}>
                             ColorWall
                         </span>
                     </Link>
@@ -173,8 +169,8 @@ export const Navbar = () => {
                                     title={link.name}
                                     className={`p-2.5 rounded-xl transition-all duration-200 flex items-center
                                         ${isActive
-                                            ? isDark ? "bg-white/10 text-white" : "bg-black/6 text-black"
-                                            : isDark ? "text-white/60 hover:text-white hover:bg-white/7" : "text-black/50 hover:text-black hover:bg-black/4"
+                                            ? "bg-white/10 text-white"
+                                            : "text-white/60 hover:text-white hover:bg-white/7"
                                         }`}
                                 >
                                     {loadingRoute === link.href ? (
@@ -195,14 +191,14 @@ export const Navbar = () => {
                                 <GithubIcon />
                             </a>
                             <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer"
-                                aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 ${isDark ? "text-white/50 hover:text-[#5865F2] hover:bg-[#5865F2]/10" : "text-black/40 hover:text-[#5865F2] hover:bg-[#5865F2]/8"}`}>
+                                aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 text-white/50 hover:text-[#5865F2] hover:bg-[#5865F2]/10`}>
                                 <DiscordIcon />
                             </a>
                             <a href="https://x.com/colorwall_xyz" target="_blank" rel="noopener noreferrer"
                                 aria-label="X (Twitter)" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                 <XIcon />
                             </a>
-                            <div className={`w-px h-5 mx-1.5 ${isDark ? "bg-white/10" : "bg-black/8"}`} />
+                            <div className={`w-px h-5 mx-1.5 bg-white/10`} />
                         </div>
                         
                         {/* Always-visible Utilities */}
@@ -229,7 +225,7 @@ export const Navbar = () => {
                             opacity: 1,
                         }}
                     >
-                        <div className={`px-2 pb-2 pt-1 flex flex-col gap-0.5 border-t ${isDark ? "border-white/10" : "border-black/10"}`}>
+                        <div className={`px-2 pb-2 pt-1 flex flex-col gap-0.5 border-t border-white/10`}>
                             {navLinks.map((link) => {
                                 const isActive = pathname === link.href;
                                 const isExternal = link.href.startsWith("http");
@@ -243,8 +239,8 @@ export const Navbar = () => {
                                         prefetch={['/download', '/about'].includes(link.href) ? undefined : false}
                                         className={`px-4 py-3 sm:py-4 rounded-xl text-xs sm:text-sm font-mono font-semibold tracking-widest uppercase transition-all duration-200 flex items-center gap-3
                         ${isActive
-                                            ? isDark ? "bg-white/10 text-white" : "bg-black/6 text-black"
-                                            : isDark ? "text-white/70 hover:text-white hover:bg-white/7" : "text-black/60 hover:text-black hover:bg-black/4"
+                                            ? "bg-white/10 text-white"
+                                            : "text-white/70 hover:text-white hover:bg-white/7"
                                         }`}
                                     >
                                         {loadingRoute === link.href ? (
@@ -256,13 +252,13 @@ export const Navbar = () => {
                                     </Link>
                                 );
                             })}
-                            <div className={`flex items-center gap-2 px-3 pt-1.5 mt-0.5 border-t ${isDark ? "border-white/10" : "border-black/10"}`}>
+                            <div className={`flex items-center gap-2 px-3 pt-1.5 mt-0.5 border-t border-white/10`}>
                                 <a href="https://github.com/colorwall/colorwall" target="_blank" rel="noopener noreferrer"
                                     aria-label="GitHub" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                     <GithubIcon />
                                 </a>
                                 <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer"
-                                    aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 ${isDark ? "text-white/50 hover:text-[#5865F2] hover:bg-[#5865F2]/10" : "text-black/40 hover:text-[#5865F2] hover:bg-[#5865F2]/8"}`}>
+                                    aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 text-white/50 hover:text-[#5865F2] hover:bg-[#5865F2]/10`}>
                                     <DiscordIcon />
                                 </a>
                                 <a href="https://x.com/colorwall_xyz" target="_blank" rel="noopener noreferrer"

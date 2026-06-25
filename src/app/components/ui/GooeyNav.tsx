@@ -173,15 +173,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             color: black;
           }
           .effect.filter {
-            filter: blur(7px) contrast(100) blur(0);
-            mix-blend-mode: lighten;
-          }
-          .effect.filter::before {
-            content: "";
-            position: absolute;
-            inset: -75px;
-            z-index: -2;
-            background: black;
+            filter: url('#gooey-filter');
           }
           .effect.filter::after {
             content: "";
@@ -291,6 +283,14 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         `}
       </style>
       <div className="relative" ref={containerRef}>
+        <svg style={{ visibility: 'hidden', position: 'absolute', width: 0, height: 0 }}>
+          <defs>
+            <filter id="gooey-filter">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur" />
+              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="goo" />
+            </filter>
+          </defs>
+        </svg>
         <nav className="flex relative" style={{ transform: 'translate3d(0,0,0.01px)' }}>
           <ul
             ref={navRef}
