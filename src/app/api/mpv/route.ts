@@ -60,7 +60,11 @@ export async function GET(request: NextRequest) {
 
         // validate the download url points to github
         const downloadUrl = new URL(exeAsset.browser_download_url);
-        if (!downloadUrl.hostname.endsWith(ALLOWED_DOWNLOAD_HOST)) {
+        const hostname = downloadUrl.hostname;
+        const isAllowedHost =
+            hostname === ALLOWED_DOWNLOAD_HOST ||
+            hostname.endsWith(`.${ALLOWED_DOWNLOAD_HOST}`);
+        if (!isAllowedHost) {
             return NextResponse.json(
                 { error: "invalid download source" },
                 { status: 403, headers: corsHeaders }
