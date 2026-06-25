@@ -75,7 +75,7 @@ function ExpandableImageGrid({ images }: { images: string[] }) {
                     style={{ aspectRatio: validImages.length === 1 ? '16/9' : '1/1' }}
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                    <img src={typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('http')) ? src : ''} alt="" className="w-full h-full object-cover" loading="lazy" />
                 </a>
             ))}
         </div>
@@ -206,7 +206,8 @@ function CommentBox({
                                     components={{
                                         img: ({node, ...props}) => {
                                             if (!props.src) return null;
-                                            return <img {...props} alt={props.alt || ''} />;
+                                            const safeSrc = typeof props.src === 'string' && (props.src.startsWith('blob:') || props.src.startsWith('data:') || props.src.startsWith('http')) ? props.src : '';
+                                            return <img {...props} src={safeSrc} alt={props.alt || ''} />;
                                         }
                                     }}
                                 >
@@ -367,7 +368,8 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                                                     components={{
                                                         img: ({node, ...props}) => {
                                                             if (!props.src) return null;
-                                                            return <img {...props} alt={props.alt || ''} />;
+                                                            const safeSrc = typeof props.src === 'string' && (props.src.startsWith('blob:') || props.src.startsWith('data:') || props.src.startsWith('http')) ? props.src : '';
+                                                            return <img {...props} src={safeSrc} alt={props.alt || ''} />;
                                                         }
                                                     }}
                                                 >
@@ -384,7 +386,8 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                                     <div className="px-3 pb-3 flex flex-wrap gap-2">
                                         {previews.map((src, i) => (
                                             <div key={i} className="relative w-16 h-16 rounded border border-[#30363d] overflow-hidden group">
-                                                <img src={src} alt="" className="w-full h-full object-cover" />
+                                                {/* CodeQL fix: sanitize image src */}
+                                                <img src={typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('http')) ? src : ''} alt="" className="w-full h-full object-cover" />
                                                 <button onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                                     <X className="w-4 h-4 text-white" />
                                                 </button>
