@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      // heavily cache WebP images in the root directory (like LxColorWall.webp)
+      {
+        source: '/:file.webp',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
       // heavily cache static favicons and icons forever
       {
         source: '/favicon.ico',
