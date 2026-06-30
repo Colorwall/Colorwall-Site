@@ -40,16 +40,33 @@ const EngineIcon = () => (
 );
 
 const EditorIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-125 transition-all duration-500 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-125 transition-all duration-500 origin-center group-hover:rotate-2">
         <defs>
             <linearGradient id="editorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#c084fc" />
                 <stop offset="100%" stopColor="#9333ea" />
             </linearGradient>
+            <linearGradient id="editorGradShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#e879f9" />
+                <stop offset="100%" stopColor="#a855f7" />
+            </linearGradient>
         </defs>
-        <path d="M26 6L6 26a4 4 0 01-4-4L22 2a4 4 0 014 4z" fill="url(#editorGrad)" />
-        <circle cx="8" cy="24" r="4" fill="#ffffff" opacity="0.8" />
-        <path d="M22 2l-6 6 4 4 6-6-4-4z" fill="#ffffff" opacity="0.3" />
+        {/* Background Canvas Layer */}
+        <rect x="4" y="6" width="22" height="18" rx="3" fill="url(#editorGradShadow)" opacity="0.3" className="group-hover:translate-x-1.5 group-hover:-translate-y-1.5 transition-transform duration-500" />
+        {/* Editor Window */}
+        <rect x="2" y="8" width="22" height="18" rx="3" fill="url(#editorGrad)" opacity="0.85" />
+        {/* UI Sidebar */}
+        <path d="M2 11C2 9.34315 3.34315 8 5 8H8V26H5C3.34315 26 2 24.6569 2 23V11Z" fill="#ffffff" opacity="0.25" />
+        {/* UI Elements */}
+        <circle cx="5" cy="11.5" r="1.5" fill="#ffffff" opacity="0.9" />
+        <circle cx="5" cy="15.5" r="1.5" fill="#ffffff" opacity="0.9" />
+        <rect x="10" y="13" width="10" height="2" rx="1" fill="#ffffff" opacity="0.7" />
+        <rect x="10" y="17" width="6" height="2" rx="1" fill="#ffffff" opacity="0.5" />
+        
+        {/* Overlay Floating Element */}
+        <rect x="16" y="16" width="14" height="12" rx="2" fill="#ffffff" opacity="0.95" className="group-hover:-translate-y-2 group-hover:translate-x-2 shadow-lg transition-transform duration-500 delay-75" />
+        {/* Play/Edit Indicator inside float */}
+        <path d="M21 19L26 22L21 25V19Z" fill="url(#editorGrad)" className="group-hover:scale-110 origin-center transition-transform duration-300" />
     </svg>
 );
 
@@ -272,11 +289,11 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                     </div>
 
                                     <div>
-                                        <h3 className={`text-xl font-mono font-bold mb-3 tracking-wide group-hover:-translate-y-0.5 transition-transform duration-300
+                                        <h3 className={`text-xl font-quicksand font-semibold mb-3 tracking-wide group-hover:-translate-y-0.5 transition-transform duration-300
                                             ${theme === "dark" ? "text-white" : "text-black"}`}>
                                             {f.title}
                                         </h3>
-                                        <p className={`text-sm leading-relaxed max-w-[90%]
+                                        <p className={`text-sm leading-relaxed max-w-[90%] font-spline
                                             ${theme === "dark" ? "text-white/50" : "text-black/60"}`}>
                                             {f.desc}
                                         </p>
@@ -310,11 +327,11 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                         </div>
 
                                         <div>
-                                            <h3 className={`text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-wide group-hover:-translate-y-1 transition-transform duration-300
+                                            <h3 className={`text-2xl sm:text-3xl font-quicksand font-semibold mb-4 tracking-wide group-hover:-translate-y-1 transition-transform duration-300
                                                 ${theme === "dark" ? "text-white" : "text-black"}`}>
                                                 {f.title}
                                             </h3>
-                                            <p className={`text-lg leading-relaxed max-w-2xl
+                                            <p className={`text-lg leading-relaxed max-w-2xl font-spline
                                                 ${theme === "dark" ? "text-white/60" : "text-black/60"}`}>
                                                 {f.desc}
                                             </p>
