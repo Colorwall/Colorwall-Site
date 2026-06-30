@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GradientHeading } from "./GradientHeading";
 import ScrollStack, { ScrollStackItem } from "../ui/ScrollStack";
+
 // Custom Animated Premium Icons
 const FastIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] group-hover:scale-125 transition-all duration-500 origin-center group-hover:-translate-y-1 group-hover:translate-x-1">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] overflow-visible">
         <defs>
             <linearGradient id="fastGrad" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#f59e0b" />
@@ -14,146 +15,184 @@ const FastIcon = () => (
             </linearGradient>
         </defs>
         {/* Rocket Flame */}
-        <path d="M10 24L2 30L8 20Z" fill="#fbbf24" opacity="0.9" className="group-hover:scale-110 origin-bottom-left transition-transform duration-300" />
+        <path d="M10 24L2 30L8 20Z" fill="#fbbf24" opacity="0.9" className="group-hover:scale-110 origin-bottom-left transition-transform duration-300 group-hover:animate-pulse" />
         {/* Rocket Body */}
-        <path d="M14 18L10 24L12 28L18 24C18 24 28 14 28 6C28 6 20 6 12 14L6 14L8 20L14 18Z" fill="url(#fastGrad)" />
+        <path d="M14 18L10 24L12 28L18 24C18 24 28 14 28 6C28 6 20 6 12 14L6 14L8 20L14 18Z" fill="url(#fastGrad)" className="group-hover:translate-x-3 group-hover:-translate-y-3 transition-transform duration-700 ease-out" />
         {/* Window */}
-        <circle cx="20" cy="12" r="2.5" fill="#ffffff" opacity="0.9" />
+        <circle cx="20" cy="12" r="2.5" fill="#ffffff" opacity="0.9" className="group-hover:translate-x-3 group-hover:-translate-y-3 transition-transform duration-700 ease-out" />
     </svg>
 );
 
 const EngineIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] group-hover:scale-125 transition-all duration-500 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] overflow-visible">
         <defs>
             <linearGradient id="engineGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#60a5fa" />
                 <stop offset="100%" stopColor="#2563eb" />
             </linearGradient>
         </defs>
-        {/* Bottom Layer */}
-        <path d="M16 30 L4 24 L16 18 L28 24 Z" fill="url(#engineGrad1)" opacity="0.4" className="group-hover:translate-y-1 transition-transform duration-500" />
-        {/* Middle Layer */}
-        <path d="M16 22 L4 16 L16 10 L28 16 Z" fill="url(#engineGrad1)" opacity="0.7" />
-        {/* Top Layer */}
-        <path d="M16 14 L4 8 L16 2 L28 8 Z" fill="#ffffff" opacity="0.95" className="group-hover:-translate-y-1 transition-transform duration-500" />
+        
+        {/* Subtle background glow/shape */}
+        <rect x="6" y="8" width="20" height="16" rx="4" fill="url(#engineGrad1)" opacity="0.25" className="group-hover:scale-110 transition-transform duration-500 delay-100" />
+        
+        {/* Left Bracket */}
+        <path d="M13 10 L7 16 L13 22" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-2 group-hover:scale-110 transition-transform duration-500 ease-out" />
+        
+        {/* Right Bracket */}
+        <path d="M19 10 L25 16 L19 22" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-2 group-hover:scale-110 transition-transform duration-500 ease-out" />
+        
+        {/* Hidden Slash that appears on hover */}
+        <path d="M18 8 L14 24" fill="none" stroke="url(#engineGrad1)" strokeWidth="3" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 group-hover:rotate-[15deg] transition-all duration-500 origin-center" />
     </svg>
 );
 
 const EditorIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-125 transition-all duration-500 origin-center group-hover:rotate-2">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
         <defs>
             <linearGradient id="editorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#c084fc" />
                 <stop offset="100%" stopColor="#9333ea" />
             </linearGradient>
-            <linearGradient id="editorGradShadow" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#e879f9" />
-                <stop offset="100%" stopColor="#a855f7" />
-            </linearGradient>
         </defs>
-        {/* Background Canvas Layer */}
-        <rect x="4" y="6" width="22" height="18" rx="3" fill="url(#editorGradShadow)" opacity="0.3" className="group-hover:translate-x-1.5 group-hover:-translate-y-1.5 transition-transform duration-500" />
-        {/* Editor Window */}
-        <rect x="2" y="8" width="22" height="18" rx="3" fill="url(#editorGrad)" opacity="0.85" />
-        {/* UI Sidebar */}
-        <path d="M2 11C2 9.34315 3.34315 8 5 8H8V26H5C3.34315 26 2 24.6569 2 23V11Z" fill="#ffffff" opacity="0.25" />
-        {/* UI Elements */}
-        <circle cx="5" cy="11.5" r="1.5" fill="#ffffff" opacity="0.9" />
-        <circle cx="5" cy="15.5" r="1.5" fill="#ffffff" opacity="0.9" />
-        <rect x="10" y="13" width="10" height="2" rx="1" fill="#ffffff" opacity="0.7" />
-        <rect x="10" y="17" width="6" height="2" rx="1" fill="#ffffff" opacity="0.5" />
         
-        {/* Overlay Floating Element */}
-        <rect x="16" y="16" width="14" height="12" rx="2" fill="#ffffff" opacity="0.95" className="group-hover:-translate-y-2 group-hover:translate-x-2 shadow-lg transition-transform duration-500 delay-75" />
-        {/* Play/Edit Indicator inside float */}
-        <path d="M21 19L26 22L21 25V19Z" fill="url(#editorGrad)" className="group-hover:scale-110 origin-center transition-transform duration-300" />
+        {/* Full Mountain Fill */}
+        <path d="M5 26 L12 6 L18 16 L24 10 L29 26 Z" fill="url(#editorGrad)" opacity="0.5" className="group-hover:-translate-y-1 transition-transform duration-500" />
+        
+        {/* Lower Mountain Fill (adds darker tint to bottom) */}
+        <path d="M5 26 L6.75 21 Q 11.9 16 17.1 21 T 27.44 21 L 29 26 Z" fill="url(#editorGrad)" opacity="0.6" className="group-hover:translate-y-1 transition-transform duration-500" />
+
+        {/* Outline */}
+        <path d="M5 26 L12 6 L18 16 L24 10 L29 26 Z" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinejoin="round" opacity="0.95" className="group-hover:-translate-y-1 transition-transform duration-500" />
+        
+        {/* Wavy Line */}
+        <path d="M6.75 21 Q 11.9 16 17.1 21 T 27.44 21" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" opacity="0.95" className="group-hover:translate-y-1 transition-transform duration-500" />
     </svg>
 );
 
 const ShaderIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] group-hover:scale-125 transition-all duration-700 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] overflow-visible">
         <defs>
             <linearGradient id="shaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#f472b6" />
                 <stop offset="100%" stopColor="#db2777" />
             </linearGradient>
         </defs>
-        <path d="M16 2L20 12L30 16L20 20L16 30L12 20L2 16L12 12L16 2Z" fill="url(#shaderGrad)" />
-        <path d="M16 8L18 14L24 16L18 18L16 24L14 18L8 16L14 14L16 8Z" fill="#ffffff" opacity="0.8" />
+        
+        {/* Top Bubble */}
+        <g className="group-hover:-translate-y-3 group-hover:-translate-x-1 transition-transform duration-[800ms] ease-out">
+            <circle cx="12.5" cy="10" r="3" fill="url(#shaderGrad)" opacity="0.6" />
+            <circle cx="12.5" cy="10" r="3" fill="none" stroke="#ffffff" strokeWidth="2.5" opacity="0.9" />
+        </g>
+        
+        {/* Right Bubble */}
+        <g className="group-hover:-translate-y-2 group-hover:translate-x-1.5 transition-transform duration-[600ms] ease-out delay-75">
+            <circle cx="21.5" cy="13" r="4.5" fill="url(#shaderGrad)" opacity="0.5" />
+            <circle cx="21.5" cy="13" r="4.5" fill="none" stroke="#ffffff" strokeWidth="2.5" opacity="0.9" />
+        </g>
+        
+        {/* Large Bottom Bubble */}
+        <g className="group-hover:-translate-y-1 group-hover:-translate-x-0.5 transition-transform duration-[700ms] ease-out delay-150">
+            <circle cx="12.5" cy="20" r="6.5" fill="url(#shaderGrad)" opacity="0.4" />
+            <circle cx="12.5" cy="20" r="6.5" fill="none" stroke="#ffffff" strokeWidth="2.5" opacity="0.9" />
+            {/* Highlight */}
+            <circle cx="10" cy="17.5" r="1.5" fill="#ffffff" opacity="0.95" />
+        </g>
     </svg>
 );
 
 const AudioIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] group-hover:scale-125 transition-all duration-500 origin-center group-hover:-translate-y-2">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] overflow-visible">
         <defs>
             <linearGradient id="audioGrad" x1="0%" y1="100%" x2="0%" y2="0%">
                 <stop offset="0%" stopColor="#10b981" />
                 <stop offset="100%" stopColor="#34d399" />
             </linearGradient>
         </defs>
-        <rect x="4" y="16" width="4" height="12" rx="2" fill="url(#audioGrad)" className="group-hover:animate-pulse" />
-        <rect x="10" y="8" width="4" height="20" rx="2" fill="url(#audioGrad)" className="group-hover:animate-pulse" style={{ animationDelay: "100ms" }} />
-        <rect x="16" y="2" width="4" height="26" rx="2" fill="url(#audioGrad)" className="group-hover:animate-pulse" style={{ animationDelay: "200ms" }} />
-        <rect x="22" y="12" width="4" height="16" rx="2" fill="url(#audioGrad)" className="group-hover:animate-pulse" style={{ animationDelay: "150ms" }} />
+        <rect x="4" y="16" width="4" height="12" rx="2" fill="url(#audioGrad)" className="origin-bottom transition-transform duration-300 group-hover:scale-y-150" />
+        <rect x="10" y="8" width="4" height="20" rx="2" fill="url(#audioGrad)" className="origin-bottom transition-transform duration-300 group-hover:scale-y-125 delay-75" />
+        <rect x="16" y="2" width="4" height="26" rx="2" fill="url(#audioGrad)" className="origin-bottom transition-transform duration-300 group-hover:scale-y-[0.4] delay-150" />
+        <rect x="22" y="12" width="4" height="16" rx="2" fill="url(#audioGrad)" className="origin-bottom transition-transform duration-300 group-hover:scale-y-110 delay-100" />
     </svg>
 );
 
 const WidgetIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)] group-hover:scale-125 transition-all duration-500 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)] overflow-visible">
         <defs>
             <linearGradient id="widgetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#fb923c" />
                 <stop offset="100%" stopColor="#ea580c" />
             </linearGradient>
         </defs>
-        <rect x="2" y="2" width="12" height="12" rx="3" fill="url(#widgetGrad)" />
-        <rect x="18" y="2" width="12" height="12" rx="3" fill="url(#widgetGrad)" opacity="0.6" />
-        <rect x="2" y="18" width="12" height="12" rx="3" fill="url(#widgetGrad)" opacity="0.8" />
-        <rect x="18" y="18" width="12" height="12" rx="3" fill="#ffffff" opacity="0.9" />
+        <rect x="2" y="2" width="12" height="12" rx="3" fill="url(#widgetGrad)" className="group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:-rotate-1 transition-transform duration-500 origin-bottom-right" />
+        <rect x="18" y="2" width="12" height="12" rx="3" fill="url(#widgetGrad)" opacity="0.6" className="group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:rotate-1 transition-transform duration-500 origin-bottom-left" />
+        <rect x="2" y="18" width="12" height="12" rx="3" fill="url(#widgetGrad)" opacity="0.8" className="group-hover:-translate-x-1 group-hover:translate-y-1 group-hover:-rotate-1 transition-transform duration-500 origin-top-right" />
+        <rect x="18" y="18" width="12" height="12" rx="3" fill="#ffffff" opacity="0.9" className="group-hover:translate-x-1 group-hover:translate-y-1 group-hover:rotate-1 transition-transform duration-500 origin-top-left" />
     </svg>
 );
 
 const MonitorIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] group-hover:scale-125 group-hover:translate-x-1 transition-all duration-500 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] overflow-visible">
         <defs>
             <linearGradient id="monGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#22d3ee" />
                 <stop offset="100%" stopColor="#0891b2" />
             </linearGradient>
         </defs>
-        <rect x="2" y="6" width="20" height="14" rx="2" fill="url(#monGrad)" opacity="0.6" />
-        <rect x="10" y="10" width="20" height="14" rx="2" fill="url(#monGrad)" className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+        {/* Stand */}
         <path d="M16 24l-2 4h12l-2-4" fill="url(#monGrad)" opacity="0.8" />
+        {/* Outer Monitor Frame */}
+        <rect x="2" y="6" width="20" height="14" rx="2" fill="url(#monGrad)" opacity="0.6" className="group-hover:-translate-y-1 transition-transform duration-300" />
+        {/* Inner Screen popping out */}
+        <rect x="10" y="10" width="20" height="14" rx="2" fill="url(#monGrad)" className="group-hover:translate-x-2 group-hover:-translate-y-3 group-hover:scale-110 transition-transform duration-500 shadow-xl" />
     </svg>
 );
 
 const WorkshopIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(139,92,246,0.5)] group-hover:scale-125 transition-all duration-500 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(139,92,246,0.5)] overflow-visible">
         <defs>
             <linearGradient id="workGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#a78bfa" />
                 <stop offset="100%" stopColor="#7c3aed" />
             </linearGradient>
         </defs>
-        <path d="M16 2L2 10l14 8 14-8L16 2z" fill="#ffffff" opacity="0.8" />
-        <path d="M2 10v12l14 8v-12L2 10z" fill="url(#workGrad)" />
-        <path d="M30 10v12l-14 8v-12l14-8z" fill="url(#workGrad)" opacity="0.6" />
+        {/* Top Face */}
+        <path d="M16 2L2 10l14 8 14-8L16 2z" fill="#ffffff" opacity="0.8" className="group-hover:-translate-y-2 transition-transform duration-500" />
+        {/* Left Face */}
+        <path d="M2 10v12l14 8v-12L2 10z" fill="url(#workGrad)" className="group-hover:-translate-x-1.5 group-hover:translate-y-1.5 transition-transform duration-500" />
+        {/* Right Face */}
+        <path d="M30 10v12l-14 8v-12l14-8z" fill="url(#workGrad)" opacity="0.6" className="group-hover:translate-x-1.5 group-hover:translate-y-1.5 transition-transform duration-500" />
     </svg>
 );
 
 const TaskbarIcon = () => (
-    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)] group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-500 origin-center">
+    <svg viewBox="0 0 32 32" className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)] overflow-visible">
         <defs>
             <linearGradient id="taskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#fb7185" />
                 <stop offset="100%" stopColor="#e11d48" />
             </linearGradient>
         </defs>
-        <rect x="2" y="20" width="28" height="8" rx="4" fill="url(#taskGrad)" />
-        <circle cx="8" cy="24" r="2" fill="#ffffff" />
-        <circle cx="16" cy="24" r="2" fill="#ffffff" opacity="0.8" />
-        <circle cx="24" cy="24" r="2" fill="#ffffff" opacity="0.5" />
-        <path d="M4 14l8-8 4 4 12-12" stroke="url(#taskGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" className="group-hover:translate-y-[-2px] transition-transform duration-300" />
+        
+        <g className="origin-[10px_26px] transition-transform duration-[600ms] ease-out group-hover:rotate-[35deg] group-hover:-translate-y-1 group-hover:scale-110">
+            {/* 45-degree rotation container for upright drawing */}
+            <g transform="rotate(45 16 16)">
+                {/* Handle Fill */}
+                <rect x="14" y="10" width="4" height="15" rx="1.5" fill="url(#taskGrad)" opacity="0.3" />
+                {/* Handle Outline */}
+                <rect x="14" y="10" width="4" height="15" rx="1.5" fill="none" stroke="#ffffff" strokeWidth="2" />
+                
+                {/* Wrap Fill */}
+                <rect x="13" y="12" width="6" height="4" rx="1" fill="url(#taskGrad)" opacity="0.6" />
+                {/* Wrap Outline */}
+                <rect x="13" y="12" width="6" height="4" rx="1" fill="none" stroke="#ffffff" strokeWidth="2" />
+                
+                {/* Head Fill */}
+                <path d="M 8 15 C 10 7, 22 7, 24 15 A 1 1 0 0 1 22 16.5 C 19 11, 13 11, 10 16.5 A 1 1 0 0 1 8 15 Z" fill="url(#taskGrad)" opacity="0.5" />
+                
+                {/* Head Outline */}
+                <path d="M 8 15 C 10 7, 22 7, 24 15 A 1 1 0 0 1 22 16.5 C 19 11, 13 11, 10 16.5 A 1 1 0 0 1 8 15 Z" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" />
+            </g>
+        </g>
     </svg>
 );
 
