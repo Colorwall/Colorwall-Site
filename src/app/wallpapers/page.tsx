@@ -74,7 +74,6 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
                 <img
                     src={thumbUrl(w.url)}
                     alt={w.title}
-                    loading="lazy"
                     onLoad={() => setLoaded(true)}
                     onError={() => setError(true)}
                     className={`w-full h-full object-cover block transition-all duration-500 ${loaded ? "opacity-100 group-hover:scale-[1.03]" : "opacity-0"}`}
@@ -295,7 +294,7 @@ export default function WallpapersPage() {
                     fetchPage(nextPage, currentQueryRef.current, false);
                 }
             },
-            { rootMargin: "600px" }
+            { rootMargin: "3000px" }
         );
         observer.observe(sentinelRef.current);
         return () => observer.disconnect();

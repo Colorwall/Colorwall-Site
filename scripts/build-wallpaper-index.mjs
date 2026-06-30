@@ -34,6 +34,11 @@ const SOURCES = [
         url: "https://raw.githubusercontent.com/yapude/wallpapers/main/README2.md",
         prefix: "https://raw.githubusercontent.com/yapude/wallpapers/main/assets/",
     },
+    {
+        id: "yapude",
+        url: "https://raw.githubusercontent.com/yapude/Wallpaper-archive/main/README3.md",
+        prefix: "https://raw.githubusercontent.com/yapude/Wallpaper-archive/main/assets/",
+    },
 ];
 
 // ─── filler tags to strip from yapude (generic seo spam) ──────────────────────
@@ -137,9 +142,11 @@ async function fetchAndParse(source) {
 function deduplicate(entries) {
     const seen = new Map();
     for (const entry of entries) {
-        const existing = seen.get(entry.url);
+        // extract the filename for aggressive cross-repo deduplication
+        const filename = entry.url.split("/").pop();
+        const existing = seen.get(filename);
         if (!existing || entry.tags.length > existing.tags.length) {
-            seen.set(entry.url, entry);
+            seen.set(filename, entry);
         }
     }
     return Array.from(seen.values());
