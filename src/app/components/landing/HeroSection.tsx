@@ -18,7 +18,7 @@ type HeroVideo = {
 
 const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/Shimoe_Koharu.webm", type: "video/webm", poster: "/videos/posters/Shimoe_Koharu.webp" },
-    { src: "/videos/Konoe_Mina_Rainy_Day_In_The_City_Blue_Archive_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Konoe_Mina_Rainy_Day_In_The_City_Blue_Archive_Live_Wallpaper.webp" },
+    { src: "/videos/laxenta.mp4", type: "video/mp4", poster: "/videos/posters/laxenta.webp" },
     { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm", poster: "/videos/posters/Plana___Arona__Blue_Archive_.webp" },
     { src: "/videos/mycutekoii.webm", type: "video/webm", poster: "/videos/posters/mycutekoii.webp" },
     { src: "/videos/Crimson_Divide_Soul.mp4", type: "video/mp4", poster: "/videos/posters/Crimson_Divide_Soul.webp" },
