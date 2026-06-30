@@ -18,10 +18,10 @@ type HeroVideo = {
 
 const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/Shimoe_Koharu.webm", type: "video/webm", poster: "/videos/posters/Shimoe_Koharu.webp" },
-    { src: "/videos/laxenta.mp4", type: "video/mp4", poster: "/videos/posters/laxenta.webp" },
+    { src: "/videos/laxenta.webm", type: "video/webm", poster: "/videos/posters/laxenta.webp" },
     { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm", poster: "/videos/posters/Plana___Arona__Blue_Archive_.webp" },
     { src: "/videos/mycutekoii.webm", type: "video/webm", poster: "/videos/posters/mycutekoii.webp" },
-    { src: "/videos/Crimson_Divide_Soul.mp4", type: "video/mp4", poster: "/videos/posters/Crimson_Divide_Soul.webp" },
+    { src: "/videos/Crimson_Divide_Soul.webm", type: "video/webm", poster: "/videos/posters/Crimson_Divide_Soul.webp" },
     { src: "/videos/Violet_Evergarden_Blue_Glow_Live_Wallpaper_live_wallpaper_video__4K_HD_.mp4", type: "video/mp4", poster: "/videos/posters/Violet_Evergarden_Blue_Glow_Live_Wallpaper_live_wallpaper_video__4K_HD_.webp" },
     { src: "/videos/background.mp4", type: "video/mp4", poster: "/videos/posters/background.webp" },
 ];
