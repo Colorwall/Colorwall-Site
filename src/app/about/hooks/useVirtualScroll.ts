@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { DEFAULT_SCROLL, SCROLL_MAX } from '../scrollConfig';
+import { DEFAULT_SCROLL, SCROLL_MAX, SCROLL_NAV_COMPLETE_AT } from '../scrollConfig';
 import { INTRO_SCROLL_END } from '../mathUtils';
 
 function saturateToMax(v: number) {
@@ -23,6 +23,7 @@ export function useVirtualScroll() {
   const scrollProgress = useRef(DEFAULT_SCROLL);
   const targetScroll = useRef(DEFAULT_SCROLL);
   const wheelScrolling = useRef(false);
+  const navigated = useRef(false);
 
   useEffect(() => {
     let raf = 0;
@@ -53,6 +54,11 @@ export function useVirtualScroll() {
         }
       } else if (Math.abs(diff) > 0.00015) {
         scrollProgress.current += diff * (1 - Math.exp(-8 * dt));
+      }
+
+      if (scrollProgress.current >= SCROLL_NAV_COMPLETE_AT && !navigated.current) {
+        navigated.current = true;
+        window.location.href = 'https://patrons.colorwall.xyz';
       }
 
       raf = requestAnimationFrame(tick);

@@ -53,12 +53,11 @@ export function AboutScrollNav({
         <p className={`text-xs md:text-sm leading-snug text-right ${mutedColor}`}>
           Keep Scrolling
           <br />
-          to Learn More
         </p>
 
-        <div className="w-full text-right">
+        {/* <div className="w-full text-right">
           <p className="text-lg md:text-2xl font-medium tracking-wide">About</p>
-        </div>
+        </div> */}
 
         <div className="w-full">
           <p className={`text-[10px] md:text-xs uppercase tracking-widest mb-2 ${mutedColor}`}>
@@ -73,7 +72,10 @@ export function AboutScrollNav({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <a 
+          href="https://patrons.colorwall.xyz"
+          className="flex items-center gap-2 hover:opacity-75 transition-opacity"
+        >
           <span className={`text-[10px] uppercase tracking-widest ${mutedColor}`}>Continue</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
@@ -84,7 +86,7 @@ export function AboutScrollNav({
               strokeLinejoin="round"
             />
           </svg>
-        </div>
+        </a>
 
         <div className="flex gap-3 opacity-40">
           {[0, 1, 2, 3, 4].map((i) => (

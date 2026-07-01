@@ -19,8 +19,8 @@ export const TEXT_PHASES = [
     start: 0.52,
     peak: 0.58,
     end: 0.68,
-    left: ['LIVE WALLPAPERS', 'FOR EVERY', 'DESKTOP'],
-    right: ['REAL-TIME', 'GPU RENDERING', 'AT 60 FPS'],
+    left: ['LIVE WALLPAPERS', '& WIDGETS FOR EVERY', 'DESKTOP'],
+    right: ['REAL-TIME', 'ZERO COPY RENDERING', 'AT 144 FPS'],
     rightItalic: true,
   },
   {
@@ -29,7 +29,7 @@ export const TEXT_PHASES = [
     peak: 0.74,
     end: 0.82,
     left: ['CRAFTED WITH', 'PRECISION', 'AND CARE'],
-    right: ['DESIGNED FOR', 'WINDOWS', 'POWER USERS'],
+    right: ['DESIGNED FOR', 'WINDOWS', '10/11'],
     rightItalic: true,
   },
   {
@@ -37,8 +37,8 @@ export const TEXT_PHASES = [
     start: 0.82,
     peak: 0.88,
     end: 0.95,
-    left: ['SCROLL TO', 'EXPLORE', 'THE TERRAIN'],
-    right: ['IMMERSIVE', '3D', 'EXPERIENCE'],
+    left: ['THANK', 'YOU!'],
+    right: ['FOR', 'CHOOSING', 'COLORWALL!'],
     rightItalic: true,
   },
 ] as const;
