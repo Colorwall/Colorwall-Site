@@ -123,34 +123,19 @@ export const HeroSection = () => {
                     />
                 </div>
 
-                <div 
-                    className="relative w-full flex flex-col items-center justify-center mt-4 mb-2"
-                    style={{
-                        background: "radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, transparent 60%)",
-                        padding: "1rem 0"
-                    }}
-                >
-                    <div className="overflow-hidden py-1">
-                        <h1 
-                            className={`text-white text-center ${outfit.className}`}
-                            style={{ 
-                                fontWeight: 200, 
-                                fontSize: "clamp(1.2rem, 2.5vw, 2.5rem)", 
-                                lineHeight: 0.95, 
-                                letterSpacing: "-0.04em", 
-                                mixBlendMode: "exclusion",
-                                transform: "translateY(150%)",
-                                animation: "slideUpMask 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards"
-                            }}
-                        >
-                            The Ultimate Wallpaper Engine Alternative
-                        </h1>
-                    </div>
-                    <style>{`
-                        @keyframes slideUpMask {
-                            to { transform: translateY(0); }
-                        }
-                    `}</style>
+                <div className="relative w-full flex flex-col items-center justify-center mt-4 mb-2">
+                    <h1 
+                        className={`text-white text-center ${outfit.className}`}
+                        style={{ 
+                            fontWeight: 200, 
+                            fontSize: "clamp(1.2rem, 2.5vw, 2.5rem)", 
+                            lineHeight: 0.95, 
+                            letterSpacing: "-0.04em", 
+                            mixBlendMode: "exclusion" 
+                        }}
+                    >
+                        The Ultimate Wallpaper Engine Alternative
+                    </h1>
                 </div>
 
                 {/* typewriter */}
