@@ -80,7 +80,7 @@ function CinematicTextOverlay({
         ref={scrollHintRef}
         className="absolute bottom-[6vh] left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
       >
-        <span className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium">
+        <span className="text-white/60 text-xs md:text-sm uppercase tracking-[0.3em] font-semibold">
           Scroll to explore
         </span>
         <div className="animate-[scrollBounce_2s_ease-in-out_infinite]">
@@ -208,7 +208,7 @@ export default function AboutPage() {
                 }}
             >
                 {/* offset downward from center so it sits below the colorwall title */}
-                <div className="mt-[18vh] flex flex-col items-center gap-5">
+                <div className="mt-[28vh] flex flex-col items-center gap-5">
                     <svg
                         width="32"
                         height="32"
