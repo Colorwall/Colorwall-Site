@@ -128,9 +128,9 @@ export const HeroSection = () => {
                         className={`text-white text-center ${outfit.className}`}
                         style={{ 
                             fontWeight: 200, 
-                            fontSize: "clamp(2.5rem, 6vw, 6.5rem)", 
+                            fontSize: "clamp(1.2rem, 2.5vw, 2.5rem)", 
                             lineHeight: 0.95, 
-                            letterSpacing: "-0.06em", 
+                            letterSpacing: "-0.04em", 
                             mixBlendMode: "exclusion" 
                         }}
                     >
