@@ -57,7 +57,6 @@ export function AboutHalo({
     material.uniforms.u_resolution.value.set(state.size.width, state.size.height);
   });
 
-  console.log('halo geometry:', geometry);
   if (!geometry) return null;
 
   return (

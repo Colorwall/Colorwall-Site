@@ -41,7 +41,9 @@ export function useAboutUniforms(scrollRef: { current: number }) {
     const hudRatio = scroll > 0.85 ? Math.min((scroll - 0.85) / 0.15, 1) : 0;
 
     // Buffer AboutHero.syncProperties
-    uniforms.current.u_sceneRatio.value = fit(intro, 0.01, 0.1, 0, 1, cubicOut);
+    // floor at 0.15 so the particle field is dimly visible from initial load,
+    // preventing the black-screen-until-scroll problem where sceneLayer hides everything at scroll 0
+    uniforms.current.u_sceneRatio.value = Math.max(0.15, fit(intro, 0.01, 0.1, 0, 1, cubicOut));
     uniforms.current.u_sceneHideRatio.value = fit(intro, 0.85, 1, 0, 1);
     uniforms.current.u_hudRatio.value = hudRatio;
     uniforms.current.u_noiseStableFactor.value = fit(intro, 0, 0.4, 0, 1);

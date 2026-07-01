@@ -437,3 +437,17 @@ body {
     @apply font-sans;
   }
 }
+
+/* gentle vertical bounce for the scroll-down hint chevron on the about page.
+   used by the tailwind arbitrary animation class animate-[scrollBounce_2s_ease-in-out_infinite] */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+/* floating ambient orb animation for the android gate redirect page.
+   subtle vertical drift with scale pulse creates depth on the static fallback page. */
+@keyframes androidGateFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}

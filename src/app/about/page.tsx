@@ -9,6 +9,7 @@ import { useVirtualScroll } from "./hooks/useVirtualScroll";
 import { TEXT_PHASES } from "./scrollConfig";
 import { AboutScrollNav } from "./components/AboutScrollNav";
 import { AboutScrollIndicator } from "./components/AboutScrollIndicator";
+import { AndroidGate } from "./components/AndroidGate";
 import { usePageReady } from "@/hooks/usePageReady";
 
 function phaseOpacity(r: number, start: number, peak: number, end: number) {
@@ -24,6 +25,7 @@ function CinematicTextOverlay({
 }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const phaseRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -45,6 +47,13 @@ function CinematicTextOverlay({
         el.style.transform = `translateY(${(1 - opacity) * 20}px)`;
       });
 
+      // fade out the scroll hint as soon as the user starts scrolling
+      if (scrollHintRef.current) {
+        const hintOpacity = Math.max(0, 1 - r / 0.05);
+        scrollHintRef.current.style.opacity = `${hintOpacity}`;
+        scrollHintRef.current.style.pointerEvents = hintOpacity > 0.5 ? 'auto' : 'none';
+      }
+
       animationFrameId = requestAnimationFrame(renderLoop);
     };
 
@@ -64,6 +73,33 @@ function CinematicTextOverlay({
         >
           COLORWALL
         </h1>
+      </div>
+
+      {/* scroll hint - bouncing chevron at bottom center, fades out once user starts scrolling */}
+      <div
+        ref={scrollHintRef}
+        className="absolute bottom-[6vh] left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
+      >
+        <span className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium">
+          Scroll to explore
+        </span>
+        <div className="animate-[scrollBounce_2s_ease-in-out_infinite]">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-white/30"
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
       </div>
 
       {TEXT_PHASES.map((phase, i) => (
@@ -118,8 +154,10 @@ export default function AboutPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     
-    // Prevent SSR hydration crashes with WebGL portals
+    // prevent ssr hydration crashes with webgl portals
     const [mounted, setMounted] = useState(false);
+    // tracks whether the current device is android (can not render webgl scene)
+    const [isAndroid, setIsAndroid] = useState(false);
     
     // defer heavy webgl mounting until html/css finishes painting and browser is idle
     const isPageReady = usePageReady();
@@ -128,14 +166,22 @@ export default function AboutPage() {
 
     useEffect(() => {
         setMounted(true);
+        // check for android devices via user agent - runs client-side only
+        // to avoid ssr mismatches between server and client renders
+        if (/Android/i.test(navigator.userAgent)) {
+            setIsAndroid(true);
+        }
     }, []);
 
     if (!mounted) return null;
 
+    // android devices get a styled redirect page instead of the full webgl pipeline
+    if (isAndroid) return <AndroidGate />;
+
     return (
         <div className={`relative h-screen w-full overflow-hidden ${isDark ? "bg-black" : "bg-slate-50"}`}>
             
-            {/* The 3D WebGL Canvas */}
+            {/* the 3d webgl canvas */}
             {isPageReady && (
                 <Canvas
                     gl={{
@@ -151,13 +197,55 @@ export default function AboutPage() {
                 </Canvas>
             )}
 
-            {/* DOM Overlay correctly placed OUTSIDE the WebGL Canvas in the standard DOM tree */}
+            {/* svg loading spinner - visible while usePageReady is false (webgl not yet mounted).
+                sits below the colorwall title as a thin rotating ring with label text.
+                fades out via css opacity transition once isPageReady flips to true. */}
+            <div
+                className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none"
+                style={{
+                    opacity: isPageReady ? 0 : 1,
+                    transition: 'opacity 0.8s ease-out',
+                }}
+            >
+                {/* offset downward from center so it sits below the colorwall title */}
+                <div className="mt-[18vh] flex flex-col items-center gap-5">
+                    <svg
+                        width="32"
+                        height="32"
+                        viewBox="0 0 32 32"
+                        fill="none"
+                        className="animate-spin"
+                        style={{ animationDuration: '1.8s' }}
+                    >
+                        <circle
+                            cx="16"
+                            cy="16"
+                            r="13"
+                            stroke="rgba(255,255,255,0.08)"
+                            strokeWidth="1.5"
+                            fill="none"
+                        />
+                        <path
+                            d="M16 3a13 13 0 0 1 13 13"
+                            stroke="rgba(255,255,255,0.35)"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            fill="none"
+                        />
+                    </svg>
+                    <span className="text-white/20 text-[9px] uppercase tracking-[0.35em] font-medium">
+                        Loading Experience
+                    </span>
+                </div>
+            </div>
+
+            {/* dom overlay correctly placed outside the webgl canvas in the standard dom tree */}
             <AboutContent scrollProgress={scrollProgress} />
 
             <AboutScrollNav scrollProgress={scrollProgress} isDark={isDark} />
             <AboutScrollIndicator scrollProgress={scrollProgress} isDark={isDark} />
 
-            {/* A tiny minimalist return button */}
+            {/* a tiny minimalist return button */}
             <a 
                 href="/" 
                 className={`absolute top-8 left-8 z-50 text-sm font-medium tracking-tight hover:opacity-50 transition-opacity ${isDark ? "text-white" : "text-black"}`}
