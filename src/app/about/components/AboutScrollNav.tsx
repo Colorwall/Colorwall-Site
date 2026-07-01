@@ -73,7 +73,7 @@ export function AboutScrollNav({
         </div>
 
         <a 
-          href="https://patrons.colorwall.xyz"
+          href="https://patron.colorwall.xyz"
           className="flex items-center gap-2 hover:opacity-75 transition-opacity"
         >
           <span className={`text-[10px] uppercase tracking-widest ${mutedColor}`}>Continue</span>

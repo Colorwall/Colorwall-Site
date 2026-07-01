@@ -58,7 +58,7 @@ export function useVirtualScroll() {
 
       if (scrollProgress.current >= SCROLL_NAV_COMPLETE_AT && !navigated.current) {
         navigated.current = true;
-        window.location.href = 'https://patrons.colorwall.xyz';
+        window.location.href = 'https://patron.colorwall.xyz';
       }
 
       raf = requestAnimationFrame(tick);

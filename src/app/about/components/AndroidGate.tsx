@@ -120,7 +120,7 @@ export function AndroidGate() {
 
         {/* cta button - glassmorphic style inspired by shapeblur aesthetics */}
         <a
-          href="https://patrons.colorwall.xyz"
+          href="https://patron.colorwall.xyz"
           className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-xl overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.04)',
