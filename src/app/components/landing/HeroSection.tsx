@@ -1,14 +1,10 @@
-"use client";
-
-import React, { useState } from "react";
-import { Typewriter } from "react-simple-typewriter";
+import React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Download, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
-import { GradientHeading } from "./GradientHeading";
+import { Monitor, Cpu, Wrench } from "lucide-react";
 import { AmbientPlayer } from "./AmbientPlayer";
 import { Outfit } from "next/font/google";
+import { HeroInteractive } from "./HeroInteractive";
+import { HeroTypewriter } from "./HeroTypewriter";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500"] });
 
@@ -63,7 +59,16 @@ const HeroBackground = React.memo(() => (
                         };
 
                         // defer video load until browser is idle so it doesn't block lcp
-                        var startLoad = function() { video.load(); };
+                        var startLoad = function() { 
+                            video.load(); 
+                            setTimeout(function() {
+                                if (window.requestIdleCallback) {
+                                    requestIdleCallback(function() { console.clear(); }, { timeout: 2000 });
+                                } else {
+                                    console.clear();
+                                }
+                            }, 1500);
+                        };
                         if (window.requestIdleCallback) {
                             requestIdleCallback(startLoad, { timeout: 1500 });
                         } else {
@@ -78,23 +83,6 @@ const HeroBackground = React.memo(() => (
 ), () => true);
 
 export const HeroSection = () => {
-    const router = useRouter();
-    const [loadingButton, setLoadingButton] = useState<"download" | "discord" | null>(null);
-
-    const handleInternalNavigation = (
-        event: React.MouseEvent<HTMLAnchorElement>,
-        button: "download",
-        href: string
-    ) => {
-        event.preventDefault();
-        setLoadingButton(button);
-
-        // keep the spinner visible for at least one render before route transition
-        setTimeout(() => {
-            router.push(href);
-        }, 120);
-    };
-
     return (
         <section
             className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-black text-white"
@@ -139,78 +127,10 @@ export const HeroSection = () => {
                 </div>
 
                 {/* typewriter */}
-                <div className="min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center text-xs sm:text-sm md:text-base lg:text-lg font-mono text-white/90 font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                    <Typewriter
-                        words={[
-                            "< Your Desktop Called, It wants Personality! >",
-                            "< A Wallpaper Engine built for performance and You!>",
-                            "< Built in Rust + Tauri · DirectX 11/IMF/MPV/WEB2 · Hardware Accelerated >",
-                            "< 8K Video · Workshop/Studio (under work) · Advanced D3D11 Shader Effects >",
-                            "< Desktop Widgets · Taskbar Customization · Audio Reactive >",
-                            "< 100% Free · No limits, no subscriptions >",
-                        ]}
-                        loop={0}
-                        cursor
-                        cursorStyle={
-                            <svg 
-                                width="0.6em" 
-                                height="1em" 
-                                viewBox="0 0 12 24" 
-                                fill="currentColor" 
-                                className="inline-block align-middle ml-1 text-cyan-400/90"
-                            >
-                                <path d="M10 2 L12 2 L4 22 L2 22 Z" />
-                            </svg>
-                        }
-                        typeSpeed={35}
-                        deleteSpeed={15}
-                        delaySpeed={5200}
-                    />
-                </div>
+                <HeroTypewriter />
 
                 {/* CTA row */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4 w-full sm:w-auto px-8 sm:px-0 max-w-xs sm:max-w-none mx-auto">
-                    {/* download */}
-                    <div className="relative group flex sm:inline-flex w-full sm:w-auto rounded-[12px] overflow-hidden p-[2px] hover:-translate-y-0.5 transition-transform duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.15)]">
-                        {/* Spinning Conic Gradient for Edge Glint */}
-                        <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#60a5fa_50%,transparent_100%)] opacity-100 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        <Link
-                            href="/download"
-                            onClick={(event) => handleInternalNavigation(event, "download", "/download")}
-                            aria-busy={loadingButton === "download" ? "true" : "false"}
-                            className="relative inline-flex items-center justify-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-[10px] bg-white text-black font-bold text-xs sm:text-sm tracking-wide w-full"
-                        >
-                            {loadingButton === "download" ? (
-                                <LoaderCircle className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                            ) : (
-                                <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                            )}
-                            Download Now
-                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md ml-0.5 sm:ml-1 bg-black/10 text-black/60">
-                                Win 10/11
-                            </span>
-                        </Link>
-                    </div>
-
-
-                    {/* discord */}
-                    <a
-                        href="https://discord.gg/QYwhay7r2V"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setLoadingButton("discord")}
-                        {...{ "aria-busy": loadingButton === "discord" ? "true" : "false" }}
-                        className="flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-300 w-full sm:w-auto"
-                    >
-                        {loadingButton === "discord" ? (
-                            <LoaderCircle className="w-[1em] h-[1em] inline-block text-sm sm:text-base animate-spin" />
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" className="w-[1em] h-[1em] inline-block text-sm sm:text-base"><path d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.276c3.2-4.375,6.233-8.855,9.117-13.435a1.889,1.889,0,0,0-1.026-2.822,331.066,331.066,0,0,1-47.533-22.385,1.884,1.884,0,0,1-.186-3.136,24.71,24.71,0,0,0,3.2-2.527,1.888,1.888,0,0,1,1.979-.315,348.608,348.608,0,0,0,175.762,35.882,348.4,348.4,0,0,0,175.525-35.882,1.884,1.884,0,0,1,1.979.315,22.065,22.065,0,0,0,3.242,2.566,1.887,1.887,0,0,1-.144,3.136,335.8,335.8,0,0,1-47.6,22.385,1.885,1.885,0,0,0-1.026,2.822c2.884,4.58,5.918,9.06,9.117,13.435a1.882,1.882,0,0,0,2.063.276A486.291,486.291,0,0,0,611.43,405.729a1.882,1.882,0,0,0,.765-1.354C624.4,269.175,584.288,159.224,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z"/></svg>
-                        )}
-                        Discord
-                    </a>
-                </div>
+                <HeroInteractive />
 
                 {/* ambient player — inline on homepage */}
                 <AmbientPlayer theme="dark" />
