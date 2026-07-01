@@ -20,8 +20,8 @@ type HeroVideo = {
 };
 
 const HERO_VIDEOS: HeroVideo[] = [
-    { src: "/videos/Shimoe_Koharu.webm", type: "video/webm", poster: "/videos/posters/Shimoe_Koharu.webp" },
     { src: "/videos/laxenta.webm", type: "video/webm", poster: "/videos/posters/laxenta.webp" },
+    { src: "/videos/Shimoe_Koharu.webm", type: "video/webm", poster: "/videos/posters/Shimoe_Koharu.webp" },
     { src: "/videos/Plana___Arona__Blue_Archive_.webm", type: "video/webm", poster: "/videos/posters/Plana___Arona__Blue_Archive_.webp" },
     { src: "/videos/mycutekoii.webm", type: "video/webm", poster: "/videos/posters/mycutekoii.webp" },
     { src: "/videos/Crimson_Divide_Soul.webm", type: "video/webm", poster: "/videos/posters/Crimson_Divide_Soul.webp" },
