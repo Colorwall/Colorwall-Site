@@ -8,6 +8,9 @@ import { useRouter } from "next/navigation";
 import { Download, Monitor, Cpu, Wrench, LoaderCircle } from "lucide-react";
 import { GradientHeading } from "./GradientHeading";
 import { AmbientPlayer } from "./AmbientPlayer";
+import { Outfit } from "next/font/google";
+
+const outfit = Outfit({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500"] });
 
 
 type HeroVideo = {
@@ -102,27 +105,20 @@ export const HeroSection = () => {
             <HeroBackground />
 
             <div className="relative z-10 text-center flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 max-w-4xl xl:max-w-5xl">
-                {/* logo */}
-                <div className="relative w-full flex justify-center items-center">
-                    <div
-                        aria-hidden="true"
-                        className="absolute -z-10 h-24 w-56 sm:h-28 sm:w-72 md:h-32 md:w-80 rounded-full bg-black/70 blur-3xl"
-                    />
-                    <Image
-                        src="/LxColorWall.webp"
-                        alt="ColorWall"
-                        width={512}
-                        height={192}
-                        className="w-64 sm:w-80 md:w-96 lg:w-[448px] xl:w-[512px] h-auto object-contain"
-                        style={{ height: 'auto' }}
-                        priority
-                        fetchPriority="high"
-                    />
+                <div className="relative w-full flex flex-col items-center justify-center mb-4">
+                    <h1 
+                        className={`text-white text-center ${outfit.className}`}
+                        style={{ 
+                            fontWeight: 200, 
+                            fontSize: "clamp(4rem, 14vw, 15rem)", 
+                            lineHeight: 0.95, 
+                            letterSpacing: "-0.06em", 
+                            mixBlendMode: "exclusion" 
+                        }}
+                    >
+                        Colorwall
+                    </h1>
                 </div>
-
-                <h1 className="text-xs sm:text-sm md:text-base font-mono font-semibold tracking-widest uppercase opacity-90 mb-1 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                    The Ultimate <GradientHeading text="Wallpaper Engine" theme="dark" as="span" className="inline-block px-1" /> Alternative
-                </h1>
 
                 {/* typewriter */}
                 <div className="min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center text-xs sm:text-sm md:text-base lg:text-lg font-mono text-white/90 font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
