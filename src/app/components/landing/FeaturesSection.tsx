@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
 
 // -- the 3 headline stat cards that anchor the section --
@@ -24,6 +25,7 @@ const statCards = [
         label: "Ready",
         detail: "Full 8K resolution support with multi-monitor layouts and permanent widget saves.",
         accent: true,
+        href: "/download",
     },
 ];
 
@@ -77,10 +79,28 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     className="mb-20 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 lg:gap-16"
                 >
                     <div className="flex-shrink-0">
-                        <p className={`text-xs font-mono uppercase tracking-[0.2em] mb-4 ml-1
-                            ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-                            under active development
-                        </p>
+                        <div className="flex items-center gap-3 mb-4 ml-1 flex-wrap">
+                            <p className={`text-xs font-mono uppercase tracking-[0.2em]
+                                ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+                                under active development
+                            </p>
+                            {/* patron link - subtle dot separator + link in the same
+                                mono style so it reads as a secondary label rather
+                                than a loud cta. sits alongside the dev status badge */}
+                            <span className={`text-xs ${isDark ? "text-white/15" : "text-black/15"}`}>·</span>
+                            <a
+                                href="https://patron.colorwall.xyz"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`text-xs font-mono uppercase tracking-[0.2em] transition-colors duration-300
+                                    ${isDark
+                                        ? "text-white/25 hover:text-white/60"
+                                        : "text-black/25 hover:text-black/60"
+                                    }`}
+                            >
+                                Supported by patrons ♥
+                            </a>
+                        </div>
                         <GradientHeading
                             text={"Performance\nwithout compromise."}
                             theme={theme}
@@ -111,53 +131,74 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     transition={{ duration: 0.7, delay: 0.15 }}
                     className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-32"
                 >
-                    {statCards.map((card, i) => (
-                        <div
-                            key={card.label}
-                            className={`group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
-                                ${card.accent
-                                    ? (isDark
-                                        ? "bg-[#0078d4] text-white"
-                                        : "bg-[#111111] text-white")
-                                    : (isDark
-                                        ? "border border-white/10 bg-white/[0.02]"
-                                        : "border border-black/10 bg-black/[0.02]")
-                                }`}
-                        >
-                            {/* stat value and decorative plus sign on the same line */}
-                            <div className="flex items-start justify-between mb-4">
-                                <span className={`text-4xl sm:text-5xl font-black tracking-tighter leading-none
+                    {statCards.map((card, i) => {
+                        // shared class string for both linked and static cards
+                        const cardClasses = `group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
+                            ${card.accent
+                                ? (isDark
+                                    ? "bg-[#0078d4] text-white hover:bg-[#006cbd]"
+                                    : "bg-[#111111] text-white hover:bg-[#1a1a1a]")
+                                : (isDark
+                                    ? "border border-white/10 bg-white/[0.02]"
+                                    : "border border-black/10 bg-black/[0.02]")
+                            }`;
+
+                        // inner card content extracted so it can be shared between
+                        // the linked (accent) and non-linked (regular) card wrappers
+                        const cardContent = (
+                            <>
+                                {/* stat value and decorative plus/arrow on the same line */}
+                                <div className="flex items-start justify-between mb-4">
+                                    <span className={`text-4xl sm:text-5xl font-black tracking-tighter leading-none
+                                        ${card.accent
+                                            ? "text-white"
+                                            : (isDark ? "text-white" : "text-black")
+                                        }`}>
+                                        {card.stat}
+                                        <span className={`text-lg font-medium ml-1 ${card.accent ? "text-white/70" : (isDark ? "text-white/40" : "text-black/40")}`}>
+                                            {card.label}
+                                        </span>
+                                    </span>
+
+                                    {/* arrow on accent card hints at clickability,
+                                        plus sign on regular cards is purely decorative */}
+                                    {card.accent ? (
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 text-white text-lg mt-1 group-hover:scale-110 group-hover:translate-x-0.5 transition-transform duration-300">
+                                            →
+                                        </span>
+                                    ) : (
+                                        <span className={`text-xl mt-1 ${isDark ? "text-white/20" : "text-black/20"}`}>
+                                            +
+                                        </span>
+                                    )}
+                                </div>
+
+                                <p className={`text-sm leading-relaxed font-spline
                                     ${card.accent
-                                        ? "text-white"
-                                        : (isDark ? "text-white" : "text-black")
+                                        ? "text-white/70"
+                                        : (isDark ? "text-white/40" : "text-black/50")
                                     }`}>
-                                    {card.stat}
-                                    <span className={`text-lg font-medium ml-1 ${card.accent ? "text-white/70" : (isDark ? "text-white/40" : "text-black/40")}`}>
-                                        {card.label}
-                                    </span>
-                                </span>
+                                    {card.detail}
+                                </p>
+                            </>
+                        );
 
-                                {/* small decorative plus/arrow icon in the corner */}
-                                {card.accent ? (
-                                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 text-white text-lg mt-1 group-hover:scale-110 transition-transform duration-300">
-                                        →
-                                    </span>
-                                ) : (
-                                    <span className={`text-xl mt-1 ${isDark ? "text-white/20" : "text-black/20"}`}>
-                                        +
-                                    </span>
-                                )}
+                        // accent card wraps in a next/link to /download so clicking
+                        // routes the user to grab the app. regular cards stay inert.
+                        return card.href ? (
+                            <Link
+                                key={card.label}
+                                href={card.href}
+                                className={`${cardClasses} block no-underline cursor-pointer`}
+                            >
+                                {cardContent}
+                            </Link>
+                        ) : (
+                            <div key={card.label} className={cardClasses}>
+                                {cardContent}
                             </div>
-
-                            <p className={`text-sm leading-relaxed font-spline
-                                ${card.accent
-                                    ? "text-white/70"
-                                    : (isDark ? "text-white/40" : "text-black/50")
-                                }`}>
-                                {card.detail}
-                            </p>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </motion.div>
 
                 {/* ─── "the rest" feature list ─── */}
