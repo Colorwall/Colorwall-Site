@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { BenchmarkShowcase } from "./BenchmarkShowcase";
+import { GradientHeading } from "./GradientHeading";
 
 // -- competitor cards: short, factual, non-aggressive --
 // each card highlights what the competitor provides and where
@@ -82,10 +83,11 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         transition={{ duration: 0.7 }}
                         className="text-center mb-20"
                     >
-                        <p className={`text-xs font-mono uppercase tracking-[0.25em] mb-5
-                            ${isDark ? "text-white/30" : "text-black/30"}`}>
-                            how we compare
-                        </p>
+                        <GradientHeading
+                            text="how we compare"
+                            theme={theme}
+                            className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mb-5"
+                        />
                         <h2 className={`text-5xl md:text-7xl font-medium tracking-tighter leading-none mb-5
                             ${isDark ? "text-white" : "text-black"}`}>
                             They solve a slice.
@@ -95,7 +97,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             We run the whole thing.
                         </p>
                         <p className={`text-xs font-mono
-                            ${isDark ? "text-white/20" : "text-black/30"}`}>
+                            ${isDark ? "text-white/50" : "text-black/40"}`}>
                             Benchmarks: i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
                         </p>
                     </motion.div>
@@ -210,14 +212,14 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                     >
                         <div
                             onClick={() => setShowBenchmarks(true)}
-                            className={`rounded-2xl p-8 sm:p-10 transition-all duration-300 cursor-pointer
+                            className={`rounded-2xl p-8 sm:p-14 cursor-pointer border transition-colors duration-200
                                 ${isDark
-                                    ? "bg-white/[0.04] border border-white/10 hover:border-white/20 hover:bg-white/[0.06]"
-                                    : "bg-[#111111] text-white hover:bg-[#1a1a1a]"
+                                    ? "bg-white/[0.04] border-white/10 hover:border-white/20"
+                                    : "bg-black/[0.03] border-black/10 hover:border-black/20"
                                 }`}
                         >
                             {/* card header: logo + name + tagline + actions */}
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12">
                                 <div className="flex items-center gap-3">
                                     <img
                                         src="/colorwall.png"
@@ -226,37 +228,35 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                     />
                                     <div>
                                         <h3 className={`text-xl sm:text-2xl font-bold tracking-tight
-                                            ${isDark ? "text-white" : "text-white"}`}>
+                                            ${isDark ? "text-white" : "text-black"}`}>
                                             ColorWall
                                         </h3>
-                                        <p className={`text-sm ${isDark ? "text-white/40" : "text-white/60"}`}>
+                                        <p className={`text-sm ${isDark ? "text-white/50" : "text-black/50"}`}>
                                             Runs the whole thing, end to end.
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    {/* "see the proof" button - opens the benchmark modal.
-                                        stopPropagation isn't needed since the parent card
-                                        also triggers the same action */}
+                                    {/* opens the benchmark modal with real task manager screenshots */}
                                     <button
                                         onClick={() => setShowBenchmarks(true)}
-                                        className={`px-4 py-2 rounded-full text-sm font-mono tracking-tight transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border
+                                        className={`px-4 py-2 rounded-full text-sm font-mono tracking-tight transition-colors duration-200 border
                                             ${isDark
                                                 ? "border-white/15 text-white/60 hover:text-white hover:border-white/30"
-                                                : "border-white/20 text-white/70 hover:text-white hover:border-white/40"
+                                                : "border-black/15 text-black/50 hover:text-black hover:border-black/30"
                                             }`}
                                     >
-                                        See the proof →
+                                        Wanna see the proof →
                                     </button>
 
                                     <Link
                                         href="/download"
                                         onClick={(e) => e.stopPropagation()}
-                                        className={`px-5 py-2 rounded-full text-sm font-semibold tracking-tight transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shrink-0
+                                        className={`px-5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors duration-200 shrink-0
                                             ${isDark
                                                 ? "bg-white text-black hover:bg-white/90"
-                                                : "bg-white text-black hover:bg-white/90"
+                                                : "bg-black text-white hover:bg-black/90"
                                             }`}
                                     >
                                         Download Free
@@ -265,24 +265,23 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             </div>
 
                             {/* stats grid - 4 columns on desktop, 2 on mobile.
-                                monochrome glass cells that adapt to the card's
-                                background without needing a specific accent color */}
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                                bigger cells with proper theme-aware text for readability */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                                 {colorwallWins.map((win) => (
                                     <div
                                         key={win.label}
-                                        className={`rounded-xl px-4 py-3.5 sm:px-5 sm:py-4
+                                        className={`rounded-xl px-5 py-5 sm:px-6 sm:py-6 border
                                             ${isDark
-                                                ? "bg-white/[0.04] border border-white/5"
-                                                : "bg-white/10"
+                                                ? "bg-white/[0.03] border-white/5"
+                                                : "bg-black/[0.03] border-black/5"
                                             }`}
                                     >
-                                        <p className={`text-[11px] font-mono uppercase tracking-wider mb-1
-                                            ${isDark ? "text-white/30" : "text-white/50"}`}>
+                                        <p className={`text-[11px] font-mono uppercase tracking-wider mb-2
+                                            ${isDark ? "text-white/35" : "text-black/40"}`}>
                                             {win.label}
                                         </p>
-                                        <p className={`text-lg sm:text-xl font-bold tracking-tight
-                                            ${isDark ? "text-white" : "text-white"}`}>
+                                        <p className={`text-xl sm:text-2xl font-bold tracking-tight
+                                            ${isDark ? "text-white" : "text-black"}`}>
                                             {win.value}
                                         </p>
                                     </div>
@@ -290,9 +289,9 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             </div>
 
                             {/* click hint */}
-                            <div className="flex justify-center mt-6">
-                                <p className={`text-[11px] font-mono
-                                    ${isDark ? "text-white/15" : "text-white/30"}`}>
+                            <div className="flex justify-center mt-10">
+                                <p className={`text-xs font-mono
+                                    ${isDark ? "text-white/30" : "text-black/30"}`}>
                                     Click to see real Task Manager benchmarks
                                 </p>
                             </div>
