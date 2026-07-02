@@ -2,161 +2,312 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { GradientHeading } from "./GradientHeading";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { BenchmarkShowcase } from "./BenchmarkShowcase";
+
+// -- competitor cards: short, factual, non-aggressive --
+// each card highlights what the competitor provides and where
+// colorwall goes further, without being confrontational.
+// favicon urls use google's favicon service for consistent rendering
+const competitors = [
+    {
+        name: "Wallpaper Engine",
+        price: "$3.99",
+        favicon: "https://www.google.com/s2/favicons?domain=wallpaperengine.io&sz=128",
+        tagline: "The industry standard.",
+        limitations: [
+            "74% GPU usage on 4K video",
+            "No native widget support",
+            "Closed source",
+        ],
+    },
+    {
+        name: "Lively Wallpaper",
+        price: "Free",
+        favicon: "https://www.google.com/s2/favicons?domain=rocksdanister.github.io/lively&sz=128",
+        tagline: "A solid open-source option.",
+        limitations: [
+            "98% GPU usage on 4K video",
+            "No scene editor",
+            "Limited audio reactivity",
+        ],
+    },
+    {
+        name: "Others",
+        price: "Varies",
+        favicon: null,
+        tagline: "Rainmeter, DesktopHut, etc.",
+        limitations: [
+            "No hardware-accelerated rendering",
+            "Basic or no video support",
+            "Fragmented ecosystem",
+        ],
+    },
+];
+
+// -- colorwall's key differentiators shown in the hero card --
+// taskbar row removed since the comparison numbers don't translate
+// cleanly when the other apps handle it differently
+const colorwallWins = [
+    { label: "GPU Usage (4K)", value: "~24%" },
+    { label: "CPU Usage (4K)", value: "~3.6%" },
+    { label: "Rendering", value: "DirectX 11" },
+    { label: "Scene Editor", value: "Built-in" },
+    { label: "Audio Reactive", value: "Native" },
+    { label: "Desktop Widgets", value: "HTML5/React" },
+    { label: "Taskbar Effects", value: "Acrylic/Blur" },
+    { label: "Price", value: "Free" },
+];
 
 export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
-    const [hoveredCol, setHoveredCol] = useState<number | null>(null);
-
-    const features = [
-        { label: "Price", cw: "Free", we: "$3.99", lv: "Free" },
-        { label: "CPU (4K Video)", cw: "1.3%", we: "1.2%", lv: "0.8%" },
-        { label: "GPU (4K Video)", cw: "22.9%", we: "74%", lv: "83.8%" },
-        { label: "Rendering Engine", cw: "DirectX 11", we: "DirectX / Web", lv: "CefSharp" },
-        { label: "Scene Editor", cw: "Yes", we: "Yes", lv: "None" },
-        { label: "Audio Reactivity", cw: "Native", we: "Native", lv: "Base Level" },
-        { label: "HTML Widgets", cw: "Native", we: "Third-party", lv: "Limited" },
-        { label: "Taskbar Effects", cw: "Acrylic / Blur", we: "Slightly Advanced", lv: "Yes" },
-        { label: "Open Source", cw: "Closed Source", we: "Closed Source", lv: "Yes (GPL-3)" },
-    ];
-
-    const renderValue = (val: string, isCw: boolean) => {
-        if (val === "Yes" || val.includes("Built-in") || val.includes("Native")) {
-            return (
-                <div className={`flex items-center justify-center gap-2 whitespace-nowrap ${isCw ? "text-emerald-400 font-bold" : (isDark ? "text-emerald-400/80" : "text-emerald-600")}`}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-                        <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" fill="currentColor" fillOpacity="0.15"/>
-                        <path d="M7.75 12L10.58 14.83L16.25 9.17004" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span>{val}</span>
-                </div>
-            );
-        }
-        
-        // Default text
-        return <span className={`whitespace-nowrap ${isCw ? (isDark ? "text-white font-bold" : "text-black font-bold") : (isDark ? "text-white/60" : "text-black/60")}`}>{val}</span>;
-    };
+    const [showBenchmarks, setShowBenchmarks] = useState(false);
 
     return (
-        <section className="py-32 px-4 sm:px-8 relative overflow-hidden">
-            {/* Background Glow */}
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] blur-[120px] rounded-full opacity-10 pointer-events-none ${isDark ? "bg-blue-600" : "bg-blue-400"}`} />
+        <>
+            <section className="py-32 px-4 sm:px-8 relative overflow-hidden">
+                {/* background glow - kept from original. subtle radial wash
+                    behind the section adds depth without being distracting */}
+                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] blur-[120px] rounded-full opacity-10 pointer-events-none ${isDark ? "bg-blue-600" : "bg-blue-400"}`} />
 
-            <div className="max-w-5xl mx-auto relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    className="text-center mb-16"
-                >
-                    <p className={`text-xs font-mono uppercase tracking-[0.2em] mb-4
-                        ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}>
-                        how it compares??
-                    </p>
-                    <GradientHeading
-                        text="Built different."
-                        theme={theme}
-                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight"
-                    />
-                    <p className={`text-sm font-medium mt-6 max-w-2xl mx-auto ${isDark ? "text-white/50" : "text-black/60"}`}>
-                        Performance benchmarks represent a single snapshot on an i3-4th Gen with Intel(R) HD 4600 Graphics running a 4K 60FPS video.
-                    </p>
-                </motion.div>
+                <div className="max-w-6xl mx-auto relative z-10">
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    className="relative"
-                >
-                    <div className="w-full overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-                        <table className="w-full min-w-[600px] border-collapse">
-                            <thead>
-                                <tr>
-                                    <th className="p-4 sm:p-6 text-left" />
-                                    <th className="p-0 align-bottom">
-                                        <div className={`p-4 sm:p-6 rounded-t-xl border-t border-x relative
-                                            ${isDark ? "bg-white/[0.02] border-white/10" : "bg-black/[0.02] border-black/10"}`}>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <img src="/colorwall.png" alt="ColorWall" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-                                                <span className={`text-lg sm:text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>ColorWall</span>
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <th 
-                                        className={`p-4 sm:p-6 align-bottom pb-6 text-center font-bold text-base sm:text-lg transition-colors cursor-default ${isDark ? (hoveredCol === 2 ? "text-white/90" : "text-white/60") : (hoveredCol === 2 ? "text-black/90" : "text-black/60")}`}
-                                        onMouseEnter={() => setHoveredCol(2)}
-                                        onMouseLeave={() => setHoveredCol(null)}
-                                    >
-                                        <div className="flex flex-col items-center gap-2">
-                                            <img 
-                                                src="https://www.google.com/s2/favicons?domain=wallpaperengine.io&sz=128" 
-                                                alt="Wallpaper Engine" 
-                                                loading="lazy" 
+                    {/* ─── heading block ─── */}
+                    {/* uses the same large, tight-tracked heading style as the
+                        "seems too good to be true?" block in page.tsx for consistency */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.7 }}
+                        className="text-center mb-20"
+                    >
+                        <p className={`text-xs font-mono uppercase tracking-[0.25em] mb-5
+                            ${isDark ? "text-white/30" : "text-black/30"}`}>
+                            how we compare
+                        </p>
+                        <h2 className={`text-5xl md:text-7xl font-medium tracking-tighter leading-none mb-5
+                            ${isDark ? "text-white" : "text-black"}`}>
+                            They solve a slice.
+                        </h2>
+                        <p className={`text-2xl md:text-3xl tracking-tight mb-6
+                            ${isDark ? "text-white/50" : "text-black/50"}`}>
+                            We run the whole thing.
+                        </p>
+                        <p className={`text-xs font-mono
+                            ${isDark ? "text-white/20" : "text-black/30"}`}>
+                            Benchmarks: i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
+                        </p>
+                    </motion.div>
+
+                    {/* ─── competitor cards row ─── */}
+                    {/* 3 cards in a row on desktop, stacking on mobile.
+                        each card now includes the competitor's favicon for
+                        brand recognition, restored from the original table design */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-60px" }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"
+                    >
+                        {competitors.map((comp) => (
+                            <div
+                                key={comp.name}
+                                className={`rounded-2xl p-6 sm:p-7 border transition-colors duration-300
+                                    ${isDark
+                                        ? "border-white/8 bg-white/[0.02] hover:border-white/15"
+                                        : "border-black/8 bg-black/[0.02] hover:border-black/15"
+                                    }`}
+                            >
+                                {/* competitor name with favicon + price tag */}
+                                <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2.5">
+                                        {/* favicon - shows the competitor's brand icon.
+                                            for "others" category we render a generic dot instead */}
+                                        {comp.favicon ? (
+                                            <img
+                                                src={comp.favicon}
+                                                alt={comp.name}
+                                                loading="lazy"
                                                 decoding="async"
-                                                className={`w-6 h-6 sm:w-8 sm:h-8 object-contain transition-all duration-300 ${hoveredCol === 2 ? "grayscale-0 opacity-100" : "grayscale opacity-50"}`} 
+                                                className={`w-5 h-5 object-contain shrink-0 rounded-sm
+                                                    ${isDark ? "opacity-50" : "opacity-60"}`}
                                             />
-                                            <span>Wallpaper Engine</span>
-                                        </div>
-                                    </th>
-                                    <th 
-                                        className={`p-4 sm:p-6 align-bottom pb-6 text-center font-bold text-base sm:text-lg transition-colors cursor-default ${isDark ? (hoveredCol === 3 ? "text-white/90" : "text-white/60") : (hoveredCol === 3 ? "text-black/90" : "text-black/60")}`}
-                                        onMouseEnter={() => setHoveredCol(3)}
-                                        onMouseLeave={() => setHoveredCol(null)}
+                                        ) : (
+                                            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0
+                                                ${isDark ? "bg-white/10 text-white/30" : "bg-black/10 text-black/30"}`}>
+                                                ···
+                                            </span>
+                                        )}
+                                        <h3 className={`text-base font-semibold tracking-tight
+                                            ${isDark ? "text-white/80" : "text-black/80"}`}>
+                                            {comp.name}
+                                        </h3>
+                                    </div>
+                                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full
+                                        ${isDark
+                                            ? "bg-white/5 text-white/40"
+                                            : "bg-black/5 text-black/40"
+                                        }`}>
+                                        {comp.price}
+                                    </span>
+                                </div>
+
+                                <p className={`text-sm mb-5 font-spline ml-[30px]
+                                    ${isDark ? "text-white/30" : "text-black/30"}`}>
+                                    {comp.tagline}
+                                </p>
+
+                                {/* limitation list - styled as neutral bullet points
+                                    with a subtle × prefix instead of aggressive red icons */}
+                                <ul className="flex flex-col gap-2.5">
+                                    {comp.limitations.map((lim) => (
+                                        <li
+                                            key={lim}
+                                            className={`flex items-start gap-2.5 text-sm leading-snug
+                                                ${isDark ? "text-white/40" : "text-black/45"}`}
+                                        >
+                                            <span className={`text-xs mt-0.5 shrink-0 font-mono
+                                                ${isDark ? "text-white/20" : "text-black/20"}`}>
+                                                ×
+                                            </span>
+                                            {lim}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </motion.div>
+
+                    {/* ─── vs divider ─── */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: 0.2 }}
+                        className="flex justify-center my-2"
+                    >
+                        <div className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold tracking-widest uppercase border
+                            ${isDark
+                                ? "bg-white/5 border-white/10 text-white/50"
+                                : "bg-black/5 border-black/10 text-black/50"
+                            }`}>
+                            vs
+                        </div>
+                    </motion.div>
+
+                    {/* ─── colorwall hero card ─── */}
+                    {/* monochrome treatment: dark uses a soft white/5 glass card,
+                        light uses deep black. no more aqua blue - the card
+                        derives its visual weight from contrast and content instead.
+                        clicking anywhere on the card opens the benchmark showcase */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-60px" }}
+                        transition={{ duration: 0.6, delay: 0.15 }}
+                    >
+                        <div
+                            onClick={() => setShowBenchmarks(true)}
+                            className={`rounded-2xl p-8 sm:p-10 transition-all duration-300 cursor-pointer
+                                ${isDark
+                                    ? "bg-white/[0.04] border border-white/10 hover:border-white/20 hover:bg-white/[0.06]"
+                                    : "bg-[#111111] text-white hover:bg-[#1a1a1a]"
+                                }`}
+                        >
+                            {/* card header: logo + name + tagline + actions */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                                <div className="flex items-center gap-3">
+                                    <img
+                                        src="/colorwall.png"
+                                        alt="ColorWall"
+                                        className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+                                    />
+                                    <div>
+                                        <h3 className={`text-xl sm:text-2xl font-bold tracking-tight
+                                            ${isDark ? "text-white" : "text-white"}`}>
+                                            ColorWall
+                                        </h3>
+                                        <p className={`text-sm ${isDark ? "text-white/40" : "text-white/60"}`}>
+                                            Runs the whole thing, end to end.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    {/* "see the proof" button - opens the benchmark modal.
+                                        stopPropagation isn't needed since the parent card
+                                        also triggers the same action */}
+                                    <button
+                                        onClick={() => setShowBenchmarks(true)}
+                                        className={`px-4 py-2 rounded-full text-sm font-mono tracking-tight transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border
+                                            ${isDark
+                                                ? "border-white/15 text-white/60 hover:text-white hover:border-white/30"
+                                                : "border-white/20 text-white/70 hover:text-white hover:border-white/40"
+                                            }`}
                                     >
-                                        <div className="flex flex-col items-center gap-2">
-                                            <img 
-                                                src="https://www.google.com/s2/favicons?domain=rocksdanister.github.io/lively&sz=128" 
-                                                alt="Lively Wallpaper" 
-                                                loading="lazy" 
-                                                decoding="async"
-                                                className={`w-6 h-6 sm:w-8 sm:h-8 object-contain transition-all duration-300 ${hoveredCol === 3 ? "grayscale-0 opacity-100" : "grayscale opacity-50"}`} 
-                                            />
-                                            <span>Lively</span>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {features.map((feature, i) => (
-                                    <tr key={feature.label} className="group">
-                                        <td className={`p-5 font-mono text-sm tracking-wide border-y transition-colors
-                                            ${isDark ? "border-white/5 text-white/80 group-hover:bg-white/[0.02]" : "border-black/5 text-black/80 group-hover:bg-black/[0.02]"}`}>
-                                            {feature.label}
-                                        </td>
-                                        <td className="p-0 border-y-0">
-                                            <div className={`px-4 sm:px-6 py-4 sm:py-5 text-center transition-colors h-full flex flex-col justify-center
-                                                ${isDark 
-                                                    ? "bg-white/[0.02] border-x border-white/10 group-hover:bg-white/[0.04]" 
-                                                    : "bg-black/[0.02] border-x border-black/10 group-hover:bg-black/[0.04]"}
-                                                ${i === features.length - 1 ? "rounded-b-xl border-b pb-6" : "border-b border-b-white/5"}`}>
-                                                {renderValue(feature.cw, true)}
-                                            </div>
-                                        </td>
-                                        <td 
-                                            className={`p-5 text-center border-y transition-colors
-                                            ${isDark ? "border-white/5 group-hover:bg-white/[0.02]" : "border-black/5 group-hover:bg-black/[0.02]"}`}
-                                            onMouseEnter={() => setHoveredCol(2)}
-                                            onMouseLeave={() => setHoveredCol(null)}
-                                        >
-                                            {renderValue(feature.we, false)}
-                                        </td>
-                                        <td 
-                                            className={`p-5 text-center border-y transition-colors
-                                            ${isDark ? "border-white/5 group-hover:bg-white/[0.02]" : "border-black/5 group-hover:bg-black/[0.02]"}`}
-                                            onMouseEnter={() => setHoveredCol(3)}
-                                            onMouseLeave={() => setHoveredCol(null)}
-                                        >
-                                            {renderValue(feature.lv, false)}
-                                        </td>
-                                    </tr>
+                                        See the proof →
+                                    </button>
+
+                                    <Link
+                                        href="/download"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={`px-5 py-2 rounded-full text-sm font-semibold tracking-tight transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shrink-0
+                                            ${isDark
+                                                ? "bg-white text-black hover:bg-white/90"
+                                                : "bg-white text-black hover:bg-white/90"
+                                            }`}
+                                    >
+                                        Download Free
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* stats grid - 4 columns on desktop, 2 on mobile.
+                                monochrome glass cells that adapt to the card's
+                                background without needing a specific accent color */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                                {colorwallWins.map((win) => (
+                                    <div
+                                        key={win.label}
+                                        className={`rounded-xl px-4 py-3.5 sm:px-5 sm:py-4
+                                            ${isDark
+                                                ? "bg-white/[0.04] border border-white/5"
+                                                : "bg-white/10"
+                                            }`}
+                                    >
+                                        <p className={`text-[11px] font-mono uppercase tracking-wider mb-1
+                                            ${isDark ? "text-white/30" : "text-white/50"}`}>
+                                            {win.label}
+                                        </p>
+                                        <p className={`text-lg sm:text-xl font-bold tracking-tight
+                                            ${isDark ? "text-white" : "text-white"}`}>
+                                            {win.value}
+                                        </p>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </motion.div>
-            </div>
-        </section>
+                            </div>
+
+                            {/* click hint */}
+                            <div className="flex justify-center mt-6">
+                                <p className={`text-[11px] font-mono
+                                    ${isDark ? "text-white/15" : "text-white/30"}`}>
+                                    Click to see real Task Manager benchmarks
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* benchmark showcase modal - renders outside the section's
+                overflow:hidden boundary so it covers the full viewport */}
+            <BenchmarkShowcase
+                isOpen={showBenchmarks}
+                onClose={() => setShowBenchmarks(false)}
+                theme={theme}
+            />
+        </>
     );
 };
