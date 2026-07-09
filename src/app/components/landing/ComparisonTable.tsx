@@ -52,10 +52,6 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
     return (
         <>
             <section className="py-32 px-4 sm:px-8 relative overflow-hidden">
-                {/* background glow - kept from original. subtle radial wash
-                    behind the section adds depth without being distracting */}
-                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] blur-[120px] rounded-full opacity-10 pointer-events-none ${isDark ? "bg-blue-600" : "bg-blue-400"}`} />
-
                 <div className="max-w-6xl mx-auto relative z-10">
 
                     {/* ─── heading block ─── */}
@@ -73,12 +69,12 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             theme={theme}
                             className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mb-5"
                         />
-                        <h2 className={`text-5xl md:text-7xl font-medium tracking-tighter leading-none mb-5
+                        <h2 className={`text-5xl md:text-7xl font-medium tracking-tighter leading-none mb-4
                             ${isDark ? "text-white" : "text-black"}`}>
                             They solve a slice.
                         </h2>
-                        <p className={`text-2xl md:text-3xl tracking-tight mb-6
-                            ${isDark ? "text-white/50" : "text-black/50"}`}>
+                        <p className={`text-2xl sm:text-3xl md:text-4xl font-anurati tracking-widest uppercase mt-4 pb-6 mb-8 border-b-2 inline-block
+                            ${isDark ? "text-white border-white/2" : "text-black border-black/4"}`}>
                             We run the whole thing.
                         </p>
                         <p className={`text-xs font-mono
@@ -184,27 +180,18 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         </div>
                     </motion.div>
 
-                    {/* ─── colorwall hero card ─── */}
-                    {/* monochrome treatment: dark uses a soft white/5 glass card,
-                        light uses deep black. no more aqua blue - the card
-                        derives its visual weight from contrast and content instead.
-                        now directly embeds the benchmarks instead of hiding them. */}
+                    {/* ─── colorwall hero section ─── */}
+                    {/* card styling removed to blend seamlessly into the page */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-60px" }}
                         transition={{ duration: 0.6, delay: 0.15 }}
                     >
-                        <div
-                            className={`rounded-2xl p-8 sm:p-14 border transition-colors duration-200
-                                ${isDark
-                                    ? "bg-white/[0.04] border-white/10"
-                                    : "bg-black/[0.03] border-black/10"
-                                }`}
-                        >
-                            {/* card header: logo + name + tagline + actions */}
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12 border-b pb-8
-                                ${isDark ? 'border-white/10' : 'border-black/10'}">
+                        <div className="py-8 sm:py-14 mt-12">
+                            {/* section header: logo + name + tagline + actions */}
+                            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-16 pb-8 border-b
+                                ${isDark ? 'border-white/10' : 'border-black/10'}`}>
                                 <div className="flex items-center gap-4">
                                     <img
                                         src="/colorwall.png"
@@ -212,11 +199,11 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                         className="w-10 h-10 sm:w-14 sm:h-14 object-contain"
                                     />
                                     <div>
-                                        <h3 className={`text-2xl sm:text-3xl font-bold tracking-tight
+                                        <h3 className={`text-3xl sm:text-4xl font-anurati tracking-widest uppercase
                                             ${isDark ? "text-white" : "text-black"}`}>
                                             ColorWall
                                         </h3>
-                                        <p className={`text-sm sm:text-base ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                        <p className={`text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] mt-1 ${isDark ? "text-white/50" : "text-black/50"}`}>
                                             Runs the whole thing, end to end.
                                         </p>
                                     </div>

@@ -138,16 +138,16 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
         <div className="flex flex-col w-full">
 
                     {/* ─── top bar: title ─── */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12">
                         <div>
-                            <h3 className={`text-lg sm:text-xl font-bold tracking-tight
+                            <h3 className={`text-2xl sm:text-3xl font-anurati tracking-widest uppercase
                                 ${isDark ? "text-white" : "text-black"}`}>
-                                Real Benchmarks
+                                - Benchmarks
                             </h3>
-                            <p className={`text-xs font-mono mt-0.5
+                            {/* <p className={`text-xs font-mono mt-2 uppercase tracking-[0.2em]
                                 ${isDark ? "text-white/40" : "text-black/40"}`}>
                                 Same wallpaper · Same hardware · Same conditions
-                            </p>
+                            </p> */}
                         </div>
                     </div>
 
@@ -167,31 +167,27 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                                         className="flex flex-col h-full min-h-0"
                                     >
                                         {/* ─── big stat callout ─── */}
-                                        <div className="mb-4 sm:mb-5">
-                                            <div className="flex items-end gap-3 mb-1">
-                                                <span className={`text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-none
+                                        <div className="mb-6 sm:mb-8">
+                                            <div className="flex items-end gap-3 mb-2">
+                                                <span className={`text-6xl sm:text-7xl lg:text-8xl font-anurati tracking-wider leading-none
                                                     ${isDark ? "text-white" : "text-black"}`}>
                                                     {col.totalGpu}
                                                 </span>
-                                                <span className={`text-sm sm:text-base font-mono mb-1.5
+                                                <span className={`text-sm sm:text-base font-mono mb-2 uppercase tracking-widest
                                                     ${isDark ? "text-white/40" : "text-black/40"}`}>
                                                     total GPU
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-4 flex-wrap">
-                                                <p className={`text-sm font-mono
+                                            <div className="flex items-center gap-4 flex-wrap mt-4">
+                                                <p className={`text-sm font-mono uppercase tracking-widest
                                                     ${isDark ? "text-white/50" : "text-black/50"}`}>
                                                     {col.cpu} CPU · {col.gpu} GPU
                                                 </p>
                                                 <span className={isDark ? "text-white/20" : "text-black/20"}>—</span>
-                                                <p className={`text-sm font-medium tracking-tight ${colIdx === 0 ? "text-emerald-500" : "text-red-500"}`}>
+                                                <p className={`text-sm font-medium tracking-widest uppercase ${colIdx === 0 ? "text-emerald-500" : "text-red-500"}`}>
                                                     {col.verdict}
                                                 </p>
                                             </div>
-                                            <p className={`text-base font-semibold tracking-tight mt-2
-                                                ${isDark ? "text-white/80" : "text-black/80"}`}>
-                                                {col.label}
-                                            </p>
                                         </div>
 
                                         {/* ─── view toggle tabs ─── */}
