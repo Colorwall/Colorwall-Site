@@ -72,7 +72,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     return (hasTouchScreen && isSmallScreen) || isMobileUserAgent;
   }, []);
 
-  const constants = useMemo(() => ({ borderWidth: 4, cornerSize: 16 }), []);
+  const constants = useMemo(() => ({ borderWidth: 6, cornerSize: 24 }), []);
 
   const moveCursor = useCallback((x: number, y: number) => {
     if (!cursorRef.current) return;
@@ -394,19 +394,19 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
         style={{ willChange: 'transform', backgroundColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] -translate-x-[150%] -translate-y-[150%] border-r-0 border-b-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-6 h-6 border-[6px] -translate-x-[150%] -translate-y-[150%] border-r-0 border-b-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] translate-x-1/2 -translate-y-[150%] border-l-0 border-b-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-6 h-6 border-[6px] translate-x-1/2 -translate-y-[150%] border-l-0 border-b-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] translate-x-1/2 translate-y-1/2 border-l-0 border-t-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-6 h-6 border-[6px] translate-x-1/2 translate-y-1/2 border-l-0 border-t-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] -translate-x-[150%] translate-y-1/2 border-r-0 border-t-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-6 h-6 border-[6px] -translate-x-[150%] translate-y-1/2 border-r-0 border-t-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
     </div>
