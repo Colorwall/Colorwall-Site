@@ -186,7 +186,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                     >
                         <div className="py-8 sm:py-8 mt-8">
                             <div className={`cursor-target relative p-6 -m-6 rounded-3xl flex flex-col items-center justify-center gap-6 mb-16 pb-8 border-b text-center
-                                ${isDark ? "border-white/10" : "border-black/10"}`}>
+                                ${isDark ? "border-white/20" : "border-black/10"}`}>
                                 <div className="flex flex-col items-center gap-4">
                                     <img
                                         src="/colorwall.png"

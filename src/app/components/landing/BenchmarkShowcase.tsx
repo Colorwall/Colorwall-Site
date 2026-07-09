@@ -153,7 +153,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
 
                     {/* ─── main content ─── */}
                     <div className="relative z-10 flex-1 min-h-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 h-full">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-0 h-full">
                             {benchmarks.map((col, colIdx) => {
                                 const currentView = activeViews[colIdx];
                                 const media = col.views[currentView];
@@ -164,7 +164,9 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.15 + colIdx * 0.1, duration: 0.4 }}
-                                        className="cursor-target relative flex flex-col h-full min-h-0"
+                                        className={`cursor-target relative flex flex-col h-full min-h-0
+                                            ${colIdx > 0 ? `md:border-l md:pl-8 lg:pl-12 ${isDark ? 'border-white/20' : 'border-black/10'}` : 'md:pr-8 lg:pr-12'}
+                                        `}
                                     >
                                         {/* ─── big stat callout ─── */}
                                         <div className="mb-6 sm:mb-8 flex flex-col">
@@ -209,7 +211,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
 
                                         {/* ─── image/video container ─── */}
                                         <div className={`relative w-full aspect-video rounded-xl overflow-hidden border
-                                            ${isDark ? "border-white/10" : "border-black/10"}`}>
+                                            ${isDark ? "border-white/20" : "border-black/10"}`}>
                                             <AnimatePresence mode="wait">
                                                 <motion.div
                                                     key={media.src}
