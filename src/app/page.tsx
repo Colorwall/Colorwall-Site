@@ -12,8 +12,8 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
 import { GradientHeading } from "./components/landing/GradientHeading";
-import TargetCursor from "./components/landing/TargetCursor";
 
+const TargetCursor = dynamic(() => import("./components/landing/TargetCursor"), { ssr: false });
 
 export default function ColorWallLanding() {
     const { theme } = useTheme();

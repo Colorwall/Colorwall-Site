@@ -72,7 +72,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     return (hasTouchScreen && isSmallScreen) || isMobileUserAgent;
   }, []);
 
-  const constants = useMemo(() => ({ borderWidth: 3, cornerSize: 12 }), []);
+  const constants = useMemo(() => ({ borderWidth: 4, cornerSize: 16 }), []);
 
   const moveCursor = useCallback((x: number, y: number) => {
     if (!cursorRef.current) return;
@@ -125,11 +125,22 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     createSpinTimeline();
 
     const tickerFn = () => {
-      if (!targetCornerPositionsRef.current || !cursorRef.current || !cornersRef.current) {
+      if (!activeTarget || !targetCornerPositionsRef.current || !cursorRef.current || !cornersRef.current) {
         return;
       }
       const strength = activeStrengthRef.current.current;
       if (strength === 0) return;
+
+      const rect = activeTarget.getBoundingClientRect();
+      const { borderWidth, cornerSize } = constants;
+      const { x: offsetX, y: offsetY } = getOffset();
+      targetCornerPositionsRef.current = [
+        { x: rect.left - borderWidth - offsetX, y: rect.top - borderWidth - offsetY },
+        { x: rect.right + borderWidth - cornerSize - offsetX, y: rect.top - borderWidth - offsetY },
+        { x: rect.right + borderWidth - cornerSize - offsetX, y: rect.bottom + borderWidth - cornerSize - offsetY },
+        { x: rect.left - borderWidth - offsetX, y: rect.bottom + borderWidth - cornerSize - offsetY }
+      ];
+
       const cursorX = gsap.getProperty(cursorRef.current, 'x') as number;
       const cursorY = gsap.getProperty(cursorRef.current, 'y') as number;
       const corners = Array.from(cornersRef.current);
@@ -383,19 +394,19 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
         style={{ willChange: 'transform', backgroundColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-3 h-3 border-[3px] -translate-x-[150%] -translate-y-[150%] border-r-0 border-b-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] -translate-x-[150%] -translate-y-[150%] border-r-0 border-b-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-3 h-3 border-[3px] translate-x-1/2 -translate-y-[150%] border-l-0 border-b-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] translate-x-1/2 -translate-y-[150%] border-l-0 border-b-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-3 h-3 border-[3px] translate-x-1/2 translate-y-1/2 border-l-0 border-t-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] translate-x-1/2 translate-y-1/2 border-l-0 border-t-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
       <div
-        className="target-cursor-corner absolute top-1/2 left-1/2 w-3 h-3 border-[3px] -translate-x-[150%] translate-y-1/2 border-r-0 border-t-0"
+        className="target-cursor-corner absolute top-1/2 left-1/2 w-4 h-4 border-[4px] -translate-x-[150%] translate-y-1/2 border-r-0 border-t-0"
         style={{ willChange: 'transform', borderColor: cursorColor }}
       />
     </div>
