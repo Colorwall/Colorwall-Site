@@ -325,6 +325,7 @@ body {
   --font-jakarta: var(--font-jakarta);
   --font-quicksand: var(--font-quicksand);
   --font-spline: var(--font-spline-sans);
+  --font-outfit: var(--font-outfit);
   --font-anurati: 'Anurati', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

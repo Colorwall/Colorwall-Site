@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Geist, Geist_Mono, Quicksand, Spline_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Geist, Geist_Mono, Quicksand, Spline_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
@@ -39,6 +39,13 @@ const splineSans = Spline_Sans({
   variable: "--font-spline-sans",
   subsets: ["latin"],
   weight: ["400"],
+  display: 'swap',
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
   display: 'swap',
 });
 
@@ -195,7 +202,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-hidden`}
+        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-hidden`}
       >
         <ThemeProvider>
           <AmbientProvider>

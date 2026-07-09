@@ -42,7 +42,7 @@ export default function ColorWallLanding() {
                             <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)" }}>
                             </div>
                             <div className="text-center px-4 relative z-10 pointer-events-none">
-                                <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-5xl md:text-7xl lg:text-8xl font-medium tracking-tighter leading-none mb-4`}>
+                                <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-4`}>
                                     Seems too good to be true?
                                 </div>
 

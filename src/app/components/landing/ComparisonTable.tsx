@@ -65,18 +65,21 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         className="text-center mb-20"
                     >
                         <GradientHeading
-                            text="how we compare"
+                            text="how we compare, you ask?"
                             theme={theme}
                             className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mb-5"
                         />
-                        <h2 className={`text-5xl md:text-7xl font-medium tracking-tighter leading-none mb-4
-                            ${isDark ? "text-white" : "text-black"}`}>
-                            They solve a slice.
-                        </h2>
-                        <p className={`text-2xl sm:text-3xl md:text-4xl font-anurati tracking-widest uppercase mt-4 pb-6 mb-8 border-b-2 inline-block
-                            ${isDark ? "text-white border-white/2" : "text-black border-black/4"}`}>
-                            We run the whole thing.
-                        </p>
+                        <div className="flex flex-col w-full max-w-4xl mx-auto mt-10 mb-12">
+                            <h2 className={`text-left text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-2 md:mb-0
+                                ${isDark ? "text-white" : "text-black"}`}>
+                                They solve a slice.
+                            </h2>
+                            <GradientHeading 
+                                text="We run the whole thing."
+                                theme={theme}
+                                className="text-right text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95]"
+                            />
+                        </div>
                         <p className={`text-xs font-mono
                             ${isDark ? "text-white/50" : "text-black/40"}`}>
                             Benchmarks: i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
