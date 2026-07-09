@@ -100,7 +100,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         {competitors.map((comp) => (
                             <div
                                 key={comp.name}
-                                className="flex flex-col"
+                                className="flex flex-col cursor-target relative p-4 -m-4 rounded-xl"
                             >
                                 {/* competitor name with favicon + price tag */}
                                 <div className="flex items-center justify-between mb-2">
@@ -185,7 +185,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         transition={{ duration: 0.6, delay: 0.15 }}
                     >
                         <div className="py-8 sm:py-8 mt-8">
-                            <div className={`flex flex-col items-center justify-center gap-6 mb-16 pb-8 border-b text-center
+                            <div className={`cursor-target relative p-6 -m-6 rounded-3xl flex flex-col items-center justify-center gap-6 mb-16 pb-8 border-b text-center
                                 ${isDark ? "border-white/10" : "border-black/10"}`}>
                                 <div className="flex flex-col items-center gap-4">
                                     <img

@@ -12,6 +12,7 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
 import { GradientHeading } from "./components/landing/GradientHeading";
+import TargetCursor from "./components/landing/TargetCursor";
 
 
 export default function ColorWallLanding() {
@@ -28,6 +29,10 @@ export default function ColorWallLanding() {
 
     return (
         <div className={`relative min-h-screen select-none ${theme === "dark" ? "bg-black text-white" : "bg-white text-black"}`}>
+            <TargetCursor 
+                cursorColor={theme === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'} 
+                cursorColorOnTarget="#0078d4" 
+            />
 
             {/* hero section */}
             <HeroSection />
