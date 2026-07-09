@@ -133,7 +133,7 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                                 <button
                                     key={feature.id}
                                     onClick={() => setActiveTab(idx)}
-                                    className={`cursor-target relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
+                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
                                         ${isActive ? (theme === 'dark' ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'shadow-[0_0_40px_rgba(0,0,0,0.05)]') : ''}
                                     `}
                                 >
@@ -147,7 +147,7 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                                         <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
                                             ${isActive 
                                                 ? (theme === "dark" ? "text-white" : "text-black") 
-                                                : (theme === "dark" ? "text-white/40 group-hover:text-white/70" : "text-black/40 group-hover:text-black/70")
+                                                : (theme === "dark" ? "text-white/70 group-hover:text-white" : "text-black/70 group-hover:text-black")
                                             }
                                         `}>
                                             {feature.title}
