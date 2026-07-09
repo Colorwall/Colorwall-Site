@@ -184,8 +184,10 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         viewport={{ once: true, margin: "-60px" }}
                         transition={{ duration: 0.6, delay: 0.15 }}
                     >
-                        <div className="py-8 sm:py-8 mt-8">
-                            <div className={`cursor-target relative p-6 -m-6 rounded-3xl flex flex-col items-center justify-center gap-6 mb-16 pb-8 border-b text-center
+                        <div className={`mt-8 p-6 sm:p-10 md:p-14 rounded-[2.5rem] border
+                            ${isDark ? "border-white/20 bg-white/[0.02]" : "border-black/10 bg-black/[0.02]"}
+                        `}>
+                            <div className={`cursor-target relative flex flex-col items-center justify-center gap-6 mb-12 pb-12 border-b text-center
                                 ${isDark ? "border-white/20" : "border-black/10"}`}>
                                 <div className="flex flex-col items-center gap-4">
                                     <img
