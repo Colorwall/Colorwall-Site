@@ -170,7 +170,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                                         <div className="mb-6 sm:mb-8 flex flex-col">
                                             {/* Massive Label */}
                                             <h4 className={`text-2xl md:text-3xl font-anurati tracking-widest uppercase mb-4
-                                                ${colIdx === 0 ? "text-[#0078d4]" : (isDark ? "text-white/50" : "text-black/50")}`}>
+                                                ${colIdx === 0 ? "text-[#0078d4]" : (isDark ? "text-white" : "text-black")}`}>
                                                 {col.label}
                                             </h4>
                                             

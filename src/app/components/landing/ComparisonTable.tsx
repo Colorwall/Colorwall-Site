@@ -81,7 +81,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             />
                         </div>
                         <p className={`text-xs font-mono
-                            ${isDark ? "text-white/50" : "text-black/40"}`}>
+                            ${isDark ? "text-white" : "text-black"}`}>
                             Benchmarks: i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
                         </p>
                     </motion.div>
@@ -95,67 +95,60 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-60px" }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12 mb-12"
                     >
                         {competitors.map((comp) => (
                             <div
                                 key={comp.name}
-                                className={`rounded-2xl p-6 sm:p-7 border transition-colors duration-300
-                                    ${isDark
-                                        ? "border-white/8 bg-white/[0.02] hover:border-white/15"
-                                        : "border-black/8 bg-black/[0.02] hover:border-black/15"
-                                    }`}
+                                className="flex flex-col"
                             >
                                 {/* competitor name with favicon + price tag */}
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2.5">
-                                        {/* favicon - shows the competitor's brand icon.
-                                            for "others" category we render a generic dot instead */}
+                                        {/* favicon */}
                                         {comp.favicon ? (
                                             <img
                                                 src={comp.favicon}
                                                 alt={comp.name}
                                                 loading="lazy"
                                                 decoding="async"
-                                                className={`w-5 h-5 object-contain shrink-0 rounded-sm
-                                                    ${isDark ? "opacity-50" : "opacity-60"}`}
+                                                className="w-5 h-5 object-contain shrink-0 rounded-sm"
                                             />
                                         ) : (
                                             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0
-                                                ${isDark ? "bg-white/10 text-white/30" : "bg-black/10 text-black/30"}`}>
+                                                ${isDark ? "bg-white/20 text-white" : "bg-black/20 text-black"}`}>
                                                 ···
                                             </span>
                                         )}
                                         <h3 className={`text-base font-semibold tracking-tight
-                                            ${isDark ? "text-white/80" : "text-black/80"}`}>
+                                            ${isDark ? "text-white" : "text-black"}`}>
                                             {comp.name}
                                         </h3>
                                     </div>
                                     <span className={`text-xs font-mono px-2 py-0.5 rounded-full
                                         ${isDark
-                                            ? "bg-white/5 text-white/40"
-                                            : "bg-black/5 text-black/40"
+                                            ? "bg-white/10 text-white"
+                                            : "bg-black/10 text-black"
                                         }`}>
                                         {comp.price}
                                     </span>
                                 </div>
 
-                                <p className={`text-sm mb-5 font-spline ml-[30px]
-                                    ${isDark ? "text-white/30" : "text-black/30"}`}>
+                                <p className={`text-sm mb-6 font-spline ml-[30px]
+                                    ${isDark ? "text-white/70" : "text-black/70"}`}>
                                     {comp.tagline}
                                 </p>
 
-                                {/* limitation list - styled as neutral bullet points
-                                    with a subtle × prefix instead of aggressive red icons */}
-                                <ul className="flex flex-col gap-2.5">
+                                {/* limitation list */}
+                                <ul className="flex flex-col gap-3 ml-[30px]">
                                     {comp.limitations.map((lim) => (
                                         <li
                                             key={lim}
                                             className={`flex items-start gap-2.5 text-sm leading-snug
-                                                ${isDark ? "text-white/40" : "text-black/45"}`}
+                                                ${isDark ? "text-white/60" : "text-black/60"}`}
                                         >
-                                            <span className={`text-xs mt-0.5 shrink-0 font-mono
-                                                ${isDark ? "text-white/20" : "text-black/20"}`}>
+                                            <span className={`text-xs mt-0.5 shrink-0 font-mono font-bold
+                                                ${isDark ? "text-white/40" : "text-black/40"}`}>
                                                 ×
                                             </span>
                                             {lim}
@@ -176,8 +169,8 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                     >
                         <div className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold tracking-widest uppercase border
                             ${isDark
-                                ? "bg-white/5 border-white/10 text-white/50"
-                                : "bg-black/5 border-black/10 text-black/50"
+                                ? "bg-white/5 border-white/20 text-white"
+                                : "bg-black/5 border-black/20 text-black"
                             }`}>
                             vs
                         </div>
@@ -205,7 +198,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                             ${isDark ? "text-white" : "text-black"}`}>
                                             ColorWall
                                         </h3>
-                                        <p className={`text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] mt-2 ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                        <p className={`text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] mt-2 ${isDark ? "text-white/70" : "text-black/70"}`}>
                                             Runs the whole thing, end to end.
                                         </p>
                                     </div>
