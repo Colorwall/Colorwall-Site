@@ -46,23 +46,8 @@ const competitors = [
     },
 ];
 
-// -- colorwall's key differentiators shown in the hero card --
-// taskbar row removed since the comparison numbers don't translate
-// cleanly when the other apps handle it differently
-const colorwallWins = [
-    { label: "GPU Usage (4K)", value: "~24%" },
-    { label: "CPU Usage (4K)", value: "~3.6%" },
-    { label: "Rendering", value: "DirectX 11" },
-    { label: "Scene Editor", value: "Built-in" },
-    { label: "Audio Reactive", value: "Native" },
-    { label: "Desktop Widgets", value: "HTML5/React" },
-    { label: "Taskbar Effects", value: "Acrylic/Blur" },
-    { label: "Price", value: "Free" },
-];
-
 export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
-    const [showBenchmarks, setShowBenchmarks] = useState(false);
 
     return (
         <>
@@ -203,7 +188,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                     {/* monochrome treatment: dark uses a soft white/5 glass card,
                         light uses deep black. no more aqua blue - the card
                         derives its visual weight from contrast and content instead.
-                        clicking anywhere on the card opens the benchmark showcase */}
+                        now directly embeds the benchmarks instead of hiding them. */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -211,49 +196,36 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         transition={{ duration: 0.6, delay: 0.15 }}
                     >
                         <div
-                            onClick={() => setShowBenchmarks(true)}
-                            className={`rounded-2xl p-8 sm:p-14 cursor-pointer border transition-colors duration-200
+                            className={`rounded-2xl p-8 sm:p-14 border transition-colors duration-200
                                 ${isDark
-                                    ? "bg-white/[0.04] border-white/10 hover:border-white/20"
-                                    : "bg-black/[0.03] border-black/10 hover:border-black/20"
+                                    ? "bg-white/[0.04] border-white/10"
+                                    : "bg-black/[0.03] border-black/10"
                                 }`}
                         >
                             {/* card header: logo + name + tagline + actions */}
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12">
-                                <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12 border-b pb-8
+                                ${isDark ? 'border-white/10' : 'border-black/10'}">
+                                <div className="flex items-center gap-4">
                                     <img
                                         src="/colorwall.png"
                                         alt="ColorWall"
-                                        className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+                                        className="w-10 h-10 sm:w-14 sm:h-14 object-contain"
                                     />
                                     <div>
-                                        <h3 className={`text-xl sm:text-2xl font-bold tracking-tight
+                                        <h3 className={`text-2xl sm:text-3xl font-bold tracking-tight
                                             ${isDark ? "text-white" : "text-black"}`}>
                                             ColorWall
                                         </h3>
-                                        <p className={`text-sm ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                        <p className={`text-sm sm:text-base ${isDark ? "text-white/50" : "text-black/50"}`}>
                                             Runs the whole thing, end to end.
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    {/* opens the benchmark modal with real task manager screenshots */}
-                                    <button
-                                        onClick={() => setShowBenchmarks(true)}
-                                        className={`px-4 py-2 rounded-full text-sm font-mono tracking-tight transition-colors duration-200 border
-                                            ${isDark
-                                                ? "border-white/15 text-white/60 hover:text-white hover:border-white/30"
-                                                : "border-black/15 text-black/50 hover:text-black hover:border-black/30"
-                                            }`}
-                                    >
-                                        Wanna see the proof →
-                                    </button>
-
+                                <div className="flex items-center">
                                     <Link
                                         href="/download"
-                                        onClick={(e) => e.stopPropagation()}
-                                        className={`px-5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors duration-200 shrink-0
+                                        className={`px-6 py-3 rounded-full text-sm font-semibold tracking-tight transition-colors duration-200 shrink-0
                                             ${isDark
                                                 ? "bg-white text-black hover:bg-white/90"
                                                 : "bg-black text-white hover:bg-black/90"
@@ -264,49 +236,14 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                 </div>
                             </div>
 
-                            {/* stats grid - 4 columns on desktop, 2 on mobile.
-                                bigger cells with proper theme-aware text for readability */}
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                                {colorwallWins.map((win) => (
-                                    <div
-                                        key={win.label}
-                                        className={`rounded-xl px-5 py-5 sm:px-6 sm:py-6 border
-                                            ${isDark
-                                                ? "bg-white/[0.03] border-white/5"
-                                                : "bg-black/[0.03] border-black/5"
-                                            }`}
-                                    >
-                                        <p className={`text-[11px] font-mono uppercase tracking-wider mb-2
-                                            ${isDark ? "text-white/35" : "text-black/40"}`}>
-                                            {win.label}
-                                        </p>
-                                        <p className={`text-xl sm:text-2xl font-bold tracking-tight
-                                            ${isDark ? "text-white" : "text-black"}`}>
-                                            {win.value}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* click hint */}
-                            <div className="flex justify-center mt-10">
-                                <p className={`text-xs font-mono
-                                    ${isDark ? "text-white/30" : "text-black/30"}`}>
-                                    Click to see real Task Manager benchmarks
-                                </p>
+                            {/* embed the benchmark showcase directly */}
+                            <div className="mt-8">
+                                <BenchmarkShowcase theme={theme} />
                             </div>
                         </div>
                     </motion.div>
                 </div>
             </section>
-
-            {/* benchmark showcase modal - renders outside the section's
-                overflow:hidden boundary so it covers the full viewport */}
-            <BenchmarkShowcase
-                isOpen={showBenchmarks}
-                onClose={() => setShowBenchmarks(false)}
-                theme={theme}
-            />
         </>
     );
 };

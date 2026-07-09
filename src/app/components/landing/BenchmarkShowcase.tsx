@@ -72,42 +72,59 @@ const benchmarks: BenchmarkColumn[] = [
 ];
 
 interface BenchmarkShowcaseProps {
-    isOpen: boolean;
-    onClose: () => void;
     theme: "dark" | "light";
 }
 
-export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseProps) => {
+export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
     const isDark = theme === "dark";
-    const overlayRef = useRef<HTMLDivElement>(null);
     // independent view index per column so left and right
     // can show different tabs simultaneously
     const [activeViews, setActiveViews] = useState<number[]>([0, 0]);
+    // track which media is currently zoomed in
+    const [zoomedMedia, setZoomedMedia] = useState<MediaEntry | null>(null);
 
-    // close on escape key press
+    // close zoom on escape key
     useEffect(() => {
-        if (!isOpen) return;
+        if (!zoomedMedia) return;
         const handler = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") setZoomedMedia(null);
         };
         window.addEventListener("keydown", handler);
         return () => window.removeEventListener("keydown", handler);
-    }, [isOpen, onClose]);
+    }, [zoomedMedia]);
 
-    // prevent body scroll while modal is open
+    // prevent body scroll when zoomed
     useEffect(() => {
-        if (isOpen) {
+        if (zoomedMedia) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
         }
         return () => { document.body.style.overflow = ""; };
-    }, [isOpen]);
+    }, [zoomedMedia]);
 
-    // reset view selections when modal reopens
+    // low priority idle callback load to preload all benchmark images
+    // this ensures the high-res images are in cache for instant zoom,
+    // without blocking the main thread during initial page load
     useEffect(() => {
-        if (isOpen) setActiveViews([0, 0]);
-    }, [isOpen]);
+        const preloadImages = () => {
+            benchmarks.forEach(col => {
+                col.views.forEach(view => {
+                    if (view.type === "image") {
+                        const img = new window.Image();
+                        img.src = view.src;
+                    }
+                });
+            });
+        };
+
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(preloadImages, { timeout: 2000 });
+        } else {
+            // fallback for safari
+            setTimeout(preloadImages, 1000);
+        }
+    }, []);
 
     const setViewForColumn = (colIndex: number, viewIndex: number) => {
         setActiveViews(prev => {
@@ -118,52 +135,24 @@ export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseP
     };
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    ref={overlayRef}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="fixed inset-0 z-[100] flex flex-col"
-                    onClick={(e) => {
-                        if (e.target === overlayRef.current) onClose();
-                    }}
-                >
-                    {/* full-screen dark backdrop */}
-                    <div className="absolute inset-0 bg-black/95 backdrop-blur-md" />
+        <div className="flex flex-col w-full">
 
-                    {/* ─── top bar: title + close ─── */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1, duration: 0.3 }}
-                        className="relative z-10 flex items-center justify-between px-6 sm:px-10 py-5 shrink-0"
-                    >
+                    {/* ─── top bar: title ─── */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8">
                         <div>
-                            <h3 className="text-white text-lg sm:text-xl font-bold tracking-tight">
+                            <h3 className={`text-lg sm:text-xl font-bold tracking-tight
+                                ${isDark ? "text-white" : "text-black"}`}>
                                 Real Benchmarks
                             </h3>
-                            <p className="text-white/30 text-xs font-mono mt-0.5">
+                            <p className={`text-xs font-mono mt-0.5
+                                ${isDark ? "text-white/40" : "text-black/40"}`}>
                                 Same wallpaper · Same hardware · Same conditions
                             </p>
                         </div>
+                    </div>
 
-                        <button
-                            onClick={onClose}
-                            className="p-2.5 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors duration-200"
-                            aria-label="Close benchmark showcase"
-                        >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                <line x1="18" y1="6" x2="6" y2="18" />
-                                <line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
-                        </button>
-                    </motion.div>
-
-                    {/* ─── main content - fills remaining viewport ─── */}
-                    <div className="relative z-10 flex-1 min-h-0 px-6 sm:px-10 pb-4 sm:pb-6 overflow-y-auto">
+                    {/* ─── main content ─── */}
+                    <div className="relative z-10 flex-1 min-h-0">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 h-full">
                             {benchmarks.map((col, colIdx) => {
                                 const currentView = activeViews[colIdx];
@@ -178,35 +167,34 @@ export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseP
                                         className="flex flex-col h-full min-h-0"
                                     >
                                         {/* ─── big stat callout ─── */}
-                                        {/* total gpu is the hero number - 24% vs 98% hits
-                                            you in the face before you even look at the images */}
                                         <div className="mb-4 sm:mb-5">
                                             <div className="flex items-end gap-3 mb-1">
-                                                <span className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-white leading-none">
+                                                <span className={`text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-none
+                                                    ${isDark ? "text-white" : "text-black"}`}>
                                                     {col.totalGpu}
                                                 </span>
-                                                <span className="text-white/30 text-sm sm:text-base font-mono mb-1.5">
+                                                <span className={`text-sm sm:text-base font-mono mb-1.5
+                                                    ${isDark ? "text-white/40" : "text-black/40"}`}>
                                                     total GPU
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-4 flex-wrap">
-                                                <p className="text-white/50 text-sm font-mono">
+                                                <p className={`text-sm font-mono
+                                                    ${isDark ? "text-white/50" : "text-black/50"}`}>
                                                     {col.cpu} CPU · {col.gpu} GPU
                                                 </p>
-                                                <span className="text-white/20">—</span>
-                                                <p className={`text-sm font-medium tracking-tight ${colIdx === 0 ? "text-emerald-400/80" : "text-red-400/60"}`}>
+                                                <span className={isDark ? "text-white/20" : "text-black/20"}>—</span>
+                                                <p className={`text-sm font-medium tracking-tight ${colIdx === 0 ? "text-emerald-500" : "text-red-500"}`}>
                                                     {col.verdict}
                                                 </p>
                                             </div>
-                                            <p className="text-white/60 text-base font-semibold tracking-tight mt-2">
+                                            <p className={`text-base font-semibold tracking-tight mt-2
+                                                ${isDark ? "text-white/80" : "text-black/80"}`}>
                                                 {col.label}
                                             </p>
                                         </div>
 
                                         {/* ─── view toggle tabs ─── */}
-                                        {/* sits directly above the image so it's clear
-                                            what you're switching between. each column
-                                            has its own independent toggle state */}
                                         <div className="flex gap-1 mb-3">
                                             {col.views.map((view, viewIdx) => (
                                                 <button
@@ -214,8 +202,8 @@ export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseP
                                                     onClick={() => setViewForColumn(colIdx, viewIdx)}
                                                     className={`px-3.5 py-1.5 rounded-lg text-xs font-mono tracking-wide transition-all duration-200
                                                         ${currentView === viewIdx
-                                                            ? "bg-white/15 text-white"
-                                                            : "text-white/30 hover:text-white/60 hover:bg-white/5"
+                                                            ? (isDark ? "bg-white/15 text-white" : "bg-black/10 text-black")
+                                                            : (isDark ? "text-white/40 hover:text-white/80 hover:bg-white/5" : "text-black/40 hover:text-black/80 hover:bg-black/5")
                                                         }`}
                                                 >
                                                     {view.tabLabel}
@@ -224,9 +212,8 @@ export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseP
                                         </div>
 
                                         {/* ─── image/video container ─── */}
-                                        {/* fills remaining vertical space. animatepresence
-                                            crossfades between process and hardware views */}
-                                        <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-white/8">
+                                        <div className={`relative w-full aspect-video rounded-xl overflow-hidden border
+                                            ${isDark ? "border-white/10" : "border-black/10"}`}>
                                             <AnimatePresence mode="wait">
                                                 <motion.div
                                                     key={media.src}
@@ -234,8 +221,21 @@ export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseP
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    className="absolute inset-0"
+                                                    className="absolute inset-0 cursor-zoom-in group"
+                                                    onClick={() => setZoomedMedia(media)}
                                                 >
+                                                    {/* subtle hover overlay to indicate it's clickable */}
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-10 flex items-center justify-center">
+                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 backdrop-blur-md text-white rounded-full p-2">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                                                <circle cx="11" cy="11" r="8"></circle>
+                                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                                                <line x1="11" y1="8" x2="11" y2="14"></line>
+                                                                <line x1="8" y1="11" x2="14" y2="11"></line>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
                                                     {media.type === "image" ? (
                                                         <Image
                                                             src={media.src}
@@ -268,18 +268,69 @@ export const BenchmarkShowcase = ({ isOpen, onClose, theme }: BenchmarkShowcaseP
                     </div>
 
                     {/* ─── bottom bar ─── */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3, duration: 0.3 }}
-                        className="relative z-10 px-6 sm:px-10 pb-5 sm:pb-6 shrink-0"
-                    >
-                        <p className="text-white/15 text-[11px] font-mono text-center">
+                    <div className="mt-8 text-center">
+                        <p className={`text-[11px] font-mono
+                            ${isDark ? "text-white/20" : "text-black/30"}`}>
                             i7-4th Gen Haswell (2013) · Intel HD Graphics 4600 · 4K 60FPS video · Unedited Task Manager screenshots
                         </p>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                    </div>
+
+                    {/* ─── zoomed overlay ─── */}
+                    <AnimatePresence>
+                        {zoomedMedia && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8 cursor-zoom-out"
+                                onClick={() => setZoomedMedia(null)}
+                            >
+                                {/* Close button */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setZoomedMedia(null);
+                                    }}
+                                    className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors z-10"
+                                    aria-label="Close zoom"
+                                >
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.95, opacity: 0 }}
+                                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                                    className="relative w-full max-w-7xl h-full max-h-[90vh] rounded-xl overflow-hidden shadow-2xl"
+                                    onClick={(e) => e.stopPropagation()} // prevent closing when clicking the image itself
+                                >
+                                    {zoomedMedia.type === "image" ? (
+                                        <Image
+                                            src={zoomedMedia.src}
+                                            alt={zoomedMedia.alt}
+                                            fill
+                                            className="object-contain"
+                                            sizes="100vw"
+                                            quality={100}
+                                            priority
+                                        />
+                                    ) : (
+                                        <video
+                                            src={zoomedMedia.src}
+                                            className="w-full h-full object-contain"
+                                            controls
+                                            autoPlay
+                                        />
+                                    )}
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+        </div>
     );
 };
