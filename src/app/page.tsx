@@ -11,6 +11,7 @@ import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
+import { GradientHeading } from "./components/landing/GradientHeading";
 
 
 export default function ColorWallLanding() {
@@ -46,9 +47,14 @@ export default function ColorWallLanding() {
                                     Seems too good to be true?
                                 </div>
 
-                                <div className={`${theme === "dark" ? "text-white/60" : "text-black/60"} block mt-2 text-2xl md:text-3xl tracking-tight`}>
+                                {/* <div className={`${theme === "dark" ? "text-white/60" : "text-black/60"} block mt-2 text-2xl md:text-3xl tracking-tight`}>
                                     It is. That&apos;s why I built it.
-                                </div>
+                                </div> */}
+                                <GradientHeading
+                                    text="It is. That's why I built it."
+                                    theme={theme}
+                                    className="block mt-2 text-2xl md:text-3xl tracking-tight"
+                                ></GradientHeading>
                             </div>
                         </div>
 

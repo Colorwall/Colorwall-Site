@@ -191,39 +191,33 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         viewport={{ once: true, margin: "-60px" }}
                         transition={{ duration: 0.6, delay: 0.15 }}
                     >
-                        <div className="py-8 sm:py-14 mt-12">
-                            {/* section header: logo + name + tagline + actions */}
-                            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-16 pb-8 border-b
-                                ${isDark ? 'border-white/10' : 'border-black/10'}`}>
-                                <div className="flex items-center gap-4">
+                        <div className="py-8 sm:py-8 mt-8">
+                            <div className={`flex flex-col items-center justify-center gap-6 mb-16 pb-8 border-b text-center
+                                ${isDark ? "border-white/10" : "border-black/10"}`}>
+                                <div className="flex flex-col items-center gap-4">
                                     <img
                                         src="/colorwall.png"
-                                        alt="ColorWall"
-                                        className="w-10 h-10 sm:w-14 sm:h-14 object-contain"
+                                        alt="ColorWall Logo"
+                                        className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
                                     />
                                     <div>
                                         <h3 className={`text-3xl sm:text-4xl font-anurati tracking-widest uppercase
                                             ${isDark ? "text-white" : "text-black"}`}>
                                             ColorWall
                                         </h3>
-                                        <p className={`text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] mt-1 ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                        <p className={`text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] mt-2 ${isDark ? "text-white/50" : "text-black/50"}`}>
                                             Runs the whole thing, end to end.
                                         </p>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center">
-                                    <Link
-                                        href="/download"
-                                        className={`px-6 py-3 rounded-full text-sm font-semibold tracking-tight transition-colors duration-200 shrink-0
-                                            ${isDark
-                                                ? "bg-white text-black hover:bg-white/90"
-                                                : "bg-black text-white hover:bg-black/90"
-                                            }`}
-                                    >
+                                <Link href="/download">
+                                    <button className={`px-8 py-3 rounded-full text-sm font-medium transition-all
+                                        ${isDark 
+                                            ? "bg-white text-black hover:bg-white/90" 
+                                            : "bg-black text-white hover:bg-black/90"}`}>
                                         Download Free
-                                    </Link>
-                                </div>
+                                    </button>
+                                </Link>
                             </div>
 
                             {/* embed the benchmark showcase directly */}

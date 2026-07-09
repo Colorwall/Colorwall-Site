@@ -138,11 +138,11 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
         <div className="flex flex-col w-full">
 
                     {/* ─── top bar: title ─── */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12">
+                    <div className="flex flex-col items-center justify-center mb-12 text-center">
                         <div>
                             <h3 className={`text-2xl sm:text-3xl font-anurati tracking-widest uppercase
                                 ${isDark ? "text-white" : "text-black"}`}>
-                                - Benchmarks
+                                - Benchmarks -
                             </h3>
                             {/* <p className={`text-xs font-mono mt-2 uppercase tracking-[0.2em]
                                 ${isDark ? "text-white/40" : "text-black/40"}`}>
