@@ -164,7 +164,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.15 + colIdx * 0.1, duration: 0.4 }}
-                                        className="flex flex-col h-full min-h-0"
+                                        className="cursor-target relative flex flex-col h-full min-h-0"
                                     >
                                         {/* ─── big stat callout ─── */}
                                         <div className="mb-6 sm:mb-8 flex flex-col">

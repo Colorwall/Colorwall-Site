@@ -110,7 +110,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
                     {/* right-side blurb - smaller type, max-width constrained so it
                         doesn't stretch across the full remaining space */}
-                    <p className={`max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right
+                    <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right
                         ${isDark ? "text-white/50" : "text-black/50"}`}>
                         A desktop engine built from scratch in{" "}
                         <span className={isDark ? "text-white/80" : "text-black/80"}>Rust & Tauri</span>{" "}
@@ -133,7 +133,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 >
                     {statCards.map((card, i) => {
                         // shared class string for both linked and static cards
-                        const cardClasses = `group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
+                        const cardClasses = `cursor-target group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
                             ${card.accent
                                 ? (isDark
                                     ? "bg-[#0078d4] text-white hover:bg-[#006cbd]"

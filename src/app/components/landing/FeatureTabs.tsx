@@ -133,7 +133,7 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                                 <button
                                     key={feature.id}
                                     onClick={() => setActiveTab(idx)}
-                                    className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
+                                    className={`cursor-target relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
                                         ${isActive ? (theme === 'dark' ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'shadow-[0_0_40px_rgba(0,0,0,0.05)]') : ''}
                                     `}
                                 >
