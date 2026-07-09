@@ -245,7 +245,7 @@ export const SecurityReport = ({
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className={`rounded-2xl overflow-hidden border ${borderColor} shadow-2xl flex flex-col`}
+                    className={`cursor-target relative rounded-2xl overflow-hidden border ${borderColor} shadow-2xl flex flex-col`}
                 >
                     {/* ── hashes section ── */}
                     <div

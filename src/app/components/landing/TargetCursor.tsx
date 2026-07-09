@@ -168,16 +168,26 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     window.addEventListener('mousemove', moveHandler);
 
     const scrollHandler = () => {
-      if (!activeTarget || !cursorRef.current) return;
+      if (!cursorRef.current) return;
       const { x: offsetX, y: offsetY } = getOffset();
-      const mouseX = (gsap.getProperty(cursorRef.current, 'x') as number) + offsetX;
-      const mouseY = (gsap.getProperty(cursorRef.current, 'y') as number) + offsetY;
-      const elementUnderMouse = document.elementFromPoint(mouseX, mouseY);
-      const isStillOverTarget =
-        elementUnderMouse &&
-        (elementUnderMouse === activeTarget || elementUnderMouse.closest(targetSelector) === activeTarget);
-      if (!isStillOverTarget) {
-        currentLeaveHandler?.();
+      const clientX = (gsap.getProperty(cursorRef.current, 'x') as number) + offsetX;
+      const clientY = (gsap.getProperty(cursorRef.current, 'y') as number) + offsetY;
+      const elementUnderMouse = document.elementFromPoint(clientX, clientY);
+      
+      if (activeTarget) {
+        const isStillOverTarget =
+          elementUnderMouse &&
+          (elementUnderMouse === activeTarget || elementUnderMouse.closest(targetSelector) === activeTarget);
+        if (!isStillOverTarget) {
+          currentLeaveHandler?.();
+        }
+      }
+
+      if (elementUnderMouse) {
+        const potentialTarget = elementUnderMouse.closest(targetSelector);
+        if (potentialTarget && potentialTarget !== activeTarget) {
+          enterHandler({ target: elementUnderMouse } as any);
+        }
       }
     };
     window.addEventListener('scroll', scrollHandler, { passive: true });
@@ -197,7 +207,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     window.addEventListener('mousedown', mouseDownHandler);
     window.addEventListener('mouseup', mouseUpHandler);
 
-    const enterHandler = (e: MouseEvent) => {
+    function enterHandler(e: any) {
       const directTarget = e.target as Element;
       const allTargets: Element[] = [];
       let current: Element | null = directTarget;

@@ -185,7 +185,7 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
 
                 {/* Right Side: Image Showcase */}
                 <BorderGlow 
-                    className="relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video overflow-hidden group shadow-2xl"
+                    className="cursor-target relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video overflow-hidden group shadow-2xl"
                     borderRadius={32}
                     backgroundColor={theme === 'dark' ? '#0f0f11' : '#f4f4f5'}
                     glowColor={theme === 'dark' ? '220 100 60' : '220 80 50'}
