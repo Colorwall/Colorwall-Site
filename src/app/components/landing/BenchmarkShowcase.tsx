@@ -167,24 +167,24 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                                         className="flex flex-col h-full min-h-0"
                                     >
                                         {/* ─── big stat callout ─── */}
-                                        <div className="mb-6 sm:mb-8">
-                                            <div className="flex items-end gap-3 mb-2">
-                                                <span className={`text-6xl sm:text-7xl lg:text-8xl font-anurati tracking-wider leading-none
+                                        <div className="mb-6 sm:mb-8 flex flex-col">
+                                            {/* Massive Label */}
+                                            <h4 className={`text-2xl md:text-3xl font-anurati tracking-widest uppercase mb-4
+                                                ${colIdx === 0 ? "text-[#0078d4]" : (isDark ? "text-white/50" : "text-black/50")}`}>
+                                                {col.label}
+                                            </h4>
+                                            
+                                            {/* Big Number */}
+                                            <div className="flex items-baseline gap-3 mb-1">
+                                                <span className={`text-6xl sm:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-none
                                                     ${isDark ? "text-white" : "text-black"}`}>
                                                     {col.totalGpu}
                                                 </span>
-                                                <span className={`text-sm sm:text-base font-mono mb-2 uppercase tracking-widest
-                                                    ${isDark ? "text-white/40" : "text-black/40"}`}>
-                                                    total GPU
-                                                </span>
                                             </div>
-                                            <div className="flex items-center gap-4 flex-wrap mt-4">
-                                                <p className={`text-sm font-mono uppercase tracking-widest
-                                                    ${isDark ? "text-white/50" : "text-black/50"}`}>
-                                                    {col.cpu} CPU · {col.gpu} GPU
-                                                </p>
-                                                <span className={isDark ? "text-white/20" : "text-black/20"}>—</span>
-                                                <p className={`text-sm font-medium tracking-widest uppercase ${colIdx === 0 ? "text-emerald-500" : "text-red-500"}`}>
+
+                                            {/* Verdict */}
+                                            <div className="flex items-center gap-4 flex-wrap mt-2">
+                                                <p className={`text-sm font-mono uppercase tracking-widest ${colIdx === 0 ? "text-emerald-500" : "text-red-500"}`}>
                                                     {col.verdict}
                                                 </p>
                                             </div>
