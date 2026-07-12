@@ -104,7 +104,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         <GradientHeading
                             text={"Performance\nwithout compromise."}
                             theme={theme}
-                            className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight whitespace-pre-wrap leading-[1.1]"
+                            className="text-4xl sm:text-5xl md:text-6xl font-anurati tracking-widest uppercase whitespace-pre-wrap leading-[1.1]"
                         />
                     </div>
 
@@ -149,7 +149,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             <>
                                 {/* stat value and decorative plus/arrow on the same line */}
                                 <div className="flex items-start justify-between mb-4">
-                                    <span className={`text-4xl sm:text-5xl font-black tracking-tighter leading-none
+                                    <span className={`text-4xl sm:text-5xl font-anurati tracking-widest uppercase leading-none
                                         ${card.accent
                                             ? "text-white"
                                             : (isDark ? "text-white" : "text-black")

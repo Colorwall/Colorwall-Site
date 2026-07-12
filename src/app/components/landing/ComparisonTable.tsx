@@ -77,7 +77,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             <GradientHeading 
                                 text="We run the whole thing."
                                 theme={theme}
-                                className="text-right text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95]"
+                                className="text-right text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
                             />
                         </div>
                         <p className={`text-xs font-mono

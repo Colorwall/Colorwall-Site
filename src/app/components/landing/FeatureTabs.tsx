@@ -116,7 +116,7 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                         <GradientHeading 
                             text="Everything you need."
                             theme={theme}
-                            className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight"
+                            className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
                         />
                     </div>
 

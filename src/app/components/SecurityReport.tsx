@@ -141,9 +141,9 @@ export const SecurityReport = ({
                         uhuh security verification?
                     </p>
                     <GradientHeading
-                        text="Verified & Transparent"
+                        text="Security Report (virustotal)"
                         theme={theme}
-                        className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight"
+                        className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
                     />
 
                     <p
