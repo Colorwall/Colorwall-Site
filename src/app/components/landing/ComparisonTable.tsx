@@ -69,15 +69,15 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             theme={theme}
                             className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mb-5"
                         />
-                        <div className="flex flex-col w-full max-w-4xl mx-auto mt-10 mb-12">
-                            <h2 className={`text-left text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-2 md:mb-0
+                        <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto mt-10 mb-12">
+                            <h2 className={`text-center text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-2 md:mb-0
                                 ${isDark ? "text-white" : "text-black"}`}>
                                 They solve a slice.
                             </h2>
                             <GradientHeading 
                                 text="We run the whole thing."
                                 theme={theme}
-                                className="text-right text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
+                                className="text-center text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
                             />
                         </div>
                         <p className={`text-xs font-mono
