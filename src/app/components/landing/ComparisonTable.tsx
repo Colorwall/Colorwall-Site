@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { BenchmarkShowcase } from "./BenchmarkShowcase";
+import { GradientHeading } from "./GradientHeading";
 
 // competitor data - factual, non-aggressive.
 // favicon urls use google's favicon service for consistent rendering.
@@ -61,14 +62,16 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         ${isDark ? "text-white/25" : "text-black/25"}`}>
                         How we compare
                     </p>
-                    <h2 className={`text-4xl sm:text-5xl md:text-6xl font-outfit font-[200] tracking-[-0.04em] leading-[1.05] max-w-3xl
+                    <h2 className={`text-4xl sm:text-5xl md:text-6xl font-outfit font-[200] tracking-[-0.04em] leading-[1.05] max-w-3xl mb-3
                         ${isDark ? "text-white" : "text-black"}`}>
-                        They solve a slice.{" "}
-                        <span className={isDark ? "text-white/40" : "text-black/35"}>
-                            We run the whole thing.
-                        </span>
+                        They solve a slice.
                     </h2>
-                    <p className={`text-[11px] font-mono tracking-wide mt-6
+                    <GradientHeading
+                        text="We run the whole thing."
+                        theme={theme}
+                        className="text-3xl sm:text-4xl md:text-5xl font-anurati tracking-widest uppercase"
+                    />
+                    <p className={`text-[11px] font-mono tracking-wide mt-8
                         ${isDark ? "text-white/20" : "text-black/20"}`}>
                         Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
                     </p>
