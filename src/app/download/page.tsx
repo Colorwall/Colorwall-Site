@@ -7,6 +7,9 @@ import { Footer } from "@/app/components/Footer";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+
+const SplashCursor = dynamic(() => import("@/app/components/ui/SplashCursor"), { ssr: false });
 
 interface GitHubAsset {
     name: string;
@@ -84,52 +87,69 @@ export default function DownloadPage() {
     const cardBg = isDark ? "bg-white/5" : "bg-black/5";
 
     return (
-        <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-blue-500/30`}>
-            <main className="pt-28 pb-20 px-6">
+        <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-blue-500/30 relative`}>
+            {/* Global Water Background */}
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-50 mix-blend-screen">
+                <SplashCursor 
+                    COLOR={isDark ? "#3b82f6" : "#2563eb"}
+                    RAINBOW_MODE={false}
+                    TRANSPARENT={true}
+                    CURL={0.0}
+                    DENSITY_DISSIPATION={6.0}
+                    VELOCITY_DISSIPATION={4.0}
+                    PRESSURE={0.05}
+                    SPLAT_RADIUS={0.3}
+                    SPLAT_FORCE={6000}
+                />
+            </div>
+
+            <main className="pt-28 pb-20 px-6 relative z-10">
                 <div className="max-w-4xl mx-auto space-y-16">
 
-                    {/* Hero / Main Download Area */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center space-y-4"
-                    >
-                        <div className="relative w-32 h-32 mx-auto drop-shadow-2xl">
-                            <Image
-                                src="/colorwall.png"
-                                alt="ColorWall Icon"
-                                fill
-                                className="object-contain"
-                                priority
-                            />
-                        </div>
+                    {/* Unified Hero + Cards Wrapper */}
+                    <div className="relative pt-10 pb-16 w-full rounded-3xl">
+                        {/* Hero / Main Download Area */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center space-y-6 relative z-10 mb-16"
+                        >
+                            <div className="relative w-28 h-28 mx-auto drop-shadow-[0_0_40px_rgba(59,130,246,0.3)]">
+                                <Image
+                                    src="/colorwall.png"
+                                    alt="ColorWall Icon"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
 
-                        <div>
-                            <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
-                                Download Colorwall
-                            </h1>
-                            <p 
-                                className="text-lg md:text-xl font-bold bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto] max-w-xl mx-auto"
-                                style={{ 
-                                    backgroundImage: isDark 
-                                        ? 'linear-gradient(110deg, #ffffff 35%, #f4f9ff 45%, #8bc5f8 50%, #f4f9ff 55%, #ffffff 65%)'
-                                        : 'linear-gradient(110deg, #000000 35%, #111827 45%, #3b82f6 50%, #111827 55%, #000000 65%)'
-                                }}
-                            >
-                                Desktop Customization Engine, Engineered in Rust
-                            </p>
-                        </div>
-                    </motion.div>
+                            <div className="space-y-4">
+                                <h1 className="text-4xl md:text-5xl lg:text-7xl font-outfit font-[200] tracking-tight">
+                                    Download Colorwall
+                                </h1>
+                                <p 
+                                    className="text-lg md:text-xl font-bold bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto] max-w-xl mx-auto"
+                                    style={{ 
+                                        backgroundImage: isDark 
+                                            ? 'linear-gradient(110deg, #ffffff 35%, #f4f9ff 45%, #8bc5f8 50%, #f4f9ff 55%, #ffffff 65%)'
+                                            : 'linear-gradient(110deg, #000000 35%, #111827 45%, #3b82f6 50%, #111827 55%, #000000 65%)'
+                                    }}
+                                >
+                                    Desktop Customization Engine, Engineered in Rust
+                                </p>
+                            </div>
+                        </motion.div>
 
-                    {/* Platform Downloads */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto"
-                    >
-                        {/* Windows */}
-                        <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                        {/* Platform Downloads */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto relative z-10"
+                        >
+                            {/* Windows */}
+                            <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
                             <div className="space-y-2 mb-8 text-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-[1em] h-[1em] inline-block text-[36px] mx-auto mb-4 opacity-80"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z"/></svg>
                                 <h3 className="text-3xl font-black tracking-tight">Windows</h3>
@@ -193,6 +213,7 @@ export default function DownloadPage() {
                             </div>
                         </div>
                     </motion.div>
+                    </div>
 
                     {/* App UI Showcase */}
                     <div className="pt-8 px-4 sm:px-8">
