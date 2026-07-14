@@ -67,6 +67,16 @@ const nextConfig: NextConfig = {
           }
         ]
       },
+      // heavily cache tech SVGs via cloudflare
+      {
+        source: '/tech/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
       // Add this for your Spotify tracks API
       {
         source: '/api/spotify-tracks',
