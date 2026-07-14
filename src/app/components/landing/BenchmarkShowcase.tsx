@@ -140,14 +140,14 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                     {/* ─── top bar: title ─── */}
                     <div className="flex flex-col items-center justify-center mb-12 text-center">
                         <div>
-                            <h3 className={`text-2xl sm:text-3xl font-anurati tracking-widest uppercase
+                            <h3 className={`text-xl sm:text-2xl font-outfit font-[300] tracking-[0.3em] uppercase
                                 ${isDark ? "text-white" : "text-black"}`}>
                                 - Benchmarks -
                             </h3>
-                            {/* <p className={`text-xs font-mono mt-2 uppercase tracking-[0.2em]
+                            <p className={`text-[11px] font-mono mt-4 uppercase tracking-[0.2em]
                                 ${isDark ? "text-white/40" : "text-black/40"}`}>
-                                Same wallpaper · Same hardware · Same conditions
-                            </p> */}
+                                Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
+                            </p>
                         </div>
                     </div>
 

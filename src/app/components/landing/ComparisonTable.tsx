@@ -140,12 +140,12 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         {/* main statement with antigravity background */}
                         <div className="relative">
                             {/* The 3D particle background */}
-                            <div className="absolute inset-0 -mx-10 -my-10 z-0 pointer-events-none opacity-40 mix-blend-screen">
+                            <div className="absolute inset-0 -mx-32 -my-32 z-0 pointer-events-none opacity-80 mix-blend-screen">
                                 <Antigravity 
-                                    color={isDark ? "#3b82f6" : "#60a5fa"} 
-                                    count={150}
-                                    particleSize={1.5}
-                                    waveAmplitude={1.5}
+                                    color={isDark ? "#00e5ff" : "#0284c7"} 
+                                    count={200}
+                                    particleSize={1.0}
+                                    waveAmplitude={2.0}
                                     autoAnimate={true}
                                 />
                             </div>
@@ -164,15 +164,19 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                     theme={theme}
                                     className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
                                 />
-                                <p className={`text-[11px] font-mono tracking-wide mt-8
-                                    ${isDark ? "text-white/20" : "text-black/20"}`}>
-                                    Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
-                                </p>
                             </div>
                         </div>
 
+                        {/* Hand-drawn SVG arrow pointing to ColorWall CTA */}
+                        <div className="hidden lg:flex justify-end pr-32 -mt-4 mb-4 relative z-10 pointer-events-none opacity-60">
+                            <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={isDark ? "text-white" : "text-black"}>
+                                <path d="M10 10 Q 50 10 70 80" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" fill="none" strokeLinecap="round" />
+                                <path d="M60 70 L 70 80 L 80 65" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </div>
+
                         {/* colorwall cta - anchored to bottom of right column */}
-                        <div className={`mt-16 pt-10 border-t
+                        <div className={`mt-8 pt-10 border-t
                             ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
