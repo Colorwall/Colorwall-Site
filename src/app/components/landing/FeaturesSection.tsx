@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
+import ShapeBlur from "../ui/ShapeBlur";
+import BorderGlow from "../ui/BorderGlow";
+import SideRays from "../ui/SideRays";
 
-// -- the 3 headline stat cards that anchor the section --
-// these represent the most impressive, at-a-glance proof points
-// for colorwall's technical foundation
+// ─── headline stat cards ────────────────────────────────────────
+// the most impressive at-a-glance proof points for colorwall's tech.
+// these sit above the main showcase and are visually distinct from it.
 const statCards = [
     {
         stat: "~0.5%",
@@ -31,108 +34,97 @@ const statCards = [
     },
 ];
 
-// -- remaining features displayed as a clean two-column spec list --
-// stripped of numbers and icons to reduce visual clutter and let
-// the descriptions speak for themselves
-const featureList = [
+// ─── primary features with screenshot showcases ─────────────────
+// these are the 6 major features that have dedicated screenshots.
+// rendered as interactive tabs with a large image preview.
+const showcaseFeatures = [
     {
-        title: "Interactive Studio Editor",
-        desc: "Build dynamic scenes with a professional visual editor. Mix videos, images, and particle emitters seamlessly.",
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="1.5" opacity="0.3"/>
-                <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M8 12H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M8 16H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <circle cx="18" cy="14" r="2" fill="currentColor" />
-            </svg>
-        )
+        id: "store",
+        title: "STORE",
+        description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — no account needed.",
+        badge: "8 SOURCES · 4K · UNIFIED",
+        imageSrcs: ["/STORE.webp", "/modal.webp"]
     },
     {
-        title: "HLSL Shaders & Particles",
-        desc: "Apply real-time shader effects like reflections, sway, chromatic aberration, blur, and rain drops.",
-        tag: "under dev",
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M12 3L14.5 9.5L21 12L14.5 14.5L12 21L9.5 14.5L3 12L9.5 9.5L12 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <circle cx="18" cy="5" r="1.5" fill="currentColor" opacity="0.6"/>
-                <circle cx="5" cy="18" r="1" fill="currentColor" opacity="0.3"/>
-                <circle cx="19" cy="19" r="2" fill="currentColor" opacity="0.4"/>
-            </svg>
-        )
+        id: "library",
+        title: "LIBRARY",
+        description: "Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store.",
+        badge: "LOCAL · OFFLINE · CUTE",
+        imageSrcs: ["/Library.webp"]
     },
     {
-        title: "Audio Reactive Ecosystem",
-        desc: "Native system audio analysis injects rhythmic life into your wallpapers, particles, and widgets in real-time.",
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M4 12V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M8 8V18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4"/>
-                <path d="M12 4V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M16 10V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4"/>
-                <path d="M20 12V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-        )
+        id: "customise",
+        title: "CUSTOMISE",
+        description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
+        badge: "RUST · TAURI · LOW OVERHEAD",
+        imageSrcs: ["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
     },
     {
-        title: "Desktop Widgets",
-        desc: "Pin interactive HTML5/React widgets - 3D clocks, visualizers, system monitors - directly to your desktop.",
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <rect x="4" y="4" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-                <rect x="13" y="4" width="7" height="10" rx="2" fill="currentColor" opacity="0.25" stroke="currentColor" strokeWidth="1.5"/>
-                <rect x="4" y="14" width="7" height="6" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" strokeWidth="1.5"/>
-                <rect x="13" y="17" width="7" height="3" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-            </svg>
-        )
+        id: "widgets",
+        title: "WIDGETS",
+        description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
+        badge: "HTML · JS · PINNED",
+        imageSrcs: ["/widgets.webp"]
     },
     {
-        title: "Massive Workshop",
-        desc: "Browse and download thousands of 4K videos, WebGL scenes, and community-made .colorwall projects.",
-        tag: "under dev",
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M17 19H7C4.23858 19 2 16.7614 2 14C2 11.2386 4.23858 9 7 9C7.5 5 11.5 4 14 6C16 4 20 5 21 8.5C22.5 9.5 23 11 22 13C21 16 19 19 17 19Z" stroke="currentColor" strokeWidth="1.5" opacity="0.3" strokeLinejoin="round"/>
-                <path d="M12 12V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M9.5 14L12 16.5L14.5 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="12" cy="7.5" r="1.5" fill="currentColor" />
-            </svg>
-        )
+        id: "studio",
+        title: "STUDIO",
+        description: "build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
+        badge: "NODE-BASED · D3D11 · PARTICLES",
+        imageSrcs: ["/studio.webp"]
     },
     {
-        title: "Taskbar Customization",
-        desc: "Transform your taskbar with transparent, blur, or acrylic effects, completely independent of the wallpaper engine.",
-        icon: (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" opacity="0.3"/>
-                <path d="M3 16H21" stroke="currentColor" strokeWidth="1.5"/>
-                <rect x="9" y="17" width="6" height="2" rx="1" fill="currentColor"/>
-                <circle cx="5.5" cy="18" r="0.5" fill="currentColor"/>
-            </svg>
-        )
+        id: "interactive",
+        title: "INTERACTIVE",
+        description: "wallpapers that come alive. fully interactive html5 canvases and webgl shaders that respond to your mouse movements and clicks. your desktop is now a playground.",
+        badge: "WEBGL · DYNAMIC · INTERACTIVE",
+        imageSrcs: ["/INTERACTIVES.webp"]
+    }
+];
+
+// ─── secondary features ─────────────────────────────────────────
+// features without dedicated screenshots. rendered as inline prose
+// in a stripe-style "bold name + description" format.
+const extras: { name: string; desc: string; tag?: string }[] = [
+    {
+        name: "Shaders & Particles",
+        desc: "Real-time HLSL effects — reflections, sway, chromatic aberration, blur, and rain drops. All GPU-accelerated.",
+        tag: "under dev"
+    },
+    {
+        name: "Audio Reactive",
+        desc: "Native system audio analysis injects rhythmic life into wallpapers, particles, and widgets in real-time."
+    },
+    {
+        name: "Workshop",
+        desc: "Thousands of 4K videos, WebGL scenes, and community .colorwall projects. One click to download.",
+        tag: "under dev"
+    },
+    {
+        name: "Taskbar",
+        desc: "Transparent, blur, or acrylic effects on your taskbar — completely independent of the wallpaper engine."
     },
 ];
 
-export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
+
+export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dark" | "light"; enableSideRays?: boolean }) => {
     const isDark = theme === "dark";
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [activeTab, setActiveTab] = useState(0);
+    const [currentImgIndex, setCurrentImgIndex] = useState(0);
     const videoRef = useRef<HTMLVideoElement>(null);
     const [videoReady, setVideoReady] = useState(false);
 
-    // deferred video loading: wait for browser idle, then set preload 
-    // to trigger fetch, and only call play() once enough data is buffered.
-    // this prevents the video from competing with critical resources 
-    // during initial page paint.
+    // ─── deferred video loading ──────────────────────────────────
+    // waits for browser idle before switching preload from "none" to
+    // "auto", then listens for canplay before calling play(). this
+    // prevents the video from competing with critical paint resources.
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
 
         const startLoad = () => {
-            // switch from preload="none" to "auto" so the browser 
-            // begins fetching the video data at its own pace
             video.preload = "auto";
             video.load();
-
             const onCanPlay = () => {
                 video.play().catch(() => {});
                 setVideoReady(true);
@@ -150,13 +142,24 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
         }
     }, []);
 
+    // rotate through screenshots for features with multiple images
+    useEffect(() => {
+        const feature = showcaseFeatures[activeTab];
+        if (feature.imageSrcs.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentImgIndex(prev => (prev + 1) % feature.imageSrcs.length);
+        }, 3500);
+        return () => clearInterval(interval);
+    }, [activeTab]);
+
+    // reset carousel position when switching tabs
+    useEffect(() => { setCurrentImgIndex(0); }, [activeTab]);
+
     return (
         <section className="py-32 px-4 sm:px-8">
             <div className="max-w-7xl mx-auto">
 
-                {/* ─── header row: big heading left, descriptive blurb right ─── */}
-                {/* mirrors the fypro layout where the heading carries visual weight
-                    and the paragraph provides context without competing for attention */}
+                {/* ═══ top header: heading left, blurb right ═══ */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -170,9 +173,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 ${isDark ? "text-blue-400" : "text-blue-600"}`}>
                                 under active development
                             </p>
-                            {/* patron link - subtle dot separator + link in the same
-                                mono style so it reads as a secondary label rather
-                                than a loud cta. sits alongside the dev status badge */}
                             <span className={`text-xs ${isDark ? "text-white/15" : "text-black/15"}`}>·</span>
                             <a
                                 href="https://patron.colorwall.xyz"
@@ -194,8 +194,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         />
                     </div>
 
-                    {/* right-side blurb - smaller type, max-width constrained so it
-                        doesn't stretch across the full remaining space */}
                     <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right
                         ${isDark ? "text-white/50" : "text-black/50"}`}>
                         A desktop engine built from scratch in{" "}
@@ -206,10 +204,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     </p>
                 </motion.div>
 
-                {/* ─── stat cards row ─── */}
-                {/* 3 cards in a row. the last one (accent=true) gets a dark/inverted
-                    treatment to create visual rhythm, matching the fypro pattern
-                    where one card breaks the visual monotony */}
+                {/* ═══ stat cards ═══ */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -217,8 +212,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     transition={{ duration: 0.7, delay: 0.15 }}
                     className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-32"
                 >
-                    {statCards.map((card, i) => {
-                        // shared class string for both linked and static cards
+                    {statCards.map((card) => {
                         const cardClasses = `cursor-target group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
                             ${card.accent
                                 ? (isDark
@@ -229,11 +223,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                     : "border border-black/10 bg-black/[0.02]")
                             }`;
 
-                        // inner card content extracted so it can be shared between
-                        // the linked (accent) and non-linked (regular) card wrappers
                         const cardContent = (
                             <>
-                                {/* stat value and decorative plus/arrow on the same line */}
                                 <div className="flex items-start justify-between mb-4">
                                     <span className={`text-4xl sm:text-5xl font-anurati tracking-widest uppercase leading-none
                                         ${card.accent
@@ -245,9 +236,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                             {card.label}
                                         </span>
                                     </span>
-
-                                    {/* arrow on accent card hints at clickability,
-                                        plus sign on regular cards is purely decorative */}
                                     {card.accent ? (
                                         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 text-white text-lg mt-1 group-hover:scale-110 group-hover:translate-x-0.5 transition-transform duration-300">
                                             →
@@ -258,7 +246,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                         </span>
                                     )}
                                 </div>
-
                                 <p className={`text-sm leading-relaxed font-spline
                                     ${card.accent
                                         ? "text-white/70"
@@ -269,8 +256,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             </>
                         );
 
-                        // accent card wraps in a next/link to /download so clicking
-                        // routes the user to grab the app. regular cards stay inert.
                         return card.href ? (
                             <Link
                                 key={card.label}
@@ -287,140 +272,244 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     })}
                 </motion.div>
 
-                {/* ─── "the rest" feature list ─── */}
-                {/* clean two-column layout with generous vertical spacing.
-                    no icons, no numbers -- just title + description.
-                    the divider line on top of each item creates rhythm
-                    without adding visual weight */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.7, delay: 0.1 }}
-                    className={`w-full group rounded-3xl border overflow-hidden relative flex flex-col
-                        transition-[border-color,box-shadow] duration-500
-                        ${isExpanded 
-                            ? (isDark ? 'border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'border-black/15 shadow-[0_8px_40px_rgba(0,0,0,0.08)]')
-                            : (isDark ? 'border-white/10 hover:border-white/25' : 'border-black/10 hover:border-black/20')
-                        }`}
-                >
-                    {/* video sits behind everything. preload="none" prevents 
-                       any network/decode work until our idle callback fires. 
-                       no backdrop-blur anywhere - just a simple color overlay 
-                       for readability, which the gpu composites for free. */}
-                    <div className={`absolute inset-0 z-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#f0f2f5]'}`}>
-                        <video 
+
+                {/* ═══════════════════════════════════════════════════════
+                    main showcase - video background, tab navigation,
+                    screenshot previews, and inline extras.
+                    
+                    replaces both the old "everything else" accordion
+                    and the separate featuretabs component. one unified
+                    section with varied typography throughout.
+                ═══════════════════════════════════════════════════════ */}
+                <div className="relative rounded-3xl overflow-hidden">
+
+                    {/* video background - deferred via requestIdleCallback.
+                        preload="none" prevents any fetch until our idle 
+                        callback fires. the video is a night sky so text 
+                        reads fine over it without heavy overlays. */}
+                    <div className={`absolute inset-0 z-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#eef1f5]'}`}>
+                        <video
                             ref={videoRef}
-                            loop 
-                            muted 
+                            loop
+                            muted
                             playsInline
                             preload="none"
                             className={`w-full h-full object-cover transition-opacity duration-1000
-                                ${videoReady ? (isDark ? 'opacity-35' : 'opacity-50') : 'opacity-0'}`}
+                                ${videoReady ? (isDark ? 'opacity-30' : 'opacity-40') : 'opacity-0'}`}
                         >
                             <source src="/videos/everything.webm" type="video/webm" />
                         </video>
-                        {/* light gradient for the header area - video is a night sky 
-                           so white text reads fine over it without heavy overlays */}
-                        <div className={`absolute inset-0
-                            ${isDark ? 'bg-gradient-to-t from-black/40 via-transparent to-transparent' : 'bg-gradient-to-t from-white/30 via-transparent to-transparent'}`} 
+                        {/* subtle bottom gradient to anchor the section */}
+                        <div className={`absolute inset-0 
+                            ${isDark 
+                                ? 'bg-gradient-to-b from-black/30 via-transparent to-black/50' 
+                                : 'bg-gradient-to-b from-white/30 via-transparent to-white/50'}`} 
                         />
                     </div>
 
-                    {/* header - clickable toggle */}
-                    <div 
-                        className="relative z-10 p-8 sm:p-12 w-full min-h-[280px] flex flex-col sm:flex-row sm:items-end justify-between gap-6 cursor-pointer select-none"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                    >
-                        <div>
-                            <p className={`text-sm font-bold tracking-[0.3em] uppercase mb-3
-                                ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-                                and there&apos;s more
-                            </p>
-                            <h3 className={`text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter
-                                ${isDark ? "text-white" : "text-black"}`}>
-                                Everything else, built in.
-                            </h3>
+                    {/* siderays shader overlay (cinematic mode only) */}
+                    {enableSideRays && (
+                        <div
+                            className="absolute inset-0 z-[1] pointer-events-none"
+                            style={{
+                                maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
+                                WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)"
+                            }}
+                        >
+                            <SideRays
+                                speed={1.5}
+                                rayColor1={isDark ? '#00d8ff' : '#0ea5e9'}
+                                rayColor2={isDark ? '#6d28d9' : '#8b5cf6'}
+                                intensity={isDark ? 2.5 : 1.5}
+                                spread={2.5}
+                                origin="top-right"
+                                tilt={-5}
+                                saturation={1.0}
+                                blend={0.5}
+                                falloff={0.6}
+                                opacity={1.0}
+                            />
                         </div>
-                        
-                        <div className="flex items-center gap-4 pb-2">
-                            <span className={`text-sm font-bold tracking-widest uppercase font-mono
-                                ${isDark ? 'text-white/70' : 'text-black/60'}`}>
-                                {isExpanded ? "Hide features" : "Explore features"}
-                            </span>
-                            <motion.div 
-                                animate={{ rotate: isExpanded ? 180 : 0 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex flex-shrink-0 items-center justify-center border-2
-                                    ${isDark ? 'border-white/20 bg-black/60 text-white' : 'border-black/15 bg-white/70 text-black'}`}
-                            >
-                                <ChevronDown className="w-6 h-6 sm:w-7 sm:h-7" />
-                            </motion.div>
-                        </div>
-                    </div>
+                    )}
 
-                    {/* expanded feature grid */}
-                    <AnimatePresence initial={false}>
-                        {isExpanded && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-                                className="overflow-hidden relative z-10 w-full"
-                            >
-                                <div className={`px-8 pb-10 sm:px-12 sm:pb-14 pt-6 border-t
-                                    ${isDark ? 'border-white/10' : 'border-black/5'}`}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12 pt-4">
-                                        {featureList.map((f, i) => (
-                                            <motion.div
-                                                key={f.title}
-                                                initial={{ opacity: 0, y: 12 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: i * 0.06, duration: 0.4 }}
-                                                className="group relative"
-                                            >
-                                                <div className="flex items-start gap-5">
-                                                    <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center
-                                                        transition-colors duration-200
-                                                        ${isDark 
-                                                            ? "bg-white/5 text-blue-400 border border-white/10 group-hover:bg-white/10" 
-                                                            : "bg-black/5 text-blue-600 border border-black/8 group-hover:bg-black/8"
-                                                        }`}
-                                                    >
-                                                        {f.icon}
-                                                    </div>
-                                                    
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-3">
-                                                            <h4 className={`text-[17px] font-bold tracking-tight
-                                                                ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
-                                                                {f.title}
-                                                            </h4>
-                                                            {f.tag && (
-                                                                <span className={`text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded shrink-0
-                                                                    ${isDark
-                                                                        ? "bg-amber-500/20 text-amber-300"
-                                                                        : "bg-amber-100 text-amber-700"
-                                                                    }`}>
-                                                                    {f.tag}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <p className={`text-[15px] leading-relaxed mt-1.5 max-w-md
-                                                            ${isDark ? "text-white/55" : "text-black/55"}`}>
-                                                            {f.desc}
-                                                        </p>
-                                                    </div>
+                    {/* ─── content layer ─── */}
+                    <div className="relative z-10">
+
+                        {/* section heading - anurati gradient, massive */}
+                        <div className="pt-20 sm:pt-28 pb-6 px-8 sm:px-14 lg:px-20">
+                            <p className={`text-sm font-mono tracking-widest uppercase mb-5
+                                ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+                                Discover Capabilities
+                            </p>
+                            <GradientHeading
+                                text="Everything you need."
+                                theme={theme}
+                                className="text-4xl sm:text-5xl lg:text-7xl font-anurati tracking-widest uppercase leading-tight"
+                            />
+                        </div>
+
+                        {/* ─── tab showcase ──────────────────────────────── */}
+                        <div className="px-8 sm:px-14 lg:px-20 pb-16 pt-8 grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 items-center">
+
+                            {/* left: tab navigation with connecting line */}
+                            <div className="flex flex-col gap-3 relative">
+                                {/* vertical connecting line for visual rhythm */}
+                                <div className={`absolute left-0 top-4 bottom-4 w-px 
+                                    ${isDark ? "bg-white/10" : "bg-black/10"}`}
+                                />
+
+                                {showcaseFeatures.map((feature, idx) => {
+                                    const isActive = activeTab === idx;
+                                    return (
+                                        <button
+                                            key={feature.id}
+                                            onClick={() => setActiveTab(idx)}
+                                            className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
+                                                ${isActive ? (isDark ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'shadow-[0_0_40px_rgba(0,0,0,0.05)]') : ''}
+                                            `}
+                                        >
+                                            {/* shapeblur background on active tab */}
+                                            {isActive && (
+                                                <div className={`absolute inset-0 z-0 pointer-events-none transition-opacity duration-700 ${isDark ? 'opacity-30' : 'opacity-10 invert'}`}>
+                                                    <ShapeBlur variation={0} shapeSize={0.98} roundness={0.15} borderSize={0.02} circleSize={0.4} circleEdge={0.8} />
                                                 </div>
-                                            </motion.div>
+                                            )}
+
+                                            <div className="relative z-10">
+                                                <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
+                                                    ${isActive
+                                                        ? (isDark ? "text-white" : "text-black")
+                                                        : (isDark ? "text-white/70 group-hover:text-white" : "text-black/70 group-hover:text-black")
+                                                    }
+                                                `}>
+                                                    {feature.title}
+                                                </h3>
+
+                                                {/* expandable description - only visible on active tab */}
+                                                <AnimatePresence initial={false}>
+                                                    {isActive && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            transition={{ duration: 0.3 }}
+                                                            className="overflow-hidden"
+                                                        >
+                                                            <div className={`inline-flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-mono tracking-widest uppercase
+                                                                ${isDark ? "text-blue-400" : "text-blue-600"}`}
+                                                            >
+                                                                <span className="w-4 h-[1px] bg-current opacity-50" />
+                                                                {feature.badge}
+                                                            </div>
+                                                            <p className={`text-sm sm:text-base leading-relaxed
+                                                                ${isDark ? "text-white/60" : "text-black/60"}`}
+                                                            >
+                                                                {feature.description}
+                                                            </p>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* right: screenshot showcase with borderglow */}
+                            <BorderGlow
+                                className="cursor-target relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video overflow-hidden group shadow-2xl"
+                                borderRadius={32}
+                                backgroundColor={isDark ? '#0f0f11' : '#f4f4f5'}
+                                glowColor={isDark ? '220 100 60' : '220 80 50'}
+                            >
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={activeTab}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                        className="absolute inset-0 w-full h-full bg-black/5"
+                                    >
+                                        {showcaseFeatures[activeTab].imageSrcs.map((src, i) => (
+                                            <Image
+                                                key={src}
+                                                src={src}
+                                                alt={showcaseFeatures[activeTab].title}
+                                                fill
+                                                className={`object-cover transition-opacity duration-1000 ease-in-out
+                                                    ${i === currentImgIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                                                priority={activeTab === 0 && i === 0}
+                                            />
+                                        ))}
+                                    </motion.div>
+                                </AnimatePresence>
+
+                                {/* dot indicators for multi-image features */}
+                                {showcaseFeatures[activeTab].imageSrcs.length > 1 && (
+                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                                        {showcaseFeatures[activeTab].imageSrcs.map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className={`h-1.5 transition-all duration-500 rounded-full
+                                                    ${i === currentImgIndex
+                                                        ? `w-8 ${isDark ? "bg-white" : "bg-black"}`
+                                                        : `w-2 ${isDark ? "bg-white/30" : "bg-black/30"}`}`}
+                                            />
                                         ))}
                                     </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+                                )}
+                            </BorderGlow>
+                        </div>
+
+
+                        {/* ─── extras: inline prose, stripe-style ────────
+                            no cards, no icon boxes. each feature is a 
+                            single flowing statement: bold name, period,
+                            then lighter description text. tags sit inline 
+                            as tiny mono badges. the whole thing reads
+                            like editorial copy, not a feature matrix. */}
+                        <div className={`border-t mx-8 sm:mx-14 lg:mx-20
+                            ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`} />
+
+                        <div className="px-8 sm:px-14 lg:px-20 pt-14 pb-20">
+                            <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-12
+                                ${isDark ? 'text-white/25' : 'text-black/25'}`}>
+                                And there&apos;s more
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-20 gap-y-10">
+                                {extras.map((f, i) => (
+                                    <motion.div
+                                        key={f.name}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: i * 0.05, duration: 0.4 }}
+                                    >
+                                        <p className="text-[15px] sm:text-base leading-[1.7]">
+                                            <span className={`font-bold ${isDark ? 'text-white' : 'text-[#1a1f36]'}`}>
+                                                {f.name}.
+                                            </span>
+                                            {" "}
+                                            <span className={isDark ? 'text-white/45' : 'text-[#425466]'}>
+                                                {f.desc}
+                                            </span>
+                                            {f.tag && (
+                                                <span className={`ml-2 text-[10px] font-semibold tracking-wide align-middle px-1.5 py-0.5 rounded
+                                                    ${isDark ? 'bg-amber-500/15 text-amber-300/80' : 'bg-amber-100 text-amber-700'}`}>
+                                                    {f.tag}
+                                                </span>
+                                            )}
+                                        </p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
         </section>
     );

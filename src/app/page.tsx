@@ -6,7 +6,6 @@ import { useTheme } from "@/app/contexts/ThemeContext";
 import { useProtection } from "@/hooks/use-protection";
 import { HeroSection } from "@/app/components/landing/HeroSection";
 import { FeaturesSection } from "@/app/components/landing/FeaturesSection";
-import { FeatureTabs } from "@/app/components/landing/FeatureTabs";
 import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
@@ -37,36 +36,27 @@ export default function ColorWallLanding() {
             {/* hero section */}
             <HeroSection />
 
-            {/* features + previews wrapper */}
+            {/* features - unified section with stat cards, tab showcase, 
+               video background, and inline extras. absorbs both the old 
+               featuresection and featuretabs into one cohesive block. */}
             <div className="relative w-full">
                 <div className="relative z-10">
-                    <FeaturesSection theme={theme} />
+                    <FeaturesSection theme={theme} enableSideRays={cinematicMode && cinematicConfig.sideRays} />
+                </div>
+            </div>
 
-                    {/* previews / screenshots */}
-                    <div id="previews" className="pb-12 -mt-48 pt-48 relative z-0">
-                        <div className="relative w-full overflow-hidden flex items-center justify-center py-40 mb-16">
-                            <div className="absolute inset-0 z-0" style={{ maskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 35%, black 65%, transparent)" }}>
-                            </div>
-                            <div className="text-center px-4 relative z-10 pointer-events-none">
-                                <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center block text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-4`}>
-                                    Seems too good to be true?
-                                </div>
-
-                                {/* <div className={`${theme === "dark" ? "text-white/60" : "text-black/60"} block mt-2 text-2xl md:text-3xl tracking-tight`}>
-                                    It is. That&apos;s why I built it.
-                                </div> */}
-                                <GradientHeading
-                                    text="It is. That's why I built it."
-                                    theme={theme}
-                                    className="block mt-2 text-2xl md:text-3xl tracking-tight"
-                                ></GradientHeading>
-                            </div>
-                        </div>
-
-                        {/* siderays is also lazy via dynamic() inside featuretabs,
-                            only fetched when enableSideRays is true */}
-                        <FeatureTabs theme={theme} enableSideRays={cinematicMode && cinematicConfig.sideRays} />
+            {/* interstitial - big statement that breaks up the feature 
+               density before the comparison table */}
+            <div className="relative w-full overflow-hidden flex items-center justify-center py-40">
+                <div className="text-center px-4 relative z-10 pointer-events-none">
+                    <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-4`}>
+                        Seems too good to be true?
                     </div>
+                    <GradientHeading
+                        text="It is. That's why I built it."
+                        theme={theme}
+                        className="block mt-2 text-2xl md:text-3xl tracking-tight"
+                    />
                 </div>
             </div>
 
