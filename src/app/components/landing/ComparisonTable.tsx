@@ -2,8 +2,11 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { BenchmarkShowcase } from "./BenchmarkShowcase";
 import { GradientHeading } from "./GradientHeading";
+
+const Antigravity = dynamic(() => import("../ui/Antigravity"), { ssr: false });
 
 // competitor data - factual, non-aggressive.
 // favicon urls use google's favicon service for consistent rendering.
@@ -134,25 +137,38 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         transition={{ duration: 0.7 }}
                         className="flex flex-col justify-between order-1 lg:order-2"
                     >
-                        {/* main statement */}
-                        <div>
-                            <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
-                                ${isDark ? "text-white/25" : "text-black/25"}`}>
-                                How we compare
-                            </p>
-                            <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3
-                                ${isDark ? "text-white" : "text-black"}`}>
-                                They solve a slice.
-                            </h2>
-                            <GradientHeading
-                                text="We run the whole thing."
-                                theme={theme}
-                                className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
-                            />
-                            <p className={`text-[11px] font-mono tracking-wide mt-8
-                                ${isDark ? "text-white/20" : "text-black/20"}`}>
-                                Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
-                            </p>
+                        {/* main statement with antigravity background */}
+                        <div className="relative">
+                            {/* The 3D particle background */}
+                            <div className="absolute inset-0 -mx-10 -my-10 z-0 pointer-events-none opacity-40 mix-blend-screen">
+                                <Antigravity 
+                                    color={isDark ? "#3b82f6" : "#60a5fa"} 
+                                    count={150}
+                                    particleSize={1.5}
+                                    waveAmplitude={1.5}
+                                    autoAnimate={true}
+                                />
+                            </div>
+                            
+                            <div className="relative z-10 pointer-events-none">
+                                <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
+                                    ${isDark ? "text-white/25" : "text-black/25"}`}>
+                                    How we compare
+                                </p>
+                                <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3
+                                    ${isDark ? "text-white" : "text-black"}`}>
+                                    They solve a slice.
+                                </h2>
+                                <GradientHeading
+                                    text="We run the whole thing."
+                                    theme={theme}
+                                    className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
+                                />
+                                <p className={`text-[11px] font-mono tracking-wide mt-8
+                                    ${isDark ? "text-white/20" : "text-black/20"}`}>
+                                    Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
+                                </p>
+                            </div>
                         </div>
 
                         {/* colorwall cta - anchored to bottom of right column */}
