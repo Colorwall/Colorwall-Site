@@ -294,7 +294,7 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                         preload="none" prevents any fetch until our idle 
                         callback fires. the video is a night sky so text 
                         reads fine over it without heavy overlays. */}
-                    <div className={`absolute inset-0 z-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#eef1f5]'}`}>
+                    <div className={`absolute inset-0 z-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#15171e]'}`}>
                         <video
                             ref={videoRef}
                             loop
@@ -310,7 +310,7 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                         <div className={`absolute inset-0 
                             ${isDark 
                                 ? 'bg-gradient-to-b from-black/30 via-transparent to-black/50' 
-                                : 'bg-gradient-to-b from-white/30 via-transparent to-white/50'}`} 
+                                : 'bg-gradient-to-b from-black/20 via-transparent to-black/40'}`} 
                         />
                     </div>
 
@@ -362,7 +362,7 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                             <div className="flex flex-col gap-3 relative">
                                 {/* vertical connecting line for visual rhythm */}
                                 <div className={`absolute left-0 top-4 bottom-4 w-px 
-                                    ${isDark ? "bg-white/10" : "bg-black/10"}`}
+                                    ${isDark ? "bg-white/10" : "bg-white/10"}`}
                                 />
 
                                 {showcaseFeatures.map((feature, idx) => {
@@ -372,12 +372,12 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                                             key={feature.id}
                                             onClick={() => setActiveTab(idx)}
                                             className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
-                                                ${isActive ? (isDark ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'shadow-[0_0_40px_rgba(0,0,0,0.05)]') : ''}
+                                                ${isActive ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : ''}
                                             `}
                                         >
                                             {/* shapeblur background on active tab */}
                                             {isActive && (
-                                                <div className={`absolute inset-0 z-0 pointer-events-none transition-opacity duration-700 ${isDark ? 'opacity-30' : 'opacity-10 invert'}`}>
+                                                <div className={`absolute inset-0 z-0 pointer-events-none transition-opacity duration-700 ${isDark ? 'opacity-30' : 'opacity-20'}`}>
                                                     <ShapeBlur variation={0} shapeSize={0.98} roundness={0.15} borderSize={0.02} circleSize={0.4} circleEdge={0.8} />
                                                 </div>
                                             )}
@@ -385,8 +385,8 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                                             <div className="relative z-10">
                                                 <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
                                                     ${isActive
-                                                        ? (isDark ? "text-white" : "text-black")
-                                                        : (isDark ? "text-white/70 group-hover:text-white" : "text-black/70 group-hover:text-black")
+                                                        ? "text-white"
+                                                        : "text-white/60 group-hover:text-white"
                                                     }
                                                 `}>
                                                     {feature.title}
@@ -403,13 +403,13 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                                                             className="overflow-hidden"
                                                         >
                                                             <div className={`inline-flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-mono tracking-widest uppercase
-                                                                ${isDark ? "text-blue-400" : "text-blue-600"}`}
+                                                                ${isDark ? "text-blue-400" : "text-blue-400"}`}
                                                             >
                                                                 <span className="w-4 h-[1px] bg-current opacity-50" />
                                                                 {feature.badge}
                                                             </div>
                                                             <p className={`text-sm sm:text-base leading-relaxed
-                                                                ${isDark ? "text-white/60" : "text-black/60"}`}
+                                                                ${isDark ? "text-white/60" : "text-white/60"}`}
                                                             >
                                                                 {feature.description}
                                                             </p>
