@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -116,6 +116,16 @@ const featureList = [
 export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+    useEffect(() => {
+        // load video during idle time to prevent main thread blocking
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => setIsVideoLoaded(true), { timeout: 2000 });
+        } else {
+            setTimeout(() => setIsVideoLoaded(true), 500);
+        }
+    }, []);
 
     return (
         <section className="py-32 px-4 sm:px-8">
@@ -264,105 +274,126 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
                     transition={{ duration: 0.7, delay: 0.1 }}
-                    className={`mb-8 w-full cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between p-6 sm:p-8 rounded-2xl border transition-all duration-500 relative
+                    className={`w-full cursor-pointer group rounded-3xl border transition-all duration-700 overflow-hidden relative min-h-[300px] flex items-end
                         ${isExpanded 
-                            ? (isDark ? 'bg-white/[0.03] border-white/10' : 'bg-black/[0.03] border-black/10')
-                            : (isDark ? 'bg-transparent border-white/10 hover:bg-white/[0.03]' : 'bg-transparent border-black/10 hover:bg-black/[0.03]')
+                            ? (isDark ? 'border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.05)]' : 'border-black/20 shadow-[0_0_40px_rgba(0,0,0,0.05)]')
+                            : (isDark ? 'border-white/10 hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.03)]' : 'border-black/10 hover:border-black/30 hover:shadow-[0_0_30px_rgba(0,0,0,0.03)]')
                         }`}
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
-                    <div className="relative z-10">
-                        <p className={`text-xs font-mono uppercase tracking-[0.25em] mb-2 transition-colors
-                            ${isDark ? "text-blue-400/60 group-hover:text-blue-400/90" : "text-blue-600/60 group-hover:text-blue-600/90"}`}>
-                            and there&apos;s more
-                        </p>
-                        <h3 className={`text-2xl sm:text-3xl font-black tracking-tight transition-colors
-                            ${isDark ? "text-white/80 group-hover:text-white" : "text-black/80 group-hover:text-black"}`}>
-                            Everything else, built in.
-                        </h3>
+                    {/* Video Background */}
+                    <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
+                        {isVideoLoaded && (
+                            <video 
+                                autoPlay 
+                                loop 
+                                muted 
+                                playsInline
+                                // @ts-ignore
+                                fetchPriority="low"
+                                className={`w-full h-full object-cover transition-opacity duration-1000 ${isDark ? 'opacity-40 group-hover:opacity-60' : 'opacity-60 group-hover:opacity-80'}`}
+                            >
+                                <source src="/videos/everything.webm" type="video/webm" />
+                            </video>
+                        )}
+                        {/* Gradient Overlay for text readability */}
+                        <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent' : 'from-white via-white/50 to-transparent'}`} />
                     </div>
-                    
-                    <div className="relative z-10 flex items-center gap-4 mt-6 sm:mt-0">
-                        <span className={`text-xs font-bold tracking-widest uppercase font-mono transition-colors
-                            ${isDark ? 'text-white/40 group-hover:text-white/90' : 'text-black/40 group-hover:text-black/90'}`}>
-                            {isExpanded ? "Hide features" : "Explore features"}
-                        </span>
-                        <motion.div 
-                            animate={{ rotate: isExpanded ? 180 : 0 }}
-                            transition={{ duration: 0.5, ease: "backOut" }}
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex flex-shrink-0 items-center justify-center border transition-all duration-300 
-                                ${isDark ? 'border-white/10 group-hover:bg-white/10 group-hover:border-white/30 text-white' : 'border-black/10 group-hover:bg-black/10 group-hover:border-black/30 text-black'}`}
-                        >
-                            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6" />
-                        </motion.div>
+
+                    {/* Content overlay */}
+                    <div className="relative z-10 p-8 sm:p-12 w-full flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                        <div>
+                            <p className={`text-sm font-bold tracking-[0.3em] uppercase mb-3 transition-colors
+                                ${isDark ? "text-blue-400 group-hover:text-blue-300" : "text-blue-600 group-hover:text-blue-700"}`}>
+                                and there&apos;s more
+                            </p>
+                            <h3 className={`text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter
+                                ${isDark ? "text-white" : "text-black"}`}>
+                                Everything else, built in.
+                            </h3>
+                        </div>
+                        
+                        <div className="flex items-center gap-4 mt-4 sm:mt-0 pb-2">
+                            <span className={`text-sm font-bold tracking-widest uppercase font-mono transition-colors
+                                ${isDark ? 'text-white/70 group-hover:text-white' : 'text-black/70 group-hover:text-black'}`}>
+                                {isExpanded ? "Hide features" : "Explore features"}
+                            </span>
+                            <motion.div 
+                                animate={{ rotate: isExpanded ? 180 : 0 }}
+                                transition={{ duration: 0.5, ease: "backOut" }}
+                                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex flex-shrink-0 items-center justify-center border-2 transition-all duration-300 
+                                    ${isDark ? 'border-white/20 bg-black/50 group-hover:bg-white/10 group-hover:border-white/50 text-white backdrop-blur-md' : 'border-black/20 bg-white/50 group-hover:bg-black/10 group-hover:border-black/50 text-black backdrop-blur-md'}`}
+                            >
+                                <ChevronDown className="w-6 h-6 sm:w-7 sm:h-7" />
+                            </motion.div>
+                        </div>
                     </div>
                 </motion.div>
 
                 <AnimatePresence initial={false}>
                     {isExpanded && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                            initial={{ height: 0, opacity: 0, scale: 0.98 }}
+                            animate={{ height: "auto", opacity: 1, scale: 1 }}
+                            exit={{ height: 0, opacity: 0, scale: 0.98 }}
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                             className="overflow-hidden"
                         >
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-0 pt-2">
-                                {featureList.map((f, i) => (
-                                    <motion.div
-                                        key={f.title}
-                                        initial={{ opacity: 0, y: 16 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: i * 0.06, duration: 0.5 }}
-                                        className="group py-8"
-                                    >
-                                        {/* top divider line that subtly highlights on hover */}
-                                        <div className={`w-full h-px mb-8 transition-colors duration-500
-                                            ${isDark
-                                                ? "bg-white/5 group-hover:bg-white/20"
-                                                : "bg-black/5 group-hover:bg-black/20"
-                                            }`}
-                                        />
-
-                                        <div className="flex items-start gap-5">
-                                            <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300
-                                                ${isDark 
-                                                    ? "bg-white/[0.02] text-white/40 border border-white/5 group-hover:bg-white/[0.08] group-hover:text-white group-hover:border-white/20 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]" 
-                                                    : "bg-black/[0.02] text-black/40 border border-black/5 group-hover:bg-black/[0.08] group-hover:text-black group-hover:border-black/20 group-hover:shadow-[0_0_20px_rgba(0,0,0,0.05)]"
-                                                }`}
-                                            >
-                                                {f.icon}
-                                            </div>
-                                            
-                                            <div className="flex-1 mt-0.5">
-                                                <div className="flex items-start gap-3">
-                                                    <h4 className={`text-lg font-semibold tracking-tight font-quicksand
-                                                        group-hover:-translate-y-px transition-transform duration-300
-                                                        ${isDark ? "text-white" : "text-black"}`}>
-                                                        {f.title}
-                                                    </h4>
-
-                                                    {/* optional "under dev" tag rendered inline next to the title */}
-                                                    {f.tag && (
-                                                        <span className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 mt-1
-                                                            ${isDark
-                                                                ? "bg-amber-500/10 text-amber-400/80 border border-amber-500/20"
-                                                                : "bg-amber-500/10 text-amber-600/80 border border-amber-500/20"
-                                                            }`}>
-                                                            {f.tag}
-                                                        </span>
-                                                    )}
+                            {/* Wrapper Card for expanded features */}
+                            <div className={`mt-6 rounded-3xl p-8 sm:p-12 transition-colors duration-500
+                                ${isDark 
+                                    ? "bg-[#111111] border border-white/10 shadow-2xl" 
+                                    : "bg-white border border-black/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                                }`}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+                                    {featureList.map((f, i) => (
+                                        <motion.div
+                                            key={f.title}
+                                            initial={{ opacity: 0, y: 16 }}
+                                            whileInView={{ opacity: 1, y: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: i * 0.05, duration: 0.5 }}
+                                            className="group relative"
+                                        >
+                                            <div className="flex items-start gap-5">
+                                                {/* Minimal Stripe-like Icon Box */}
+                                                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300
+                                                    ${isDark 
+                                                        ? "bg-[#1a1a1a] text-blue-400 border border-white/5 group-hover:bg-[#222222] group-hover:border-white/10" 
+                                                        : "bg-[#f7f9fc] text-blue-600 border border-black/5 group-hover:bg-white group-hover:shadow-sm"
+                                                    }`}
+                                                >
+                                                    {f.icon}
                                                 </div>
+                                                
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-3">
+                                                        <h4 className={`text-[17px] font-bold tracking-tight transition-colors duration-300
+                                                            ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
+                                                            {f.title}
+                                                        </h4>
 
-                                                <p className={`text-sm leading-relaxed mt-2 max-w-md font-spline
-                                                    ${isDark ? "text-white/40 group-hover:text-white/60" : "text-black/50 group-hover:text-black/70"} transition-colors duration-300`}>
-                                                    {f.desc}
-                                                </p>
+                                                        {/* optional "under dev" tag */}
+                                                        {f.tag && (
+                                                            <span className={`text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded shrink-0
+                                                                ${isDark
+                                                                    ? "bg-amber-500/10 text-amber-400"
+                                                                    : "bg-amber-50 text-amber-700"
+                                                                }`}>
+                                                                {f.tag}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <p className={`text-[15px] leading-relaxed mt-1.5 max-w-md
+                                                        ${isDark ? "text-[#889096]" : "text-[#425466]"}`}>
+                                                        {f.desc}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                ))}
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </div>
                         </motion.div>
                     )}
