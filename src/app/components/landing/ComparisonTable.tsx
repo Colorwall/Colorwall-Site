@@ -197,7 +197,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                     </div>
                                 </div>
                                 <Link href="/download">
-                                    <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200 cursor-target
+                                    <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
                                         ${isDark
                                             ? "bg-white text-black hover:bg-white/90"
                                             : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>

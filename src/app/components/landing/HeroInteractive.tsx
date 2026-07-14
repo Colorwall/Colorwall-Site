@@ -25,7 +25,7 @@ export function HeroInteractive() {
     return (
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4 w-full sm:w-auto px-8 sm:px-0 max-w-xs sm:max-w-none mx-auto">
             {/* download */}
-            <div className="cursor-target relative group flex sm:inline-flex w-full sm:w-auto rounded-[12px] overflow-hidden p-[2px] hover:-translate-y-0.5 transition-transform duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.15)]">
+            <div className="relative group flex sm:inline-flex w-full sm:w-auto rounded-[12px] overflow-hidden p-[2px] hover:-translate-y-0.5 transition-transform duration-300 shadow-[0_4px_20px_rgba(255,255,255,0.15)]">
                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#60a5fa_50%,transparent_100%)] opacity-100 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <Link
@@ -53,7 +53,7 @@ export function HeroInteractive() {
                 rel="noopener noreferrer"
                 onClick={() => setLoadingButton("discord")}
                 {...{ "aria-busy": loadingButton === "discord" ? "true" : "false" }}
-                className="cursor-target relative flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-300 w-full sm:w-auto"
+                className="relative flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-300 w-full sm:w-auto"
             >
                 {loadingButton === "discord" ? (
                     <LoaderCircle className="w-[1em] h-[1em] inline-block text-sm sm:text-base animate-spin" />
