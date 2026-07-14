@@ -460,8 +460,8 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                                                 key={i}
                                                 className={`h-1.5 transition-all duration-500 rounded-full
                                                     ${i === currentImgIndex
-                                                        ? `w-8 ${isDark ? "bg-white" : "bg-black"}`
-                                                        : `w-2 ${isDark ? "bg-white/30" : "bg-black/30"}`}`}
+                                                        ? `w-8 text-white bg-white`
+                                                        : `w-2 text-white/30 bg-white/30`}`}
                                             />
                                         ))}
                                     </div>
@@ -476,12 +476,10 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                             then lighter description text. tags sit inline 
                             as tiny mono badges. the whole thing reads
                             like editorial copy, not a feature matrix. */}
-                        <div className={`border-t mx-8 sm:mx-14 lg:mx-20
-                            ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`} />
+                        <div className={`border-t mx-8 sm:mx-14 lg:mx-20 border-white/[0.06]`} />
 
                         <div className="px-8 sm:px-14 lg:px-20 pt-14 pb-20">
-                            <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-12
-                                ${isDark ? 'text-white/25' : 'text-black/25'}`}>
+                            <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-12 text-white/25`}>
                                 And there&apos;s more
                             </p>
 
@@ -495,16 +493,15 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                                         transition={{ delay: i * 0.05, duration: 0.4 }}
                                     >
                                         <p className="text-[15px] sm:text-base leading-[1.7]">
-                                            <span className={`font-bold ${isDark ? 'text-white' : 'text-[#1a1f36]'}`}>
+                                            <span className={`font-bold text-white`}>
                                                 {f.name}.
                                             </span>
                                             {" "}
-                                            <span className={isDark ? 'text-white/45' : 'text-[#425466]'}>
+                                            <span className={`text-white/45`}>
                                                 {f.desc}
                                             </span>
                                             {f.tag && (
-                                                <span className={`ml-2 text-[10px] font-semibold tracking-wide align-middle px-1.5 py-0.5 rounded
-                                                    ${isDark ? 'bg-amber-500/15 text-amber-300/80' : 'bg-amber-100 text-amber-700'}`}>
+                                                <span className={`ml-2 text-[10px] font-semibold tracking-wide align-middle px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300/80`}>
                                                     {f.tag}
                                                 </span>
                                             )}
