@@ -192,7 +192,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                                         </h3>
                                         <p className={`text-[13px] mt-0.5
                                             ${isDark ? "text-white/40" : "text-[#425466]"}`}>
-                                            Free. Open source. End to end.
+                                            Free to Install. Runs it all End to end. Actively maintained!
                                         </p>
                                     </div>
                                 </div>
