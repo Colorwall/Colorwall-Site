@@ -15,6 +15,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const OUTPUT_DIR = join(ROOT, "data");
 const OUTPUT_FILE = join(OUTPUT_DIR, "wallpapers.json");
+const PUBLIC_DIR = join(ROOT, "public");
+const TAGS_OUTPUT_FILE = join(PUBLIC_DIR, "tags.json");
 
 // ─── sources ──────────────────────────────────────────────────────────────────
 
@@ -309,10 +311,22 @@ async function main() {
 
     const { size: fileSize } = statSync(OUTPUT_FILE);
     const fileSizeMB = (fileSize / 1024 / 1024).toFixed(1);
+    
+    // write to public/tags.json
+    if (!existsSync(PUBLIC_DIR)) {
+        mkdirSync(PUBLIC_DIR, { recursive: true });
+    }
+    console.log(`\nwriting ${TAGS_OUTPUT_FILE}...`);
+    writeFileSync(TAGS_OUTPUT_FILE, JSON.stringify(tags), "utf-8");
+    const { size: tagsSize } = statSync(TAGS_OUTPUT_FILE);
+    const tagsSizeMB = (tagsSize / 1024 / 1024).toFixed(2);
+    
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
     console.log(`✓ wrote ${OUTPUT_FILE}`);
     console.log(`  size: ${fileSizeMB} MB`);
+    console.log(`✓ wrote ${TAGS_OUTPUT_FILE}`);
+    console.log(`  size: ${tagsSizeMB} MB`);
     console.log(`  entries: ${deduped.length.toLocaleString()}`);
     console.log(`  tags: ${tags.length.toLocaleString()}`);
     console.log(`  built in: ${elapsed}s`);
