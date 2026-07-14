@@ -79,6 +79,13 @@ const showcaseFeatures = [
         description: "wallpapers that come alive. fully interactive html5 canvases and webgl shaders that respond to your mouse movements and clicks. your desktop is now a playground.",
         badge: "WEBGL · DYNAMIC · INTERACTIVE",
         imageSrcs: ["/INTERACTIVES.webp"]
+    },
+    {
+        id: "discordrpc",
+        title: "DISCORD RPC",
+        description: "show off your current wallpaper or project to your friends on discord. automatically syncs your active scene or widget directly to your profile.",
+        badge: "SYNCED · SOCIAL · FLEX",
+        imageSrcs: ["/discordrpc.webp"]
     }
 ];
 
