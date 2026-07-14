@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { GradientHeading } from "./GradientHeading";
 import ShapeBlur from "../ui/ShapeBlur";
@@ -64,6 +65,14 @@ const features: Feature[] = [
 export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" | "light", enableSideRays?: boolean }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    const sectionRef = useRef<HTMLElement>(null);
+    const isInView = useInView(sectionRef, { margin: "-20% 0px -20% 0px" });
+
+    useEffect(() => {
+        setIsExpanded(isInView);
+    }, [isInView]);
     
     // Auto-rotate images if multiple are present
     useEffect(() => {
@@ -82,7 +91,7 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
     }, [activeTab]);
 
     return (
-        <section className="relative py-16 sm:py-24 px-4 sm:px-8 w-full max-w-[1400px] mx-auto min-h-[80vh] flex items-center">
+        <section ref={sectionRef} className="relative py-16 sm:py-24 px-4 sm:px-8 w-full max-w-[1400px] mx-auto flex flex-col justify-center transition-all duration-700">
             {enableSideRays && (
                 <div 
                     className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[100vw] z-0 pointer-events-none" 
@@ -103,25 +112,46 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                     />
                 </div>
             )}
-            <div className="relative z-10 grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 w-full items-center">
-                
-                {/* Left Side: Tabs Navigation */}
-                <div className="flex flex-col gap-4">
-                    {/* Title Area */}
-                    <div className="mb-8">
-                        <p className={`text-sm font-mono tracking-widest uppercase mb-4
-                            ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>
-                            Discover Capabilities
-                        </p>
-                        <GradientHeading 
-                            text="Everything you need."
-                            theme={theme}
-                            className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
-                        />
-                    </div>
+            {/* Interactive Toggle Header */}
+            <div 
+                className="relative z-20 flex flex-col items-start gap-4 mb-2 cursor-pointer group w-fit"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <p className={`text-sm font-mono tracking-widest uppercase transition-colors
+                    ${theme === "dark" ? "text-blue-400 group-hover:text-blue-300" : "text-blue-600 group-hover:text-blue-500"}`}>
+                    Discover Capabilities
+                </p>
+                <div className="flex items-center gap-4 sm:gap-6">
+                    <GradientHeading 
+                        text="Everything you need."
+                        theme={theme}
+                        className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
+                    />
+                    <motion.div 
+                        animate={{ rotate: isExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.5, ease: "backOut" }}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full flex items-center justify-center border transition-all duration-300 ${theme === 'dark' ? 'border-white/10 group-hover:border-white/30 group-hover:bg-white/5 text-white' : 'border-black/10 group-hover:border-black/30 group-hover:bg-black/5 text-black'}`}
+                    >
+                        <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </motion.div>
+                </div>
+            </div>
 
-                    {/* Tab List */}
-                    <div className="flex flex-col gap-3 relative">
+            <AnimatePresence initial={false}>
+                {isExpanded && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0, filter: "blur(10px)" }}
+                        animate={{ height: "auto", opacity: 1, filter: "blur(0px)" }}
+                        exit={{ height: 0, opacity: 0, filter: "blur(10px)" }}
+                        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden w-full"
+                    >
+                        <div className="relative z-10 grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 w-full items-center pt-10">
+                            
+                            {/* Left Side: Tabs Navigation */}
+                            <div className="flex flex-col gap-4">
+                                {/* Tab List */}
+                                <div className="flex flex-col gap-3 relative">
                         {/* Connecting Line for design aesthetics */}
                         <div className={`absolute left-0 top-4 bottom-4 w-px 
                             ${theme === "dark" ? "bg-white/10" : "bg-black/10"}`} 
@@ -229,7 +259,10 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                     )}
                 </BorderGlow>
 
-            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 };
