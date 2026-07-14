@@ -81,19 +81,9 @@ const HASH_SECRET = "cw-wallpaper-archive-2026";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
-import { getIndex, searchEntries } from "@/lib/wallpapers";
+import { getIndex, searchEntries, computeToken } from "@/lib/wallpapers";
 
 // ─── simple hash for token validation ─────────────────────────────────────────
-
-function computeToken(page: number, minuteWindow: number): string {
-    const input = `${HASH_SECRET}:${page}:${minuteWindow}`;
-    let hash = 0x811c9dc5;
-    for (let i = 0; i < input.length; i++) {
-        hash ^= input.charCodeAt(i);
-        hash = Math.imul(hash, 0x01000193);
-    }
-    return (hash >>> 0).toString(16).padStart(8, "0");
-}
 
 function validateToken(token: string, page: number): boolean {
     const now = Math.floor(Date.now() / 60000);

@@ -140,3 +140,17 @@ export function searchEntries(query: string, idx: LoadedIndex): WallpaperEntry[]
     results.sort((a, b) => b.score - a.score);
     return results.map(r => r.entry);
 }
+
+// ─── simple hash for token validation ─────────────────────────────────────────
+
+const HASH_SECRET = "cw-wallpaper-archive-2026";
+
+export function computeToken(page: number, minuteWindow: number): string {
+    const input = `${HASH_SECRET}:${page}:${minuteWindow}`;
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < input.length; i++) {
+        hash ^= input.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193);
+    }
+    return (hash >>> 0).toString(16).padStart(8, "0");
+}

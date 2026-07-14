@@ -169,7 +169,7 @@ const masonryBreakpoints = {
     640: 1 // 1 column on mobile (sm in tailwind is 640px)
 };
 
-export default function WallpaperClient({ initialItems, initialTotal }: { initialItems: Wallpaper[], initialTotal: number }) {
+export default function WallpaperClient({ initialItems, initialTotal, initialNextToken }: { initialItems: Wallpaper[], initialTotal: number, initialNextToken: string | null }) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -191,7 +191,7 @@ export default function WallpaperClient({ initialItems, initialTotal }: { initia
     }, [showAutocomplete, search, allTags]);
 
     // refs to avoid stale closures in callbacks
-    const nextTokenRef = useRef<string | null>(null);
+    const nextTokenRef = useRef<string | null>(initialNextToken);
     const currentPageRef = useRef(1);
     const loadingRef = useRef(false);
     const currentQueryRef = useRef("");
@@ -223,20 +223,17 @@ export default function WallpaperClient({ initialItems, initialTotal }: { initia
             const res = await fetch(`/api/wallpapers?${params}`);
 
             if (res.status === 403) {
-                // token expired — silently re-fetch page 1 to get fresh token chain
+                // token expired — quietly re-fetch page 1 to get fresh token chain
                 console.warn("token expired, refreshing from page 1");
-                nextTokenRef.current = null;
-                currentPageRef.current = 1;
-
                 const freshParams = new URLSearchParams({ page: "1", limit: String(PAGE_SIZE), _t: String(Date.now()) });
                 if (query) freshParams.set("q", query);
                 const freshRes = await fetch(`/api/wallpapers?${freshParams}`, { cache: "no-store" });
                 if (freshRes.ok) {
                     const freshData = await freshRes.json();
                     nextTokenRef.current = freshData.nextToken || null;
-                    currentPageRef.current = 1;
-                    setHasMore(freshData.hasMore);
-                    setItems(freshData.items);
+                    // retry original page fetch with the fresh token
+                    loadingRef.current = false;
+                    return fetchPage(page, query, reset);
                 }
                 return;
             }
