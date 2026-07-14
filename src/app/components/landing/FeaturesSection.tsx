@@ -337,10 +337,10 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
 
                         {/* section heading - anurati gradient, massive */}
                         <div className="pt-20 sm:pt-28 pb-6 px-8 sm:px-14 lg:px-20">
-                            <p className={`text-sm font-mono tracking-widest uppercase mb-5
+                            {/* <p className={`text-sm font-mono tracking-widest uppercase mb-5
                                 ${isDark ? "text-blue-400" : "text-blue-600"}`}>
                                 Discover Capabilities
-                            </p>
+                            </p> */}
                             <GradientHeading
                                 text="Everything you need."
                                 theme={theme}

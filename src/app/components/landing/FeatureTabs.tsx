@@ -117,10 +117,10 @@ export const FeatureTabs = ({ theme, enableSideRays = false }: { theme: "dark" |
                 className="relative z-20 flex flex-col items-start gap-4 mb-2 cursor-pointer group w-fit"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
-                <p className={`text-sm font-mono tracking-widest uppercase transition-colors
+                {/* <p className={`text-sm font-mono tracking-widest uppercase transition-colors
                     ${theme === "dark" ? "text-blue-400 group-hover:text-blue-300" : "text-blue-600 group-hover:text-blue-500"}`}>
                     Discover Capabilities
-                </p>
+                </p> */}
                 <div className="flex items-center gap-4 sm:gap-6">
                     <GradientHeading 
                         text="Everything you need."
