@@ -11,6 +11,7 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
 import { GradientHeading } from "./components/landing/GradientHeading";
+import { TechStackStrip } from "./components/landing/TechStackStrip";
 
 const TargetCursor = dynamic(() => import("./components/landing/TargetCursor"), { ssr: false });
 
@@ -37,8 +38,7 @@ export default function ColorWallLanding() {
             <HeroSection />
 
             {/* features - unified section with stat cards, tab showcase, 
-               video background, and inline extras. absorbs both the old 
-               featuresection and featuretabs into one cohesive block. */}
+               video background, and inline extras */}
             <div className="relative w-full">
                 <div className="relative z-10">
                     <FeaturesSection theme={theme} enableSideRays={cinematicMode && cinematicConfig.sideRays} />
@@ -59,6 +59,11 @@ export default function ColorWallLanding() {
                     />
                 </div>
             </div>
+
+            {/* tech stack logo loop - scrolling strip of every technology
+               used in colorwall. acts as a visual differentiator between
+               the interstitial and the comparison section below. */}
+            <TechStackStrip theme={theme} />
 
             <ComparisonTable theme={theme} />
 

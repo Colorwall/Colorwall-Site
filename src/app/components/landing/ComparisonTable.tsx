@@ -50,133 +50,147 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
         <section className="py-32 px-4 sm:px-8 relative overflow-hidden">
             <div className="max-w-6xl mx-auto relative z-10">
 
-                {/* ─── heading ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.7 }}
-                    className="mb-24"
-                >
-                    <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
-                        ${isDark ? "text-white/25" : "text-black/25"}`}>
-                        How we compare
-                    </p>
-                    <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] max-w-3xl mb-3
-                        ${isDark ? "text-white" : "text-black"}`}>
-                        They solve a slice.
-                    </h2>
-                    <GradientHeading
-                        text="We run the whole thing."
-                        theme={theme}
-                        className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
-                    />
-                    <p className={`text-[11px] font-mono tracking-wide mt-8
-                        ${isDark ? "text-white/20" : "text-black/20"}`}>
-                        Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
-                    </p>
-                </motion.div>
+                {/* ═══ two-column layout: competitors left, statement right ═══
+                    competitors are stacked vertically on the left as a "list
+                    of what exists". the right side gets the bold heading and
+                    colorwall cta - visually claiming the dominant position. */}
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 lg:gap-20 mb-24">
 
-                {/* ─── competitor breakdown ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className="grid grid-cols-1 sm:grid-cols-3 gap-12 lg:gap-16 mb-20"
-                >
-                    {competitors.map((comp) => (
-                        <div key={comp.name} className="cursor-target">
-                            {/* name + favicon + price */}
-                            <div className="flex items-center gap-2.5 mb-1.5">
-                                {comp.favicon ? (
-                                    <img
-                                        src={comp.favicon}
-                                        alt={comp.name}
-                                        loading="lazy"
-                                        decoding="async"
-                                        className="w-4 h-4 object-contain shrink-0 rounded-sm"
-                                    />
-                                ) : (
-                                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] shrink-0
-                                        ${isDark ? "bg-white/15 text-white/50" : "bg-black/10 text-black/50"}`}>
-                                        ···
+                    {/* ─── left: competitors stacked ─── */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-60px" }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="flex flex-col gap-10 order-2 lg:order-1"
+                    >
+                        {competitors.map((comp, i) => (
+                            <motion.div
+                                key={comp.name}
+                                initial={{ opacity: 0, x: -10 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.08, duration: 0.4 }}
+                                className="cursor-target"
+                            >
+                                {/* name + favicon + price */}
+                                <div className="flex items-center gap-2.5 mb-1.5">
+                                    {comp.favicon ? (
+                                        <img
+                                            src={comp.favicon}
+                                            alt={comp.name}
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="w-4 h-4 object-contain shrink-0 rounded-sm"
+                                        />
+                                    ) : (
+                                        <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] shrink-0
+                                            ${isDark ? "bg-white/15 text-white/50" : "bg-black/10 text-black/50"}`}>
+                                            ···
+                                        </span>
+                                    )}
+                                    <h3 className={`text-[15px] font-bold tracking-tight
+                                        ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
+                                        {comp.name}
+                                    </h3>
+                                    <span className={`text-[11px] font-mono
+                                        ${isDark ? "text-white/30" : "text-black/30"}`}>
+                                        {comp.price}
                                     </span>
-                                )}
-                                <h3 className={`text-[15px] font-bold tracking-tight
-                                    ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
-                                    {comp.name}
-                                </h3>
-                                <span className={`text-[11px] font-mono
-                                    ${isDark ? "text-white/30" : "text-black/30"}`}>
-                                    {comp.price}
-                                </span>
-                            </div>
+                                </div>
 
-                            {/* tagline */}
-                            <p className={`text-[14px] leading-relaxed mb-5
-                                ${isDark ? "text-white/40" : "text-[#425466]"}`}>
-                                {comp.tagline}
-                            </p>
-
-                            {/* limitations as inline prose */}
-                            <ul className="flex flex-col gap-2.5">
-                                {comp.limitations.map((lim) => (
-                                    <li key={lim}
-                                        className={`text-[13px] leading-snug flex items-start gap-2
-                                            ${isDark ? "text-white/35" : "text-black/40"}`}
-                                    >
-                                        <span className="shrink-0 mt-[3px] text-[10px]">✕</span>
-                                        {lim}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </motion.div>
-
-                {/* ─── thin separator ─── */}
-                <div className={`w-full h-px mb-20 ${isDark ? 'bg-white/[0.06]' : 'bg-black/[0.06]'}`} />
-
-                {/* ─── colorwall section ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.6, delay: 0.15 }}
-                >
-                    {/* colorwall header - left-aligned, editorial */}
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
-                        <div className="flex items-center gap-5">
-                            <img
-                                src="/colorwall.png"
-                                alt="ColorWall Logo"
-                                className="w-12 h-12 object-contain"
-                            />
-                            <div>
-                                <h3 className={`text-2xl sm:text-3xl font-bold tracking-tight
-                                    ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
-                                    ColorWall
-                                </h3>
-                                <p className={`text-[13px] mt-0.5
+                                {/* tagline */}
+                                <p className={`text-[14px] leading-relaxed mb-4
                                     ${isDark ? "text-white/40" : "text-[#425466]"}`}>
-                                    Free. Open source. Runs the whole thing.
+                                    {comp.tagline}
                                 </p>
+
+                                {/* limitations */}
+                                <ul className="flex flex-col gap-2">
+                                    {comp.limitations.map((lim) => (
+                                        <li key={lim}
+                                            className={`text-[13px] leading-snug flex items-start gap-2
+                                                ${isDark ? "text-white/35" : "text-black/40"}`}
+                                        >
+                                            <span className="shrink-0 mt-[3px] text-[10px]">✕</span>
+                                            {lim}
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {/* subtle separator between competitor entries */}
+                                {i < competitors.length - 1 && (
+                                    <div className={`mt-10 h-px ${isDark ? 'bg-white/[0.04]' : 'bg-black/[0.04]'}`} />
+                                )}
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                    {/* ─── right: heading + colorwall cta ─── */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.7 }}
+                        className="flex flex-col justify-between order-1 lg:order-2"
+                    >
+                        {/* main statement */}
+                        <div>
+                            <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
+                                ${isDark ? "text-white/25" : "text-black/25"}`}>
+                                How we compare
+                            </p>
+                            <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3
+                                ${isDark ? "text-white" : "text-black"}`}>
+                                They solve a slice.
+                            </h2>
+                            <GradientHeading
+                                text="We run the whole thing."
+                                theme={theme}
+                                className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
+                            />
+                            <p className={`text-[11px] font-mono tracking-wide mt-8
+                                ${isDark ? "text-white/20" : "text-black/20"}`}>
+                                Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
+                            </p>
+                        </div>
+
+                        {/* colorwall cta - anchored to bottom of right column */}
+                        <div className={`mt-16 pt-10 border-t
+                            ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src="/colorwall.png"
+                                        alt="ColorWall Logo"
+                                        className="w-11 h-11 object-contain"
+                                    />
+                                    <div>
+                                        <h3 className={`text-xl font-bold tracking-tight
+                                            ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
+                                            ColorWall
+                                        </h3>
+                                        <p className={`text-[13px] mt-0.5
+                                            ${isDark ? "text-white/40" : "text-[#425466]"}`}>
+                                            Free. Open source. End to end.
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link href="/download">
+                                    <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200 cursor-target
+                                        ${isDark
+                                            ? "bg-white text-black hover:bg-white/90"
+                                            : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
+                                        Download Free
+                                    </button>
+                                </Link>
                             </div>
                         </div>
-                        <Link href="/download">
-                            <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
-                                ${isDark
-                                    ? "bg-white text-black hover:bg-white/90"
-                                    : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
-                                Download Free
-                            </button>
-                        </Link>
-                    </div>
+                    </motion.div>
+                </div>
 
-                    {/* benchmark showcase */}
-                    <BenchmarkShowcase theme={theme} />
-                </motion.div>
+                {/* ═══ benchmark showcase - full width below ═══ */}
+                <BenchmarkShowcase theme={theme} />
             </div>
         </section>
     );
