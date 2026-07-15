@@ -127,7 +127,7 @@ export const SecurityReport = ({
             className={`py-24 px-4 sm:px-8 relative w-full flex justify-center overflow-hidden ${className}`}
         >
 
-            <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-start relative z-10">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-start relative z-10 lg:pl-[20%] lg:pr-[10%] xl:pl-[20%] xl:pr-[15%]">
                 {/* ════ left: heading + status ════ */}
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
