@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -64,6 +65,11 @@ interface BenchmarkShowcaseProps {
 export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
     const isDark = theme === "dark";
     const [modalOpen, setModalOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // close modal on escape key
     useEffect(() => {
@@ -185,15 +191,16 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
             </motion.div>
 
             {/* ─── scrollable modal ─── */}
-            <AnimatePresence>
-                {modalOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-[200] overflow-hidden"
-                    >
+            {mounted && createPortal(
+                <AnimatePresence>
+                    {modalOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 z-[9999] overflow-hidden"
+                        >
                         {/* backdrop - separate from scroll container so it
                             doesn't intercept scroll events meant for the content */}
                         <div
@@ -217,6 +224,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                             takes full viewport height so overflow-y-auto works correctly.
                             pointer-events on this div ensure scroll is captured here. */}
                         <motion.div
+                            data-lenis-prevent
                             initial={{ y: 30, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 30, opacity: 0 }}
@@ -278,7 +286,9 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 };
