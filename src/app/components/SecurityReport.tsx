@@ -127,7 +127,7 @@ export const SecurityReport = ({
             className={`py-24 px-4 sm:px-8 relative w-full flex justify-center overflow-hidden ${className}`}
         >
 
-            <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-start relative z-10">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-start relative z-10">
                 {/* ════ left: heading + status ════ */}
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
@@ -217,7 +217,7 @@ export const SecurityReport = ({
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="flex flex-col gap-12 lg:pt-4"
+                    className="flex flex-col gap-12 lg:pt-4 min-w-0"
                 >
                     {/* ── binary details section ── */}
                     <div>

@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Download, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Download, ShieldCheck, AlertTriangle, Eye } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { useTheme } from "@/app/contexts/ThemeContext";
@@ -27,7 +27,18 @@ export default function DownloadPage() {
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
     const [currentImage, setCurrentImage] = useState(1);
+    const [views, setViews] = useState<number | null>(null);
     const prevShowVideoModal = useRef(showVideoModal);
+
+    useEffect(() => {
+        // Increment and fetch view count
+        fetch('/api/views?page=downloads', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.views !== undefined) setViews(data.views);
+            })
+            .catch(err => console.error("Failed to fetch views", err));
+    }, []);
 
     useEffect(() => {
         const wasOpen = prevShowVideoModal.current;
@@ -229,7 +240,6 @@ export default function DownloadPage() {
                             <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none ${isDark ? "from-black/30" : "from-white/20"}`} />
                         </div>
                     </div>
-
                     {/* Security Report Section */}
                     <SecurityReport theme={theme} />
 
@@ -316,6 +326,12 @@ export default function DownloadPage() {
                             </div>
                         </div>
                     </motion.div>
+                </div>
+            )}
+            {/* Simple View Counter - Fixed Bottom Right */}
+            {views !== null && (
+                <div className={`fixed bottom-6 right-8 text-[11px] font-mono tracking-widest uppercase z-[9999] ${isDark ? "text-white/40" : "text-black/40"}`}>
+                    {views.toLocaleString()} Views
                 </div>
             )}
 
