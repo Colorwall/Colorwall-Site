@@ -229,7 +229,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 30, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-[205] h-full overflow-y-auto overscroll-contain px-4 sm:px-8 py-16 sm:py-20"
+                            className="relative z-[205] h-full overflow-y-auto overscroll-contain px-4 sm:px-8 py-16 sm:py-20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                         >
                             {/* modal header */}
                             <div className="max-w-4xl mx-auto mb-12 text-center">
