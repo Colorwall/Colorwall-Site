@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
-import ShapeBlur from "../ui/ShapeBlur";
-import BorderGlow from "../ui/BorderGlow";
 import SideRays from "../ui/SideRays";
 
 // ─── headline stat cards ────────────────────────────────────────
@@ -114,12 +113,69 @@ const extras: { name: string; desc: string; tag?: string }[] = [
 ];
 
 
+// ─── bento card image component ─────────────────────────────────
+// handles rendering screenshot backgrounds for each bento card.
+// for features with multiple images (like customise with 5 screenshots),
+// it automatically crossfades between them on a 3.5s interval.
+// for single-image features, it's just a static next/image fill.
+const BentoCardImages = ({ srcs, alt, imageClassName = "object-cover" }: { srcs: string[]; alt: string; imageClassName?: string }) => {
+    const [currentIdx, setCurrentIdx] = useState(0);
+
+    useEffect(() => {
+        if (srcs.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentIdx(prev => (prev + 1) % srcs.length);
+        }, 3500);
+        return () => clearInterval(interval);
+    }, [srcs]);
+
+    return (
+        <div className="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+            {srcs.map((src, i) => (
+                <Image
+                    key={src}
+                    src={src}
+                    alt={alt}
+                    fill
+                    className={`${imageClassName} transition-opacity duration-1000 ease-in-out
+                        ${i === currentIdx ? "opacity-100" : "opacity-0"}`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    loading="lazy"
+                />
+            ))}
+        </div>
+    );
+};
+
+
 export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dark" | "light"; enableSideRays?: boolean }) => {
     const isDark = theme === "dark";
-    const [activeTab, setActiveTab] = useState(0);
-    const [currentImgIndex, setCurrentImgIndex] = useState(0);
     const videoRef = useRef<HTMLVideoElement>(null);
     const [videoReady, setVideoReady] = useState(false);
+    const [activeModal, setActiveModal] = useState<typeof showcaseFeatures[0] | null>(null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => setMounted(true), []);
+
+    // close modal on escape key
+    useEffect(() => {
+        if (!activeModal) return;
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setActiveModal(null);
+        };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [activeModal]);
+
+    // prevent body scroll when modal is open
+    useEffect(() => {
+        if (activeModal) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => { document.body.style.overflow = ""; };
+    }, [activeModal]);
 
     // ─── deferred video loading ──────────────────────────────────
     // waits for browser idle before switching preload from "none" to
@@ -148,19 +204,6 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
             return () => clearTimeout(t);
         }
     }, []);
-
-    // rotate through screenshots for features with multiple images
-    useEffect(() => {
-        const feature = showcaseFeatures[activeTab];
-        if (feature.imageSrcs.length <= 1) return;
-        const interval = setInterval(() => {
-            setCurrentImgIndex(prev => (prev + 1) % feature.imageSrcs.length);
-        }, 3500);
-        return () => clearInterval(interval);
-    }, [activeTab]);
-
-    // reset carousel position when switching tabs
-    useEffect(() => { setCurrentImgIndex(0); }, [activeTab]);
 
     return (
         <section className="py-32 px-4 sm:px-8">
@@ -355,118 +398,87 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                             />
                         </div>
 
-                        {/* ─── tab showcase ──────────────────────────────── */}
-                        <div className="px-8 sm:px-14 lg:px-20 pb-16 pt-8 grid lg:grid-cols-[1fr_1.5fr] xl:grid-cols-[1fr_2fr] gap-12 lg:gap-16 items-center">
-
-                            {/* left: tab navigation with connecting line */}
-                            <div className="flex flex-col gap-3 relative">
-                                {/* vertical connecting line for visual rhythm */}
-                                <div className={`absolute left-0 top-4 bottom-4 w-px 
-                                    ${isDark ? "bg-white/10" : "bg-white/10"}`}
-                                />
-
+                        {/* ─── bento grid showcase ──────────────────────────
+                            replaces the old tab-based layout. every feature
+                            is simultaneously visible as its own card with
+                            a screenshot background and text overlay. grid
+                            uses asymmetric row/col spans per feature for
+                            a masonry-like bento feel. */}
+                        <div className="px-6 sm:px-10 lg:px-16 pb-16 pt-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[280px] sm:auto-rows-[320px]">
                                 {showcaseFeatures.map((feature, idx) => {
-                                    const isActive = activeTab === idx;
-                                    return (
-                                        <button
-                                            key={feature.id}
-                                            onClick={() => setActiveTab(idx)}
-                                            className={`relative pl-6 py-4 pr-4 text-left transition-all duration-300 rounded-r-2xl border-l-[3px] border-transparent group
-                                                ${isActive ? 'shadow-[0_0_40px_rgba(255,255,255,0.05)]' : ''}
-                                            `}
-                                        >
-                                            {/* shapeblur background on active tab */}
-                                            {isActive && (
-                                                <div className={`absolute inset-0 z-0 pointer-events-none transition-opacity duration-700 ${isDark ? 'opacity-30' : 'opacity-20'}`}>
-                                                    <ShapeBlur variation={0} shapeSize={0.98} roundness={0.15} borderSize={0.02} circleSize={0.4} circleEdge={0.8} />
-                                                </div>
-                                            )}
+                                    // grid placement rules - specific features
+                                    // get larger cells to create bento asymmetry
+                                    const spanClass = (() => {
+                                        switch (feature.id) {
+                                            case "store": return "md:col-span-2 lg:col-span-2";
+                                            case "customise": return "md:col-span-2 lg:col-span-2 lg:row-span-2";
+                                            case "studio": return "md:col-span-1 lg:row-span-2";
+                                            default: return "";
+                                        }
+                                    })();
 
-                                            <div className="relative z-10">
-                                                <h3 className={`text-xl sm:text-2xl font-black mb-2 tracking-tight transition-colors duration-300
-                                                    ${isActive
-                                                        ? "text-white"
-                                                        : "text-white/60 group-hover:text-white"
-                                                    }
-                                                `}>
+                                    return (
+                                        <motion.div
+                                            key={feature.id}
+                                            onClick={() => setActiveModal(feature)}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            whileInView={{ opacity: 1, y: 0 }}
+                                            viewport={{ once: true, margin: "-40px" }}
+                                            transition={{ delay: idx * 0.06, duration: 0.5 }}
+                                            className={`relative rounded-3xl overflow-hidden group cursor-pointer ${spanClass}`}
+                                        >
+                                            {/* screenshot background with crossfade support.
+                                                for features with multiple images, the
+                                                BentoCardImage component handles the cycling.
+                                                for single-image features, it's just a
+                                                static next/image fill. */}
+                                            <BentoCardImages
+                                                srcs={feature.imageSrcs}
+                                                alt={feature.title}
+                                                imageClassName={
+                                                    feature.id === "store" || feature.id === "customise"
+                                                        ? "object-contain p-4" // padding added so it doesn't hug the very edge of the card
+                                                        : "object-cover"
+                                                }
+                                            />
+
+
+                                            {/* gradient overlay - ensures text readability
+                                                over any screenshot content. heavier at
+                                                the bottom where the text sits. */}
+                                            <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+
+                                            {/* content layer - badge, title, description */}
+                                            <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-7">
+                                                {/* tiny mono badge */}
+                                                <div className="flex items-center gap-2 mb-2.5">
+                                                    <span className="w-3 h-[1px] bg-blue-400/50" />
+                                                    <span className="text-[9px] sm:text-[10px] font-mono tracking-[0.2em] uppercase text-blue-400/80">
+                                                        {feature.badge}
+                                                    </span>
+                                                </div>
+
+                                                {/* feature title - large, bold */}
+                                                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-2 leading-tight">
                                                     {feature.title}
                                                 </h3>
 
-                                                {/* expandable description - only visible on active tab */}
-                                                <AnimatePresence initial={false}>
-                                                    {isActive && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0 }}
-                                                            animate={{ height: "auto", opacity: 1 }}
-                                                            exit={{ height: 0, opacity: 0 }}
-                                                            transition={{ duration: 0.3 }}
-                                                            className="overflow-hidden"
-                                                        >
-                                                            <div className={`inline-flex items-center gap-2 mb-3 text-[10px] sm:text-xs font-mono tracking-widest uppercase
-                                                                ${isDark ? "text-blue-400" : "text-blue-400"}`}
-                                                            >
-                                                                <span className="w-4 h-[1px] bg-current opacity-50" />
-                                                                {feature.badge}
-                                                            </div>
-                                                            <p className={`text-sm sm:text-base leading-relaxed
-                                                                ${isDark ? "text-white/60" : "text-white/60"}`}
-                                                            >
-                                                                {feature.description}
-                                                            </p>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
+                                                {/* description - subtle, only visible on hover
+                                                    for smaller cards to save space. always
+                                                    visible on larger spanned cards. */}
+                                                <p className={`text-[13px] sm:text-sm leading-relaxed text-white/50 max-w-md
+                                                    ${feature.id === "store" || feature.id === "customise"
+                                                        ? ""
+                                                        : "opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                                    }`}>
+                                                    {feature.description}
+                                                </p>
                                             </div>
-                                        </button>
+                                        </motion.div>
                                     );
                                 })}
                             </div>
-
-                            {/* right: screenshot showcase with borderglow */}
-                            <BorderGlow
-                                className="cursor-target relative w-full aspect-video lg:aspect-[4/3] xl:aspect-video overflow-hidden group shadow-2xl"
-                                borderRadius={32}
-                                backgroundColor={isDark ? '#0f0f11' : '#f4f4f5'}
-                                glowColor={isDark ? '220 100 60' : '220 80 50'}
-                            >
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={activeTab}
-                                        initial={{ opacity: 0, scale: 0.98 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 1.02 }}
-                                        transition={{ duration: 0.5, ease: "easeOut" }}
-                                        className="absolute inset-0 w-full h-full bg-black/5"
-                                    >
-                                        {showcaseFeatures[activeTab].imageSrcs.map((src, i) => (
-                                            <Image
-                                                key={src}
-                                                src={src}
-                                                alt={showcaseFeatures[activeTab].title}
-                                                fill
-                                                className={`object-cover transition-opacity duration-1000 ease-in-out
-                                                    ${i === currentImgIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
-                                                priority={activeTab === 0 && i === 0}
-                                            />
-                                        ))}
-                                    </motion.div>
-                                </AnimatePresence>
-
-                                {/* dot indicators for multi-image features */}
-                                {showcaseFeatures[activeTab].imageSrcs.length > 1 && (
-                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                                        {showcaseFeatures[activeTab].imageSrcs.map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className={`h-1.5 transition-all duration-500 rounded-full
-                                                    ${i === currentImgIndex
-                                                        ? `w-8 text-white bg-white`
-                                                        : `w-2 text-white/30 bg-white/30`}`}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </BorderGlow>
                         </div>
 
 
@@ -515,6 +527,78 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                 </div>
 
             </div>
+
+            {/* ─── Image Modal ────────────────────────────────────────────── */}
+            {mounted && createPortal(
+                <AnimatePresence>
+                    {activeModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 z-[9999] overflow-hidden"
+                        >
+                            <div
+                                className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+                                onClick={() => setActiveModal(null)}
+                            />
+
+                            <button
+                                onClick={() => setActiveModal(null)}
+                                className="fixed top-4 right-4 sm:top-8 sm:right-8 p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors z-[210]"
+                                aria-label="Close modal"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+
+                            <motion.div
+                                data-lenis-prevent
+                                initial={{ y: 30, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: 30, opacity: 0 }}
+                                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                                className="relative z-[205] h-full overflow-y-auto overscroll-contain px-4 sm:px-8 py-16 sm:py-20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                            >
+                                <div className="max-w-5xl mx-auto mb-12 text-center">
+                                    <div className="inline-flex items-center gap-2 mb-3">
+                                        <span className="w-4 h-[1px] bg-blue-400" />
+                                        <span className="text-xs font-mono tracking-widest uppercase text-blue-400">
+                                            {activeModal.badge}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-3xl sm:text-4xl font-outfit font-[200] tracking-[0.1em] uppercase text-white mb-4">
+                                        {activeModal.title}
+                                    </h3>
+                                    <p className="text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
+                                        {activeModal.description}
+                                    </p>
+                                </div>
+
+                                <div className="max-w-6xl mx-auto flex flex-col gap-12">
+                                    {activeModal.imageSrcs.map((src, i) => (
+                                        <div key={src} className="relative w-full aspect-video sm:aspect-auto sm:min-h-[600px] rounded-[2rem] overflow-hidden bg-[#0a0a0a] border border-white/10 shadow-2xl">
+                                            <Image
+                                                src={src}
+                                                alt={`${activeModal.title} screenshot ${i + 1}`}
+                                                fill
+                                                className="object-contain p-2 sm:p-4"
+                                                sizes="100vw"
+                                                quality={100}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="h-16" />
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </section>
     );
 }
