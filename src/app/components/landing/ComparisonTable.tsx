@@ -208,8 +208,10 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         </div>
                     </motion.div>
                 </div>
+            </div>
 
-                {/* ═══ benchmark showcase - full width below ═══ */}
+            {/* ═══ benchmark showcase - wider container ═══ */}
+            <div className="max-w-[100rem] mx-auto relative z-10 mt-12 px-2 lg:px-8">
                 <BenchmarkShowcase theme={theme} />
             </div>
         </section>
