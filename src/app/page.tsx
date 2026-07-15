@@ -11,7 +11,7 @@ import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
 import { GradientHeading } from "./components/landing/GradientHeading";
-import { TechStackStrip } from "./components/landing/TechStackStrip";
+// import { TechStackStrip } from "./components/landing/TechStackStrip";
 import { ScrollSpiralArrow } from "@/app/components/ui/ScrollSpiralArrow";
 
 const TargetCursor = dynamic(() => import("./components/landing/TargetCursor"), { ssr: false });
@@ -69,7 +69,7 @@ export default function ColorWallLanding() {
             {/* tech stack logo loop - scrolling strip of every technology
                used in colorwall. acts as a visual differentiator between
                the interstitial and the comparison section below. */}
-            <TechStackStrip theme={theme} />
+            {/* <TechStackStrip theme={theme} /> */}
 
             <ComparisonTable theme={theme} />
 
