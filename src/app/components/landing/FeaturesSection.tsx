@@ -153,6 +153,7 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
     const videoRef = useRef<HTMLVideoElement>(null);
     const [videoReady, setVideoReady] = useState(false);
     const [activeModal, setActiveModal] = useState<typeof showcaseFeatures[0] | null>(null);
+    const [showExtras, setShowExtras] = useState(false);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => setMounted(true), []);
@@ -490,37 +491,68 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                             like editorial copy, not a feature matrix. */}
                         <div className={`border-t mx-8 sm:mx-14 lg:mx-20 border-white/[0.06]`} />
 
-                        <div className="px-8 sm:px-14 lg:px-20 pt-14 pb-20">
-                            <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-12 text-white/25`}>
-                                And there&apos;s more
-                            </p>
+                        <div className="px-8 sm:px-14 lg:px-20 pt-14 pb-20 flex flex-col items-center text-center">
+                            <button
+                                onClick={() => setShowExtras(!showExtras)}
+                                className={`group flex items-center gap-3 px-6 py-3 rounded-full border transition-all duration-300 shadow-sm hover:shadow-md
+                                    ${isDark 
+                                        ? "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20 text-white/60 hover:text-white" 
+                                        : "bg-black/[0.03] border-black/10 hover:bg-black/[0.06] hover:border-black/20 text-black/60 hover:text-black"}`}
+                            >
+                                <p className="text-[11px] font-mono tracking-[0.2em] uppercase">
+                                    {showExtras ? "Show less" : "And there's more"}
+                                </p>
+                                <motion.div
+                                    animate={{ rotate: showExtras ? 180 : 0 }}
+                                    transition={{ duration: 0.3, ease: "backOut" }}
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </motion.div>
+                            </button>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-20 gap-y-10">
-                                {extras.map((f, i) => (
+                            <AnimatePresence>
+                                {showExtras && (
                                     <motion.div
-                                        key={f.name}
-                                        initial={{ opacity: 0, y: 8 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: i * 0.05, duration: 0.4 }}
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                                        className="overflow-hidden w-full"
                                     >
-                                        <p className="text-[15px] sm:text-base leading-[1.7]">
-                                            <span className={`font-bold text-white`}>
-                                                {f.name}.
-                                            </span>
-                                            {" "}
-                                            <span className={`text-white/45`}>
-                                                {f.desc}
-                                            </span>
-                                            {f.tag && (
-                                                <span className={`ml-2 text-[10px] font-semibold tracking-wide align-middle px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300/80`}>
-                                                    {f.tag}
-                                                </span>
-                                            )}
-                                        </p>
+                                        <div className="pt-12 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 text-left">
+                                            {extras.map((f, i) => (
+                                                <motion.div
+                                                    key={f.name}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: i * 0.05, duration: 0.4 }}
+                                                    className={`p-6 sm:p-8 rounded-2xl border transition-colors
+                                                        ${isDark 
+                                                            ? "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.04]" 
+                                                            : "bg-black/[0.02] border-black/[0.05] hover:bg-black/[0.04]"}`}
+                                                >
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <h4 className={`text-lg sm:text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>
+                                                            {f.name}
+                                                        </h4>
+                                                        {f.tag && (
+                                                            <span className="text-[9px] font-mono tracking-[0.1em] uppercase px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">
+                                                                {f.tag}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className={`text-[14px] sm:text-[15px] leading-relaxed
+                                                        ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                                        {f.desc}
+                                                    </p>
+                                                </motion.div>
+                                            ))}
+                                        </div>
                                     </motion.div>
-                                ))}
-                            </div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                     </div>
