@@ -127,7 +127,7 @@ export const SecurityReport = ({
             className={`py-24 px-4 sm:px-8 relative w-full flex justify-center overflow-hidden ${className}`}
         >
 
-            <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-start relative z-10">
+            <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-start relative z-10">
                 {/* ════ left: heading + status ════ */}
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
@@ -135,84 +135,70 @@ export const SecurityReport = ({
                     viewport={{ once: true }}
                     className="flex flex-col justify-center"
                 >
-                    <p
-                        className={`text-xs font-mono uppercase tracking-[0.2em] mb-4 ml-1 ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
-                    >
-                        uhuh security verification?
-                    </p>
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className={`h-[1px] w-8 ${isDark ? "bg-emerald-500/50" : "bg-emerald-600/50"}`}></span>
+                        <p className={`text-[10px] font-mono uppercase tracking-[0.3em] ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
+                            Verification System
+                        </p>
+                    </div>
+
+                    <h2 className={`text-5xl md:text-6xl lg:text-7xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3 ${isDark ? "text-white" : "text-black"}`}>
+                        Zero trust.
+                    </h2>
                     <GradientHeading
-                        text="Security Report (virustotal)"
+                        text="100% Verified."
                         theme={theme}
                         className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
                     />
 
-                    <p
-                        className={`text-base leading-relaxed mt-6 ${mutedText}`}
-                    >
-                        Every release is automatically scanned via the
-                        VirusTotal API. Hashes are computed from the live
-                        binary and verified against 70+ antivirus engines in
-                        real time — zero manual work, zero trust-me-bro.
+                    <p className={`text-[15px] leading-relaxed mt-6 max-w-md ${mutedText}`}>
+                        Every release is automatically scanned via the VirusTotal API. Hashes are computed directly from the live binary and verified against 70+ antivirus engines in real time.
                     </p>
 
-                    {/* live status badge */}
+                    {/* live status badge - premium glass styling */}
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.15 }}
-                        className={`mt-8 inline-flex items-center gap-4 self-start px-5 py-3 rounded-xl border ${borderColor} ${cardBg}`}
+                        className={`mt-10 relative group inline-flex self-start`}
                     >
-                        {isLoading ? (
-                            <Loader2
-                                size={20}
-                                className={`animate-spin ${isDark ? "text-blue-400" : "text-blue-600"}`}
-                            />
-                        ) : isClean ? (
-                            <ShieldCheck
-                                size={20}
-                                className="text-emerald-400"
-                            />
-                        ) : (
-                            <ShieldAlert
-                                size={20}
-                                className="text-red-400"
-                            />
-                        )}
-
-                        <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span
-                                    className={`text-sm font-bold ${isDark ? "text-white" : "text-black"}`}
-                                >
-                                    {isLoading
-                                        ? "Scanning..."
-                                        : isClean
-                                          ? "All Clear"
-                                          : "Threat Detected"}
-                                </span>
-                                {!isLoading && vtReport?.stats && (
-                                    <span
-                                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                                            isClean
-                                                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                                                : "bg-red-500/15 text-red-400 border border-red-500/20"
-                                        }`}
-                                    >
-                                        {vtReport.stats.harmless}/
-                                        {totalEngines} CLEAN
-                                    </span>
-                                )}
+                        <div className={`absolute -inset-1 rounded-2xl blur-md opacity-20 transition-opacity group-hover:opacity-40 ${
+                            isClean ? "bg-emerald-500" : "bg-red-500"
+                        }`}></div>
+                        
+                        <div className={`relative flex items-center gap-5 px-6 py-4 rounded-2xl border backdrop-blur-xl transition-colors
+                            ${isDark ? 'bg-black/50 border-white/10 hover:border-white/20' : 'bg-white/50 border-black/10 hover:border-black/20'}
+                        `}>
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-full ${
+                                isClean ? (isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500/10 text-emerald-600") 
+                                        : (isDark ? "bg-red-500/10 text-red-400" : "bg-red-500/10 text-red-600")
+                            }`}>
+                                {isLoading ? <Loader2 size={24} className="animate-spin" /> 
+                                           : isClean ? <ShieldCheck size={24} /> 
+                                                     : <ShieldAlert size={24} />}
                             </div>
-                            <p
-                                className={`text-xs mt-0.5 ${mutedText}`}
-                            >
-                                {isLoading
-                                    ? "fetching virustotal report…"
-                                    : isClean
-                                      ? "0 engines detected any threat"
-                                      : `${vtReport?.stats?.malicious} engine(s) flagged this file`}
-                            </p>
+
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-3">
+                                    <span className={`text-[15px] font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>
+                                        {isLoading ? "Scanning Payload..." : isClean ? "All Clear" : "Threat Detected"}
+                                    </span>
+                                    {!isLoading && vtReport?.stats && (
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                                            isClean ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                                                    : "bg-red-500/15 text-red-400 border border-red-500/20"
+                                        }`}>
+                                            {vtReport.stats.harmless}/{totalEngines} Clean
+                                        </span>
+                                    )}
+                                </div>
+                                <p className={`text-[11px] font-mono mt-1 ${mutedText}`}>
+                                    {isLoading ? "Awaiting API response..." 
+                                               : isClean ? "0 engines detected any threat" 
+                                                         : `${vtReport?.stats?.malicious} engines flagged this file`}
+                                </p>
+                            </div>
                         </div>
                     </motion.div>
 
@@ -222,173 +208,137 @@ export const SecurityReport = ({
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.25 }}
-                        className="mt-6"
+                        className="mt-8"
                     >
                         <a
                             href={vtReport?.link || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 ${
-                                isDark
-                                    ? "bg-white text-black hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)]"
-                                    : "bg-black text-white hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
+                            className={`inline-flex items-center gap-3 text-xs font-mono font-bold uppercase tracking-widest transition-colors ${
+                                isDark ? "text-white/50 hover:text-white" : "text-black/50 hover:text-black"
                             }`}
                         >
-                            <ExternalLink size={16} />
-                            View Full VirusTotal Report
+                            <ExternalLink size={14} />
+                            View VirusTotal Report
                         </a>
                     </motion.div>
                 </motion.div>
 
-                {/* ════ right: hashes + details card ════ */}
+                {/* ════ right: hashes + details (Dom layout, no overarching card) ════ */}
                 <motion.div
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className={`cursor-target relative rounded-2xl overflow-hidden border ${borderColor} shadow-2xl flex flex-col`}
+                    className="flex flex-col gap-12 lg:pt-4"
                 >
+                    {/* ── binary details section ── */}
+                    <div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-[0.2em] ${isDark ? "text-white/60" : "text-black/60"}`}>
+                                Binary Signature
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-8">
+                            {details.map(({ label, value }) => (
+                                <div key={label} className="flex flex-col">
+                                    <span className={`text-[10px] font-mono uppercase tracking-[0.1em] mb-1.5 ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                        {label}
+                                    </span>
+                                    <span className={`text-sm font-outfit font-[300] tracking-wide truncate ${isDark ? "text-white" : "text-black"}`}>
+                                        {isLoading ? "…" : value}
+                                    </span>
+                                </div>
+                            ))}
+                            <div className="col-span-2 flex flex-col">
+                                <span className={`text-[10px] font-mono uppercase tracking-[0.1em] mb-1.5 ${isDark ? "text-white/50" : "text-black/50"}`}>
+                                    Code Signing
+                                </span>
+                                <div className="flex items-center gap-2.5 text-sm font-outfit font-[300] tracking-wide text-amber-400">
+                                    {/* <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                                    </span> */}
+                                    Unsigned Community Release
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* ── hashes section ── */}
-                    <div
-                        className={`p-6 border-b ${borderColor} ${isDark ? "bg-[#0f0f11]" : "bg-slate-50"}`}
-                    >
-                        <div className="flex items-center justify-between mb-5">
-                            <span
-                                className={`text-[10px] font-mono font-bold uppercase tracking-widest ${mutedText}`}
-                            >
+                    <div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-[0.2em] ${isDark ? "text-white/60" : "text-black/60"}`}>
                                 Cryptographic Hashes
                             </span>
                         </div>
 
-                        <div className="space-y-2.5">
+                        <div className="space-y-3">
                             {hashes.map(({ key, value }) => (
                                 <div
                                     key={key}
-                                    onClick={() =>
-                                        !isLoading &&
-                                        value &&
-                                        copy(value, key)
-                                    }
-                                    className={`group flex items-center gap-3 px-4 py-3 rounded-xl border ${borderColor} ${cardBg} ${hoverBg} transition-all duration-200 ${
+                                    onClick={() => !isLoading && value && copy(value, key)}
+                                    className={`group relative flex items-center justify-between p-4 rounded-xl border transition-all duration-300 overflow-hidden ${
                                         !isLoading && value
-                                            ? "cursor-pointer active:scale-[0.995]"
-                                            : "cursor-not-allowed opacity-40"
+                                            ? `cursor-pointer hover:-translate-y-0.5 ${isDark ? "bg-white/[0.04] hover:bg-white/[0.08] border-white/10" : "bg-black/[0.04] hover:bg-black/[0.08] border-black/10"}`
+                                            : `cursor-not-allowed opacity-50 ${isDark ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"}`
                                     }`}
                                 >
-                                    <span
-                                        className={`text-[10px] font-mono font-bold w-14 shrink-0 ${isDark ? "text-blue-400/70" : "text-blue-600/70"}`}
-                                    >
-                                        {key}
-                                    </span>
-                                    <span
-                                        className={`text-xs font-mono flex-1 truncate ${isDark ? "text-white/80" : "text-black/80"}`}
-                                    >
-                                        {isLoading
-                                            ? "————————————————————"
-                                            : (value ?? "—")}
-                                    </span>
-
-                                    <AnimatePresence mode="wait">
-                                        {copiedHash === key ? (
-                                            <motion.span
-                                                key="check"
-                                                initial={{
-                                                    opacity: 0,
-                                                    scale: 0.8,
-                                                }}
-                                                animate={{
-                                                    opacity: 1,
-                                                    scale: 1,
-                                                }}
-                                                exit={{ opacity: 0 }}
-                                                className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 shrink-0"
-                                            >
-                                                <CheckCircle2 size={12} />{" "}
-                                                Copied
-                                            </motion.span>
-                                        ) : (
-                                            <motion.span
-                                                key="copy"
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 0.3 }}
-                                                exit={{ opacity: 0 }}
-                                                className="shrink-0 group-hover:opacity-60 transition-opacity"
-                                            >
-                                                <Copy size={13} />
-                                            </motion.span>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* ── binary details section ── */}
-                    <div className={`p-6 border-b ${borderColor}`}>
-                        <span
-                            className={`text-[10px] font-mono font-bold uppercase tracking-widest ${mutedText} block mb-5`}
-                        >
-                            Binary Signature
-                        </span>
-
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                            {details.map(({ label, value }) => (
-                                <div key={label}>
-                                    <div
-                                        className={`text-[10px] font-mono uppercase tracking-wider mb-1 ${mutedText}`}
-                                    >
-                                        {label}
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <span className={`text-[10px] font-mono font-bold tracking-widest w-16 shrink-0 ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+                                            {key}
+                                        </span>
+                                        <span className={`text-[11px] font-mono truncate ${isDark ? "text-white/80 group-hover:text-white" : "text-black/80 group-hover:text-black"} transition-colors`}>
+                                            {isLoading ? "————————————————————" : (value ?? "—")}
+                                        </span>
                                     </div>
-                                    <div
-                                        className={`text-xs font-mono font-medium truncate ${isDark ? "text-white" : "text-black"}`}
-                                    >
-                                        {isLoading ? "…" : value}
+
+                                    <div className="shrink-0 ml-4">
+                                        <AnimatePresence mode="wait">
+                                            {copiedHash === key ? (
+                                                <motion.span
+                                                    key="check"
+                                                    initial={{ opacity: 0, scale: 0.8 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.8 }}
+                                                    className="flex items-center text-emerald-400"
+                                                >
+                                                    <CheckCircle2 size={16} />
+                                                </motion.span>
+                                            ) : (
+                                                <motion.span
+                                                    key="copy"
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    className={`opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "text-white/40" : "text-black/40"}`}
+                                                >
+                                                    <Copy size={16} />
+                                                </motion.span>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                 </div>
                             ))}
-                            <div className="col-span-2">
-                                <div
-                                    className={`text-[10px] font-mono uppercase tracking-wider mb-1 ${mutedText}`}
-                                >
-                                    Code Signing
-                                </div>
-                                <div className="flex items-center gap-2 text-xs font-mono font-medium text-amber-400">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                                    </span>
-                                    Unsigned — Community Release
-                                </div>
-                            </div>
                         </div>
                     </div>
 
                     {/* ── smartscreen notice ── */}
-                    <div className={`p-5 ${isDark ? "bg-amber-500/[0.03]" : "bg-amber-50"}`}>
-                        <div className="flex gap-3">
-                            <AlertTriangle
-                                size={14}
-                                className="text-amber-500 shrink-0 mt-0.5"
-                            />
-                            <div>
-                                <p
-                                    className={`text-xs font-bold mb-1 ${isDark ? "text-amber-400" : "text-amber-700"}`}
-                                >
-                                    SmartScreen Warning
-                                </p>
-                                <p
-                                    className={`text-xs leading-relaxed ${mutedText}`}
-                                >
-                                    Windows flags unsigned apps. Verify
-                                    it&apos;s clean above, then click{" "}
-                                    <span
-                                        className={`font-semibold ${isDark ? "text-white/70" : "text-black/70"}`}
-                                    >
-                                        &ldquo;More Info&rdquo; →
-                                        &ldquo;Run Anyway&rdquo;
-                                    </span>{" "}
-                                    to proceed.
-                                </p>
-                            </div>
+                    <div className={`p-5 rounded-2xl flex gap-4 items-start border ${
+                        isDark ? "bg-amber-500/[0.05] border-amber-500/20" : "bg-amber-500/[0.08] border-amber-500/20"
+                    }`}>
+                        <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                            <p className={`text-sm font-bold tracking-tight mb-1.5 ${isDark ? "text-amber-400" : "text-amber-600"}`}>
+                                Windows SmartScreen
+                            </p>
+                            <p className={`text-[13px] leading-relaxed ${isDark ? "text-amber-500/80" : "text-amber-700/90"}`}>
+                                Windows flags all new unsigned indie software. After verifying the clean report above, click{" "}
+                                <span className={`font-semibold ${isDark ? "text-amber-400" : "text-amber-800"}`}>
+                                    "More Info" → "Run Anyway"
+                                </span>{" "}
+                                to install.
+                            </p>
                         </div>
                     </div>
                 </motion.div>
