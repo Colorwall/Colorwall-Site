@@ -73,7 +73,7 @@ export default function ColorWallLanding() {
 
             <ComparisonTable theme={theme} />
 
-            <SecurityReport theme={theme} className="py-24" />
+            <SecurityReport theme={theme} className="py-24 lg:pl-[20%] lg:pr-[10%]" />
 
             <FAQSection theme={theme} />
 
