@@ -135,12 +135,6 @@ export const SecurityReport = ({
                     viewport={{ once: true }}
                     className="flex flex-col justify-center"
                 >
-                    <div className="flex items-center gap-3 mb-6">
-                        <span className={`h-[1px] w-8 ${isDark ? "bg-emerald-500/50" : "bg-emerald-600/50"}`}></span>
-                        <p className={`text-[10px] font-mono uppercase tracking-[0.3em] ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
-                            Verification System
-                        </p>
-                    </div>
 
                     <h2 className={`text-5xl md:text-6xl lg:text-7xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3 ${isDark ? "text-white" : "text-black"}`}>
                         Zero trust.
@@ -152,53 +146,45 @@ export const SecurityReport = ({
                     />
 
                     <p className={`text-[15px] leading-relaxed mt-6 max-w-md ${mutedText}`}>
-                        Every release is automatically scanned via the VirusTotal API. Hashes are computed directly from the live binary and verified against 70+ antivirus engines in real time.
+                        Every release is automatically scanned via 70~ish Antivirus Scanners, Sometimes AI based ones might act up but it is safe. Hashes are computed directly from the live binary and verified. You can click to see the report on VirustTotal.
                     </p>
 
-                    {/* live status badge - premium glass styling */}
+                    {/* live status */}
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.15 }}
-                        className={`mt-10 relative group inline-flex self-start`}
+                        className="mt-10 flex items-center gap-4 self-start"
                     >
-                        <div className={`absolute -inset-1 rounded-2xl blur-md opacity-20 transition-opacity group-hover:opacity-40 ${
-                            isClean ? "bg-emerald-500" : "bg-red-500"
-                        }`}></div>
-                        
-                        <div className={`relative flex items-center gap-5 px-6 py-4 rounded-2xl border backdrop-blur-xl transition-colors
-                            ${isDark ? 'bg-black/50 border-white/10 hover:border-white/20' : 'bg-white/50 border-black/10 hover:border-black/20'}
-                        `}>
-                            <div className={`flex items-center justify-center w-12 h-12 rounded-full ${
-                                isClean ? (isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500/10 text-emerald-600") 
-                                        : (isDark ? "bg-red-500/10 text-red-400" : "bg-red-500/10 text-red-600")
-                            }`}>
-                                {isLoading ? <Loader2 size={24} className="animate-spin" /> 
-                                           : isClean ? <ShieldCheck size={24} /> 
-                                                     : <ShieldAlert size={24} />}
-                            </div>
+                        <div className={`${
+                            isClean ? (isDark ? "text-emerald-400" : "text-emerald-600") 
+                                    : (isDark ? "text-red-400" : "text-red-600")
+                        }`}>
+                            {isLoading ? <Loader2 size={24} className="animate-spin" /> 
+                                       : isClean ? <ShieldCheck size={24} /> 
+                                                 : <ShieldAlert size={24} />}
+                        </div>
 
-                            <div className="flex flex-col">
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-[15px] font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>
-                                        {isLoading ? "Scanning Payload..." : isClean ? "All Clear" : "Threat Detected"}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-3">
+                                <span className={`text-[15px] font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>
+                                    {isLoading ? "Scanning Payload..." : isClean ? "All Clear" : "Threat Detected"}
+                                </span>
+                                {!isLoading && vtReport?.stats && (
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                                        isClean ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                                                : "bg-red-500/15 text-red-400 border border-red-500/20"
+                                    }`}>
+                                        {vtReport.stats.harmless}/{totalEngines} Clean
                                     </span>
-                                    {!isLoading && vtReport?.stats && (
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                                            isClean ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                                                    : "bg-red-500/15 text-red-400 border border-red-500/20"
-                                        }`}>
-                                            {vtReport.stats.harmless}/{totalEngines} Clean
-                                        </span>
-                                    )}
-                                </div>
-                                <p className={`text-[11px] font-mono mt-1 ${mutedText}`}>
-                                    {isLoading ? "Awaiting API response..." 
-                                               : isClean ? "0 engines detected any threat" 
-                                                         : `${vtReport?.stats?.malicious} engines flagged this file`}
-                                </p>
+                                )}
                             </div>
+                            <p className={`text-[11px] font-mono mt-1 ${mutedText}`}>
+                                {isLoading ? "Awaiting API response..." 
+                                           : isClean ? "0 engines detected any threat" 
+                                                     : `${vtReport?.stats?.malicious} engines flagged this file`}
+                            </p>
                         </div>
                     </motion.div>
 
@@ -214,11 +200,13 @@ export const SecurityReport = ({
                             href={vtReport?.link || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`inline-flex items-center gap-3 text-xs font-mono font-bold uppercase tracking-widest transition-colors ${
-                                isDark ? "text-white/50 hover:text-white" : "text-black/50 hover:text-black"
+                            className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 ${
+                                isDark
+                                    ? "bg-white text-black hover:bg-white/90 shadow-[0_4px_20px_rgba(255,255,255,0.1)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)]"
+                                    : "bg-black text-white hover:bg-black/90 shadow-[0_4px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
                             }`}
                         >
-                            <ExternalLink size={14} />
+                            <ExternalLink size={16} />
                             View VirusTotal Report
                         </a>
                     </motion.div>
@@ -254,11 +242,11 @@ export const SecurityReport = ({
                                 <span className={`text-[10px] font-mono uppercase tracking-[0.1em] mb-1.5 ${isDark ? "text-white/50" : "text-black/50"}`}>
                                     Code Signing
                                 </span>
-                                <div className="flex items-center gap-2.5 text-sm font-outfit font-[300] tracking-wide text-amber-400">
-                                    {/* <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                                    </span> */}
+                                <div className="flex items-center gap-2.5 text-sm font-outfit font-[300] tracking-wide text-emerald-400">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                                    </span>
                                     Unsigned Community Release
                                 </div>
                             </div>
@@ -325,16 +313,16 @@ export const SecurityReport = ({
 
                     {/* ── smartscreen notice ── */}
                     <div className={`p-5 rounded-2xl flex gap-4 items-start border ${
-                        isDark ? "bg-amber-500/[0.05] border-amber-500/20" : "bg-amber-500/[0.08] border-amber-500/20"
+                        isDark ? "bg-emerald-500/[0.05] border-emerald-500/20" : "bg-emerald-500/[0.08] border-emerald-500/20"
                     }`}>
-                        <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+                        <ShieldCheck size={18} className="text-emerald-500 shrink-0 mt-0.5" />
                         <div>
-                            <p className={`text-sm font-bold tracking-tight mb-1.5 ${isDark ? "text-amber-400" : "text-amber-600"}`}>
+                            <p className={`text-sm font-bold tracking-tight mb-1.5 ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
                                 Windows SmartScreen
                             </p>
-                            <p className={`text-[13px] leading-relaxed ${isDark ? "text-amber-500/80" : "text-amber-700/90"}`}>
+                            <p className={`text-[13px] leading-relaxed ${isDark ? "text-emerald-500/80" : "text-emerald-700/90"}`}>
                                 Windows flags all new unsigned indie software. After verifying the clean report above, click{" "}
-                                <span className={`font-semibold ${isDark ? "text-amber-400" : "text-amber-800"}`}>
+                                <span className={`font-semibold ${isDark ? "text-emerald-400" : "text-emerald-800"}`}>
                                     "More Info" → "Run Anyway"
                                 </span>{" "}
                                 to install.
