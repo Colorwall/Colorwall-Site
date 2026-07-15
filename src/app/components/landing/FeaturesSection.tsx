@@ -130,19 +130,24 @@ const BentoCardImages = ({ srcs, alt, imageClassName = "object-cover" }: { srcs:
     }, [srcs]);
 
     return (
-        <div className="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
-            {srcs.map((src, i) => (
-                <Image
-                    key={src}
-                    src={src}
-                    alt={alt}
-                    fill
-                    className={`${imageClassName} transition-opacity duration-1000 ease-in-out
-                        ${i === currentIdx ? "opacity-100" : "opacity-0"}`}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    loading="lazy"
-                />
-            ))}
+        <div className="absolute inset-0 z-0 transition-transform duration-700 ease-out group-hover:scale-[1.04] transform-gpu">
+            {srcs.map((src, i) => {
+                // To save memory/rendering on laggy devices, only render the image if it's 
+                // the current one, or if there's only one. For multiple images, keep them
+                // loaded but heavily hint the browser to GPU-accelerate them.
+                return (
+                    <Image
+                        key={src}
+                        src={src}
+                        alt={alt}
+                        fill
+                        className={`${imageClassName} transition-opacity duration-1000 ease-in-out transform-gpu will-change-opacity
+                            ${i === currentIdx ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        loading="lazy"
+                    />
+                );
+            })}
         </div>
     );
 };
@@ -303,40 +308,43 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                     and the separate featuretabs component. one unified
                     section with varied typography throughout.
                 ═══════════════════════════════════════════════════════ */}
-                <div className="relative rounded-3xl overflow-hidden">
+                <div className="relative">
 
-                    <div className={`absolute inset-0 z-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#15171e]'}`}>
-                        <div className={`absolute inset-0 
-                            ${isDark 
-                                ? 'bg-gradient-to-b from-black/30 via-transparent to-black/50' 
-                                : 'bg-gradient-to-b from-black/20 via-transparent to-black/40'}`} 
-                        />
-                    </div>
-
-                    {/* siderays shader overlay (cinematic mode only) */}
-                    {enableSideRays && (
-                        <div
-                            className="absolute inset-0 z-[1] pointer-events-none"
-                            style={{
-                                maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
-                                WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)"
-                            }}
-                        >
-                            <SideRays
-                                speed={1.5}
-                                rayColor1={isDark ? '#00d8ff' : '#0ea5e9'}
-                                rayColor2={isDark ? '#6d28d9' : '#8b5cf6'}
-                                intensity={isDark ? 2.5 : 1.5}
-                                spread={2.5}
-                                origin="top-right"
-                                tilt={-5}
-                                saturation={1.0}
-                                blend={0.5}
-                                falloff={0.6}
-                                opacity={1.0}
+                    {/* background & siderays layer - safely clipped here without affecting content layer */}
+                    <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden transform-gpu">
+                        <div className={`absolute inset-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#15171e]'}`}>
+                            <div className={`absolute inset-0 
+                                ${isDark 
+                                    ? 'bg-gradient-to-b from-black/30 via-transparent to-black/50' 
+                                    : 'bg-gradient-to-b from-black/20 via-transparent to-black/40'}`} 
                             />
                         </div>
-                    )}
+
+                        {/* siderays shader overlay (cinematic mode only) */}
+                        {enableSideRays && (
+                            <div
+                                className="absolute inset-0 z-[1] pointer-events-none transform-gpu"
+                                style={{
+                                    maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
+                                    WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)"
+                                }}
+                            >
+                                <SideRays
+                                    speed={1.5}
+                                    rayColor1={isDark ? '#00d8ff' : '#0ea5e9'}
+                                    rayColor2={isDark ? '#6d28d9' : '#8b5cf6'}
+                                    intensity={isDark ? 2.5 : 1.5}
+                                    spread={2.5}
+                                    origin="top-right"
+                                    tilt={-5}
+                                    saturation={1.0}
+                                    blend={0.5}
+                                    falloff={0.6}
+                                    opacity={1.0}
+                                />
+                            </div>
+                        )}
+                    </div>
 
                     {/* ─── content layer ─── */}
                     <div className="relative z-10">
