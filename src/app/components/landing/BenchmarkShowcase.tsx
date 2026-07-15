@@ -1,73 +1,59 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-// -- each benchmark column has two views: process list and hardware tab --
-// the user toggles between them via a dropdown under each image.
-// this structure supports future video entries by checking `type`
-type MediaEntry = {
-    type: "image" | "video";
+// -- benchmark data stays the same, just consumed differently now --
+// each entry represents one screenshot from task manager with its metadata.
+// the modal scrolls through all of them vertically instead of jamming
+// two columns side by side.
+interface BenchmarkEntry {
+    app: string;
+    tab: string;
     src: string;
     alt: string;
-    tabLabel: string;
-};
-
-interface BenchmarkColumn {
-    label: string;
-    cpu: string;
     gpu: string;
-    totalGpu: string;
     verdict: string;
-    views: MediaEntry[];
+    verdictColor: string;
 }
 
-// -- benchmark data for both apps --
-// views[0] = processes (task manager process list)
-// views[1] = hardware (task manager performance/gpu tab)
-const benchmarks: BenchmarkColumn[] = [
+const entries: BenchmarkEntry[] = [
     {
-        label: "ColorWall",
-        cpu: "3.6%",
-        gpu: "20.9%",
-        totalGpu: "24%",
+        app: "ColorWall",
+        tab: "Processes",
+        src: "/colorwall-perf.webp",
+        alt: "ColorWall processes in Task Manager - 3.6% CPU, 20.9% GPU Video Decode",
+        gpu: "24%",
         verdict: "Barely a whisper.",
-        views: [
-            {
-                type: "image",
-                src: "/colorwall-perf.webp",
-                alt: "ColorWall processes in Task Manager - 3.6% CPU, 20.9% GPU Video Decode",
-                tabLabel: "Processes",
-            },
-            {
-                type: "image",
-                src: "/colorwall-hardware.webp",
-                alt: "GPU Performance tab while running ColorWall - 20% 3D, 21% Video Decode on Intel HD 4600",
-                tabLabel: "Hardware",
-            },
-        ],
+        verdictColor: "text-emerald-500",
     },
     {
-        label: "Lively Wallpaper",
-        cpu: "0.2%",
-        gpu: "86.5%",
-        totalGpu: "98%",
+        app: "ColorWall",
+        tab: "Hardware",
+        src: "/colorwall-hardware.webp",
+        alt: "GPU Performance tab while running ColorWall - 20% 3D, 21% Video Decode on Intel HD 4600",
+        gpu: "24%",
+        verdict: "Barely a whisper.",
+        verdictColor: "text-emerald-500",
+    },
+    {
+        app: "Lively Wallpaper",
+        tab: "Processes",
+        src: "/lively-perf.webp",
+        alt: "Lively Wallpaper processes in Task Manager - mpv at 86.5% GPU, 98% total",
+        gpu: "98%",
         verdict: "Maxed out.",
-        views: [
-            {
-                type: "image",
-                src: "/lively-perf.webp",
-                alt: "Lively Wallpaper processes in Task Manager - mpv at 86.5% GPU, 98% total",
-                tabLabel: "Processes",
-            },
-            {
-                type: "image",
-                src: "/lively-hardware.webp",
-                alt: "GPU Performance tab while running Lively - 94% 3D on Intel HD 4600",
-                tabLabel: "Hardware",
-            },
-        ],
+        verdictColor: "text-red-500",
+    },
+    {
+        app: "Lively Wallpaper",
+        tab: "Hardware",
+        src: "/lively-hardware.webp",
+        alt: "GPU Performance tab while running Lively - 94% 3D on Intel HD 4600",
+        gpu: "98%",
+        verdict: "Maxed out.",
+        verdictColor: "text-red-500",
     },
 ];
 
@@ -77,258 +63,222 @@ interface BenchmarkShowcaseProps {
 
 export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
     const isDark = theme === "dark";
-    // independent view index per column so left and right
-    // can show different tabs simultaneously
-    const [activeViews, setActiveViews] = useState<number[]>([0, 0]);
-    // track which media is currently zoomed in
-    const [zoomedMedia, setZoomedMedia] = useState<MediaEntry | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
-    // close zoom on escape key
+    // close modal on escape key
     useEffect(() => {
-        if (!zoomedMedia) return;
+        if (!modalOpen) return;
         const handler = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setZoomedMedia(null);
+            if (e.key === "Escape") setModalOpen(false);
         };
         window.addEventListener("keydown", handler);
         return () => window.removeEventListener("keydown", handler);
-    }, [zoomedMedia]);
+    }, [modalOpen]);
 
-    // prevent body scroll when zoomed
+    // prevent body scroll when modal is open
     useEffect(() => {
-        if (zoomedMedia) {
+        if (modalOpen) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
         }
         return () => { document.body.style.overflow = ""; };
-    }, [zoomedMedia]);
+    }, [modalOpen]);
 
-    // low priority idle callback load to preload all benchmark images
-    // this ensures the high-res images are in cache for instant zoom,
-    // without blocking the main thread during initial page load
+    // preload all benchmark images via idle callback so
+    // the modal images appear instantly when opened
     useEffect(() => {
         const preloadImages = () => {
-            benchmarks.forEach(col => {
-                col.views.forEach(view => {
-                    if (view.type === "image") {
-                        const img = new window.Image();
-                        img.src = view.src;
-                    }
-                });
+            entries.forEach(entry => {
+                const img = new window.Image();
+                img.src = entry.src;
             });
         };
 
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(preloadImages, { timeout: 2000 });
         } else {
-            // fallback for safari
             setTimeout(preloadImages, 1000);
         }
     }, []);
 
-    const setViewForColumn = (colIndex: number, viewIndex: number) => {
-        setActiveViews(prev => {
-            const next = [...prev];
-            next[colIndex] = viewIndex;
-            return next;
-        });
-    };
-
     return (
         <div className="flex flex-col w-full">
+            {/* ─── section header ─── */}
+            <div className="flex flex-col items-center justify-center mb-10 text-center">
+                <h3 className={`text-xl sm:text-2xl font-outfit font-[300] tracking-[0.3em] uppercase
+                    ${isDark ? "text-white" : "text-black"}`}>
+                    - Benchmarks -
+                </h3>
+                <p className={`text-[11px] font-mono mt-4 uppercase tracking-[0.2em]
+                    ${isDark ? "text-white/40" : "text-black/40"}`}>
+                    i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
+                </p>
+            </div>
 
-                    {/* ─── top bar: title ─── */}
-                    <div className="flex flex-col items-center justify-center mb-12 text-center">
-                        <div>
-                            <h3 className={`text-xl sm:text-2xl font-outfit font-[300] tracking-[0.3em] uppercase
-                                ${isDark ? "text-white" : "text-black"}`}>
-                                - Benchmarks -
-                            </h3>
-                            <p className={`text-[11px] font-mono mt-4 uppercase tracking-[0.2em]
-                                ${isDark ? "text-white/40" : "text-black/40"}`}>
-                                Benchmarks on i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video
-                            </p>
+            {/* ─── inline stat comparison above the preview ─── */}
+            <div className="flex items-center justify-center gap-12 sm:gap-20 mb-8">
+                <div className="flex flex-col items-center">
+                    <span className={`text-[10px] font-mono uppercase tracking-[0.15em] mb-1 ${isDark ? "text-white/40" : "text-black/40"}`}>
+                        ColorWall
+                    </span>
+                    <span className={`text-4xl sm:text-5xl font-outfit font-[200] tracking-tight leading-none text-emerald-500`}>
+                        24%
+                    </span>
+                    <span className={`text-[10px] font-mono mt-1 text-emerald-500/70`}>GPU</span>
+                </div>
+
+                <span className={`text-sm font-mono ${isDark ? "text-white/20" : "text-black/20"}`}>vs</span>
+
+                <div className="flex flex-col items-center">
+                    <span className={`text-[10px] font-mono uppercase tracking-[0.15em] mb-1 ${isDark ? "text-white/40" : "text-black/40"}`}>
+                        Lively
+                    </span>
+                    <span className={`text-4xl sm:text-5xl font-outfit font-[200] tracking-tight leading-none text-red-500`}>
+                        98%
+                    </span>
+                    <span className={`text-[10px] font-mono mt-1 text-red-500/70`}>GPU</span>
+                </div>
+            </div>
+
+            {/* ─── single large clickable preview ─── */}
+            {/* shows the colorwall processes screenshot as the hero image.
+                clicking opens the full modal with all benchmark screenshots. */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative w-full max-w-4xl mx-auto cursor-pointer group"
+                onClick={() => setModalOpen(true)}
+            >
+                <div className={`relative w-full aspect-video rounded-2xl overflow-hidden border transition-all duration-300
+                    group-hover:shadow-2xl group-hover:scale-[1.01]
+                    ${isDark ? "border-white/10 group-hover:border-white/20" : "border-black/10 group-hover:border-black/15"}`}>
+                    <Image
+                        src="/colorwall-perf.webp"
+                        alt="ColorWall benchmark - click to view full comparison"
+                        fill
+                        className="object-cover object-left-top"
+                        sizes="(max-width: 768px) 100vw, 900px"
+                        quality={90}
+                        loading="lazy"
+                    />
+
+                    {/* hover overlay prompting the user to click */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-10 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 bg-black/60 backdrop-blur-md text-white rounded-full px-5 py-2.5 text-sm font-medium">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                <line x1="11" y1="8" x2="11" y2="14" />
+                                <line x1="8" y1="11" x2="14" y2="11" />
+                            </svg>
+                            View Full Benchmarks
                         </div>
                     </div>
+                </div>
 
-                    {/* ─── main content ─── */}
-                    <div className="relative z-10 flex-1 min-h-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-0 h-full">
-                            {benchmarks.map((col, colIdx) => {
-                                const currentView = activeViews[colIdx];
-                                const media = col.views[currentView];
+                {/* caption under the preview */}
+                <p className={`text-center text-[11px] font-mono mt-4 ${isDark ? "text-white/30" : "text-black/30"}`}>
+                    Click to view full benchmark comparison · Unedited Task Manager screenshots
+                </p>
+            </motion.div>
 
-                                return (
-                                    <motion.div
-                                        key={col.label}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.15 + colIdx * 0.1, duration: 0.4 }}
-                                        className={`cursor-target relative flex flex-col h-full min-h-0
-                                            ${colIdx > 0 ? `md:border-l md:pl-8 lg:pl-12 ${isDark ? 'border-white/20' : 'border-black/10'}` : 'md:pr-8 lg:pr-12'}
-                                        `}
-                                    >
-                                        {/* ─── big stat callout ─── */}
-                                        <div className="mb-6 sm:mb-8 flex flex-col">
-                                            {/* Massive Label */}
-                                            <h4 className={`text-2xl md:text-3xl font-anurati tracking-widest uppercase mb-4
-                                                ${colIdx === 0 ? "text-[#0078d4]" : (isDark ? "text-white" : "text-black")}`}>
-                                                {col.label}
-                                            </h4>
-                                            
-                                            {/* Big Number */}
-                                            <div className="flex items-baseline gap-3 mb-1">
-                                                <span className={`text-6xl sm:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-none
-                                                    ${isDark ? "text-white" : "text-black"}`}>
-                                                    {col.totalGpu}
+            {/* ─── scrollable modal ─── */}
+            <AnimatePresence>
+                {modalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 z-[200] overflow-hidden"
+                    >
+                        {/* backdrop - separate from scroll container so it
+                            doesn't intercept scroll events meant for the content */}
+                        <div
+                            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+                            onClick={() => setModalOpen(false)}
+                        />
+
+                        {/* close button - sits above everything */}
+                        <button
+                            onClick={() => setModalOpen(false)}
+                            className="fixed top-4 right-4 sm:top-8 sm:right-8 p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors z-[210]"
+                            aria-label="Close benchmarks"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+
+                        {/* scrollable content - positioned above the backdrop via z-index,
+                            takes full viewport height so overflow-y-auto works correctly.
+                            pointer-events on this div ensure scroll is captured here. */}
+                        <motion.div
+                            initial={{ y: 30, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 30, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative z-[205] h-full overflow-y-auto overscroll-contain px-4 sm:px-8 py-16 sm:py-20"
+                        >
+                            {/* modal header */}
+                            <div className="max-w-4xl mx-auto mb-12 text-center">
+                                <h3 className="text-2xl sm:text-3xl font-outfit font-[200] tracking-[0.2em] uppercase text-white mb-3">
+                                    Benchmark Comparison
+                                </h3>
+                                <p className="text-[11px] font-mono text-white/40 uppercase tracking-[0.15em]">
+                                    i7-4th Gen Haswell (2013) · Intel HD 4600 · 4K 60FPS video · Unedited Task Manager screenshots
+                                </p>
+                            </div>
+
+                            {/* benchmark entries stacked vertically */}
+                            <div className="max-w-4xl mx-auto flex flex-col gap-16">
+                                {entries.map((entry, i) => (
+                                    <div key={`${entry.app}-${entry.tab}`} className="flex flex-col">
+                                        {/* entry header: app name, tab, and gpu stat */}
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-white text-lg font-bold tracking-tight">
+                                                    {entry.app}
+                                                </span>
+                                                <span className="text-[10px] font-mono text-white/30 uppercase tracking-wider px-2 py-0.5 rounded border border-white/10">
+                                                    {entry.tab}
                                                 </span>
                                             </div>
-
-                                            {/* Verdict */}
-                                            <div className="flex items-center gap-4 flex-wrap mt-2">
-                                                <p className={`text-sm font-mono uppercase tracking-widest ${colIdx === 0 ? "text-emerald-500" : "text-red-500"}`}>
-                                                    {col.verdict}
-                                                </p>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`text-2xl font-outfit font-[200] ${entry.verdictColor}`}>
+                                                    {entry.gpu}
+                                                </span>
+                                                <span className={`text-[11px] font-mono ${entry.verdictColor} opacity-70`}>
+                                                    {entry.verdict}
+                                                </span>
                                             </div>
                                         </div>
 
-                                        {/* ─── view toggle tabs ─── */}
-                                        <div className="flex gap-1 mb-3">
-                                            {col.views.map((view, viewIdx) => (
-                                                <button
-                                                    key={view.tabLabel}
-                                                    onClick={() => setViewForColumn(colIdx, viewIdx)}
-                                                    className={`px-3.5 py-1.5 rounded-lg text-xs font-mono tracking-wide transition-all duration-200
-                                                        ${currentView === viewIdx
-                                                            ? (isDark ? "bg-white/15 text-white" : "bg-black/10 text-black")
-                                                            : (isDark ? "text-white/40 hover:text-white/80 hover:bg-white/5" : "text-black/40 hover:text-black/80 hover:bg-black/5")
-                                                        }`}
-                                                >
-                                                    {view.tabLabel}
-                                                </button>
-                                            ))}
+                                        {/* full-width screenshot */}
+                                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/10">
+                                            <Image
+                                                src={entry.src}
+                                                alt={entry.alt}
+                                                fill
+                                                className="object-cover object-left-top"
+                                                sizes="900px"
+                                                quality={95}
+                                                priority={i < 2}
+                                            />
                                         </div>
+                                    </div>
+                                ))}
+                            </div>
 
-                                        {/* ─── image/video container ─── */}
-                                        <div className={`relative w-full aspect-video rounded-xl overflow-hidden border
-                                            ${isDark ? "border-white/20" : "border-black/10"}`}>
-                                            <AnimatePresence mode="wait">
-                                                <motion.div
-                                                    key={media.src}
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="absolute inset-0 cursor-zoom-in group"
-                                                    onClick={() => setZoomedMedia(media)}
-                                                >
-                                                    {/* subtle hover overlay to indicate it's clickable */}
-                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-10 flex items-center justify-center">
-                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 backdrop-blur-md text-white rounded-full p-2">
-                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                                                <circle cx="11" cy="11" r="8"></circle>
-                                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                                                <line x1="11" y1="8" x2="11" y2="14"></line>
-                                                                <line x1="8" y1="11" x2="14" y2="11"></line>
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-
-                                                    {media.type === "image" ? (
-                                                        <Image
-                                                            src={media.src}
-                                                            alt={media.alt}
-                                                            fill
-                                                            className="object-cover object-left-top"
-                                                            sizes="(max-width: 768px) 100vw, 50vw"
-                                                            quality={90}
-                                                            loading="lazy"
-                                                            priority={false}
-                                                        />
-                                                    ) : (
-                                                        // future video support - swap in a video
-                                                        // element when type === "video"
-                                                        <video
-                                                            src={media.src}
-                                                            className="w-full h-full object-cover"
-                                                            controls
-                                                            playsInline
-                                                            muted
-                                                        />
-                                                    )}
-                                                </motion.div>
-                                            </AnimatePresence>
-                                        </div>
-                                    </motion.div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* ─── bottom bar ─── */}
-                    <div className="mt-8 text-center">
-                        <p className={`text-[11px] font-mono
-                            ${isDark ? "text-white/20" : "text-black/30"}`}>
-                            i7-4th Gen Haswell (2013) · Intel HD Graphics 4600 · 4K 60FPS video · Unedited Task Manager screenshots
-                        </p>
-                    </div>
-
-                    {/* ─── zoomed overlay ─── */}
-                    <AnimatePresence>
-                        {zoomedMedia && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8 cursor-zoom-out"
-                                onClick={() => setZoomedMedia(null)}
-                            >
-                                {/* Close button */}
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setZoomedMedia(null);
-                                    }}
-                                    className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors z-10"
-                                    aria-label="Close zoom"
-                                >
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                        <line x1="18" y1="6" x2="6" y2="18" />
-                                        <line x1="6" y1="6" x2="18" y2="18" />
-                                    </svg>
-                                </button>
-
-                                <motion.div
-                                    initial={{ scale: 0.95, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0.95, opacity: 0 }}
-                                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                    className="relative w-full max-w-7xl h-full max-h-[90vh] rounded-xl overflow-hidden shadow-2xl"
-                                    onClick={(e) => e.stopPropagation()} // prevent closing when clicking the image itself
-                                >
-                                    {zoomedMedia.type === "image" ? (
-                                        <Image
-                                            src={zoomedMedia.src}
-                                            alt={zoomedMedia.alt}
-                                            fill
-                                            className="object-contain"
-                                            sizes="100vw"
-                                            quality={100}
-                                            priority
-                                        />
-                                    ) : (
-                                        <video
-                                            src={zoomedMedia.src}
-                                            className="w-full h-full object-contain"
-                                            controls
-                                            autoPlay
-                                        />
-                                    )}
-                                </motion.div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                            {/* bottom spacer so the last image doesn't hug the viewport edge */}
+                            <div className="h-16" />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
