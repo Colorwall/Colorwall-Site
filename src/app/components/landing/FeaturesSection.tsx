@@ -150,8 +150,6 @@ const BentoCardImages = ({ srcs, alt, imageClassName = "object-cover" }: { srcs:
 
 export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dark" | "light"; enableSideRays?: boolean }) => {
     const isDark = theme === "dark";
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const [videoReady, setVideoReady] = useState(false);
     const [activeModal, setActiveModal] = useState<typeof showcaseFeatures[0] | null>(null);
     const [showExtras, setShowExtras] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -178,33 +176,6 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
         return () => { document.body.style.overflow = ""; };
     }, [activeModal]);
 
-    // ─── deferred video loading ──────────────────────────────────
-    // waits for browser idle before switching preload from "none" to
-    // "auto", then listens for canplay before calling play(). this
-    // prevents the video from competing with critical paint resources.
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        const startLoad = () => {
-            video.preload = "auto";
-            video.load();
-            const onCanPlay = () => {
-                video.play().catch(() => {});
-                setVideoReady(true);
-                video.removeEventListener("canplay", onCanPlay);
-            };
-            video.addEventListener("canplay", onCanPlay);
-        };
-
-        if ("requestIdleCallback" in window) {
-            const id = window.requestIdleCallback(startLoad, { timeout: 3000 });
-            return () => window.cancelIdleCallback(id);
-        } else {
-            const t = setTimeout(startLoad, 1000);
-            return () => clearTimeout(t);
-        }
-    }, []);
 
     return (
         <section className="py-32 px-4 sm:px-8">
@@ -334,23 +305,7 @@ export const FeaturesSection = ({ theme, enableSideRays = false }: { theme: "dar
                 ═══════════════════════════════════════════════════════ */}
                 <div className="relative rounded-3xl overflow-hidden">
 
-                    {/* video background - deferred via requestIdleCallback.
-                        preload="none" prevents any fetch until our idle 
-                        callback fires. the video is a night sky so text 
-                        reads fine over it without heavy overlays. */}
                     <div className={`absolute inset-0 z-0 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#15171e]'}`}>
-                        <video
-                            ref={videoRef}
-                            loop
-                            muted
-                            playsInline
-                            preload="none"
-                            className={`w-full h-full object-cover transition-opacity duration-1000
-                                ${videoReady ? (isDark ? 'opacity-30' : 'opacity-40') : 'opacity-0'}`}
-                        >
-                            <source src="/videos/everything.webm" type="video/webm" />
-                        </video>
-                        {/* subtle bottom gradient to anchor the section */}
                         <div className={`absolute inset-0 
                             ${isDark 
                                 ? 'bg-gradient-to-b from-black/30 via-transparent to-black/50' 
