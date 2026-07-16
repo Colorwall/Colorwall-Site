@@ -89,26 +89,7 @@ const showcaseFeatures = [
 // ─── secondary features ─────────────────────────────────────────
 // features without dedicated screenshots. rendered as a simple grid
 // below the scroll showcase. always visible, no toggle.
-const extras: { name: string; desc: string; tag?: string }[] = [
-    {
-        name: "Shaders & Particles",
-        desc: "Real-time HLSL effects \u2014 reflections, sway, chromatic aberration, blur, and rain drops. All GPU-accelerated.",
-        tag: "under dev"
-    },
-    {
-        name: "Audio Reactive",
-        desc: "Native system audio analysis injects rhythmic life into wallpapers, particles, and widgets in real-time."
-    },
-    {
-        name: "Workshop",
-        desc: "Thousands of 4K videos, WebGL scenes, and community .colorwall projects. One click to download.",
-        tag: "under dev"
-    },
-    {
-        name: "Taskbar",
-        desc: "Transparent, blur, or acrylic effects on your taskbar \u2014 completely independent of the wallpaper engine."
-    },
-];
+
 
 // ─── fullscreen feature slide ───────────────────────────────────
 // Renders inside a single sticky container. All slides sit on top
@@ -465,40 +446,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
             </div>
 
 
-            {/* ═══ extras grid ═════════════════════════════════════════
-                secondary features without screenshots. always visible
-                now (no collapsible toggle). simple responsive 2-col grid
-                that sits below the scroll showcase in normal document flow. */}
-            <div className="py-20 px-4 sm:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                        {extras.map((f) => (
-                            <div
-                                key={f.name}
-                                className={`p-6 sm:p-8 rounded-2xl border transition-colors
-                                    ${isDark
-                                        ? "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.04]"
-                                        : "bg-black/[0.02] border-black/[0.05] hover:bg-black/[0.04]"}`}
-                            >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <h4 className={`text-lg sm:text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>
-                                        {f.name}
-                                    </h4>
-                                    {f.tag && (
-                                        <span className="text-[9px] font-mono tracking-[0.1em] uppercase px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">
-                                            {f.tag}
-                                        </span>
-                                    )}
-                                </div>
-                                <p className={`text-[14px] sm:text-[15px] leading-relaxed
-                                    ${isDark ? "text-white/50" : "text-black/50"}`}>
-                                    {f.desc}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+
         </section>
     );
 }
