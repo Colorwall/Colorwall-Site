@@ -54,7 +54,7 @@ const showcaseFeatures = [
         title: "CUSTOMISE",
         description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
         badge: "RUST \u00b7 TAURI \u00b7 LOW OVERHEAD",
-        imageSrcs: ["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
+        imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
     },
     {
         id: "widgets",
