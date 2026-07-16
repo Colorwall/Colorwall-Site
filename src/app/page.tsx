@@ -42,7 +42,7 @@ export default function ColorWallLanding() {
                video background, and inline extras */}
             <div className="relative w-full">
                 <div className="relative z-10">
-                    <FeaturesSection theme={theme} enableSideRays={cinematicMode && cinematicConfig.sideRays} />
+                    <FeaturesSection theme={theme} />
                 </div>
             </div>
 

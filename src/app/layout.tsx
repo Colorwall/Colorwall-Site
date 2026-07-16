@@ -140,7 +140,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+    <html lang="en" suppressHydrationWarning className="overflow-x-clip">
       <head>
         {/* JSON-LD for LLMs and Search Engines */}
         <script
@@ -202,7 +202,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-hidden`}
+        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-clip`}
       >
         <ThemeProvider>
           <AmbientProvider>

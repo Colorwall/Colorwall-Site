@@ -140,7 +140,7 @@ export const SecurityReport = ({
                         Zero trust.
                     </h2>
                     <GradientHeading
-                        text="100% Verified."
+                        text="Virustotal report"
                         theme={theme}
                         className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
                     />
