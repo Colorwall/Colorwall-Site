@@ -152,8 +152,8 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             
                             <div className="relative z-10 pointer-events-none">
                                 <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
-                                    ${isDark ? "text-white/25" : "text-black/25"}`}>
-                                    How we compare
+                                    ${isDark ? "text-white/75" : "text-black/75"}`}>
+                                  How we compare?
                                 </p>
                                 <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3
                                     ${isDark ? "text-white" : "text-black"}`}>
