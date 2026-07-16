@@ -380,14 +380,43 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
             </div>
 
 
-            {/* ═══ fullscreen scroll-driven showcase ═══════════════════
+            {/* ═══ MOBILE VIEW: simple list instead of scroll-jacking ═══ */}
+            <div className="md:hidden flex flex-col gap-8 px-4 pb-20">
+                {showcaseFeatures.map((feature) => (
+                    <div key={feature.id} className="relative rounded-[2rem] overflow-hidden aspect-[4/5] flex flex-col justify-end bg-black border border-white/10 shadow-2xl">
+                        <Image
+                            src={feature.imageSrcs[0]}
+                            alt={feature.title}
+                            fill
+                            className="object-cover opacity-70"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+                        <div className="relative z-10 p-6 sm:p-8">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="w-5 h-[1px] bg-blue-400/50" />
+                                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-blue-400/80">
+                                    {feature.badge}
+                                </span>
+                            </div>
+                            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3 leading-[1.1] drop-shadow-lg">
+                                {feature.title}
+                            </h3>
+                            <p className="text-sm leading-relaxed text-white/70 font-spline drop-shadow-md">
+                                {feature.description}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ═══ DESKTOP VIEW: fullscreen scroll-driven showcase ═══════════════════
                 uses a tall container with a sticky viewport-height inner
                 div. as the user scrolls, each slide crossfades in/out
                 based on scroll progress.
             ═══════════════════════════════════════════════════════════ */}
             <div
                 ref={containerRef}
-                className="relative"
+                className="relative hidden md:block"
                 style={{ height: isExited ? "100vh" : `${showcaseFeatures.length * 100}vh` }}
             >
                 <motion.div 
