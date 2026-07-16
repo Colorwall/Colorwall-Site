@@ -401,9 +401,12 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
                                 onClick={handleExit}
-                                className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-lg border border-white/10 text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-2xl"
+                                className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-md bg-black/80 hover:bg-black border border-white/10 text-xs font-mono uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors duration-300"
                             >
-                                Skip Showcase
+                                <span>Skip</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
                             </motion.button>
                         )}
                     </AnimatePresence>
