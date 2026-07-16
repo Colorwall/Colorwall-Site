@@ -51,6 +51,13 @@ export default function ColorWallLanding() {
                 <ScrollSpiralArrow theme={theme} />
             </div>
 
+            {/* tech stack logo loop - scrolling strip of every technology
+               used in colorwall. acts as a visual differentiator between
+               the interstitial and the comparison section below. */}
+            {/* <TechStackStrip theme={theme} /> */}
+
+            <ComparisonTable theme={theme} />
+
             {/* interstitial - big statement that breaks up the feature 
                density before the comparison table */}
             <div className="relative w-full overflow-hidden flex items-center justify-center py-20 lg:py-24">
@@ -66,12 +73,6 @@ export default function ColorWallLanding() {
                 </div>
             </div>
 
-            {/* tech stack logo loop - scrolling strip of every technology
-               used in colorwall. acts as a visual differentiator between
-               the interstitial and the comparison section below. */}
-            {/* <TechStackStrip theme={theme} /> */}
-
-            <ComparisonTable theme={theme} />
 
             <SecurityReport theme={theme} className="py-24 lg:pl-[20%] lg:pr-[10%]" />
 
