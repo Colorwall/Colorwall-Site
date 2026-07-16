@@ -114,7 +114,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
             <div className="flex flex-col items-center justify-center mb-10 text-center">
                 <h3 className={`text-xl sm:text-2xl font-outfit font-[300] tracking-[0.3em] uppercase
                     ${isDark ? "text-white" : "text-black"}`}>
-                    - Benchmarks -
+                   Quick Performance Comparison
                 </h3>
                 <p className={`text-[11px] font-mono mt-4 uppercase tracking-[0.2em]
                     ${isDark ? "text-white/40" : "text-black/40"}`}>
