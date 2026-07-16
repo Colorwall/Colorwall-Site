@@ -154,7 +154,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="relative w-full max-w-4xl mx-auto cursor-pointer group"
+                className="relative w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-7xl mx-auto cursor-pointer group"
                 onClick={() => setModalOpen(true)}
             >
                 <div className={`relative w-full aspect-video rounded-2xl overflow-hidden border transition-all duration-300
@@ -165,7 +165,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                         alt="ColorWall benchmark - click to view full comparison"
                         fill
                         className="object-cover object-left-top"
-                        sizes="(max-width: 768px) 100vw, 900px"
+                        sizes="(max-width: 1280px) 100vw, 1280px"
                         quality={90}
                         loading="lazy"
                     />
@@ -232,7 +232,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                             className="relative z-[205] h-full overflow-y-auto overscroll-contain px-4 sm:px-8 py-16 sm:py-20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                         >
                             {/* modal header */}
-                            <div className="max-w-4xl mx-auto mb-12 text-center">
+                            <div className="max-w-7xl mx-auto mb-12 text-center">
                                 <h3 className="text-2xl sm:text-3xl font-outfit font-[200] tracking-[0.2em] uppercase text-white mb-3">
                                     Benchmark Comparison
                                 </h3>
@@ -242,7 +242,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                             </div>
 
                             {/* benchmark entries stacked vertically */}
-                            <div className="max-w-4xl mx-auto flex flex-col gap-16">
+                            <div className="max-w-7xl mx-auto flex flex-col gap-16">
                                 {entries.map((entry, i) => (
                                     <div key={`${entry.app}-${entry.tab}`} className="flex flex-col">
                                         {/* entry header: app name, tab, and gpu stat */}
@@ -272,7 +272,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                                                 alt={entry.alt}
                                                 fill
                                                 className="object-cover object-left-top"
-                                                sizes="900px"
+                                                sizes="(max-width: 1280px) 100vw, 1280px"
                                                 quality={95}
                                                 priority={i < 2}
                                             />
