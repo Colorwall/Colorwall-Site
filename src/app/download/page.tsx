@@ -28,7 +28,16 @@ export default function DownloadPage() {
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
     const [currentImage, setCurrentImage] = useState(1);
     const [views, setViews] = useState<number | null>(null);
+    const [isIdle, setIsIdle] = useState(false);
     const prevShowVideoModal = useRef(showVideoModal);
+
+    useEffect(() => {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => setIsIdle(true), { timeout: 2000 });
+        } else {
+            setTimeout(() => setIsIdle(true), 500);
+        }
+    }, []);
 
     useEffect(() => {
         // Increment and fetch view count
@@ -101,17 +110,19 @@ export default function DownloadPage() {
         <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-blue-500/30 relative`}>
             {/* Global Water Background */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-50 mix-blend-screen">
-                <SplashCursor 
-                    COLOR={isDark ? "#3b82f6" : "#2563eb"}
-                    RAINBOW_MODE={false}
-                    TRANSPARENT={true}
-                    CURL={0.0}
-                    DENSITY_DISSIPATION={6.0}
-                    VELOCITY_DISSIPATION={4.0}
-                    PRESSURE={0.05}
-                    SPLAT_RADIUS={0.3}
-                    SPLAT_FORCE={6000}
-                />
+                {isIdle && (
+                    <SplashCursor 
+                        COLOR={isDark ? "#3b82f6" : "#2563eb"}
+                        RAINBOW_MODE={false}
+                        TRANSPARENT={true}
+                        CURL={0.0}
+                        DENSITY_DISSIPATION={6.0}
+                        VELOCITY_DISSIPATION={4.0}
+                        PRESSURE={0.05}
+                        SPLAT_RADIUS={0.3}
+                        SPLAT_FORCE={6000}
+                    />
+                )}
             </div>
 
             <main className="pt-28 pb-20 px-6 relative z-10">
