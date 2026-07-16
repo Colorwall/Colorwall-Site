@@ -242,9 +242,10 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
         if (isExited) return "40px";
         const e = entryProgress.get();
         const x = exitProgress.get();
-        if (e < 1) return `${40 - (e * 40)}px`;
-        if (x > 0) return `${x * 40}px`;
-        return "0px";
+        // Starts at 40px, shrinks to 24px when fully "zoomed in"
+        if (e < 1) return `${40 - (e * 16)}px`;
+        if (x > 0) return `${24 + (x * 16)}px`;
+        return "24px";
     });
 
     const handleExit = () => {
@@ -420,7 +421,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 style={{ height: isExited ? "100vh" : `${showcaseFeatures.length * 100}vh` }}
             >
                 <motion.div 
-                    className={isExited ? "relative h-[90vh] sm:h-screen w-full overflow-hidden bg-black mx-auto" : "sticky top-0 h-screen w-full overflow-hidden bg-black"}
+                    className={isExited ? "relative h-[90vh] sm:h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black" : "sticky top-3 h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black"}
                     style={{ scale, borderRadius }}
                 >
                     <AnimatePresence>
