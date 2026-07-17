@@ -23,7 +23,7 @@ export function HeroTypewriter() {
     }, []);
 
     return (
-        <div className="min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center text-xs sm:text-sm md:text-base lg:text-lg font-mono text-white/90 font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] relative w-full overflow-hidden px-4">
+        <div className="min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center text-xs sm:text-sm md:text-base lg:text-lg font-sans font-medium tracking-wide text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] relative w-full overflow-hidden px-4">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={index}
