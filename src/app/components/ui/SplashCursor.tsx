@@ -105,7 +105,14 @@ export default function SplashCursor({
       COLOR
     };
 
-    const { gl, ext } = getWebGLContext(canvas);
+    let glContext;
+    try {
+      glContext = getWebGLContext(canvas);
+    } catch (e) {
+      console.warn("WebGL not supported or failed to initialize:", e);
+      return;
+    }
+    const { gl, ext } = glContext;
     if (!gl || !ext) return;
 
     if (!ext.supportLinearFiltering) {
