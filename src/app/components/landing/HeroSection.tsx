@@ -22,7 +22,6 @@ const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/background.webm", type: "video/webm", poster: "/videos/posters/background.webp" },
     { src: "/videos/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webm", type: "video/webm", poster: "/videos/posters/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webp" },
     { src: "/videos/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webm", type: "video/webm", poster: "/videos/posters/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webp" },
-    { src: "/videos/Hatsune_Miku_on_Seaside_at_Night_Vocaloid_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Hatsune_Miku_on_Seaside_at_Night_Vocaloid_Live_Wallpaper.webp" },
     { src: "/videos/laxenta.webm", type: "video/webm", poster: "/videos/posters/laxenta.webp" },
     { src: "/videos/Prana_System_Error.webm", type: "video/webm", poster: "/videos/posters/Prana_System_Error.webp" },
 ];
