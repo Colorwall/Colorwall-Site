@@ -123,7 +123,8 @@ export const HeroSection = () => {
                             mixBlendMode: "exclusion" 
                         }}
                     >
-                        The Ultimate Wallpaper Engine Alternative
+                        The Desktop Customization
+                        You Deserve.
                     </h1>
                 </div>
 
