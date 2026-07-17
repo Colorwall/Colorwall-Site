@@ -77,11 +77,16 @@ export default function SplashCursor({
   RAINBOW_MODE = true,
   COLOR = '#ff0000'
 }: SplashCursorProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'fluid';
+    canvas.className = 'w-full h-full block opacity-70';
+    container.appendChild(canvas);
 
     let pointers: Pointer[] = [pointerPrototype()];
 
@@ -1328,6 +1333,10 @@ export default function SplashCursor({
       // rather than waiting for garbage collection
       const loseCtx = gl.getExtension('WEBGL_lose_context');
       if (loseCtx) loseCtx.loseContext();
+      
+      if (container && container.contains(canvas)) {
+        container.removeChild(canvas);
+      }
     };
   }, [
     SIM_RESOLUTION,
@@ -1349,8 +1358,7 @@ export default function SplashCursor({
   ]);
 
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-3xl">
-      <canvas ref={canvasRef} id="fluid" className="w-full h-full block opacity-70"></canvas>
+    <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-3xl">
     </div>
   );
 }
