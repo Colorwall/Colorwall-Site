@@ -32,6 +32,27 @@ export default function DownloadPage() {
     const prevShowVideoModal = useRef(showVideoModal);
 
     useEffect(() => {
+        // probe webgl support before allowing splashcursor to mount.
+        // creates a throwaway canvas to test if the browser can provide
+        // a webgl context with the half-float texture formats that
+        // splashcursor's fluid simulation requires.
+        const checkWebGL = () => {
+            try {
+                const testCanvas = document.createElement("canvas");
+                const ctx = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl");
+                if (!ctx) return false;
+                // verify half-float render texture support (the exact check that was crashing)
+                const ext = (ctx as WebGL2RenderingContext).getExtension?.("EXT_color_buffer_float");
+                const floatLinear = (ctx as WebGL2RenderingContext).getExtension?.("OES_texture_float_linear");
+                return !!(ctx && (ext || floatLinear));
+            } catch {
+                return false;
+            }
+        };
+
+        if (!checkWebGL()) return;
+
+        // only schedule the heavy webgl component if the device actually supports it
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(() => setIsIdle(true), { timeout: 2000 });
         } else {
