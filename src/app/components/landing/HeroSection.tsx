@@ -16,12 +16,15 @@ type HeroVideo = {
 };
 
 const HERO_VIDEOS: HeroVideo[] = [
+    { src: "/videos/Ajitani_Hifumi_Train_Ride_Blue_Archive_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Ajitani_Hifumi_Train_Ride_Blue_Archive_Live_Wallpaper.webp" },
+    { src: "/videos/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webp" },
+    { src: "/videos/Autumn_Leaves_And_Water_Reflection_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Autumn_Leaves_And_Water_Reflection_Live_Wallpaper.webp" },
+    { src: "/videos/background.webm", type: "video/webm", poster: "/videos/posters/background.webp" },
+    { src: "/videos/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webm", type: "video/webm", poster: "/videos/posters/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webp" },
+    { src: "/videos/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webm", type: "video/webm", poster: "/videos/posters/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webp" },
+    { src: "/videos/Hatsune_Miku_on_Seaside_at_Night_Vocaloid_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Hatsune_Miku_on_Seaside_at_Night_Vocaloid_Live_Wallpaper.webp" },
     { src: "/videos/laxenta.webm", type: "video/webm", poster: "/videos/posters/laxenta.webp" },
-    { src: "/videos/Shimoe_Koharu.webm", type: "video/webm", poster: "/videos/posters/Shimoe_Koharu.webp" },
-    { src: "/videos/mycutekoii.webm", type: "video/webm", poster: "/videos/posters/mycutekoii.webp" },
-    { src: "/videos/Crimson_Divide_Soul.webm", type: "video/webm", poster: "/videos/posters/Crimson_Divide_Soul.webp" },
-    { src: "/videos/Violet_Evergarden_Blue_Glow_Live_Wallpaper_live_wallpaper_video__4K_HD_.mp4", type: "video/mp4", poster: "/videos/posters/Violet_Evergarden_Blue_Glow_Live_Wallpaper_live_wallpaper_video__4K_HD_.webp" },
-    { src: "/videos/background.mp4", type: "video/mp4", poster: "/videos/posters/background.webp" },
+    { src: "/videos/Prana_System_Error.webm", type: "video/webm", poster: "/videos/posters/Prana_System_Error.webp" },
 ];
 
 const HeroBackground = React.memo(() => (
