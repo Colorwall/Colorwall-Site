@@ -52,8 +52,21 @@ export const Navbar = () => {
     const [isVisible, setIsVisible] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
+    const [isCinematicActive, setIsCinematicActive] = useState(false);
     const lastScrollY = useRef(0);
     const isHovered = useRef(false);
+
+    // listen for cinematic-change events to unmount global navbar during active 3d webgl scene
+    useEffect(() => {
+        const handleCinematicChange = () => {
+            const active = typeof document !== "undefined" && document.body.dataset.cinematic === "true";
+            setIsCinematicActive(active);
+        };
+
+        handleCinematicChange();
+        window.addEventListener("cinematic-change", handleCinematicChange);
+        return () => window.removeEventListener("cinematic-change", handleCinematicChange);
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -105,6 +118,11 @@ export const Navbar = () => {
 
     const base = "bg-[#0a0a0a]/50 border-white/10 text-white/80";
     const iconBtn = "hover:text-white hover:bg-white/8 text-white/50";
+
+    // safely unmount header during active cinematic webgl mode to prevent accidental route triggers
+    if (isCinematicActive) {
+        return null;
+    }
 
     return (
         <div

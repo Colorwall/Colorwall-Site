@@ -30,6 +30,18 @@ export default function ColorWallLanding() {
     // protect against inspection shortcuts if desired
     useProtection();
 
+    // synchronize cinematic state to document body dataset and dispatch custom event so global components like navbar can unmount
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            if (isCinematic) {
+                document.body.dataset.cinematic = "true";
+            } else {
+                delete document.body.dataset.cinematic;
+            }
+            window.dispatchEvent(new Event("cinematic-change"));
+        }
+    }, [isCinematic]);
+
     // check if query param ?cinematic=true is present on initial load to auto launch cinematic mode
     useEffect(() => {
         if (typeof window !== "undefined") {
