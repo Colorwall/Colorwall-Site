@@ -53,14 +53,14 @@ export default function AboutPage() {
                         >
                             Download ColorWall <ArrowRight className="w-4 h-4" />
                         </Link>
-                        <a
+                        {/* <a
                             href="https://github.com/Colorwall/Colorwall"
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors border ${borderSubtle} hover:bg-black/5 dark:hover:bg-white/5`}
                         >
                             View Source Code
-                        </a>
+                        </a> */}
                     </div>
                 </section>
 
