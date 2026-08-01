@@ -192,6 +192,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'platform-lookaside.fbsbx.com',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'github.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        pathname: '/**',
       }
     ],
     // vercel will auto-serve optimized webp/avif at the right size

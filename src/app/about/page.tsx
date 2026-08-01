@@ -1,138 +1,225 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Footer } from "@/app/components/Footer";
-import { Sparkles, Cpu, Monitor, ShieldCheck, Heart, Download, Github, ArrowRight } from "lucide-react";
+import { 
+    ExternalLink, 
+    Cpu, 
+    Monitor, 
+    ShieldCheck, 
+    Terminal, 
+    Compass, 
+    Code2, 
+    Bot,
+    ArrowRight
+} from "lucide-react";
 
 export default function AboutPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    const features = [
-        {
-            icon: Cpu,
-            title: "Rust & Tauri Core",
-            description: "engineered with low-level rust bindings to deliver minimal memory footprint and near-zero idle cpu utilization on windows."
-        },
-        {
-            icon: Monitor,
-            title: "Multi-Monitor Support",
-            description: "seamlessly spans ultra-wide, vertical, and dual-monitor displays with dynamic aspect ratio scaling and per-display wallpaper assignment."
-        },
-        {
-            icon: ShieldCheck,
-            title: "Privacy First Architecture",
-            description: "fully open source with zero background telemetry, offline-capable playback, and complete transparency."
-        },
-        {
-            icon: Heart,
-            title: "Community Driven",
-            description: "built for creators, modders, and enthusiasts who demand modern aesthetic controls without subscription paywalls."
-        }
-    ];
+    // base styling tokens ensuring consistent contrast and borders across themes
+    const textBase = isDark ? "text-white/80" : "text-[#1a1a24]";
+    const textMuted = isDark ? "text-white/50" : "text-[#4b5563]";
+    const borderSubtle = isDark ? "border-white/10" : "border-[#e5e7eb]";
+    const bgSubtle = isDark ? "bg-white/[0.02]" : "bg-[#f9fafb]";
+    
+    // vibrant accent tokens inspired by stripe aesthetic for controlled pops of color
+    const iconWrapper = isDark ? "bg-indigo-500/15 text-indigo-400" : "bg-indigo-50 text-indigo-600";
+    const primaryBtn = "bg-[#635BFF] hover:bg-[#4B44D4] text-white"; // stripe-like purple/blue
 
     return (
-        <div className={`min-h-screen select-none ${isDark ? "bg-black text-white" : "bg-white text-black"} transition-colors duration-300`}>
-            {/* background gradient accent glow */}
-            <div className="relative pt-32 pb-20 px-6 max-w-6xl mx-auto overflow-hidden">
-                <div 
-                    className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-purple-600/15 blur-[140px] rounded-full pointer-events-none" 
-                    aria-hidden="true" 
-                />
-
-                {/* hero section banner */}
-                <div className="relative z-10 text-center max-w-3xl mx-auto space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-mono tracking-wider uppercase">
-                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                        <span>The Story Behind ColorWall</span>
-                    </div>
-
-                    <h1 className="text-4xl md:text-6xl font-outfit font-extralight tracking-tight leading-[1.08]">
-                        Desktop Customization, <br />
-                        <span className="font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                            Reimagined Without Bloat.
-                        </span>
+        <div className={`min-h-screen select-none ${isDark ? "bg-[#0a0a0f] text-white" : "bg-white text-black"}`}>
+            
+            {/* main page container with expansive typography */}
+            <main className="max-w-5xl mx-auto px-6 pt-32 pb-24 space-y-24">
+                
+                {/* hero section */}
+                <section className="max-w-3xl">
+                    <h1 className="text-5xl md:text-6xl font-outfit font-[200] tracking-tight leading-[1.1] mb-6">
+                        Building the ultimate <br />
+                        <span className="font-[400] text-[#635BFF]">desktop customization</span> engine.
                     </h1>
-
-                    <p className={`text-base md:text-lg leading-relaxed ${isDark ? "text-white/70" : "text-black/70"}`}>
-                        ColorWall was born out of frustration with resource-heavy wallpaper engines that hog RAM and run intrusive processes. We set out to create a modern, blazingly fast, and gorgeous live wallpaper engine for Windows 10 and 11.
+                    <p className={`text-lg md:text-xl font-outfit font-[300] leading-relaxed mb-8 ${textMuted}`}>
+                        ColorWall is a blazingly fast, native spatial compositor for Windows 10 and 11. 
+                        It renders 8K live wallpapers, audio-reactive shaders, and interactive web scenes directly on your desktop, all while consuming near-zero system resources.
                     </p>
-
-                    {/* dual call-to-action buttons */}
-                    <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-                        <Link
-                            href="/?cinematic=true"
-                            className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-sm tracking-wide shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all duration-300"
-                        >
-                            <Sparkles className="w-4 h-4" />
-                            <span>Launch Cinematic Experience</span>
-                            <ArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-
+                    <div className="flex flex-wrap items-center gap-4">
                         <Link
                             href="/download"
-                            className={`inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm tracking-wide border transition-all duration-300 hover:-translate-y-0.5 ${
-                                isDark 
-                                    ? "border-white/20 bg-white/5 hover:bg-white/10 text-white" 
-                                    : "border-black/20 bg-black/5 hover:bg-black/10 text-black"
-                            }`}
+                            className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors ${primaryBtn}`}
                         >
-                            <Download className="w-4 h-4" />
-                            <span>Download ColorWall</span>
+                            Download ColorWall <ArrowRight className="w-4 h-4" />
                         </Link>
-                    </div>
-                </div>
-
-                {/* pillars grid */}
-                <div className="relative z-10 mt-24 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {features.map((item, index) => (
-                        <div
-                            key={index}
-                            className={`p-8 rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
-                                isDark
-                                    ? "bg-[#0d0d0d]/80 border-white/10 hover:border-purple-500/40"
-                                    : "bg-gray-50 border-black/10 hover:border-purple-500/40"
-                            }`}
+                        <a
+                            href="https://github.com/Colorwall/Colorwall"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors border ${borderSubtle} hover:bg-black/5 dark:hover:bg-white/5`}
                         >
-                            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-5 text-purple-400">
-                                <item.icon className="w-6 h-6" />
+                            View Source Code
+                        </a>
+                    </div>
+                </section>
+
+                {/* stripe-style architecture grid */}
+                <section className={`pt-16 border-t ${borderSubtle}`}>
+                    <h2 className="text-3xl font-outfit font-[300] tracking-tight mb-12">
+                        Architected for absolute performance.
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
+                        {/* feature block 1 */}
+                        <div>
+                            <div className={`w-10 h-10 rounded-md flex items-center justify-center mb-5 ${iconWrapper}`}>
+                                <Cpu className="w-5 h-5" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                            <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>
-                                {item.description}
+                            <h3 className="font-semibold text-base mb-2">Rust & Tauri Core</h3>
+                            <p className={`text-sm leading-[1.6] ${textMuted}`}>
+                                engineered with low-level rust bindings. deeply integrated with win32 apis to achieve hardware-accelerated video decoding and idle cpu usage under 0.1%.
                             </p>
                         </div>
-                    ))}
-                </div>
-
-                {/* open source callout section */}
-                <div className={`mt-20 p-8 md:p-12 rounded-3xl border text-center relative overflow-hidden ${
-                    isDark ? "bg-gradient-to-b from-[#121216] to-[#0a0a0d] border-white/10" : "bg-gradient-to-b from-purple-50/50 to-indigo-50/50 border-black/10"
-                }`}>
-                    <div className="max-w-2xl mx-auto space-y-4">
-                        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-                            Built for Creators & Open Source
-                        </h2>
-                        <p className={`text-sm md:text-base leading-relaxed ${isDark ? "text-white/70" : "text-black/70"}`}>
-                            ColorWall is completely transparent and free to use. Explore the source code on GitHub, submit feature requests, or contribute custom web and shader wallpaper templates.
-                        </p>
-                        <div className="pt-2 flex justify-center">
-                            <a
-                                href="https://github.com/colorwall/colorwall"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 font-medium text-sm transition-all"
-                            >
-                                <Github className="w-4 h-4" />
-                                <span>Star on GitHub</span>
-                            </a>
+                        {/* feature block 2 */}
+                        <div>
+                            <div className={`w-10 h-10 rounded-md flex items-center justify-center mb-5 ${iconWrapper}`}>
+                                <Monitor className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-semibold text-base mb-2">Multi-Monitor Mastery</h3>
+                            <p className={`text-sm leading-[1.6] ${textMuted}`}>
+                                seamlessly spans ultra-wide, vertical, and dual-monitor displays with dynamic aspect ratio scaling and per-display distinct wallpaper assignment.
+                            </p>
+                        </div>
+                        {/* feature block 3 */}
+                        <div>
+                            <div className={`w-10 h-10 rounded-md flex items-center justify-center mb-5 ${iconWrapper}`}>
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-semibold text-base mb-2">Zero Telemetry</h3>
+                            <p className={`text-sm leading-[1.6] ${textMuted}`}>
+                                completely open source with no background tracking, no analytics, and no mandatory cloud connectivity. runs completely offline.
+                            </p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            {/* footer */}
+                {/* the team / developer section with github integration */}
+                <section className={`pt-16 border-t ${borderSubtle}`}>
+                    <div className="flex flex-col lg:flex-row gap-12 items-start justify-between">
+                        <div className="max-w-xl">
+                            <h2 className="text-3xl font-outfit font-[300] tracking-tight mb-6">
+                                The Developer
+                            </h2>
+                            <p className={`text-base leading-[1.7] mb-6 ${textBase}`}>
+                                ColorWall is developed entirely by Oliver Laxenta (@LaxentaInc), a 19-year-old solo developer and student currently studying for law enforcement. What started as a hobbyist endeavor to build a better wallpaper engine has grown into a highly optimized, fully-featured desktop customization suite.
+                            </p>
+                            <p className={`text-base leading-[1.7] mb-8 ${textBase}`}>
+                                The ecosystem now spans across Rust, TypeScript, React, and native C++ integrations, proving that modern web technologies paired with systems programming can yield incredible performance.
+                            </p>
+                            <a
+                                href="https://patron.colorwall.xyz"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border ${borderSubtle} hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30`}
+                            >
+                                Support development on Patreon
+                            </a>
+                        </div>
+                        
+                        {/* github profile visual card */}
+                        <div className={`p-6 rounded-2xl border ${borderSubtle} ${bgSubtle} w-full max-w-sm shrink-0 flex flex-col items-center text-center`}>
+                            <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-indigo-500/20">
+                                <Image 
+                                    src="https://github.com/LaxentaInc.png" 
+                                    alt="Oliver Laxenta GitHub Avatar" 
+                                    width={96} 
+                                    height={96}
+                                    className="object-cover"
+                                />
+                            </div>
+                            <h3 className="font-semibold text-lg">Oliver Laxenta</h3>
+                            <p className={`text-sm font-mono mt-1 ${textMuted}`}>@LaxentaInc</p>
+                            <p className={`text-sm mt-4 leading-relaxed ${textMuted}`}>
+                                "Competition, huh? All I see is MEE!"
+                            </p>
+                            <div className="flex items-center gap-4 mt-6">
+                                <a href="https://github.com/LaxentaInc" target="_blank" rel="noopener noreferrer" className={`text-sm hover:text-[#635BFF] transition-colors ${textBase}`}>
+                                    GitHub
+                                </a>
+                                <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer" className={`text-sm hover:text-[#635BFF] transition-colors ${textBase}`}>
+                                    Discord
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* expansive open source ecosystem list */}
+                <section className={`pt-16 border-t ${borderSubtle}`}>
+                    <h2 className="text-3xl font-outfit font-[300] tracking-tight mb-8">
+                        The broader ecosystem.
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                            {
+                                title: "Colorwall Linux",
+                                status: "Active Dev",
+                                icon: Terminal,
+                                desc: "the upcoming open-source wallpaper engine tailored specifically for linux. zero copy rendering and fully native.",
+                                href: "https://github.com/Colorwall/WallpaperEngine-Linux"
+                            },
+                            {
+                                title: "ArchiveWalls",
+                                status: "Upcoming",
+                                icon: Compass,
+                                desc: "browser new tab extension featuring live wallpapers, customizable widgets, and focus music integration.",
+                                href: "https://github.com/LaxentaInc/ArchiveWalls"
+                            },
+                            {
+                                title: "MTS Migrator",
+                                status: "NPM Package",
+                                icon: Code2,
+                                desc: "cli utility to instantly migrate legacy javascript codebases to typescript with intelligent ast parsing.",
+                                href: "https://github.com/LaxentaInc/Magikk-Typescript-Migrator"
+                            },
+                            {
+                                title: "Aero-Chan",
+                                status: "Public Bot",
+                                icon: Bot,
+                                desc: "powerful anti-raid, moderation, and music tooling infrastructure for discord communities built in typescript.",
+                                href: "https://github.com/LaxentaInc/Aero-Chan"
+                            }
+                        ].map((proj) => (
+                            <a
+                                key={proj.title}
+                                href={proj.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`group p-6 rounded-xl border ${borderSubtle} ${bgSubtle} hover:border-[#635BFF]/30 hover:bg-[#635BFF]/5 transition-all flex flex-col justify-between`}
+                            >
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded flex items-center justify-center ${iconWrapper} group-hover:bg-[#635BFF] group-hover:text-white transition-colors`}>
+                                            <proj.icon className="w-4 h-4" />
+                                        </div>
+                                        <div className="flex items-center justify-between flex-1">
+                                            <span className="font-semibold text-sm">{proj.title}</span>
+                                            <span className={`text-[10px] uppercase tracking-wider font-mono px-2 py-0.5 rounded border ${borderSubtle} ${textMuted}`}>
+                                                {proj.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className={`text-sm leading-relaxed ${textMuted}`}>
+                                        {proj.desc}
+                                    </p>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </section>
+
+            </main>
+
             <Footer theme={theme} />
         </div>
     );
