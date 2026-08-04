@@ -73,10 +73,12 @@ function easeOutCubic(x: number): number {
 
 function ScrollMaterial({ 
     images, 
-    activeIndex 
+    onSlideChange,
+    isLocked = false
 }: { 
-    images: string[], 
-    activeIndex: number 
+    images: string[];
+    onSlideChange?: (index: number) => void;
+    isLocked?: boolean;
 }) {
     const [textures, setTextures] = useState<THREE.Texture[]>([]);
     const materialRef = useRef<THREE.ShaderMaterial>(null);
@@ -122,38 +124,65 @@ function ScrollMaterial({
         }
     }, [viewport.aspect]);
 
-    const currentScroll = useRef(0);
+    const targetIndexRef = useRef(0);
+    const positionRef = useRef(0);
+    const lastSlideRef = useRef(0);
+    const lastWheelTimeRef = useRef(0);
+
+    // listen to wheel events and trigger a single slide advance when component is locked in viewport
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            // ignore wheel events if section is not locked at top of viewport
+            if (!isLocked) return;
+
+            const now = Date.now();
+            // throttle wheel gestures by 600ms to cap big flicks to exactly 1 slide
+            if (now - lastWheelTimeRef.current < 600) return;
+
+            if (e.deltaY > 15) {
+                targetIndexRef.current = Math.min(images.length - 1, targetIndexRef.current + 1);
+                lastWheelTimeRef.current = now;
+            } else if (e.deltaY < -15) {
+                targetIndexRef.current = Math.max(0, targetIndexRef.current - 1);
+                lastWheelTimeRef.current = now;
+            }
+        };
+
+        window.addEventListener("wheel", handleWheel, { passive: true });
+        return () => window.removeEventListener("wheel", handleWheel);
+    }, [isLocked, images.length]);
 
     useFrame((_, delta) => {
         if (!materialRef.current || textures.length === 0) return;
         const total = textures.length;
         if (total < 2) return;
 
-        const targetScroll = activeIndex;
+        // calculate distance to target slide index
+        const distanceToTarget = targetIndexRef.current - positionRef.current;
+        
+        // slow, graceful spring glide (delta * 2.2 slows down transition speed as requested)
+        positionRef.current += distanceToTarget * (delta * 2.2);
 
-        // Smoothly lerp towards target for that buttery fluid feel
-        // react-fluid-gallery uses a gentle spring/lerp (roughly delta * 2.5)
-        currentScroll.current += (targetScroll - currentScroll.current) * (delta * 3.0);
+        // clamp position within valid texture index bounds
+        positionRef.current = Math.max(0, Math.min(total - 1, positionRef.current));
 
-        // Clamp to valid range to prevent out-of-bounds indexing
-        let clampedScroll = Math.max(0, Math.min(total - 1, currentScroll.current));
+        // calculate fractional transition progress for GLSL shader uniforms
+        const currentSlide = Math.floor(positionRef.current);
+        const nextSlide = Math.min(total - 1, currentSlide + 1);
+        const progress = positionRef.current - currentSlide;
 
-        let currentIdx = Math.floor(clampedScroll);
-        let nextIdx = Math.min(total - 1, currentIdx + 1);
-
-        // The fractional part is exactly where we are in the transition (0.0 to 1.0)
-        let localProgress = clampedScroll - currentIdx;
-
-        // Handle edge case at the very end of the scroll array
-        if (currentIdx === total - 1) {
-            currentIdx = total - 2;
-            nextIdx = total - 1;
-            localProgress = 1.0;
+        // notify parent section of integer slide changes to drive html text crossfades
+        const roundedIndex = Math.round(positionRef.current);
+        if (roundedIndex !== lastSlideRef.current) {
+            lastSlideRef.current = roundedIndex;
+            if (onSlideChange) {
+                onSlideChange(roundedIndex);
+            }
         }
 
-        materialRef.current.uniforms.tex1.value = textures[currentIdx];
-        materialRef.current.uniforms.tex2.value = textures[nextIdx];
-        materialRef.current.uniforms.progress.value = localProgress;
+        materialRef.current.uniforms.tex1.value = textures[currentSlide];
+        materialRef.current.uniforms.tex2.value = textures[nextSlide];
+        materialRef.current.uniforms.progress.value = progress;
         materialRef.current.uniforms.time.value += delta;
     });
 
@@ -171,10 +200,11 @@ function ScrollMaterial({
 
 interface Props {
     images: string[];
-    activeIndex: number;
+    onSlideChange?: (index: number) => void;
+    isLocked?: boolean;
 }
 
-export const ScrollTransitionCanvas = ({ images, activeIndex }: Props) => {
+export const ScrollTransitionCanvas = ({ images, onSlideChange, isLocked }: Props) => {
     return (
         <Canvas 
             orthographic
@@ -189,7 +219,7 @@ export const ScrollTransitionCanvas = ({ images, activeIndex }: Props) => {
         >
             <mesh>
                 <planeGeometry args={[2, 2]} />
-                <ScrollMaterial images={images} activeIndex={activeIndex} />
+                <ScrollMaterial images={images} onSlideChange={onSlideChange} isLocked={isLocked} />
             </mesh>
         </Canvas>
     );

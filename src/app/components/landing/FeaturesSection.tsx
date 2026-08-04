@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, type MotionValue } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -108,17 +108,17 @@ const FeatureSlide = ({
     activeIndex: number;
     isStatic?: boolean;
 }) => {
-    // Sharp boolean text opacity so it fully transitions with the WebGL slider
+    // sharp boolean text opacity to sync with webgl physics engine
     const isActive = isStatic || activeIndex === index;
     const textOpacity = isActive ? 1 : 0;
 
     return (
         <motion.div className="absolute inset-0 pointer-events-none">
-            {/* text content - uses sharp transition to perfectly sync with WebGL slider */}
+            {/* text content with framer motion opacity animation */}
             <motion.div
                 className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-20 z-10 pointer-events-none will-change-[opacity]"
                 animate={{ opacity: textOpacity }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 initial={false}
             >
                 <div className="max-w-3xl">
@@ -142,9 +142,7 @@ const FeatureSlide = ({
             {/* slide counter */}
             <motion.div
                 className="absolute bottom-8 right-8 sm:bottom-12 sm:right-12 lg:bottom-20 lg:right-20 z-10 pointer-events-none will-change-[opacity]"
-                animate={{ opacity: textOpacity }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                initial={false}
+                style={{ opacity: textOpacity }}
             >
                 <span className="text-xs font-mono tracking-widest text-white/30">
                     {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -161,6 +159,21 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const [isExited, setIsExited] = useState(false);
     const [showExit, setShowExit] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [isLocked, setIsLocked] = useState(false);
+
+    // track when the section has scrolled to the top of the viewport and locked
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            // active lock occurs when top is at top of viewport and section is active
+            const locked = rect.top <= 10 && rect.bottom >= window.innerHeight - 10;
+            setIsLocked(locked);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     // This handles the crossfade once it is locked at the top
     const { scrollYProgress } = useScroll({
@@ -171,11 +184,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     // Show exit button only when deep inside the showcase
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
         setShowExit(latest > 0.05 && latest < 0.95);
-        
-        const target = Math.round(latest * (showcaseFeatures.length - 1));
-        if (target !== activeIndex) {
-            setActiveIndex(target);
-        }
     });
 
     // This handles the entry animation (the card scaling up into fullscreen)
@@ -388,7 +396,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     {/* Inject Scroll-driven WebGL Canvas */}
                     <ScrollTransitionCanvas 
                         images={showcaseFeatures.map(f => f.imageSrcs[0])} 
-                        activeIndex={activeIndex} 
+                        onSlideChange={setActiveIndex} 
+                        isLocked={isLocked}
                     />
                     
                     {/* Global gradient overlay so text is always readable */}
