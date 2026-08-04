@@ -175,6 +175,21 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // handle slide change from webgl canvas and align page scroll position
+    const handleSlideChange = (index: number) => {
+        setActiveIndex(index);
+
+        // synchronize window scroll position to match current slide index
+        // this aligns physical scroll position to the bottom on the last slide,
+        // so the very next scroll down immediately exits into the sections below!
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const slideHeight = window.innerHeight;
+            const targetY = window.scrollY + rect.top + (index * slideHeight);
+            window.scrollTo({ top: targetY, behavior: "smooth" });
+        }
+    };
+
     // This handles the crossfade once it is locked at the top
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -396,7 +411,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     {/* Inject Scroll-driven WebGL Canvas */}
                     <ScrollTransitionCanvas 
                         images={showcaseFeatures.map(f => f.imageSrcs[0])} 
-                        onSlideChange={setActiveIndex} 
+                        onSlideChange={handleSlideChange} 
                         isLocked={isLocked}
                     />
                     
