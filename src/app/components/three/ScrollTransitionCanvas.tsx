@@ -136,8 +136,8 @@ function ScrollMaterial({
             if (!isLocked) return;
 
             const now = Date.now();
-            // throttle wheel gestures by 600ms to cap big flicks to exactly 1 slide
-            if (now - lastWheelTimeRef.current < 600) return;
+            // throttle wheel gestures by 400ms to match faster lerp speed while capping flicks to 1 slide
+            if (now - lastWheelTimeRef.current < 400) return;
 
             if (e.deltaY > 15) {
                 targetIndexRef.current = Math.min(images.length - 1, targetIndexRef.current + 1);
@@ -160,8 +160,8 @@ function ScrollMaterial({
         // calculate distance to target slide index
         const distanceToTarget = targetIndexRef.current - positionRef.current;
         
-        // slow, graceful spring glide (delta * 2.2 slows down transition speed as requested)
-        positionRef.current += distanceToTarget * (delta * 2.2);
+        // snappy spring lerp speed for faster image arrival
+        positionRef.current += distanceToTarget * (delta * 4.8);
 
         // clamp position within valid texture index bounds
         positionRef.current = Math.max(0, Math.min(total - 1, positionRef.current));
