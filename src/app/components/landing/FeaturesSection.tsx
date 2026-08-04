@@ -99,31 +99,27 @@ const FeatureSlide = ({
     feature,
     index,
     total,
-    scrollYProgress,
+    activeIndex,
     isStatic = false,
 }: {
     feature: typeof showcaseFeatures[0];
     index: number;
     total: number;
-    scrollYProgress: MotionValue<number>;
+    activeIndex: number;
     isStatic?: boolean;
 }) => {
-    // Text opacity: sharp crossfade. Fades out completely before the
-    // next text fades in, preventing garbled overlapping text!
-    const dynamicTextOpacity = useTransform(scrollYProgress, (progress: number) => {
-        const activeSlide = progress * (total - 1);
-        const distance = Math.abs(activeSlide - index);
-        return Math.max(0, 1 - distance * 2.5);
-    });
-
-    const textOpacity = isStatic ? 1 : dynamicTextOpacity;
+    // Sharp boolean text opacity so it fully transitions with the WebGL slider
+    const isActive = isStatic || activeIndex === index;
+    const textOpacity = isActive ? 1 : 0;
 
     return (
         <motion.div className="absolute inset-0 pointer-events-none">
-            {/* text content - uses sharper textOpacity to avoid overlapping */}
+            {/* text content - uses sharp transition to perfectly sync with WebGL slider */}
             <motion.div
                 className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-20 z-10 pointer-events-none will-change-[opacity]"
-                style={{ opacity: textOpacity }}
+                animate={{ opacity: textOpacity }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                initial={false}
             >
                 <div className="max-w-3xl">
                     <div className="flex items-center gap-2.5 mb-4">
@@ -146,7 +142,9 @@ const FeatureSlide = ({
             {/* slide counter */}
             <motion.div
                 className="absolute bottom-8 right-8 sm:bottom-12 sm:right-12 lg:bottom-20 lg:right-20 z-10 pointer-events-none will-change-[opacity]"
-                style={{ opacity: textOpacity }}
+                animate={{ opacity: textOpacity }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                initial={false}
             >
                 <span className="text-xs font-mono tracking-widest text-white/30">
                     {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -162,6 +160,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isExited, setIsExited] = useState(false);
     const [showExit, setShowExit] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     // This handles the crossfade once it is locked at the top
     const { scrollYProgress } = useScroll({
@@ -172,6 +171,11 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     // Show exit button only when deep inside the showcase
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
         setShowExit(latest > 0.05 && latest < 0.95);
+        
+        const target = Math.round(latest * (showcaseFeatures.length - 1));
+        if (target !== activeIndex) {
+            setActiveIndex(target);
+        }
     });
 
     // This handles the entry animation (the card scaling up into fullscreen)
@@ -384,7 +388,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     {/* Inject Scroll-driven WebGL Canvas */}
                     <ScrollTransitionCanvas 
                         images={showcaseFeatures.map(f => f.imageSrcs[0])} 
-                        scrollYProgress={scrollYProgress} 
+                        activeIndex={activeIndex} 
                     />
                     
                     {/* Global gradient overlay so text is always readable */}
@@ -413,7 +417,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             feature={showcaseFeatures[0]}
                             index={0}
                             total={showcaseFeatures.length}
-                            scrollYProgress={scrollYProgress}
+                            activeIndex={0}
                             isStatic={true}
                         />
                     ) : (
@@ -423,7 +427,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 feature={feature}
                                 index={idx}
                                 total={showcaseFeatures.length}
-                                scrollYProgress={scrollYProgress}
+                                activeIndex={activeIndex}
                             />
                         ))
                     )}

@@ -19,115 +19,89 @@ uniform sampler2D tex2;
 uniform float progress;
 uniform float aspect;
 uniform float imageAspect;
+uniform float time;
 varying vec2 vUv;
 
-// Classic Perlin 2D Noise for organic distortion
-vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod289(i); 
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-  m = m*m; m = m*m;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
+vec2 mirrored(vec2 v) {
+  vec2 m = mod(v, 2.0);
+  return mix(m, 2.0 - m, step(1.0, m));
+}
+
+float tri(float p) {
+  return mix(p, 1.0 - p, step(0.5, p))*2.0;
 }
 
 void main() {
-    // Emulate CSS object-fit: cover
-    vec2 uv = vUv - 0.5;
+    // Preserve aspect ratio for the texture UVs (equivalent to vUv1 and uvRate1 in the repo)
+    vec2 vUv1 = vUv - 0.5;
     float ratio = aspect / imageAspect;
-    if (ratio > 1.0) { uv.y *= 1.0 / ratio; } else { uv.x *= ratio; }
-    uv += 0.5;
+    if (ratio > 1.0) { vUv1.y *= 1.0 / ratio; } else { vUv1.x *= ratio; }
+    vUv1 += 0.5;
 
-    // Smooth easing for the progress
-    float p = smoothstep(0.0, 1.0, progress);
+    // Use raw vUv as the screen coordinate for the delay effect (equivalent to gl_FragCoord / pixels)
+    vec2 uv = vUv;
     
-    // Generate organic noise
-    float noiseVal = snoise(uv * 3.0 + p * 2.0);
+    // progress is already the fractional part (0.0 to 1.0) passed from JS
+    float p = progress;
+
+    vec2 accel = vec2(0.5, 2.0);
     
-    // Liquid tear effect (horizontal wave distortion)
-    float tear = sin(uv.y * 20.0 + noiseVal * 10.0) * 0.1;
-    
-    // Intensity peaks at the middle of the transition (0.5)
-    float intensity = sin(p * 3.1415);
-    
-    // Apply displacement
-    vec2 disp = vec2(tear * intensity, noiseVal * 0.05 * intensity);
-    
-    // Zoom out/in effect while displaced
-    vec2 uv1 = (uv - 0.5) * (1.0 + p * 0.15) + 0.5 + disp;
-    vec2 uv2 = (uv - 0.5) * (1.0 + (1.0 - p) * 0.15) + 0.5 + disp;
+    float delayValue = p * 7.0 - uv.y * 2.0 + uv.x - 2.0;
+    delayValue = clamp(delayValue, 0.0, 1.0);
 
-    // Cinematic Chromatic Aberration (RGB Split)
-    float rOffset = 0.04 * intensity;
-    float bOffset = -0.04 * intensity;
+    vec2 translateValue = p + delayValue*accel;
+    vec2 translateValue1 = vec2(-0.5, 1.0) * translateValue;
+    vec2 translateValue2 = vec2(-0.5, 1.0) * (translateValue - 1.0 - accel);
 
-    vec4 t1 = vec4(
-        texture2D(tex1, uv1 + vec2(rOffset, 0.0)).r,
-        texture2D(tex1, uv1).g,
-        texture2D(tex1, uv1 + vec2(bOffset, 0.0)).b,
-        1.0
-    );
+    vec2 w = sin( sin(time)*vec2(0.0, 0.3) + vUv.yx*vec2(0.0, 4.0)) * vec2(0.0, 0.5);
+    vec2 xy = w*(tri(p)*0.5 + tri(delayValue)*0.5);
 
-    vec4 t2 = vec4(
-        texture2D(tex2, uv2 + vec2(rOffset, 0.0)).r,
-        texture2D(tex2, uv2).g,
-        texture2D(tex2, uv2 + vec2(bOffset, 0.0)).b,
-        1.0
-    );
+    vec2 uv1 = vUv1 + translateValue1 + xy;
+    vec2 uv2 = vUv1 + translateValue2 + xy;
 
-    // Diagonal liquid wipe
-    float wipe = smoothstep(0.0, 1.0, (uv.x + uv.y) * 0.5 + tear);
-    float sweep = smoothstep(wipe - 0.5, wipe + 0.5, p * 2.0 - 0.5);
+    vec4 rgba1 = texture2D(tex1, mirrored(uv1));
+    vec4 rgba2 = texture2D(tex2, mirrored(uv2));
 
-    gl_FragColor = mix(t1, t2, sweep);
+    vec4 rgba = mix(rgba1, rgba2, delayValue);
+    gl_FragColor = rgba;
 }
 `;
 
+function easeOutCubic(x: number): number {
+    return 1 - Math.pow(1 - x, 3);
+}
+
 function ScrollMaterial({ 
     images, 
-    scrollYProgress 
+    activeIndex 
 }: { 
     images: string[], 
-    scrollYProgress: MotionValue<number> 
+    activeIndex: number 
 }) {
     const [textures, setTextures] = useState<THREE.Texture[]>([]);
     const materialRef = useRef<THREE.ShaderMaterial>(null);
-    const { viewport } = useThree();
+    const { viewport, gl } = useThree();
 
-    // Preload all textures on mount
     useEffect(() => {
         const loader = new THREE.TextureLoader();
+        const maxAniso = gl.capabilities.getMaxAnisotropy();
+
         const promises = images.map((src) => {
             return new Promise<THREE.Texture>((resolve) => {
                 loader.load(src, (t) => {
                     t.colorSpace = THREE.SRGBColorSpace;
+                    t.wrapS = THREE.ClampToEdgeWrapping;
+                    t.wrapT = THREE.ClampToEdgeWrapping;
+                    t.generateMipmaps = false;
+                    t.minFilter = THREE.LinearFilter;
+                    t.magFilter = THREE.LinearFilter;
+                    t.needsUpdate = true;
                     resolve(t);
                 });
             });
         });
-
-        Promise.all(promises).then((loadedTextures) => {
-            console.log("🚀 WebGL: Successfully preloaded all textures for scroll tracking!");
-            setTextures(loadedTextures);
-        });
-    }, [images]);
+        Promise.all(promises).then(setTextures);
+    }, [images, gl]);
 
     const uniforms = useMemo(
         () => ({
@@ -135,38 +109,52 @@ function ScrollMaterial({
             tex2: { value: null },
             progress: { value: 0.0 },
             aspect: { value: viewport.aspect },
-            imageAspect: { value: 16 / 9 }, // Assumes features are roughly 16:9
+            imageAspect: { value: 16 / 9 },
+            time: { value: 0.0 },
         }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
 
-    // Update aspect ratio if the window resizes
     useEffect(() => {
         if (materialRef.current) {
             materialRef.current.uniforms.aspect.value = viewport.aspect;
         }
     }, [viewport.aspect]);
 
-    // 60FPS loop binding Framer Motion scroll directly to the GPU shader
-    useFrame(() => {
+    const currentScroll = useRef(0);
+
+    useFrame((_, delta) => {
         if (!materialRef.current || textures.length === 0) return;
-
         const total = textures.length;
-        const progress = scrollYProgress.get(); // Raw scroll value between 0.0 and 1.0
-        
-        // Calculate which two images we are currently transitioning between
-        const activeSlide = progress * (total - 1);
-        const index1 = Math.floor(activeSlide);
-        const index2 = Math.min(total - 1, Math.ceil(activeSlide));
-        
-        // Calculate the local progress percentage between those two specific images
-        const localProgress = activeSlide - index1;
+        if (total < 2) return;
 
-        // Push values instantly to the GPU
-        materialRef.current.uniforms.tex1.value = textures[index1];
-        materialRef.current.uniforms.tex2.value = textures[index2];
+        const targetScroll = activeIndex;
+
+        // Smoothly lerp towards target for that buttery fluid feel
+        // react-fluid-gallery uses a gentle spring/lerp (roughly delta * 2.5)
+        currentScroll.current += (targetScroll - currentScroll.current) * (delta * 3.0);
+
+        // Clamp to valid range to prevent out-of-bounds indexing
+        let clampedScroll = Math.max(0, Math.min(total - 1, currentScroll.current));
+
+        let currentIdx = Math.floor(clampedScroll);
+        let nextIdx = Math.min(total - 1, currentIdx + 1);
+
+        // The fractional part is exactly where we are in the transition (0.0 to 1.0)
+        let localProgress = clampedScroll - currentIdx;
+
+        // Handle edge case at the very end of the scroll array
+        if (currentIdx === total - 1) {
+            currentIdx = total - 2;
+            nextIdx = total - 1;
+            localProgress = 1.0;
+        }
+
+        materialRef.current.uniforms.tex1.value = textures[currentIdx];
+        materialRef.current.uniforms.tex2.value = textures[nextIdx];
         materialRef.current.uniforms.progress.value = localProgress;
+        materialRef.current.uniforms.time.value += delta;
     });
 
     return (
@@ -176,28 +164,32 @@ function ScrollMaterial({
             fragmentShader={fragmentShader}
             uniforms={uniforms}
             transparent={true}
+            toneMapped={false}
         />
     );
 }
 
-export function ScrollTransitionCanvas({ 
-    images, 
-    scrollYProgress 
-}: { 
-    images: string[], 
-    scrollYProgress: MotionValue<number> 
-}) {
+interface Props {
+    images: string[];
+    activeIndex: number;
+}
+
+export const ScrollTransitionCanvas = ({ images, activeIndex }: Props) => {
     return (
         <Canvas 
             orthographic
             camera={{ position: [0, 0, 1], left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 100 }}
             gl={{ alpha: true, antialias: true }}
+            onCreated={({ gl }) => {
+                gl.outputColorSpace = THREE.SRGBColorSpace;
+                gl.toneMapping = THREE.NoToneMapping;
+            }}
             className="absolute inset-0 w-full h-full z-0"
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
         >
             <mesh>
                 <planeGeometry args={[2, 2]} />
-                <ScrollMaterial images={images} scrollYProgress={scrollYProgress} />
+                <ScrollMaterial images={images} activeIndex={activeIndex} />
             </mesh>
         </Canvas>
     );
