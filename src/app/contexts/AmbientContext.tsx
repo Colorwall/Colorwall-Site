@@ -9,16 +9,17 @@ type AmbientTrack = {
 };
 
 const AMBIENT_TRACKS: AmbientTrack[] = [
-    { id: "instrumental", label: "Instrumental", src: "/instrumental.mp3" },
-    { id: "crypto-dreams", label: "Crypto Dreams", src: "/crypto-dreams.mp3" },
+    { id: "default", label: "Default", src: "/audio/default.mp3" },
+    { id: "crypto-dreams", label: "Crypto Dreams", src: "/audio/crypto-dreams.mp3" },
+    { id: "atmosphere", label: "Atmosphere", src: "/audio/atmosphere.mp3" },
+    { id: "burialthumping", label: "Burial Thumping", src: "/audio/burialthumping.mp3" },
+    { id: "hue-sparkles", label: "Hue Sparkles", src: "/audio/hueSparkles.mp3" },
+    { id: "humm-plus-bass", label: "Humm Plus Bass", src: "/audio/hummplusbass.mp3" },
+    { id: "spacetype-track", label: "Spacetype Track", src: "/audio/SPACETYPEtrack.mp3" },
 ];
 
-const pickRandomTrack = (excludingId?: string): AmbientTrack => {
-    const filtered = excludingId
-        ? AMBIENT_TRACKS.filter((t) => t.id !== excludingId)
-        : AMBIENT_TRACKS;
-    const pool = filtered.length > 0 ? filtered : AMBIENT_TRACKS;
-    return pool[Math.floor(Math.random() * pool.length)];
+const getDefaultTrack = (): AmbientTrack => {
+    return AMBIENT_TRACKS.find(t => t.id === "default") || AMBIENT_TRACKS[0];
 };
 
 // shared audio state across all ambient player instances
@@ -34,18 +35,8 @@ const AmbientContext = createContext<AmbientContextValue | null>(null);
 
 export function AmbientProvider({ children }: { children: ReactNode }) {
     const [isEnabled, setIsEnabled] = useState(false);
-    const [currentTrack, setCurrentTrack] = useState<AmbientTrack>(() => pickRandomTrack());
+    const [currentTrack, setCurrentTrack] = useState<AmbientTrack>(getDefaultTrack);
     const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    // cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
-            }
-        };
-    }, []);
 
     const ensureAudio = useCallback(() => {
         if (!audioRef.current) {
@@ -58,10 +49,49 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         return audioRef.current;
     }, []);
 
+    // Initial setup, autoplay and cleanup
+    useEffect(() => {
+        const userPaused = localStorage.getItem("ambient-paused") === "true";
+        if (userPaused) return;
+
+        const audio = ensureAudio();
+        if (audio.src !== new URL(currentTrack.src, window.location.origin).href) {
+            audio.src = currentTrack.src;
+        }
+
+        // Attempt autoplay
+        audio.play().then(() => {
+            setIsEnabled(true);
+        }).catch(() => {
+            // Autoplay blocked. Wait for user interaction.
+            const startOnInteraction = () => {
+                const isStillPaused = localStorage.getItem("ambient-paused") === "true";
+                if (!isStillPaused && audioRef.current) {
+                    audioRef.current.play()
+                        .then(() => setIsEnabled(true))
+                        .catch(() => {});
+                }
+                document.removeEventListener("pointerdown", startOnInteraction);
+                document.removeEventListener("keydown", startOnInteraction);
+            };
+            
+            document.addEventListener("pointerdown", startOnInteraction);
+            document.addEventListener("keydown", startOnInteraction);
+        });
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, [currentTrack, ensureAudio]);
+
     const toggle = useCallback(() => {
         if (isEnabled) {
             audioRef.current?.pause();
             setIsEnabled(false);
+            localStorage.setItem("ambient-paused", "true");
             return;
         }
 
@@ -71,7 +101,10 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         }
 
         audio.play()
-            .then(() => setIsEnabled(true))
+            .then(() => {
+                setIsEnabled(true);
+                localStorage.setItem("ambient-paused", "false");
+            })
             .catch(() => setIsEnabled(false));
     }, [isEnabled, currentTrack, ensureAudio]);
 
