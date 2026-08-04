@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, 
 import Image from "next/image";
 import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
+import { ScrollTransitionCanvas } from "../three/ScrollTransitionCanvas";
 
 // ─── headline stat cards ────────────────────────────────────────
 // the most impressive at-a-glance proof points for colorwall's tech.
@@ -107,13 +108,6 @@ const FeatureSlide = ({
     scrollYProgress: MotionValue<number>;
     isStatic?: boolean;
 }) => {
-    // Image opacity: smooth crossfade
-    const dynamicOpacity = useTransform(scrollYProgress, (progress: number) => {
-        const activeSlide = progress * (total - 1);
-        const distance = Math.abs(activeSlide - index);
-        return Math.max(0, 1 - distance);
-    });
-
     // Text opacity: sharp crossfade. Fades out completely before the
     // next text fades in, preventing garbled overlapping text!
     const dynamicTextOpacity = useTransform(scrollYProgress, (progress: number) => {
@@ -122,30 +116,12 @@ const FeatureSlide = ({
         return Math.max(0, 1 - distance * 2.5);
     });
 
-    const opacity = isStatic ? 1 : dynamicOpacity;
     const textOpacity = isStatic ? 1 : dynamicTextOpacity;
 
     return (
-        <motion.div
-            className="absolute inset-0 will-change-[opacity] transform-gpu"
-            style={{ opacity }}
-        >
-            {/* Fullscreen background image - object-cover removes all side padding */}
-            <Image
-                src={feature.imageSrcs[0]}
-                alt={feature.title}
-                fill
-                className="object-cover transform-gpu pointer-events-none"
-                sizes="100vw"
-                loading={index <= 1 ? "eager" : "lazy"}
-                priority={index === 0}
-            />
-
-            {/* gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-
+        <motion.div className="absolute inset-0 pointer-events-none">
             {/* text content - uses sharper textOpacity to avoid overlapping */}
-            <motion.div 
+            <motion.div
                 className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-20 z-10 pointer-events-none will-change-[opacity]"
                 style={{ opacity: textOpacity }}
             >
@@ -168,7 +144,7 @@ const FeatureSlide = ({
             </motion.div>
 
             {/* slide counter */}
-            <motion.div 
+            <motion.div
                 className="absolute bottom-8 right-8 sm:bottom-12 sm:right-12 lg:bottom-20 lg:right-20 z-10 pointer-events-none will-change-[opacity]"
                 style={{ opacity: textOpacity }}
             >
@@ -401,10 +377,19 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 className="relative hidden md:block"
                 style={{ height: isExited ? "100vh" : `${showcaseFeatures.length * 100}vh` }}
             >
-                <motion.div 
+                <motion.div
                     className={isExited ? "relative h-[90vh] sm:h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black" : "sticky top-3 h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black"}
                     style={{ scale, borderRadius }}
                 >
+                    {/* Inject Scroll-driven WebGL Canvas */}
+                    <ScrollTransitionCanvas 
+                        images={showcaseFeatures.map(f => f.imageSrcs[0])} 
+                        scrollYProgress={scrollYProgress} 
+                    />
+                    
+                    {/* Global gradient overlay so text is always readable */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none z-0" />
+
                     <AnimatePresence>
                         {showExit && !isExited && (
                             <motion.button

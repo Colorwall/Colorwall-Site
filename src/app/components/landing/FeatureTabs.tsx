@@ -1,5 +1,5 @@
 "use client";
-
+// unused component since very long, js in case wrote it here
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ChevronDown } from "lucide-react";
