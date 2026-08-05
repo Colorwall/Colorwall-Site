@@ -271,17 +271,19 @@ export default function FluidExperience({ onExit }: Props) {
 
       <FluidTextHost index={index} visible={textVisible} isMobile={isMobile} />
 
-      <div className="hidden md:block absolute right-10 top-1/2 z-30 -translate-y-1/2 md:right-16 lg:right-24">
-        <Link
-          href="/download"
-          className="font-fluid-serif group flex h-28 w-28 items-center justify-center rounded-full border border-white/50 bg-white/10 text-lg tracking-[0.2em] text-white backdrop-blur-sm transition-all duration-500 hover:bg-white/20 hover:border-white/80 hover:scale-105 md:h-32 md:w-32 md:text-xl"
-          style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.35)" }}
-        >
-          <span className="pl-1">
-            PLAY <span className="opacity-70 group-hover:opacity-100">›</span>
-          </span>
-        </Link>
-      </div>
+      {!isMobile && (
+        <div className="absolute right-10 top-1/2 z-30 -translate-y-1/2 md:right-16 lg:right-24">
+          <Link
+            href="/download"
+            className="font-fluid-serif group flex h-28 w-28 items-center justify-center rounded-full border border-white/50 bg-white/10 text-lg tracking-[0.2em] text-white backdrop-blur-sm transition-all duration-500 hover:bg-white/20 hover:border-white/80 hover:scale-105 md:h-32 md:w-32 md:text-xl"
+            style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.35)" }}
+          >
+            <span className="pl-1">
+              PLAY <span className="opacity-70 group-hover:opacity-100">›</span>
+            </span>
+          </Link>
+        </div>
+      )}
 
       <button
         type="button"
