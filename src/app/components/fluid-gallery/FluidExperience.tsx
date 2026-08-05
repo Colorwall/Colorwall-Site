@@ -139,7 +139,7 @@ export default function FluidExperience({ onExit }: Props) {
 
   return (
     <div className="fixed inset-0 z-[200] overflow-hidden bg-black text-white select-none">
-      {!introDone && <CinematicLoading onComplete={() => setIntroDone(true)} />}
+      {!introDone && <CinematicLoading isReady={glReady} onComplete={() => setIntroDone(true)} />}
       
       <FluidPosterLayer />
 

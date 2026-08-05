@@ -4,29 +4,32 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
+  isReady: boolean;
   onComplete: () => void;
 };
 
-export default function CinematicLoading({ onComplete }: Props) {
+export default function CinematicLoading({ isReady, onComplete }: Props) {
   const [phase, setPhase] = useState<"loading" | "opening" | "done">("loading");
 
   useEffect(() => {
-    // 1. Stay in 'loading' phase for 2.5 seconds as the line draws
+    if (!isReady) return;
+
+    // Once WebGL shaders are ready, wait a beat then open the slit
     const timer1 = setTimeout(() => {
       setPhase("opening");
-    }, 2500);
+    }, 500);
 
-    // 2. The opening phase takes about 1.5 seconds, then unmount
+    // The opening phase takes about 1.5 seconds, then unmount
     const timer2 = setTimeout(() => {
       setPhase("done");
       onComplete();
-    }, 4000);
+    }, 2000);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
-  }, [onComplete]);
+  }, [isReady, onComplete]);
 
   if (phase === "done") return null;
 
