@@ -56,7 +56,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            className="absolute px-6 w-full max-w-md md:max-w-lg lg:max-w-xl pointer-events-auto"
+            className="absolute px-6 w-full max-w-3xl lg:max-w-4xl pointer-events-auto"
             style={{
               left: `calc(50% + ${rx}vw)`,
               top: `calc(45% + ${ry}vh)`,
@@ -72,7 +72,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
               {html.meta}
             </motion.p>
             
-            <div className="font-fluid-serif mb-6 flex h-20 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl">
+            <div className="font-fluid-serif mb-6 flex h-24 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-7xl">
               <StrokeText
                 key={`title-${index}`}
                 text={html.title}
@@ -81,7 +81,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
                 strokeWidth={1}
                 drawDuration={1.2}
                 fillDelay={0.4}
-                fontSize={isIntro ? 64 : 56}
+                fontSize={isIntro ? 96 : 72}
                 letterSpacing={0}
               />
             </div>
@@ -90,7 +90,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.0 }}
-              className="font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-base max-w-sm md:max-w-md"
+              className="font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-lg max-w-2xl"
             >
               {html.body}
             </motion.p>
@@ -136,9 +136,38 @@ export default function FluidExperience({ onExit }: Props) {
   const galleryRef = useRef<FluidGalleryHandle>(null);
   const [index, setIndex] = useState(0);
   const [glReady, setGlReady] = useState(false);
+  const [postersReady, setPostersReady] = useState(false);
   const [mountCanvas, setMountCanvas] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const textBooted = useRef(false);
+
+  const onReady = useCallback(() => setGlReady(true), []);
+
+  useEffect(() => {
+    let loaded = 0;
+    const total = FLUID_SLIDES.length;
+
+    if (total === 0) {
+      setPostersReady(true);
+      return;
+    }
+
+    FLUID_SLIDES.forEach((s) => {
+      const img = new Image();
+      img.onload = () => {
+        loaded++;
+        if (loaded === total) setPostersReady(true);
+      };
+      img.onerror = () => {
+        loaded++;
+        if (loaded === total) setPostersReady(true);
+      };
+      img.src = s.poster;
+    });
+  }, []);
+
+  // Check both WebGL engine ready (first video) and poster images ready
+  const isFullyReady = glReady && postersReady;
 
   useFluidPosterSync(index);
 
@@ -164,14 +193,13 @@ export default function FluidExperience({ onExit }: Props) {
   }, [index, introDone]);
 
   const onChange = useCallback((i: number) => setIndex(i), []);
-  const onReady = useCallback(() => setGlReady(true), []);
 
   const goPrev = () => galleryRef.current?.step(-1);
   const goNext = () => galleryRef.current?.step(1);
 
   return (
     <div className="fixed inset-0 z-[200] overflow-hidden bg-black text-white select-none">
-      {!introDone && <CinematicLoading isReady={glReady} onComplete={() => setIntroDone(true)} />}
+      {!introDone && <CinematicLoading isReady={isFullyReady} onComplete={() => setIntroDone(true)} />}
       
       <FluidPosterLayer />
 

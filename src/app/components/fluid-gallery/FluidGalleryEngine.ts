@@ -54,7 +54,7 @@ export class FluidGalleryEngine {
     this._camera = new THREE.PerspectiveCamera(70, width / Math.max(height, 1), 0.001, 100);
     this._camera.position.set(0, 0, 1);
 
-    this._textures = slides.map((src) => this._initTexture(src));
+    this._textures = slides.map((src, idx) => this._initTexture(src, idx === current));
 
     this._material = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
@@ -76,6 +76,22 @@ export class FluidGalleryEngine {
     this._scene.add(this._plane);
 
     this.resize();
+
+    // Stagger preload = "auto" so videos load slowly in the background 
+    // after the initial images and main thread are settled.
+    setTimeout(() => {
+      let delay = 0;
+      this._videos.forEach((v) => {
+        if (v && !this._disposed) {
+          setTimeout(() => {
+            if (!this._disposed && v.preload !== "auto") {
+              v.preload = "auto";
+            }
+          }, delay);
+          delay += 1200; // Load one video every 1.2s in the background
+        }
+      });
+    }, 3000); // Start background loading 3s after mount
   }
 
   private _markReady = () => {
@@ -86,13 +102,13 @@ export class FluidGalleryEngine {
     }
   };
 
-  private _initTexture = (src: string): THREE.Texture => {
+  private _initTexture = (src: string, isInitial: boolean): THREE.Texture => {
     if (isVideoUrl(src)) {
       const video = document.createElement("video");
       video.muted = true;
       video.loop = true;
       video.playsInline = true;
-      video.preload = "auto";
+      video.preload = isInitial ? "auto" : "metadata";
       video.crossOrigin = "anonymous";
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
@@ -103,21 +119,25 @@ export class FluidGalleryEngine {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.generateMipmaps = false;
 
-      const onMeta = () => this._markReady();
-      video.addEventListener("loadeddata", onMeta, { once: true });
-      video.addEventListener("canplay", onMeta, { once: true });
+      if (isInitial) {
+        const onCanPlay = () => this._markReady();
+        video.addEventListener("canplay", onCanPlay, { once: true });
+        // fallback just in case canplay gets stuck
+        video.addEventListener("loadeddata", () => {
+          setTimeout(onCanPlay, 500);
+        }, { once: true });
+      }
 
       video.src = src;
-      video.load();
-      const play = video.play();
-      if (play) play.catch(() => undefined);
 
       this._videos.push(video);
       return texture;
     }
 
     const loader = new THREE.TextureLoader();
-    const texture = loader.load(src, () => this._markReady());
+    const texture = loader.load(src, () => {
+      if (isInitial) this._markReady();
+    });
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -233,6 +253,26 @@ export class FluidGalleryEngine {
     this._material.uniforms.progress.value = progress;
     this._material.uniforms.texture1.value = this._textures[currentIdx];
     this._material.uniforms.texture2.value = this._textures[nextIdx];
+
+    // Optimize video memory and CPU by only playing adjacent videos
+    const active = this._targetIndex;
+    const prev = (active - 1 + n) % n;
+    const next = (active + 1) % n;
+
+    this._videos.forEach((v, i) => {
+      if (!v) return;
+      const isNeeded = i === active || i === prev || i === next;
+      if (isNeeded) {
+        if (v.paused) {
+          const p = v.play();
+          if (p) p.catch(() => undefined);
+        }
+      } else {
+        if (!v.paused) {
+          v.pause();
+        }
+      }
+    });
   }
 
   render() {
