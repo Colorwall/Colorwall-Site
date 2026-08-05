@@ -134,9 +134,47 @@ export const HeroSection = () => {
                 {/* CTA row */}
                 <HeroInteractive />
 
-                {/* ambient player — inline on homepage */}
+                {/* ambient player inline on homepage */}
                 <AmbientPlayer theme="dark" />
 
+                {/* webgl experience    launcher buttons */}
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+
+                    <button
+                        onClick={() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("gallery", "true");
+                            window.history.pushState({}, "", url.pathname + url.search);
+                            window.dispatchEvent(new Event("popstate"));
+                        }}
+                        type="button"
+                        className="relative flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-blue-400/50 hover:bg-blue-500/20 hover:text-blue-300 cursor-pointer"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-[1em] h-[1em] inline-block">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M8 12c1.5-3 6.5-3 8 0" />
+                            <path d="M8 12c1.5 3 6.5 3 8 0" />
+                        </svg>
+                        <span>Cinematic Site</span>
+                    </button>
+
+                          <button
+                        onClick={() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("cinematic", "true");
+                            window.history.pushState({}, "", url.pathname + url.search);
+                            window.dispatchEvent(new Event("popstate"));
+                        }}
+                        type="button"
+                        className="relative flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-[1em] h-[1em] inline-block">
+                            <polygon points="23 7 16 12 23 17 23 7" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
+                        <span>Cinematic Mode</span>
+                    </button>
+                </div>
 
                 {/* platform tags */}
                 <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-mono pt-2 text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
