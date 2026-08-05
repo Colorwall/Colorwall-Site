@@ -327,6 +327,7 @@ body {
   --font-spline: var(--font-spline-sans);
   --font-outfit: var(--font-outfit);
   --font-anurati: 'Anurati', sans-serif;
+  --font-fluid-serif: Georgia, 'Times New Roman', 'Palatino Linotype', serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

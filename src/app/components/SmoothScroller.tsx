@@ -40,6 +40,23 @@ export function SmoothScroller({ children }: { children: ReactNode }) {
     }
   }, [pathname, lenis]);
 
+  // pause lenis while cinematic / fluid-gallery owns the wheel
+  useEffect(() => {
+    if (!lenis) return;
+
+    const sync = () => {
+      const immersive =
+        document.body.dataset.cinematic === "true" ||
+        document.body.dataset.fluidGallery === "true";
+      if (immersive) lenis.stop();
+      else lenis.start();
+    };
+
+    sync();
+    window.addEventListener("cinematic-change", sync);
+    return () => window.removeEventListener("cinematic-change", sync);
+  }, [lenis]);
+
   return (
     <div className="w-full min-h-screen origin-center bg-[var(--background)]">
       {children}

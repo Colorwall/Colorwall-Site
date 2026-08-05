@@ -59,7 +59,10 @@ export const Navbar = () => {
     // listen for cinematic-change events to unmount global navbar during active 3d webgl scene
     useEffect(() => {
         const handleCinematicChange = () => {
-            const active = typeof document !== "undefined" && document.body.dataset.cinematic === "true";
+            const active =
+                typeof document !== "undefined" &&
+                (document.body.dataset.cinematic === "true" ||
+                    document.body.dataset.fluidGallery === "true");
             setIsCinematicActive(active);
         };
 
