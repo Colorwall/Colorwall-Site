@@ -254,14 +254,15 @@ export class FluidGalleryEngine {
     this._material.uniforms.texture1.value = this._textures[currentIdx];
     this._material.uniforms.texture2.value = this._textures[nextIdx];
 
-    // Optimize video memory and CPU by only playing adjacent videos
-    const active = this._targetIndex;
-    const prev = (active - 1 + n) % n;
-    const next = (active + 1) % n;
+    // Optimize video memory and CPU by only playing active/target videos
+    const target = this._targetIndex;
 
     this._videos.forEach((v, i) => {
       if (!v) return;
-      const isNeeded = i === active || i === prev || i === next;
+      
+      // Keep playing if it's currently rendering (currentIdx/nextIdx) or if it's our target destination
+      const isNeeded = i === currentIdx || i === nextIdx || i === target;
+      
       if (isNeeded) {
         if (v.paused) {
           const p = v.play();
