@@ -24,12 +24,13 @@ function slideHtml(index: number) {
   const s = FLUID_SLIDES[index];
   const prev = FLUID_SLIDES[(index - 1 + FLUID_SLIDES.length) % FLUID_SLIDES.length];
   const next = FLUID_SLIDES[(index + 1) % FLUID_SLIDES.length];
+  
   return {
     meta: `${s.index} / ${s.tag}`,
     title: s.title,
     body: s.description,
-    prev: `${prev.index} / ${prev.title}`,
-    next: `${next.index} / ${next.title}`,
+    prev: `‹  ${prev.index} / ${prev.title}`,
+    next: `${next.index} / ${next.title}  ›`,
   };
 }
 
