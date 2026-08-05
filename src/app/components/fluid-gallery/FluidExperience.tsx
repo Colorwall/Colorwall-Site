@@ -34,13 +34,18 @@ function slideHtml(index: number) {
   };
 }
 
-/**
- * Text layer uses a single memoized host + innerHTML swaps so slide copy
- * fades without React reconciling the tree (same idea as HeroBackground).
- */
+const pseudoRand = (seed: number) => {
+  const x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
+};
+
 const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) => {
   const html = slideHtml(index);
   const isIntro = index === 0;
+
+  // Generate deterministic offsets based on index
+  const rx = (pseudoRand(index * 2) - 0.5) * 30; // -15vw to +15vw
+  const ry = (pseudoRand(index * 2 + 1) - 0.5) * 20; // -10vh to +10vh
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
@@ -51,28 +56,23 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            className={
-              isIntro
-                ? "absolute inset-0 flex flex-col items-center justify-center text-center px-6"
-                : "absolute left-8 top-[35%] max-w-md md:left-14 lg:left-20 md:max-w-lg"
-            }
+            className="absolute px-6 w-full max-w-md md:max-w-lg lg:max-w-xl pointer-events-auto"
+            style={{
+              left: `calc(50% + ${rx}vw)`,
+              top: `calc(45% + ${ry}vh)`,
+              transform: "translate(-50%, -50%)",
+            }}
           >
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className={`font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase ${
-                isIntro ? "text-center" : ""
-              }`}
+              className="font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase"
             >
               {html.meta}
             </motion.p>
             
-            <div
-              className={`font-fluid-serif mb-6 flex h-20 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl ${
-                isIntro ? "justify-center w-full" : ""
-              }`}
-            >
+            <div className="font-fluid-serif mb-6 flex h-20 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl">
               <StrokeText
                 key={`title-${index}`}
                 text={html.title}
@@ -81,7 +81,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
                 strokeWidth={1}
                 drawDuration={1.2}
                 fillDelay={0.4}
-                fontSize={isIntro ? 64 : 48}
+                fontSize={isIntro ? 64 : 56}
                 letterSpacing={0}
               />
             </div>
@@ -90,9 +90,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.0 }}
-              className={`font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-base ${
-                isIntro ? "max-w-2xl text-center mt-2" : "max-w-sm"
-              }`}
+              className="font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-base max-w-sm md:max-w-md"
             >
               {html.body}
             </motion.p>
@@ -102,7 +100,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 1.2 }}
-                className="font-outfit mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40 text-center"
+                className="font-outfit mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40"
               >
                 from laxenta inc,
               </motion.p>
