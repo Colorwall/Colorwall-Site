@@ -73,10 +73,14 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
                 }
                 document.removeEventListener("pointerdown", startOnInteraction);
                 document.removeEventListener("keydown", startOnInteraction);
+                document.removeEventListener("touchstart", startOnInteraction);
+                document.removeEventListener("click", startOnInteraction);
             };
             
             document.addEventListener("pointerdown", startOnInteraction);
             document.addEventListener("keydown", startOnInteraction);
+            document.addEventListener("touchstart", startOnInteraction);
+            document.addEventListener("click", startOnInteraction);
         });
 
         return () => {
