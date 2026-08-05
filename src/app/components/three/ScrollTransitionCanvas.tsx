@@ -71,39 +71,134 @@ function easeOutCubic(x: number): number {
     return 1 - Math.pow(1 - x, 3);
 }
 
+export interface ShowcaseFeatureItem {
+    id: string;
+    title: string;
+    description: string;
+    badge: string;
+    imageSrcs: string[];
+}
+
+function createCompositeTexture(slide: ShowcaseFeatureItem, index: number): Promise<THREE.Texture> {
+    return new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 2560;
+        canvas.height = 1440;
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+            resolve(new THREE.Texture());
+            return;
+        }
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = slide.imageSrcs[0];
+
+        img.onload = () => {
+            const imgAspect = img.width / img.height;
+            const canvasAspect = canvas.width / canvas.height;
+            let drawW = canvas.width;
+            let drawH = canvas.height;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            if (imgAspect > canvasAspect) {
+                drawW = canvas.height * imgAspect;
+                offsetX = (canvas.width - drawW) / 2;
+            } else {
+                drawH = canvas.width / imgAspect;
+                offsetY = (canvas.height - drawH) / 2;
+            }
+
+            ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+            // dark vignette gradient overlay for text readability
+            const grad = ctx.createLinearGradient(0, 0, canvas.width * 0.75, canvas.height);
+            grad.addColorStop(0, "rgba(0, 0, 0, 0.75)");
+            grad.addColorStop(0.5, "rgba(0, 0, 0, 0.35)");
+            grad.addColorStop(1, "rgba(0, 0, 0, 0.1)");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // typography matching taotajima.jp luxury editorial style
+            const startX = 160;
+            const startY = 880;
+
+            // draw index and badge (#001 / BADGE)
+            const indexStr = `#${String(index + 1).padStart(3, "0")}`;
+            ctx.font = "600 26px Georgia, 'Playfair Display', serif";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+            ctx.fillText(`${indexStr}  /  ${slide.badge}`, startX, startY - 140);
+
+            // draw main title (large high-contrast luxury serif)
+            ctx.font = "bold 104px Georgia, 'Playfair Display', serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 4;
+            ctx.fillText(slide.title, startX, startY);
+
+            ctx.shadowColor = "transparent";
+
+            // draw description text with word wrap
+            ctx.font = "400 32px system-ui, -apple-system, sans-serif";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+            
+            const words = slide.description.split(" ");
+            let line = "";
+            const maxWidth = 1200;
+            const lineHeight = 48;
+            let currentY = startY + 68;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + " ";
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, startX, currentY);
+                    line = words[n] + " ";
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, startX, currentY);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+            texture.needsUpdate = true;
+
+            resolve(texture);
+        };
+    });
+}
+
 function ScrollMaterial({ 
-    images, 
+    features, 
     onSlideChange,
+    onExitDown,
+    onExitUp,
     isLocked = false
 }: { 
-    images: string[];
+    features: ShowcaseFeatureItem[];
     onSlideChange?: (index: number) => void;
+    onExitDown?: () => void;
+    onExitUp?: () => void;
     isLocked?: boolean;
 }) {
     const [textures, setTextures] = useState<THREE.Texture[]>([]);
     const materialRef = useRef<THREE.ShaderMaterial>(null);
-    const { viewport, gl } = useThree();
+    const { viewport } = useThree();
 
     useEffect(() => {
-        const loader = new THREE.TextureLoader();
-        const maxAniso = gl.capabilities.getMaxAnisotropy();
-
-        const promises = images.map((src) => {
-            return new Promise<THREE.Texture>((resolve) => {
-                loader.load(src, (t) => {
-                    t.colorSpace = THREE.SRGBColorSpace;
-                    t.wrapS = THREE.ClampToEdgeWrapping;
-                    t.wrapT = THREE.ClampToEdgeWrapping;
-                    t.generateMipmaps = false;
-                    t.minFilter = THREE.LinearFilter;
-                    t.magFilter = THREE.LinearFilter;
-                    t.needsUpdate = true;
-                    resolve(t);
-                });
-            });
-        });
+        const promises = features.map((f, i) => createCompositeTexture(f, i));
         Promise.all(promises).then(setTextures);
-    }, [images, gl]);
+    }, [features]);
 
     const uniforms = useMemo(
         () => ({
@@ -140,17 +235,29 @@ function ScrollMaterial({
             if (now - lastWheelTimeRef.current < 480) return;
 
             if (e.deltaY > 15) {
-                targetIndexRef.current = Math.min(images.length - 1, targetIndexRef.current + 1);
-                lastWheelTimeRef.current = now;
+                if (targetIndexRef.current < features.length - 1) {
+                    targetIndexRef.current += 1;
+                    lastWheelTimeRef.current = now;
+                } else if (onExitDown) {
+                    // user is on the last slide and scrolled down again: exit section immediately
+                    onExitDown();
+                    lastWheelTimeRef.current = now;
+                }
             } else if (e.deltaY < -15) {
-                targetIndexRef.current = Math.max(0, targetIndexRef.current - 1);
-                lastWheelTimeRef.current = now;
+                if (targetIndexRef.current > 0) {
+                    targetIndexRef.current -= 1;
+                    lastWheelTimeRef.current = now;
+                } else if (onExitUp) {
+                    // user is on the first slide and scrolled up again: exit section immediately
+                    onExitUp();
+                    lastWheelTimeRef.current = now;
+                }
             }
         };
 
         window.addEventListener("wheel", handleWheel, { passive: true });
         return () => window.removeEventListener("wheel", handleWheel);
-    }, [isLocked, images.length]);
+    }, [isLocked, features.length, onExitDown, onExitUp]);
 
     useFrame((_, delta) => {
         if (!materialRef.current || textures.length === 0) return;
@@ -199,12 +306,14 @@ function ScrollMaterial({
 }
 
 interface Props {
-    images: string[];
+    features: ShowcaseFeatureItem[];
     onSlideChange?: (index: number) => void;
+    onExitDown?: () => void;
+    onExitUp?: () => void;
     isLocked?: boolean;
 }
 
-export const ScrollTransitionCanvas = ({ images, onSlideChange, isLocked }: Props) => {
+export const ScrollTransitionCanvas = ({ features, onSlideChange, onExitDown, onExitUp, isLocked }: Props) => {
     return (
         <Canvas 
             orthographic
@@ -219,7 +328,13 @@ export const ScrollTransitionCanvas = ({ images, onSlideChange, isLocked }: Prop
         >
             <mesh>
                 <planeGeometry args={[2, 2]} />
-                <ScrollMaterial images={images} onSlideChange={onSlideChange} isLocked={isLocked} />
+                <ScrollMaterial 
+                    features={features} 
+                    onSlideChange={onSlideChange} 
+                    onExitDown={onExitDown}
+                    onExitUp={onExitUp}
+                    isLocked={isLocked} 
+                />
             </mesh>
         </Canvas>
     );

@@ -180,12 +180,28 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
         setActiveIndex(index);
 
         // synchronize window scroll position to match current slide index
-        // this aligns physical scroll position to the bottom on the last slide,
-        // so the very next scroll down immediately exits into the sections below!
         if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             const slideHeight = window.innerHeight;
             const targetY = window.scrollY + rect.top + (index * slideHeight);
+            window.scrollTo({ top: targetY, behavior: "smooth" });
+        }
+    };
+
+    // scroll page smoothly past the showcase section into the sections below
+    const handleExitDown = () => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const targetY = window.scrollY + rect.bottom + 20;
+            window.scrollTo({ top: targetY, behavior: "smooth" });
+        }
+    };
+
+    // scroll page smoothly above the showcase section into the hero section above
+    const handleExitUp = () => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const targetY = window.scrollY + rect.top - window.innerHeight - 20;
             window.scrollTo({ top: targetY, behavior: "smooth" });
         }
     };
@@ -410,8 +426,10 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 >
                     {/* Inject Scroll-driven WebGL Canvas */}
                     <ScrollTransitionCanvas 
-                        images={showcaseFeatures.map(f => f.imageSrcs[0])} 
+                        features={showcaseFeatures} 
                         onSlideChange={handleSlideChange} 
+                        onExitDown={handleExitDown}
+                        onExitUp={handleExitUp}
                         isLocked={isLocked}
                     />
                     
@@ -435,26 +453,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         )}
                     </AnimatePresence>
 
-                    {isExited ? (
-                        <FeatureSlide
-                            key={showcaseFeatures[0].id}
-                            feature={showcaseFeatures[0]}
-                            index={0}
-                            total={showcaseFeatures.length}
-                            activeIndex={0}
-                            isStatic={true}
-                        />
-                    ) : (
-                        showcaseFeatures.map((feature, idx) => (
-                            <FeatureSlide
-                                key={feature.id}
-                                feature={feature}
-                                index={idx}
-                                total={showcaseFeatures.length}
-                                activeIndex={activeIndex}
-                            />
-                        ))
-                    )}
+
                 </motion.div>
             </div>
 
