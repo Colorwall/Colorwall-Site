@@ -184,7 +184,15 @@ export class FluidGalleryEngine {
     this._renderer.setSize(width, height, false);
     this._camera.aspect = width / height;
 
-    this._material.uniforms.uvRate1.value.y = height / width;
+    // calculate 16:9 cover aspect ratio scaling to prevent videos from zooming in
+    const canvasAspect = width / height;
+    const imageAspect = 16 / 9;
+    if (canvasAspect > imageAspect) {
+      this._material.uniforms.uvRate1.value.set(1.0, imageAspect / canvasAspect);
+    } else {
+      this._material.uniforms.uvRate1.value.set(canvasAspect / imageAspect, 1.0);
+    }
+
     this._material.uniforms.pixels.value.set(width, height);
 
     const dist = this._camera.position.z - this._plane.position.z;
@@ -202,15 +210,16 @@ export class FluidGalleryEngine {
     const n = this._textures.length;
     if (n === 0) return;
 
-    // shortest angular distance interpolation to target slide position over ~600ms
+    // shortest angular distance interpolation to target slide position over ~400ms
     let dist = this._targetIndex - this._position;
     if (dist > n / 2) dist -= n;
     if (dist < -n / 2) dist += n;
 
-    // smooth step factor tuned to 0.045 so position glides across full screen over 600ms
-    this._position += dist * 0.045;
+    // smooth step factor tuned to 0.095 for crisp transition pacing
+    this._position += dist * 0.095;
 
-    if (Math.abs(dist) < 0.001) {
+    // snap threshold to eliminate exponential lerp decay tail and instant-settle texture UVs
+    if (Math.abs(dist) < 0.012) {
       this._position = this._targetIndex;
     }
 
