@@ -39,13 +39,17 @@ const pseudoRand = (seed: number) => {
   return x - Math.floor(x);
 };
 
-const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) => {
+const FluidTextHost = ({ index, visible, isMobile }: { index: number; visible: boolean; isMobile: boolean }) => {
   const html = slideHtml(index);
   const isIntro = index === 0;
 
   // Generate deterministic offsets based on index
-  const rx = (pseudoRand(index * 2) - 0.5) * 30; // -15vw to +15vw
-  const ry = (pseudoRand(index * 2 + 1) - 0.5) * 20; // -10vh to +10vh
+  // On mobile, keep it strictly centered (0 offset) to prevent clipping off-screen
+  const maxRx = isMobile ? 0 : 30; // -15vw to +15vw on desktop
+  const maxRy = isMobile ? 0 : 20; // -10vh to +10vh on desktop
+  
+  const rx = (pseudoRand(index * 2) - 0.5) * maxRx;
+  const ry = (pseudoRand(index * 2 + 1) - 0.5) * maxRy;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
@@ -72,7 +76,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
               {html.meta}
             </motion.p>
             
-            <div className="font-fluid-serif mb-6 flex h-24 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-7xl">
+            <div className="font-fluid-serif mb-6 flex min-h-[4rem] items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-7xl">
               <StrokeText
                 key={`title-${index}`}
                 text={html.title}
@@ -81,7 +85,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
                 strokeWidth={1}
                 drawDuration={1.2}
                 fillDelay={0.4}
-                fontSize={isIntro ? 96 : 72}
+                fontSize={isIntro ? (isMobile ? 42 : 96) : (isMobile ? 32 : 72)}
                 letterSpacing={0}
               />
             </div>
@@ -139,7 +143,15 @@ export default function FluidExperience({ onExit }: Props) {
   const [postersReady, setPostersReady] = useState(false);
   const [mountCanvas, setMountCanvas] = useState(false);
   const [introDone, setIntroDone] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const textBooted = useRef(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const onReady = useCallback(() => setGlReady(true), []);
 
@@ -229,13 +241,12 @@ export default function FluidExperience({ onExit }: Props) {
           >
             COLORWALL
           </button>
-          <span className="text-white/40">/</span>
-          <Link href="/about" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
-            About
-            <span aria-hidden className="text-[10px]">›</span>
-          </Link>
         </div>
-        <div className="font-fluid-serif pointer-events-auto text-sm tracking-wide text-white/70 md:text-base">
+        <div className="font-fluid-serif pointer-events-auto flex items-center text-sm tracking-wide text-white/70 md:text-base">
+          <Link href="/about" className="hover:text-white transition-colors">
+            About
+          </Link>
+          <span className="mx-2 text-white/35">/</span>
           <Link href="/wallpapers" className="hover:text-white transition-colors">
             wallpapers
           </Link>
@@ -258,9 +269,9 @@ export default function FluidExperience({ onExit }: Props) {
         <span className="block h-px w-5 bg-white" />
       </button>
 
-      <FluidTextHost index={index} visible={textVisible} />
+      <FluidTextHost index={index} visible={textVisible} isMobile={isMobile} />
 
-      <div className="absolute right-10 top-1/2 z-30 -translate-y-1/2 md:right-16 lg:right-24">
+      <div className="hidden md:block absolute right-10 top-1/2 z-30 -translate-y-1/2 md:right-16 lg:right-24">
         <Link
           href="/download"
           className="font-fluid-serif group flex h-28 w-28 items-center justify-center rounded-full border border-white/50 bg-white/10 text-lg tracking-[0.2em] text-white backdrop-blur-sm transition-all duration-500 hover:bg-white/20 hover:border-white/80 hover:scale-105 md:h-32 md:w-32 md:text-xl"
