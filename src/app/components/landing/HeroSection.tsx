@@ -5,6 +5,7 @@ import { AmbientPlayer } from "./AmbientPlayer";
 import { Outfit } from "next/font/google";
 import { HeroInteractive } from "./HeroInteractive";
 import { HeroTypewriter } from "./HeroTypewriter";
+import { useAmbient } from "@/app/contexts/AmbientContext";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500"] });
 
@@ -84,6 +85,7 @@ const HeroBackground = React.memo(() => (
 ), () => true);
 
 export const HeroSection = () => {
+    const ambient = useAmbient();
     return (
         <section
             className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-black text-white"
@@ -142,6 +144,7 @@ export const HeroSection = () => {
 
                     <button
                         onClick={() => {
+                            ambient.forcePlay();
                             const url = new URL(window.location.href);
                             url.searchParams.set("gallery", "true");
                             window.history.pushState({}, "", url.pathname + url.search);
@@ -160,6 +163,7 @@ export const HeroSection = () => {
 
                           <button
                         onClick={() => {
+                            ambient.forcePlay();
                             const url = new URL(window.location.href);
                             url.searchParams.set("cinematic", "true");
                             window.history.pushState({}, "", url.pathname + url.search);

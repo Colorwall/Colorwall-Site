@@ -28,6 +28,7 @@ interface AmbientContextValue {
     currentTrack: AmbientTrack;
     tracks: AmbientTrack[];
     toggle: () => void;
+    forcePlay: () => void;
     selectTrack: (track: AmbientTrack) => void;
 }
 
@@ -71,16 +72,16 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
                         .then(() => setIsEnabled(true))
                         .catch(() => {});
                 }
-                document.removeEventListener("pointerdown", startOnInteraction);
-                document.removeEventListener("keydown", startOnInteraction);
-                document.removeEventListener("touchstart", startOnInteraction);
-                document.removeEventListener("click", startOnInteraction);
+                document.removeEventListener("pointerdown", startOnInteraction, true);
+                document.removeEventListener("keydown", startOnInteraction, true);
+                document.removeEventListener("touchstart", startOnInteraction, true);
+                document.removeEventListener("click", startOnInteraction, true);
             };
             
-            document.addEventListener("pointerdown", startOnInteraction);
-            document.addEventListener("keydown", startOnInteraction);
-            document.addEventListener("touchstart", startOnInteraction);
-            document.addEventListener("click", startOnInteraction);
+            document.addEventListener("pointerdown", startOnInteraction, { capture: true });
+            document.addEventListener("keydown", startOnInteraction, { capture: true });
+            document.addEventListener("touchstart", startOnInteraction, { capture: true });
+            document.addEventListener("click", startOnInteraction, { capture: true });
         });
 
         return () => {
@@ -112,6 +113,19 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
             .catch(() => setIsEnabled(false));
     }, [isEnabled, currentTrack, ensureAudio]);
 
+    const forcePlay = useCallback(() => {
+        const audio = ensureAudio();
+        if (audio.src !== new URL(currentTrack.src, window.location.origin).href) {
+            audio.src = currentTrack.src;
+        }
+        audio.play()
+            .then(() => {
+                setIsEnabled(true);
+                localStorage.setItem("ambient-paused", "false");
+            })
+            .catch(() => {});
+    }, [currentTrack, ensureAudio]);
+
     const selectTrack = useCallback((track: AmbientTrack) => {
         setCurrentTrack(track);
         const audio = audioRef.current;
@@ -122,7 +136,7 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
     }, [isEnabled]);
 
     return (
-        <AmbientContext.Provider value={{ isEnabled, currentTrack, tracks: AMBIENT_TRACKS, toggle, selectTrack }}>
+        <AmbientContext.Provider value={{ isEnabled, currentTrack, tracks: AMBIENT_TRACKS, toggle, forcePlay, selectTrack }}>
             {children}
         </AmbientContext.Provider>
     );
