@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Download',
-    description: 'Download ColorWall — the performance-first desktop customization engine for Windows 10/11.',
+    description: 'Download the ColorWall app for Windows 10/11. Experience 8K live wallpapers, native desktop widgets, and taskbar customization with near-zero CPU overhead.',
 };
 
 export default function DownloadLayout({

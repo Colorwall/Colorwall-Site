@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import { getIndex, computeToken } from "@/lib/wallpapers";
 import WallpaperClient from "./WallpaperClient";
+
+export const metadata: Metadata = {
+    title: 'Wallpapers',
+    description: 'Browse thousands of 4K and 8K live wallpapers for the ColorWall desktop app. Discover interactive WebGL scenes, anime backgrounds, and more.',
+};
 
 export default function WallpapersPage() {
     const idx = getIndex();
