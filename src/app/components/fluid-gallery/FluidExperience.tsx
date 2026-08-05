@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FluidPosterLayer, useFluidPosterSync } from "./FluidPosterLayer";
 import { FLUID_SLIDES } from "./slides";
+import CinematicLoading from "./CinematicLoading";
 import type { FluidGalleryHandle } from "./FluidGalleryCanvas";
 
 // Three.js + shaders load only after this shell mounts (gallery opened)
@@ -100,6 +101,7 @@ export default function FluidExperience({ onExit }: Props) {
   const [index, setIndex] = useState(0);
   const [glReady, setGlReady] = useState(false);
   const [mountCanvas, setMountCanvas] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
   const textBooted = useRef(false);
 
   useFluidPosterSync(index);
@@ -137,6 +139,8 @@ export default function FluidExperience({ onExit }: Props) {
 
   return (
     <div className="fixed inset-0 z-[200] overflow-hidden bg-black text-white select-none">
+      {!introDone && <CinematicLoading onComplete={() => setIntroDone(true)} />}
+      
       <FluidPosterLayer />
 
       {mountCanvas && (

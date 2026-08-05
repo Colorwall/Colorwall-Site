@@ -11,6 +11,16 @@ export type FluidSlide = {
 /** First slide = Misty Valley — matches the cinematic landscape reference vibe. */
 export const FLUID_SLIDES: FluidSlide[] = [
   {
+    id: "colorwall-intro",
+    index: "#000",
+    tag: "introduction",
+    title: "Colorwall",
+    description:
+      "Welcome to Colorwall. A living desktop experience filled with curated loops and interactive wallpapers.",
+    video: "/videos/initals.webm",
+    poster: "/videos/posters/initals.webp",
+  },
+  {
     id: "misty-valley",
     index: "#001",
     tag: "live wallpaper",
