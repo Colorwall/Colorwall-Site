@@ -76,15 +76,11 @@ function writeSlideText(index: number, animate: boolean) {
   ids.forEach((id, i) => {
     const el = document.getElementById(id);
     if (!el) return;
+    el.innerHTML = values[i];
     if (animate) {
-      el.style.transition = "opacity 280ms ease";
-      el.style.opacity = "0";
-      window.setTimeout(() => {
-        el.innerHTML = values[i];
-        el.style.opacity = "1";
-      }, 280);
+      el.style.transition = "opacity 200ms ease-out";
+      el.style.opacity = "1";
     } else {
-      el.innerHTML = values[i];
       el.style.opacity = "1";
     }
   });

@@ -28,12 +28,16 @@ export class FluidGalleryEngine {
   private _onReady?: () => void;
   private _disposed = false;
 
+  private _targetIndex: number;
+  private _lastScrollTime = 0;
+
   constructor(opts: EngineOpts) {
     const { canvas, slides, current = 0, onReady } = opts;
     const { width, height } = canvas;
 
     this._canvas = canvas;
     this._position = current;
+    this._targetIndex = current;
     this._onReady = onReady;
     this._videos = [];
 
@@ -123,11 +127,13 @@ export class FluidGalleryEngine {
 
   get currentSlideIndex() {
     const n = this._textures.length;
-    return ((Math.floor(this._position) % n) + n) % n;
+    if (n === 0) return 0;
+    return ((this._targetIndex % n) + n) % n;
   }
 
   get nextSlideIndex() {
     const n = this._textures.length;
+    if (n === 0) return 0;
     return (this.currentSlideIndex + 1) % n;
   }
 
@@ -135,13 +141,28 @@ export class FluidGalleryEngine {
     return this._position;
   }
 
+  // trigger smooth single slide advance per mouse movement
   onScroll(deltaY: number) {
-    this._speed += deltaY * 0.0002;
+    if (Math.abs(deltaY) < 0.1) return;
+    const now = Date.now();
+    if (now - this._lastScrollTime < 240) return;
+    this._lastScrollTime = now;
+
+    const n = this._textures.length;
+    if (n === 0) return;
+
+    if (deltaY > 0) {
+      this._targetIndex = (this._targetIndex + 1) % n;
+    } else if (deltaY < 0) {
+      this._targetIndex = (this._targetIndex - 1 + n) % n;
+    }
   }
 
-  /** Nudge toward previous/next slide (bottom nav arrows). */
+  // nudge toward previous or next slide index
   step(dir: 1 | -1) {
-    this._speed += dir * 0.35;
+    const n = this._textures.length;
+    if (n === 0) return;
+    this._targetIndex = (this._targetIndex + dir + n) % n;
   }
 
   resize() {
@@ -170,24 +191,31 @@ export class FluidGalleryEngine {
     this._time += 0.05;
     this._material.uniforms.time.value = this._time;
 
-    this._position += this._speed;
-    this._speed *= 0.7;
-
     const n = this._textures.length;
-    const posI = Math.round(this._position);
-    const diff = posI - this._position;
-    this._position += diff * 0.035;
+    if (n === 0) return;
 
-    if (Math.abs(posI - this._position) < 0.001) {
-      this._position = posI;
+    // shortest angular distance interpolation for smooth infinite slide loop
+    let dist = this._targetIndex - this._position;
+    if (dist > n / 2) dist -= n;
+    if (dist < -n / 2) dist += n;
+
+    // softened interpolation factor for smooth fluid motion without harsh flicking
+    this._position += dist * 0.07;
+
+    if (Math.abs(dist) < 0.001) {
+      this._position = this._targetIndex;
     }
 
     if (this._position < 0) this._position += n;
     if (this._position >= n) this._position -= n;
 
-    this._material.uniforms.progress.value = this._position;
-    this._material.uniforms.texture1.value = this._textures[this.currentSlideIndex];
-    this._material.uniforms.texture2.value = this._textures[this.nextSlideIndex];
+    const currentIdx = ((Math.floor(this._position) % n) + n) % n;
+    const nextIdx = (currentIdx + 1) % n;
+    const progress = this._position - Math.floor(this._position);
+
+    this._material.uniforms.progress.value = progress;
+    this._material.uniforms.texture1.value = this._textures[currentIdx];
+    this._material.uniforms.texture2.value = this._textures[nextIdx];
   }
 
   render() {

@@ -79,7 +79,8 @@ export interface ShowcaseFeatureItem {
     imageSrcs: string[];
 }
 
-function createCompositeTexture(slide: ShowcaseFeatureItem, index: number): Promise<THREE.Texture> {
+// composite texture creation: strictly loads image and applies vignette gradient without baking text
+function createCompositeTexture(slide: ShowcaseFeatureItem): Promise<THREE.Texture> {
     return new Promise((resolve) => {
         const canvas = document.createElement("canvas");
         canvas.width = 2560;
@@ -121,50 +122,6 @@ function createCompositeTexture(slide: ShowcaseFeatureItem, index: number): Prom
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // typography matching taotajima.jp luxury editorial style
-            const startX = 160;
-            const startY = 880;
-
-            // draw index and badge (#001 / BADGE)
-            const indexStr = `#${String(index + 1).padStart(3, "0")}`;
-            ctx.font = "600 26px Georgia, 'Playfair Display', serif";
-            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-            ctx.fillText(`${indexStr}  /  ${slide.badge}`, startX, startY - 140);
-
-            // draw main title (large high-contrast luxury serif)
-            ctx.font = "bold 104px Georgia, 'Playfair Display', serif";
-            ctx.fillStyle = "#ffffff";
-            ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-            ctx.shadowBlur = 30;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 4;
-            ctx.fillText(slide.title, startX, startY);
-
-            ctx.shadowColor = "transparent";
-
-            // draw description text with word wrap
-            ctx.font = "400 32px system-ui, -apple-system, sans-serif";
-            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-            
-            const words = slide.description.split(" ");
-            let line = "";
-            const maxWidth = 1200;
-            const lineHeight = 48;
-            let currentY = startY + 68;
-
-            for (let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + " ";
-                const metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
-                    ctx.fillText(line, startX, currentY);
-                    line = words[n] + " ";
-                    currentY += lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
-            ctx.fillText(line, startX, currentY);
-
             const texture = new THREE.CanvasTexture(canvas);
             texture.colorSpace = THREE.SRGBColorSpace;
             texture.minFilter = THREE.LinearFilter;
@@ -196,7 +153,7 @@ function ScrollMaterial({
     const { viewport } = useThree();
 
     useEffect(() => {
-        const promises = features.map((f, i) => createCompositeTexture(f, i));
+        const promises = features.map((f) => createCompositeTexture(f));
         Promise.all(promises).then(setTextures);
     }, [features]);
 
@@ -224,40 +181,51 @@ function ScrollMaterial({
     const lastSlideRef = useRef(0);
     const lastWheelTimeRef = useRef(0);
 
-    // listen to wheel events and trigger a single slide advance when component is locked in viewport
+    // listen to wheel events on both axes with passive false to lock native scroll and trigger instant slide switches on tiny mouse movements
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
             // ignore wheel events if section is not locked at top of viewport
             if (!isLocked) return;
 
-            const now = Date.now();
-            // throttle wheel gestures by 480ms for balanced transition pacing while capping flicks to 1 slide
-            if (now - lastWheelTimeRef.current < 480) return;
+            // measure dominant scroll axis delta (supports vertical wheel and horizontal swipe)
+            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
 
-            if (e.deltaY > 15) {
+            // ignore negligible noise near zero
+            if (Math.abs(delta) < 0.1) return;
+
+            const now = Date.now();
+            // throttle wheel gestures by 160ms for crisp rapid slide stepping
+            if (now - lastWheelTimeRef.current < 160) {
+                e.preventDefault();
+                return;
+            }
+
+            if (delta > 0.1) {
                 if (targetIndexRef.current < features.length - 1) {
+                    e.preventDefault();
                     targetIndexRef.current += 1;
                     lastWheelTimeRef.current = now;
+                    if (onSlideChange) onSlideChange(targetIndexRef.current);
                 } else if (onExitDown) {
-                    // user is on the last slide and scrolled down again: exit section immediately
                     onExitDown();
                     lastWheelTimeRef.current = now;
                 }
-            } else if (e.deltaY < -15) {
+            } else if (delta < -0.1) {
                 if (targetIndexRef.current > 0) {
+                    e.preventDefault();
                     targetIndexRef.current -= 1;
                     lastWheelTimeRef.current = now;
+                    if (onSlideChange) onSlideChange(targetIndexRef.current);
                 } else if (onExitUp) {
-                    // user is on the first slide and scrolled up again: exit section immediately
                     onExitUp();
                     lastWheelTimeRef.current = now;
                 }
             }
         };
 
-        window.addEventListener("wheel", handleWheel, { passive: true });
+        window.addEventListener("wheel", handleWheel, { passive: false });
         return () => window.removeEventListener("wheel", handleWheel);
-    }, [isLocked, features.length, onExitDown, onExitUp]);
+    }, [isLocked, features.length, onSlideChange, onExitDown, onExitUp]);
 
     useFrame((_, delta) => {
         if (!materialRef.current || textures.length === 0) return;
@@ -267,8 +235,8 @@ function ScrollMaterial({
         // calculate distance to target slide index
         const distanceToTarget = targetIndexRef.current - positionRef.current;
         
-        // lerp speed tuned to 3.5 for balanced, pleasant transition duration
-        positionRef.current += distanceToTarget * (delta * 3.5);
+        // smooth lerp factor tuned to 6.5 for elegant fluid visual transitions
+        positionRef.current += distanceToTarget * Math.min(1.0, delta * 6.5);
 
         // clamp position within valid texture index bounds
         positionRef.current = Math.max(0, Math.min(total - 1, positionRef.current));

@@ -161,31 +161,24 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isLocked, setIsLocked] = useState(false);
 
-    // track when the section has scrolled to the top of the viewport and locked
+    // track when the section enters near top of viewport to lock wheel inputs
     useEffect(() => {
         const handleScroll = () => {
             if (!containerRef.current) return;
             const rect = containerRef.current.getBoundingClientRect();
-            // active lock occurs when top is at top of viewport and section is active
-            const locked = rect.top <= 10 && rect.bottom >= window.innerHeight - 10;
+            // section locks when top reaches near top of viewport
+            const locked = rect.top <= 120 && rect.bottom >= 120;
             setIsLocked(locked);
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // handle slide change from webgl canvas and align page scroll position
+    // handle slide change from webgl canvas and align active index state without triggering window scroll lag
     const handleSlideChange = (index: number) => {
         setActiveIndex(index);
-
-        // synchronize window scroll position to match current slide index
-        if (containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            const slideHeight = window.innerHeight;
-            const targetY = window.scrollY + rect.top + (index * slideHeight);
-            window.scrollTo({ top: targetY, behavior: "smooth" });
-        }
     };
 
     // scroll page smoothly past the showcase section into the sections below
@@ -212,10 +205,10 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
         offset: ["start start", "end end"],
     });
 
-    // Show exit button only when deep inside the showcase
-    useMotionValueEvent(scrollYProgress, "change", (latest) => {
-        setShowExit(latest > 0.05 && latest < 0.95);
-    });
+    // show exit button when active inside showcase beyond first slide
+    useEffect(() => {
+        setShowExit(isLocked && activeIndex > 0);
+    }, [isLocked, activeIndex]);
 
     // This handles the entry animation (the card scaling up into fullscreen)
     const { scrollYProgress: entryProgress } = useScroll({
@@ -417,8 +410,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
             ═══════════════════════════════════════════════════════════ */}
             <div
                 ref={containerRef}
-                className="relative hidden md:block"
-                style={{ height: isExited ? "100vh" : `${showcaseFeatures.length * 100}vh` }}
+                className="relative hidden md:block h-screen"
+                style={{ height: "100vh" }}
             >
                 <motion.div
                     className={isExited ? "relative h-[90vh] sm:h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black" : "sticky top-3 h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black"}
@@ -435,6 +428,17 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                     
                     {/* Global gradient overlay so text is always readable */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none z-0" />
+
+                    {/* render crisp HTML feature slide typography overlay synchronized with activeIndex */}
+                    {showcaseFeatures.map((feature, idx) => (
+                        <FeatureSlide 
+                            key={feature.id}
+                            feature={feature}
+                            index={idx}
+                            total={showcaseFeatures.length}
+                            activeIndex={activeIndex}
+                        />
+                    ))}
 
                     <AnimatePresence>
                         {showExit && !isExited && (
