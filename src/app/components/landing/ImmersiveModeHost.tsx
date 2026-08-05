@@ -118,21 +118,23 @@ export function ImmersiveModeHost({ children }: { children: React.ReactNode }) {
   }, []);
 
   const exit = useCallback(() => {
-    setMode((current) => {
-      if (current === "cinematic") clearQueryParam("cinematic");
-      if (current === "gallery") clearQueryParam("gallery");
-      return "none";
-    });
+    clearQueryParam("cinematic");
+    clearQueryParam("gallery");
+    setMode("none");
     setExperience(null);
   }, []);
 
-  // deep-link once on mount
+  // deep-link and handle url parameter changes
   useEffect(() => {
-    if (deepLinked.current) return;
-    deepLinked.current = true;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("cinematic") === "true") void loadExperience("cinematic");
-    else if (params.get("gallery") === "true") void loadExperience("gallery");
+    const handleUrlChange = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("cinematic") === "true") void loadExperience("cinematic");
+      else if (params.get("gallery") === "true") void loadExperience("gallery");
+    };
+
+    handleUrlChange();
+    window.addEventListener("popstate", handleUrlChange);
+    return () => window.removeEventListener("popstate", handleUrlChange);
   }, [loadExperience]);
 
   // prefetch JS chunks only when browser is idle — no WebGL mount

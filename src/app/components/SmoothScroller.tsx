@@ -40,14 +40,15 @@ export function SmoothScroller({ children }: { children: ReactNode }) {
     }
   }, [pathname, lenis]);
 
-  // pause lenis while cinematic / fluid-gallery owns the wheel
+  // pause lenis while cinematic / fluid-gallery / showcase owns the wheel
   useEffect(() => {
     if (!lenis) return;
 
     const sync = () => {
       const immersive =
         document.body.dataset.cinematic === "true" ||
-        document.body.dataset.fluidGallery === "true";
+        document.body.dataset.fluidGallery === "true" ||
+        document.body.dataset.showcaseLocked === "true";
       if (immersive) lenis.stop();
       else lenis.start();
     };

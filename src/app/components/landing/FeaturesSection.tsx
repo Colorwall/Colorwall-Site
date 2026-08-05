@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, type MotionValue } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
-import { ScrollTransitionCanvas } from "../three/ScrollTransitionCanvas";
 
 // ─── headline stat cards ────────────────────────────────────────
 // the most impressive at-a-glance proof points for colorwall's tech.
@@ -99,27 +98,56 @@ const FeatureSlide = ({
     feature,
     index,
     total,
-    activeIndex,
+    scrollYProgress,
     isStatic = false,
 }: {
     feature: typeof showcaseFeatures[0];
     index: number;
     total: number;
-    activeIndex: number;
+    scrollYProgress: MotionValue<number>;
     isStatic?: boolean;
 }) => {
-    // sharp boolean text opacity to sync with webgl physics engine
-    const isActive = isStatic || activeIndex === index;
-    const textOpacity = isActive ? 1 : 0;
+    // Image opacity: smooth crossfade
+    const dynamicOpacity = useTransform(scrollYProgress, (progress: number) => {
+        const activeSlide = progress * (total - 1);
+        const distance = Math.abs(activeSlide - index);
+        return Math.max(0, 1 - distance);
+    });
+
+    // Text opacity: sharp crossfade. Fades out completely before the
+    // next text fades in, preventing garbled overlapping text!
+    const dynamicTextOpacity = useTransform(scrollYProgress, (progress: number) => {
+        const activeSlide = progress * (total - 1);
+        const distance = Math.abs(activeSlide - index);
+        return Math.max(0, 1 - distance * 2.5);
+    });
+
+    const opacity = isStatic ? 1 : dynamicOpacity;
+    const textOpacity = isStatic ? 1 : dynamicTextOpacity;
 
     return (
-        <motion.div className="absolute inset-0 pointer-events-none">
-            {/* text content with framer motion opacity animation */}
-            <motion.div
+        <motion.div
+            className="absolute inset-0 will-change-[opacity] transform-gpu"
+            style={{ opacity }}
+        >
+            {/* Fullscreen background image - object-cover removes all side padding */}
+            <Image
+                src={feature.imageSrcs[0]}
+                alt={feature.title}
+                fill
+                className="object-cover transform-gpu pointer-events-none"
+                sizes="100vw"
+                loading={index <= 1 ? "eager" : "lazy"}
+                priority={index === 0}
+            />
+
+            {/* gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+
+            {/* text content - uses sharper textOpacity to avoid overlapping */}
+            <motion.div 
                 className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-20 z-10 pointer-events-none will-change-[opacity]"
-                animate={{ opacity: textOpacity }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                initial={false}
+                style={{ opacity: textOpacity }}
             >
                 <div className="max-w-3xl">
                     <div className="flex items-center gap-2.5 mb-4">
@@ -140,7 +168,7 @@ const FeatureSlide = ({
             </motion.div>
 
             {/* slide counter */}
-            <motion.div
+            <motion.div 
                 className="absolute bottom-8 right-8 sm:bottom-12 sm:right-12 lg:bottom-20 lg:right-20 z-10 pointer-events-none will-change-[opacity]"
                 style={{ opacity: textOpacity }}
             >
@@ -158,46 +186,6 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isExited, setIsExited] = useState(false);
     const [showExit, setShowExit] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [isLocked, setIsLocked] = useState(false);
-
-    // track when the section enters near top of viewport to lock wheel inputs
-    useEffect(() => {
-        const handleScroll = () => {
-            if (!containerRef.current) return;
-            const rect = containerRef.current.getBoundingClientRect();
-            // section locks when top reaches near top of viewport
-            const locked = rect.top <= 120 && rect.bottom >= 120;
-            setIsLocked(locked);
-        };
-
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll();
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-
-    // handle slide change from webgl canvas and align active index state without triggering window scroll lag
-    const handleSlideChange = (index: number) => {
-        setActiveIndex(index);
-    };
-
-    // scroll page smoothly past the showcase section into the sections below
-    const handleExitDown = () => {
-        if (containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            const targetY = window.scrollY + rect.bottom + 20;
-            window.scrollTo({ top: targetY, behavior: "smooth" });
-        }
-    };
-
-    // scroll page smoothly above the showcase section into the hero section above
-    const handleExitUp = () => {
-        if (containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            const targetY = window.scrollY + rect.top - window.innerHeight - 20;
-            window.scrollTo({ top: targetY, behavior: "smooth" });
-        }
-    };
 
     // This handles the crossfade once it is locked at the top
     const { scrollYProgress } = useScroll({
@@ -205,10 +193,10 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
         offset: ["start start", "end end"],
     });
 
-    // show exit button when active inside showcase beyond first slide
-    useEffect(() => {
-        setShowExit(isLocked && activeIndex > 0);
-    }, [isLocked, activeIndex]);
+    // Show exit button only when deep inside the showcase
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        setShowExit(latest > 0.05 && latest < 0.95);
+    });
 
     // This handles the entry animation (the card scaling up into fullscreen)
     const { scrollYProgress: entryProgress } = useScroll({
@@ -410,36 +398,13 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
             ═══════════════════════════════════════════════════════════ */}
             <div
                 ref={containerRef}
-                className="relative hidden md:block h-screen"
-                style={{ height: "100vh" }}
+                className="relative hidden md:block"
+                style={{ height: isExited ? "100vh" : `${showcaseFeatures.length * 100}vh` }}
             >
-                <motion.div
+                <motion.div 
                     className={isExited ? "relative h-[90vh] sm:h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black" : "sticky top-3 h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black"}
                     style={{ scale, borderRadius }}
                 >
-                    {/* Inject Scroll-driven WebGL Canvas */}
-                    <ScrollTransitionCanvas 
-                        features={showcaseFeatures} 
-                        onSlideChange={handleSlideChange} 
-                        onExitDown={handleExitDown}
-                        onExitUp={handleExitUp}
-                        isLocked={isLocked}
-                    />
-                    
-                    {/* Global gradient overlay so text is always readable */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none z-0" />
-
-                    {/* render crisp HTML feature slide typography overlay synchronized with activeIndex */}
-                    {showcaseFeatures.map((feature, idx) => (
-                        <FeatureSlide 
-                            key={feature.id}
-                            feature={feature}
-                            index={idx}
-                            total={showcaseFeatures.length}
-                            activeIndex={activeIndex}
-                        />
-                    ))}
-
                     <AnimatePresence>
                         {showExit && !isExited && (
                             <motion.button
@@ -457,7 +422,26 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         )}
                     </AnimatePresence>
 
-
+                    {isExited ? (
+                        <FeatureSlide
+                            key={showcaseFeatures[0].id}
+                            feature={showcaseFeatures[0]}
+                            index={0}
+                            total={showcaseFeatures.length}
+                            scrollYProgress={scrollYProgress}
+                            isStatic={true}
+                        />
+                    ) : (
+                        showcaseFeatures.map((feature, idx) => (
+                            <FeatureSlide
+                                key={feature.id}
+                                feature={feature}
+                                index={idx}
+                                total={showcaseFeatures.length}
+                                scrollYProgress={scrollYProgress}
+                            />
+                        ))
+                    )}
                 </motion.div>
             </div>
 

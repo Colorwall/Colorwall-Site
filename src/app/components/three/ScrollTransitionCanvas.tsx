@@ -79,8 +79,7 @@ export interface ShowcaseFeatureItem {
     imageSrcs: string[];
 }
 
-// composite texture creation: strictly loads image and applies vignette gradient without baking text
-function createCompositeTexture(slide: ShowcaseFeatureItem): Promise<THREE.Texture> {
+function createCompositeTexture(slide: ShowcaseFeatureItem, index: number): Promise<THREE.Texture> {
     return new Promise((resolve) => {
         const canvas = document.createElement("canvas");
         canvas.width = 2560;
@@ -122,6 +121,50 @@ function createCompositeTexture(slide: ShowcaseFeatureItem): Promise<THREE.Textu
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // typography matching taotajima.jp luxury editorial style
+            const startX = 160;
+            const startY = 880;
+
+            // draw index and badge (#001 / BADGE)
+            const indexStr = `#${String(index + 1).padStart(3, "0")}`;
+            ctx.font = "600 26px Georgia, 'Playfair Display', serif";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+            ctx.fillText(`${indexStr}  /  ${slide.badge}`, startX, startY - 140);
+
+            // draw main title (large high-contrast luxury serif)
+            ctx.font = "bold 104px Georgia, 'Playfair Display', serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 4;
+            ctx.fillText(slide.title, startX, startY);
+
+            ctx.shadowColor = "transparent";
+
+            // draw description text with word wrap
+            ctx.font = "400 32px system-ui, -apple-system, sans-serif";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+            
+            const words = slide.description.split(" ");
+            let line = "";
+            const maxWidth = 1200;
+            const lineHeight = 48;
+            let currentY = startY + 68;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + " ";
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, startX, currentY);
+                    line = words[n] + " ";
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, startX, currentY);
+
             const texture = new THREE.CanvasTexture(canvas);
             texture.colorSpace = THREE.SRGBColorSpace;
             texture.minFilter = THREE.LinearFilter;
@@ -153,7 +196,7 @@ function ScrollMaterial({
     const { viewport } = useThree();
 
     useEffect(() => {
-        const promises = features.map((f) => createCompositeTexture(f));
+        const promises = features.map((f, i) => createCompositeTexture(f, i));
         Promise.all(promises).then(setTextures);
     }, [features]);
 
@@ -181,26 +224,23 @@ function ScrollMaterial({
     const lastSlideRef = useRef(0);
     const lastWheelTimeRef = useRef(0);
 
-    // listen to wheel events on both axes with passive false to lock native scroll and trigger instant slide switches on tiny mouse movements
+    // listen to wheel events on both axes with passive false to capture scroll for the component and block native page scroll
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
             // ignore wheel events if section is not locked at top of viewport
             if (!isLocked) return;
 
-            // measure dominant scroll axis delta (supports vertical wheel and horizontal swipe)
             const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-
-            // ignore negligible noise near zero
             if (Math.abs(delta) < 0.1) return;
 
             const now = Date.now();
-            // throttle wheel gestures by 220ms so fast spinning cannot stack multiple slide switches
-            if (now - lastWheelTimeRef.current < 220) {
+            // throttle wheel gestures by 240ms for smooth single slide transitions
+            if (now - lastWheelTimeRef.current < 240) {
                 e.preventDefault();
                 return;
             }
 
-            if (delta > 0.1) {
+            if (delta > 5) {
                 if (targetIndexRef.current < features.length - 1) {
                     e.preventDefault();
                     targetIndexRef.current += 1;
@@ -210,7 +250,7 @@ function ScrollMaterial({
                     onExitDown();
                     lastWheelTimeRef.current = now;
                 }
-            } else if (delta < -0.1) {
+            } else if (delta < -5) {
                 if (targetIndexRef.current > 0) {
                     e.preventDefault();
                     targetIndexRef.current -= 1;
@@ -235,8 +275,8 @@ function ScrollMaterial({
         // calculate distance to target slide index
         const distanceToTarget = targetIndexRef.current - positionRef.current;
         
-        // responsive lerp factor tuned to 5.0 for balanced fluid visual transitions
-        positionRef.current += distanceToTarget * Math.min(1.0, delta * 5.0);
+        // lerp speed tuned to 3.5 for balanced, pleasant transition duration
+        positionRef.current += distanceToTarget * (delta * 3.5);
 
         // clamp position within valid texture index bounds
         positionRef.current = Math.max(0, Math.min(total - 1, positionRef.current));
