@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
 import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { AmbientProvider } from "@/app/contexts/AmbientContext";
-import { Analytics } from '@vercel/analytics/next';
 import { SmoothScroller } from "@/app/components/SmoothScroller";
 
 const plusJakartaSans = Plus_Jakarta_Sans({

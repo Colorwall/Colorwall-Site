@@ -17,24 +17,24 @@ export default function TermsPage() {
     const proseClass = isDark ? "prose-invert" : "";
 
     return (
-        <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-blue-500/30`}>
-            <div className="h-16" /> {/* Spacer for fixed navbar */}
+        <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-purple-500/30`}>
+            <div className="h-16" />
 
-            <main className="pt-20 pb-20 px-6">
+            <main className="pt-24 pb-24 px-6">
                 <div className="max-w-3xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-12"
+                        className="mb-16"
                     >
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
                                 <ScrollText size={32} />
                             </div>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-black mb-6">Terms of Service</h1>
-                        <p className={`text-lg ${mutedText}`}>
-                            By downloading and using ColorWall, you agree to the following terms.
+                        <h1 className="text-5xl sm:text-6xl font-black mb-6 tracking-tight">Terms of Service</h1>
+                        <p className={`text-xl ${mutedText} font-light leading-relaxed max-w-2xl`}>
+                            The rules of engagement. By downloading and using the ColorWall engine, you agree to these foundational terms.
                         </p>
                     </motion.div>
 
@@ -42,43 +42,47 @@ export default function TermsPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className={`prose prose-lg ${proseClass} max-w-none space-y-8`}
+                        className={`prose prose-lg ${proseClass} max-w-none space-y-12`}
                     >
-                        <section>
-                            <h3>1. Strict Copyleft License (AGPL-3.0)</h3>
-                            <p>
-                                ColorWall is released under the <strong>GNU Affero General Public License v3.0 (AGPL-3.0)</strong>. This is an aggressive copyleft license designed to ensure the software remains free and open.
-                            </p>
-                            <ul className="list-disc pl-5 space-y-2 mt-4 text-sm opacity-90">
-                                <li><strong>No Proprietary Forks:</strong> If you modify this software and distribute it (or host it over a network), you <strong>MUST</strong> release your source code under the same AGPL-3.0 license.</li>
-                                <li><strong>Attribution Required:</strong> You must strictly preserve all copyright notices and credit the original authors.</li>
-                                <li><strong>Source Disclosure:</strong> You cannot distribute the binary without providing access to the source code.</li>
-                            </ul>
-                            <div className="mt-4">
-                                <a href="/agpl-3.0.txt" target="_blank" className="font-bold text-blue-500 hover:underline">Read Full Legal Text &rarr;</a>
+                        <section className="relative">
+                            <div className="absolute -left-8 top-2 hidden md:block">
+                                <span className={`text-sm font-mono tracking-widest ${mutedText} uppercase`}>01</span>
                             </div>
+                            <h3 className="text-2xl font-bold mb-4">Proprietary Software License</h3>
+                            <p className="font-light text-lg opacity-80 leading-relaxed">
+                                ColorWall is a proprietary desktop application developed and maintained by Laxenta Inc. You are granted a personal, non-exclusive license to use the software for customizing your desktop environment.
+                            </p>
+                            <ul className="list-disc pl-5 space-y-2 mt-4 text-sm opacity-70 font-light">
+                                <li>You may not decompile, reverse engineer, or attempt to extract the source code.</li>
+                                <li>You may not redistribute, sub-license, or sell the software or its core components.</li>
+                            </ul>
                         </section>
 
-                        <section>
-                            <h3>2. Commercial Usage Restrictions</h3>
-                            <p>
-                                While you can use this software for commercial purposes, you <strong>CANNOT</strong> sell it as a proprietary "black box" product.
-                                Any commercial derivative work must also be Open Source (AGPL-3.0) and allow users to download the source code for free.
-                                Effectively, you cannot "resell" this free software without competing with the free source itself.
+                        <section className="relative">
+                            <div className="absolute -left-8 top-2 hidden md:block">
+                                <span className={`text-sm font-mono tracking-widest ${mutedText} uppercase`}>02</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">User Content & Scenes</h3>
+                            <p className="font-light text-lg opacity-80 leading-relaxed">
+                                Any wallpapers, widgets, or scenes you create using the ColorWall Studio remain entirely your property. You are responsible for ensuring you have the necessary rights to use any third-party images or videos you import into the engine.
                             </p>
                         </section>
 
-                        <section>
-                            <h3>3. Liability</h3>
-                            <p>
-                                ColorWall and its contributors are not liable for any damages arising from the use of this software, including
-                                but not limited to data loss, hardware issues (though we try our best!), or lost profits.
+                        <section className="relative">
+                            <div className="absolute -left-8 top-2 hidden md:block">
+                                <span className={`text-sm font-mono tracking-widest ${mutedText} uppercase`}>03</span>
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">Liability</h3>
+                            <p className="font-light text-lg opacity-80 leading-relaxed">
+                                The software is provided "as is". While we engineer ColorWall for absolute stability and performance, Laxenta Inc. is not liable for any system instability, hardware issues, or data loss that occurs while using the engine.
                             </p>
                         </section>
 
-                        <div className={`p-6 rounded-2xl border ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                            <p className="text-sm m-0 font-mono opacity-70">
-                                Last Updated: February 12, 2026
+                        <div className={`mt-16 p-8 rounded-3xl border ${borderColor} ${isDark ? "bg-white/[0.02]" : "bg-black/[0.02]"}`}>
+                            <p className="text-sm m-0 font-mono opacity-60 uppercase tracking-widest">
+                                Maintained by Laxenta Inc. <br />
+                                Last Updated: August 2026 <br />
+                                Support: legal@laxenta.com
                             </p>
                         </div>
                     </motion.div>

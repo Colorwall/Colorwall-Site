@@ -7,6 +7,8 @@ import { FluidPosterLayer, useFluidPosterSync } from "./FluidPosterLayer";
 import { FLUID_SLIDES } from "./slides";
 import CinematicLoading from "./CinematicLoading";
 import type { FluidGalleryHandle } from "./FluidGalleryCanvas";
+import StrokeText from "../ui/StrokeText";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Three.js + shaders load only after this shell mounts (gallery opened)
 const FluidGalleryCanvas = dynamic(
@@ -35,66 +37,77 @@ function slideHtml(index: number) {
  * Text layer uses a single memoized host + innerHTML swaps so slide copy
  * fades without React reconciling the tree (same idea as HeroBackground).
  */
-const FluidTextHost = React.memo(
-  () => (
-    <div className="pointer-events-none absolute inset-0 z-20">
-      <div className="absolute left-8 top-[38%] max-w-md md:left-14 lg:left-20 md:max-w-lg">
-        <p
-          id="fluid-meta"
-          className="font-outfit mb-3 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase"
-        />
-        <h2
-          id="fluid-title"
-          className="font-fluid-serif mb-5 text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl"
-        />
-        <p
-          id="fluid-body"
-          className="font-fluid-serif max-w-sm text-[15px] font-light leading-relaxed text-white/80 md:text-base"
-        />
-      </div>
-
-      <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between gap-6 md:bottom-10 md:left-14 md:right-14 lg:left-20 lg:right-20">
-        <p
-          id="fluid-prev"
-          className="font-fluid-serif max-w-[40%] text-left text-sm font-light tracking-wide text-white/75 md:text-base"
-        />
-        <p
-          id="fluid-next"
-          className="font-fluid-serif max-w-[40%] text-right text-sm font-light tracking-wide text-white/75 md:text-base"
-        />
-      </div>
-    </div>
-  ),
-  () => true
-);
-FluidTextHost.displayName = "FluidTextHost";
-
-function writeSlideText(index: number, animate: boolean) {
+const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) => {
   const html = slideHtml(index);
-  const ids = ["fluid-meta", "fluid-title", "fluid-body", "fluid-prev", "fluid-next"] as const;
-  const values = [html.meta, html.title, html.body, html.prev, html.next];
 
-  ids.forEach((id, i) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20">
+      <AnimatePresence mode="wait">
+        {visible && (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            className="absolute left-8 top-[35%] max-w-md md:left-14 lg:left-20 md:max-w-lg"
+          >
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase"
+            >
+              {html.meta}
+            </motion.p>
+            
+            <div className="font-fluid-serif mb-6 flex h-20 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl">
+              <StrokeText
+                key={`title-${index}`}
+                text={html.title}
+                strokeColor="rgba(255,255,255,0.8)"
+                fillColor="#ffffff"
+                strokeWidth={1}
+                drawDuration={1.2}
+                fillDelay={0.4}
+                fontSize={48}
+                letterSpacing={0}
+              />
+            </div>
 
-    if (animate) {
-      el.style.transition = "opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1)";
-      el.style.opacity = "0";
-      el.style.transform = "translate3d(0, 8px, 0)";
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.0 }}
+              className="font-fluid-serif max-w-sm text-[15px] font-light leading-relaxed text-white/80 md:text-base"
+            >
+              {html.body}
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      setTimeout(() => {
-        el.innerHTML = values[i];
-        el.style.opacity = "1";
-        el.style.transform = "translate3d(0, 0, 0)";
-      }, 100);
-    } else {
-      el.innerHTML = values[i];
-      el.style.opacity = "1";
-      el.style.transform = "translate3d(0, 0, 0)";
-    }
-  });
-}
+      <AnimatePresence mode="wait">
+        {visible && (
+          <motion.div
+            key={`nav-${index}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute bottom-8 left-8 right-8 flex items-end justify-between gap-6 md:bottom-10 md:left-14 md:right-14 lg:left-20 lg:right-20"
+          >
+            <p className="font-fluid-serif max-w-[40%] text-left text-sm font-light tracking-wide text-white/75 md:text-base">
+              {html.prev}
+            </p>
+            <p className="font-fluid-serif max-w-[40%] text-right text-sm font-light tracking-wide text-white/75 md:text-base">
+              {html.next}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default function FluidExperience({ onExit }: Props) {
   const galleryRef = useRef<FluidGalleryHandle>(null);
@@ -117,19 +130,15 @@ export default function FluidExperience({ onExit }: Props) {
     return () => clearTimeout(t);
   }, []);
 
+  const [textVisible, setTextVisible] = useState(false);
+
   useEffect(() => {
-    const boot = () => {
-      if (!textBooted.current) {
-        writeSlideText(index, false);
-        textBooted.current = true;
-        return;
-      }
-      writeSlideText(index, true);
-    };
-    // ensure DOM from memo host exists after mount / HMR
-    const id = requestAnimationFrame(boot);
-    return () => cancelAnimationFrame(id);
-  }, [index]);
+    if (introDone) {
+      setTextVisible(false);
+      const t = setTimeout(() => setTextVisible(true), 150);
+      return () => clearTimeout(t);
+    }
+  }, [index, introDone]);
 
   const onChange = useCallback((i: number) => setIndex(i), []);
   const onReady = useCallback(() => setGlReady(true), []);
@@ -198,7 +207,7 @@ export default function FluidExperience({ onExit }: Props) {
         <span className="block h-px w-5 bg-white" />
       </button>
 
-      <FluidTextHost />
+      <FluidTextHost index={index} visible={textVisible} />
 
       <div className="absolute right-10 top-1/2 z-30 -translate-y-1/2 md:right-16 lg:right-24">
         <Link
