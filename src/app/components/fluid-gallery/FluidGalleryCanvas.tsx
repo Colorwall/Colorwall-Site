@@ -79,8 +79,8 @@ export const FluidGalleryCanvas = forwardRef<FluidGalleryHandle, Props>(
           if (cancelled) return;
           engine.update();
           engine.render();
-          if (currentRef.current !== engine.currentSlideIndex) {
-            currentRef.current = engine.currentSlideIndex;
+          if (currentRef.current !== engine.activeIndex) {
+            currentRef.current = engine.activeIndex;
             onChangeRef.current?.(currentRef.current);
           }
           raf = requestAnimationFrame(tick);

@@ -194,8 +194,8 @@ function ScrollMaterial({
             if (Math.abs(delta) < 0.1) return;
 
             const now = Date.now();
-            // throttle wheel gestures by 160ms for crisp rapid slide stepping
-            if (now - lastWheelTimeRef.current < 160) {
+            // throttle wheel gestures by 220ms so fast spinning cannot stack multiple slide switches
+            if (now - lastWheelTimeRef.current < 220) {
                 e.preventDefault();
                 return;
             }
@@ -235,8 +235,8 @@ function ScrollMaterial({
         // calculate distance to target slide index
         const distanceToTarget = targetIndexRef.current - positionRef.current;
         
-        // smooth lerp factor tuned to 6.5 for elegant fluid visual transitions
-        positionRef.current += distanceToTarget * Math.min(1.0, delta * 6.5);
+        // responsive lerp factor tuned to 5.0 for balanced fluid visual transitions
+        positionRef.current += distanceToTarget * Math.min(1.0, delta * 5.0);
 
         // clamp position within valid texture index bounds
         positionRef.current = Math.max(0, Math.min(total - 1, positionRef.current));

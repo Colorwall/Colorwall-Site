@@ -128,7 +128,7 @@ export class FluidGalleryEngine {
   get currentSlideIndex() {
     const n = this._textures.length;
     if (n === 0) return 0;
-    return ((this._targetIndex % n) + n) % n;
+    return ((Math.floor(this._position) % n) + n) % n;
   }
 
   get nextSlideIndex() {
@@ -137,15 +137,23 @@ export class FluidGalleryEngine {
     return (this.currentSlideIndex + 1) % n;
   }
 
+  // active slide index reported to html UI based on rounded position
+  get activeIndex() {
+    const n = this._textures.length;
+    if (n === 0) return 0;
+    return ((Math.round(this._position) % n) + n) % n;
+  }
+
   get position() {
     return this._position;
   }
 
-  // trigger smooth single slide advance per mouse movement
+  // trigger single slide advance per mouse movement
   onScroll(deltaY: number) {
     if (Math.abs(deltaY) < 0.1) return;
+
     const now = Date.now();
-    if (now - this._lastScrollTime < 240) return;
+    if (now - this._lastScrollTime < 320) return;
     this._lastScrollTime = now;
 
     const n = this._textures.length;
@@ -194,13 +202,13 @@ export class FluidGalleryEngine {
     const n = this._textures.length;
     if (n === 0) return;
 
-    // shortest angular distance interpolation for smooth infinite slide loop
+    // shortest angular distance interpolation to target slide position over ~600ms
     let dist = this._targetIndex - this._position;
     if (dist > n / 2) dist -= n;
     if (dist < -n / 2) dist += n;
 
-    // softened interpolation factor for smooth fluid motion without harsh flicking
-    this._position += dist * 0.07;
+    // smooth step factor tuned to 0.045 so position glides across full screen over 600ms
+    this._position += dist * 0.045;
 
     if (Math.abs(dist) < 0.001) {
       this._position = this._targetIndex;
