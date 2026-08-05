@@ -74,11 +74,10 @@ export default function PrivacyPage() {
                             </p>
                         </section>
 
-                        <div className={`mt-16 p-8 rounded-3xl border ${borderColor} ${isDark ? "bg-white/[0.02]" : "bg-black/[0.02]"}`}>
-                            <p className="text-sm m-0 font-mono opacity-60 uppercase tracking-widest">
-                                Maintained by Laxenta Inc. <br />
-                                Last Updated: August 2026 <br />
-                                Support: legal@laxenta.com
+                     <div className={`p-6 rounded-2xl border ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                            <p className="text-sm m-0 font-mono opacity-70">
+                                Last Updated: August, 2026 <br />
+                                Contact: help.colorwall@gmail.com
                             </p>
                         </div>
                     </motion.div>

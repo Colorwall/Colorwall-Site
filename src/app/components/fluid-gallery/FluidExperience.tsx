@@ -39,6 +39,7 @@ function slideHtml(index: number) {
  */
 const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) => {
   const html = slideHtml(index);
+  const isIntro = index === 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
@@ -49,18 +50,28 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            className="absolute left-8 top-[35%] max-w-md md:left-14 lg:left-20 md:max-w-lg"
+            className={
+              isIntro
+                ? "absolute inset-0 flex flex-col items-center justify-center text-center px-6"
+                : "absolute left-8 top-[35%] max-w-md md:left-14 lg:left-20 md:max-w-lg"
+            }
           >
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase"
+              className={`font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase ${
+                isIntro ? "text-center" : ""
+              }`}
             >
               {html.meta}
             </motion.p>
             
-            <div className="font-fluid-serif mb-6 flex h-20 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl">
+            <div
+              className={`font-fluid-serif mb-6 flex h-20 items-center text-4xl font-light leading-[1.05] tracking-wide text-white md:text-5xl lg:text-6xl ${
+                isIntro ? "justify-center w-full" : ""
+              }`}
+            >
               <StrokeText
                 key={`title-${index}`}
                 text={html.title}
@@ -69,7 +80,7 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
                 strokeWidth={1}
                 drawDuration={1.2}
                 fillDelay={0.4}
-                fontSize={48}
+                fontSize={isIntro ? 64 : 48}
                 letterSpacing={0}
               />
             </div>
@@ -78,10 +89,23 @@ const FluidTextHost = ({ index, visible }: { index: number; visible: boolean }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.0 }}
-              className="font-fluid-serif max-w-sm text-[15px] font-light leading-relaxed text-white/80 md:text-base"
+              className={`font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-base ${
+                isIntro ? "max-w-2xl text-center mt-2" : "max-w-sm"
+              }`}
             >
               {html.body}
             </motion.p>
+
+            {isIntro && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.2 }}
+                className="font-outfit mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40 text-center"
+              >
+                from laxenta inc,
+              </motion.p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

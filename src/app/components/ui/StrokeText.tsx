@@ -70,6 +70,7 @@ const StrokeText = ({
 
   const fontStyle = useMemo<CSSProperties>(
     () => ({
+      fontFamily: 'inherit',
       fontSize: `${fontSize}px`,
       fontWeight,
       letterSpacing: `${letterSpacing}px`

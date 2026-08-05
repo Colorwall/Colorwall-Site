@@ -16,7 +16,7 @@ export const FLUID_SLIDES: FluidSlide[] = [
     tag: "THE ENGINE",
     title: "Colorwall",
     description:
-      "Welcome to the desktop customization you deserve. A living workspace filled with interactive canvases.",
+      "The newest desktop customization app for Windows. A blazing-fast Desktop Customization Engine built in Rust.",
     video: "/videos/initals.webm",
     poster: "/videos/posters/initals.webp",
   },
