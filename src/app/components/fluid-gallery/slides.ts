@@ -77,8 +77,8 @@ export const FLUID_SLIDES: FluidSlide[] = [
     title: "Deep Control",
     description:
       "Style your taskbar with acrylic blurs, control multi-monitor setups, and tweak renderer presets to perfection.",
-    video: "/videos/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webm",
-    poster: "/videos/posters/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webp",
+    video: "/videos/initialstwo.webm",
+    poster: "/videos/posters/initialstwo.webp",
   },
   {
     id: "laxenta",

@@ -21,9 +21,9 @@ const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/Ajitani_Hifumi_Train_Ride_Blue_Archive_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Ajitani_Hifumi_Train_Ride_Blue_Archive_Live_Wallpaper.webp" },
     { src: "/videos/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webp" },
     { src: "/videos/Autumn_Leaves_And_Water_Reflection_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Autumn_Leaves_And_Water_Reflection_Live_Wallpaper.webp" },
-    { src: "/videos/background.webm", type: "video/webm", poster: "/videos/posters/background.webp" },
+    // { src: "/videos/background.webm", type: "video/webm", poster: "/videos/posters/background.webp" },
     { src: "/videos/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webm", type: "video/webm", poster: "/videos/posters/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webp" },
-    { src: "/videos/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webm", type: "video/webm", poster: "/videos/posters/Download_Nte_Game_Live_Wallpaper_live_wallpaper__4K_HD_.webp" },
+    { src: "/videos/initialstwo.webm", type: "video/webm", poster: "/videos/posters/initialstwo.webp" },
     { src: "/videos/Prana_System_Error.webm", type: "video/webm", poster: "/videos/posters/Prana_System_Error.webp" },
 ];
 
