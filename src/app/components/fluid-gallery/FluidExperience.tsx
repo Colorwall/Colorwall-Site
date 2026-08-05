@@ -76,12 +76,21 @@ function writeSlideText(index: number, animate: boolean) {
   ids.forEach((id, i) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.innerHTML = values[i];
+
     if (animate) {
-      el.style.transition = "opacity 200ms ease-out";
-      el.style.opacity = "1";
+      el.style.transition = "opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1)";
+      el.style.opacity = "0";
+      el.style.transform = "translate3d(0, 8px, 0)";
+
+      setTimeout(() => {
+        el.innerHTML = values[i];
+        el.style.opacity = "1";
+        el.style.transform = "translate3d(0, 0, 0)";
+      }, 100);
     } else {
+      el.innerHTML = values[i];
       el.style.opacity = "1";
+      el.style.transform = "translate3d(0, 0, 0)";
     }
   });
 }
