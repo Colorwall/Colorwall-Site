@@ -58,6 +58,16 @@ const nextConfig: NextConfig = {
           }
         ]
       },
+      // heavily cache audio files
+      {
+        source: '/audio/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
       {
         source: '/videos/:path*',
         headers: [

@@ -38,6 +38,20 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
     const [isEnabled, setIsEnabled] = useState(false);
     const [currentTrack, setCurrentTrack] = useState<AmbientTrack>(getDefaultTrack);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const hasInitializedTrack = useRef(false);
+
+    const initializeRandomTrackIfNeeded = useCallback((audio: HTMLAudioElement) => {
+        if (hasInitializedTrack.current) return null;
+        hasInitializedTrack.current = true;
+
+        const randomPoolIds = ["default", "atmosphere", "hue-sparkles", "spacetype-track"];
+        const randomId = randomPoolIds[Math.floor(Math.random() * randomPoolIds.length)];
+        const track = AMBIENT_TRACKS.find(t => t.id === randomId) || AMBIENT_TRACKS[0];
+        
+        setCurrentTrack(track);
+        audio.src = track.src;
+        return track;
+    }, []);
 
     const ensureAudio = useCallback(() => {
         if (!audioRef.current) {
@@ -50,47 +64,77 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         return audioRef.current;
     }, []);
 
-    // Initial setup, autoplay and cleanup
+    // Wait for user interaction or attempt deferred autoplay
     useEffect(() => {
         const userPaused = localStorage.getItem("ambient-paused") === "true";
         if (userPaused) return;
 
-        const audio = ensureAudio();
-        if (audio.src !== new URL(currentTrack.src, window.location.origin).href) {
-            audio.src = currentTrack.src;
+        let idleId: number;
+        let timeoutId: NodeJS.Timeout;
+
+        const startOnInteraction = () => {
+            const isStillPaused = localStorage.getItem("ambient-paused") === "true";
+            const audio = ensureAudio();
+            
+            if (!isStillPaused) {
+                if (!hasInitializedTrack.current) {
+                    const newTrack = initializeRandomTrackIfNeeded(audio);
+                    if (newTrack && audio.src !== new URL(newTrack.src, window.location.origin).href) {
+                        audio.src = newTrack.src;
+                    }
+                }
+                audio.play()
+                    .then(() => setIsEnabled(true))
+                    .catch(() => {});
+            }
+            
+            document.removeEventListener("pointerdown", startOnInteraction, true);
+            document.removeEventListener("keydown", startOnInteraction, true);
+            document.removeEventListener("touchstart", startOnInteraction, true);
+            document.removeEventListener("click", startOnInteraction, true);
+        };
+        
+        const attemptAutoplay = () => {
+            const audio = ensureAudio();
+            if (!hasInitializedTrack.current) {
+                const newTrack = initializeRandomTrackIfNeeded(audio);
+                if (newTrack && audio.src !== new URL(newTrack.src, window.location.origin).href) {
+                    audio.src = newTrack.src;
+                }
+            }
+            
+            audio.play().then(() => {
+                setIsEnabled(true);
+            }).catch(() => {
+                // If autoplay is blocked by browser policies, fall back to interaction listeners
+                document.addEventListener("pointerdown", startOnInteraction, { capture: true });
+                document.addEventListener("keydown", startOnInteraction, { capture: true });
+                document.addEventListener("touchstart", startOnInteraction, { capture: true });
+                document.addEventListener("click", startOnInteraction, { capture: true });
+            });
+        };
+
+        // Delay autoplay attempt until the page is fully loaded to reduce LCP overhead
+        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            idleId = window.requestIdleCallback(() => attemptAutoplay(), { timeout: 2000 });
+        } else {
+            timeoutId = setTimeout(() => attemptAutoplay(), 1000);
         }
 
-        // Attempt autoplay
-        audio.play().then(() => {
-            setIsEnabled(true);
-        }).catch(() => {
-            // Autoplay blocked. Wait for user interaction.
-            const startOnInteraction = () => {
-                const isStillPaused = localStorage.getItem("ambient-paused") === "true";
-                if (!isStillPaused && audioRef.current) {
-                    audioRef.current.play()
-                        .then(() => setIsEnabled(true))
-                        .catch(() => {});
-                }
-                document.removeEventListener("pointerdown", startOnInteraction, true);
-                document.removeEventListener("keydown", startOnInteraction, true);
-                document.removeEventListener("touchstart", startOnInteraction, true);
-                document.removeEventListener("click", startOnInteraction, true);
-            };
-            
-            document.addEventListener("pointerdown", startOnInteraction, { capture: true });
-            document.addEventListener("keydown", startOnInteraction, { capture: true });
-            document.addEventListener("touchstart", startOnInteraction, { capture: true });
-            document.addEventListener("click", startOnInteraction, { capture: true });
-        });
-
         return () => {
+            if (idleId) window.cancelIdleCallback(idleId);
+            if (timeoutId) clearTimeout(timeoutId);
+            
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
             }
+            document.removeEventListener("pointerdown", startOnInteraction, true);
+            document.removeEventListener("keydown", startOnInteraction, true);
+            document.removeEventListener("touchstart", startOnInteraction, true);
+            document.removeEventListener("click", startOnInteraction, true);
         };
-    }, [currentTrack, ensureAudio]);
+    }, [ensureAudio, initializeRandomTrackIfNeeded]);
 
     const toggle = useCallback(() => {
         if (isEnabled) {
@@ -101,8 +145,11 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         }
 
         const audio = ensureAudio();
-        if (audio.src !== new URL(currentTrack.src, window.location.origin).href) {
-            audio.src = currentTrack.src;
+        const newTrack = initializeRandomTrackIfNeeded(audio);
+        const trackToPlay = newTrack || currentTrack;
+
+        if (audio.src !== new URL(trackToPlay.src, window.location.origin).href) {
+            audio.src = trackToPlay.src;
         }
 
         audio.play()
@@ -111,12 +158,15 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
                 localStorage.setItem("ambient-paused", "false");
             })
             .catch(() => setIsEnabled(false));
-    }, [isEnabled, currentTrack, ensureAudio]);
+    }, [isEnabled, currentTrack, ensureAudio, initializeRandomTrackIfNeeded]);
 
     const forcePlay = useCallback(() => {
         const audio = ensureAudio();
-        if (audio.src !== new URL(currentTrack.src, window.location.origin).href) {
-            audio.src = currentTrack.src;
+        const newTrack = initializeRandomTrackIfNeeded(audio);
+        const trackToPlay = newTrack || currentTrack;
+
+        if (audio.src !== new URL(trackToPlay.src, window.location.origin).href) {
+            audio.src = trackToPlay.src;
         }
         audio.play()
             .then(() => {
@@ -124,9 +174,10 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
                 localStorage.setItem("ambient-paused", "false");
             })
             .catch(() => {});
-    }, [currentTrack, ensureAudio]);
+    }, [currentTrack, ensureAudio, initializeRandomTrackIfNeeded]);
 
     const selectTrack = useCallback((track: AmbientTrack) => {
+        hasInitializedTrack.current = true;
         setCurrentTrack(track);
         const audio = audioRef.current;
         if (audio && isEnabled) {
