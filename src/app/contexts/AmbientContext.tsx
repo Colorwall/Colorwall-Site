@@ -57,91 +57,62 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         if (!audioRef.current) {
             const audio = new Audio();
             audio.loop = true;
-            audio.volume = 0.8;
+            audio.volume = 0.9;
             audio.preload = "none";
             audioRef.current = audio;
         }
         return audioRef.current;
     }, []);
 
-    // Wait for user interaction or attempt deferred autoplay
+    // Aggressive initialization and forced autoplay
     useEffect(() => {
+        const audio = ensureAudio();
+        
+        // 1. Force the audio to initialize and load immediately so it shows up in network tab
+        if (!hasInitializedTrack.current) {
+            const newTrack = initializeRandomTrackIfNeeded(audio);
+            if (newTrack && audio.src !== new URL(newTrack.src, window.location.origin).href) {
+                audio.src = newTrack.src;
+            }
+        }
+        
+        // If the user explicitly paused it before, we still preload it, but we respect the pause state
         const userPaused = localStorage.getItem("ambient-paused") === "true";
         if (userPaused) return;
 
-        let idleId: number;
-        let timeoutId: NodeJS.Timeout;
-
-        const startOnInteraction = () => {
-            const isStillPaused = localStorage.getItem("ambient-paused") === "true";
-            const audio = ensureAudio();
-            
-            if (!isStillPaused) {
-                if (!hasInitializedTrack.current) {
-                    const newTrack = initializeRandomTrackIfNeeded(audio);
-                    if (newTrack && audio.src !== new URL(newTrack.src, window.location.origin).href) {
-                        audio.src = newTrack.src;
-                    }
-                }
-                audio.play()
-                    .then(() => setIsEnabled(true))
-                    .catch(() => {});
-            }
-            
-            document.removeEventListener("pointerdown", startOnInteraction, true);
-            document.removeEventListener("keydown", startOnInteraction, true);
-            document.removeEventListener("touchstart", startOnInteraction, true);
-            document.removeEventListener("click", startOnInteraction, true);
-            document.removeEventListener("scroll", startOnInteraction, true);
-            document.removeEventListener("wheel", startOnInteraction, true);
-            document.removeEventListener("mousemove", startOnInteraction, true);
-        };
-        
-        const attemptAutoplay = () => {
-            const audio = ensureAudio();
-            if (!hasInitializedTrack.current) {
-                const newTrack = initializeRandomTrackIfNeeded(audio);
-                if (newTrack && audio.src !== new URL(newTrack.src, window.location.origin).href) {
-                    audio.src = newTrack.src;
-                }
-            }
-            
+        // 2. The Brute Force trigger
+        const brutalForcePlay = () => {
             audio.play().then(() => {
                 setIsEnabled(true);
-            }).catch(() => {
-                // If autoplay is blocked by browser policies, fall back to interaction listeners
-                document.addEventListener("pointerdown", startOnInteraction, { capture: true });
-                document.addEventListener("keydown", startOnInteraction, { capture: true });
-                document.addEventListener("touchstart", startOnInteraction, { capture: true });
-                document.addEventListener("click", startOnInteraction, { capture: true });
-                document.addEventListener("scroll", startOnInteraction, { capture: true, passive: true });
-                document.addEventListener("wheel", startOnInteraction, { capture: true, passive: true });
-                document.addEventListener("mousemove", startOnInteraction, { capture: true, passive: true });
-            });
+            }).catch(console.error);
+
+            // Clean up all listeners once it fires
+            window.removeEventListener("pointerdown", brutalForcePlay, true);
+            window.removeEventListener("touchstart", brutalForcePlay, true);
+            window.removeEventListener("keydown", brutalForcePlay, true);
+            window.removeEventListener("click", brutalForcePlay, true);
         };
 
-        // Delay autoplay attempt until the page is fully loaded to reduce LCP overhead
-        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-            idleId = window.requestIdleCallback(() => attemptAutoplay(), { timeout: 2000 });
-        } else {
-            timeoutId = setTimeout(() => attemptAutoplay(), 1000);
-        }
+        // 3. Attempt immediate play
+        audio.play().then(() => {
+            setIsEnabled(true);
+        }).catch(() => {
+            // 4. If blocked, set bulletproof traps for any valid user gesture
+            window.addEventListener("pointerdown", brutalForcePlay, { capture: true, once: true });
+            window.addEventListener("touchstart", brutalForcePlay, { capture: true, once: true });
+            window.addEventListener("keydown", brutalForcePlay, { capture: true, once: true });
+            window.addEventListener("click", brutalForcePlay, { capture: true, once: true });
+        });
 
         return () => {
-            if (idleId) window.cancelIdleCallback(idleId);
-            if (timeoutId) clearTimeout(timeoutId);
-            
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
             }
-            document.removeEventListener("pointerdown", startOnInteraction, true);
-            document.removeEventListener("keydown", startOnInteraction, true);
-            document.removeEventListener("touchstart", startOnInteraction, true);
-            document.removeEventListener("click", startOnInteraction, true);
-            document.removeEventListener("scroll", startOnInteraction, true);
-            document.removeEventListener("wheel", startOnInteraction, true);
-            document.removeEventListener("mousemove", startOnInteraction, true);
+            window.removeEventListener("pointerdown", brutalForcePlay, true);
+            window.removeEventListener("touchstart", brutalForcePlay, true);
+            window.removeEventListener("keydown", brutalForcePlay, true);
+            window.removeEventListener("click", brutalForcePlay, true);
         };
     }, [ensureAudio, initializeRandomTrackIfNeeded]);
 
