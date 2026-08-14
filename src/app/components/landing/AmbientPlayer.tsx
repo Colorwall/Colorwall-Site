@@ -25,7 +25,7 @@ const EqualizerBars = () => (
 );
 
 // pure ui component — all audio state comes from AmbientContext
-export const AmbientPlayer = ({ theme }: { theme: string }) => {
+export const AmbientPlayer = ({ theme, className = "" }: { theme: string, className?: string }) => {
     const { isEnabled, currentTrack, tracks, toggle, selectTrack } = useAmbient();
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -45,8 +45,8 @@ export const AmbientPlayer = ({ theme }: { theme: string }) => {
     }, [isOpen]);
 
     return (
-        <div className="w-full px-8 sm:px-0" ref={containerRef}>
-            <div className="mx-auto flex w-full max-w-2xl items-center justify-center">
+        <div className={`relative ${className}`} ref={containerRef}>
+            <div className="flex items-center justify-center">
                 <div className="relative">
                     {/* main pill */}
                     <div

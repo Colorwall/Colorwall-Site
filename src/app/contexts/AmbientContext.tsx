@@ -57,7 +57,7 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         if (!audioRef.current) {
             const audio = new Audio();
             audio.loop = true;
-            audio.volume = 0.7;
+            audio.volume = 0.8;
             audio.preload = "none";
             audioRef.current = audio;
         }
@@ -92,6 +92,9 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
             document.removeEventListener("keydown", startOnInteraction, true);
             document.removeEventListener("touchstart", startOnInteraction, true);
             document.removeEventListener("click", startOnInteraction, true);
+            document.removeEventListener("scroll", startOnInteraction, true);
+            document.removeEventListener("wheel", startOnInteraction, true);
+            document.removeEventListener("mousemove", startOnInteraction, true);
         };
         
         const attemptAutoplay = () => {
@@ -111,6 +114,9 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
                 document.addEventListener("keydown", startOnInteraction, { capture: true });
                 document.addEventListener("touchstart", startOnInteraction, { capture: true });
                 document.addEventListener("click", startOnInteraction, { capture: true });
+                document.addEventListener("scroll", startOnInteraction, { capture: true, passive: true });
+                document.addEventListener("wheel", startOnInteraction, { capture: true, passive: true });
+                document.addEventListener("mousemove", startOnInteraction, { capture: true, passive: true });
             });
         };
 
@@ -133,6 +139,9 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
             document.removeEventListener("keydown", startOnInteraction, true);
             document.removeEventListener("touchstart", startOnInteraction, true);
             document.removeEventListener("click", startOnInteraction, true);
+            document.removeEventListener("scroll", startOnInteraction, true);
+            document.removeEventListener("wheel", startOnInteraction, true);
+            document.removeEventListener("mousemove", startOnInteraction, true);
         };
     }, [ensureAudio, initializeRandomTrackIfNeeded]);
 

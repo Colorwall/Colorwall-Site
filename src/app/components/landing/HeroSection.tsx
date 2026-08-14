@@ -133,25 +133,9 @@ export const HeroSection = () => {
                     />
                 </div>
 
-                {/* audio status and sound trigger linked to ambient context */}
-                <div className="flex items-center gap-3 sm:gap-4">
-                    <button
-                        type="button"
-                        onClick={() => ambient.toggle()}
-                        className="group flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-black/40 backdrop-blur-md text-white/80 hover:text-white hover:border-white/30 transition-all duration-200 cursor-pointer"
-                        title={ambient.isEnabled ? "Mute ambient audio" : "Play ambient audio"}
-                    >
-                        {/* animated audio bars reflecting playback state */}
-                        <span className="flex items-end gap-[2px] h-3.5">
-                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-3 animate-pulse" : "h-1.5 opacity-50"}`} />
-                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-3.5 animate-pulse delay-75" : "h-2.5 opacity-50"}`} />
-                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-2 animate-pulse delay-150" : "h-1 opacity-50"}`} />
-                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-3.5 animate-pulse delay-100" : "h-2 opacity-50"}`} />
-                        </span>
-                        <span className="font-mono text-[10px] sm:text-xs font-semibold tracking-widest uppercase">
-                            {ambient.isEnabled ? "SOUND ON" : "SOUND"}
-                        </span>
-                    </button>
+                {/* ambient player replacing the static sound button */}
+                <div className="flex items-center">
+                    <AmbientPlayer theme="dark" />
                 </div>
             </div>
 
