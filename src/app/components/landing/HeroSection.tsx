@@ -142,12 +142,12 @@ export const HeroSection = () => {
             {/* main lower-quadrant typography headline */}
             <div className="relative z-10 w-full max-w-6xl my-auto pt-16 sm:pt-20 pb-8">
                 {/* category tag / engine eyebrow */}
-                <div className="flex items-center gap-2 mb-4">
+                {/* <div className="flex items-center gap-2 mb-4">
                     <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                     <span className="font-mono text-[11px] sm:text-xs tracking-[0.2em] uppercase text-cyan-300/90 font-medium">
                         Next-Gen Desktop Engine
                     </span>
-                </div>
+                </div> */}
 
                 {/* massive editorial headline */}
                 <h1 
