@@ -23,23 +23,24 @@ export function HeroTypewriter() {
     }, []);
 
     return (
-        <div className="min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center text-xs sm:text-sm md:text-base lg:text-lg font-sans font-medium tracking-wide text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] relative w-full overflow-hidden px-4">
+        <div className="min-h-[2.25rem] sm:min-h-[2.5rem] flex items-center justify-start text-xs sm:text-sm md:text-base font-mono font-medium tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] relative w-full overflow-hidden">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={index}
-                    initial={{ y: 20, opacity: 0, filter: "blur(4px)" }}
+                    initial={{ y: 15, opacity: 0, filter: "blur(4px)" }}
                     animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                    exit={{ y: -20, opacity: 0, filter: "blur(4px)" }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="absolute text-center w-full"
+                    exit={{ y: -15, opacity: 0, filter: "blur(4px)" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="absolute text-left w-full flex items-center gap-2"
                 >
+                    <span className="text-cyan-400 font-mono text-sm sm:text-base">›</span>
                     <motion.span
                         initial={{ backgroundPosition: "200% center" }}
                         animate={{ backgroundPosition: "-200% center" }}
                         transition={{ repeat: Infinity, duration: 3.5, ease: "linear" }}
-                        className="inline-block"
+                        className="inline-block font-sans font-medium text-white/90"
                         style={{
-                            backgroundImage: "linear-gradient(110deg, rgba(255,255,255,0.8) 40%, #22d3ee 50%, rgba(255,255,255,0.8) 60%)",
+                            backgroundImage: "linear-gradient(110deg, rgba(255,255,255,0.9) 35%, #38bdf8 50%, rgba(255,255,255,0.9) 65%)",
                             backgroundSize: "200% auto",
                             WebkitBackgroundClip: "text",
                             WebkitTextFillColor: "transparent",

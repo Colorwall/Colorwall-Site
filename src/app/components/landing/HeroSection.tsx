@@ -86,107 +86,160 @@ const HeroBackground = React.memo(() => (
 
 export const HeroSection = () => {
     const ambient = useAmbient();
+
+    // handler for launching the 3d webgl gallery scene while initiating ambient audio
+    const handleLaunchGallery = () => {
+        ambient.forcePlay();
+        const url = new URL(window.location.href);
+        url.searchParams.set("gallery", "true");
+        window.history.pushState({}, "", url.pathname + url.search);
+        window.dispatchEvent(new Event("popstate"));
+    };
+
+    // handler for launching the standalone cinematic wallpaper mode
+    const handleLaunchCinematic = () => {
+        ambient.forcePlay();
+        const url = new URL(window.location.href);
+        url.searchParams.set("cinematic", "true");
+        window.history.pushState({}, "", url.pathname + url.search);
+        window.dispatchEvent(new Event("popstate"));
+    };
+
     return (
         <section
-            className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 bg-black text-white"
+            className="min-h-screen flex flex-col justify-between relative overflow-hidden px-6 sm:px-10 md:px-14 lg:px-20 pt-24 sm:pt-28 pb-10 sm:pb-14 bg-black text-white select-none"
         >
-            {/* Preload removed to avoid console warnings about unused preloaded resources. 
-               The chosen image is still loaded with priority by the Image component. */}
-
+            {/* dynamic video background with fallback poster */}
             <HeroBackground />
 
-            <div className="relative z-10 text-center flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 max-w-4xl xl:max-w-5xl">
-                {/* logo */}
-                <div className="relative w-full flex justify-center items-center">
-                    <div
-                        aria-hidden="true"
-                        className="absolute -z-10 h-24 w-56 sm:h-28 sm:w-72 md:h-32 md:w-80 rounded-full bg-black/70 blur-3xl"
-                    />
+            {/* subtle cinematic vignette overlay for optimal typography contrast */}
+            <div 
+                aria-hidden="true" 
+                className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20" 
+            />
+
+            {/* top row: ambient sound status indicator and quick actions */}
+            <div className="relative z-10 w-full flex items-center justify-between pt-2">
+                {/* sleek brand mark */}
+                <div className="flex items-center gap-3">
                     <Image
-                        src="/LxColorWall.webp"
+                        src="/colorwall.png"
                         alt="ColorWall"
-                        width={512}
-                        height={192}
-                        className="w-64 sm:w-80 md:w-96 lg:w-[448px] xl:w-[512px] h-auto object-contain"
-                        style={{ height: 'auto' }}
+                        width={36}
+                        height={36}
+                        className="w-7 h-7 sm:w-8 sm:h-8 object-contain opacity-90"
                         priority
-                        fetchPriority="high"
                     />
+                    <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-white/90">
+                        COLORWALL
+                    </span>
                 </div>
 
-                <div className="relative w-full flex flex-col items-center justify-center mt-4 mb-2">
-                    <h1 
-                        className={`text-white text-center ${outfit.className}`}
-                        style={{ 
-                            fontWeight: 200, 
-                            fontSize: "clamp(1.2rem, 2.5vw, 2.5rem)", 
-                            lineHeight: 0.95, 
-                            letterSpacing: "-0.04em", 
-                            mixBlendMode: "exclusion" 
-                        }}
-                    >
-                        The Desktop Customization
-                        You Deserve.
-                    </h1>
-                </div>
-
-                {/* typewriter */}
-                <HeroTypewriter />
-
-                {/* CTA row */}
-                <HeroInteractive />
-
-                {/* ambient player inline on homepage */}
-                <AmbientPlayer theme="dark" />
-
-                {/* webgl experience    launcher buttons */}
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-
+                {/* audio status and sound trigger linked to ambient context */}
+                <div className="flex items-center gap-3 sm:gap-4">
                     <button
-                        onClick={() => {
-                            ambient.forcePlay();
-                            const url = new URL(window.location.href);
-                            url.searchParams.set("gallery", "true");
-                            window.history.pushState({}, "", url.pathname + url.search);
-                            window.dispatchEvent(new Event("popstate"));
-                        }}
                         type="button"
-                        className="relative flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-blue-400/50 hover:bg-blue-500/20 hover:text-blue-300 cursor-pointer"
+                        onClick={() => ambient.toggle()}
+                        className="group flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-black/40 backdrop-blur-md text-white/80 hover:text-white hover:border-white/30 transition-all duration-200 cursor-pointer"
+                        title={ambient.isEnabled ? "Mute ambient audio" : "Play ambient audio"}
                     >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-[1em] h-[1em] inline-block">
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M8 12c1.5-3 6.5-3 8 0" />
-                            <path d="M8 12c1.5 3 6.5 3 8 0" />
-                        </svg>
-                        <span>Cinematic Site</span>
-                    </button>
-
-                          <button
-                        onClick={() => {
-                            ambient.forcePlay();
-                            const url = new URL(window.location.href);
-                            url.searchParams.set("cinematic", "true");
-                            window.history.pushState({}, "", url.pathname + url.search);
-                            window.dispatchEvent(new Event("popstate"));
-                        }}
-                        type="button"
-                        className="relative flex sm:inline-flex justify-center items-center gap-1.5 sm:gap-2 px-5 py-3 sm:px-7 sm:py-4 rounded-xl font-semibold text-xs sm:text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 border border-white/20 text-white bg-black/30 hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-[1em] h-[1em] inline-block">
-                            <polygon points="23 7 16 12 23 17 23 7" />
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                        </svg>
-                        <span>Cinematic Mode</span>
+                        {/* animated audio bars reflecting playback state */}
+                        <span className="flex items-end gap-[2px] h-3.5">
+                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-3 animate-pulse" : "h-1.5 opacity-50"}`} />
+                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-3.5 animate-pulse delay-75" : "h-2.5 opacity-50"}`} />
+                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-2 animate-pulse delay-150" : "h-1 opacity-50"}`} />
+                            <span className={`w-[2px] bg-white/90 rounded-full transition-all duration-300 ${ambient.isEnabled ? "h-3.5 animate-pulse delay-100" : "h-2 opacity-50"}`} />
+                        </span>
+                        <span className="font-mono text-[10px] sm:text-xs font-semibold tracking-widest uppercase">
+                            {ambient.isEnabled ? "SOUND ON" : "SOUND"}
+                        </span>
                     </button>
                 </div>
+            </div>
 
-                {/* platform tags */}
-                <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-mono pt-2 text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                    <span className="flex items-center gap-1 sm:gap-1.5"><Cpu className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Rust + Tauri</span>
-                    <span className="opacity-50">·</span>
-                    <span className="flex items-center gap-1 sm:gap-1.5"><Monitor className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Windows 10/11</span>
-                    <span className="opacity-50">·</span>
-                    <span className="flex items-center gap-1 sm:gap-1.5"><Wrench className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Under Development</span>
+            {/* main lower-quadrant typography headline */}
+            <div className="relative z-10 w-full max-w-6xl my-auto pt-16 sm:pt-20 pb-8">
+                {/* category tag / engine eyebrow */}
+                <div className="flex items-center gap-2 mb-4">
+                    <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                    <span className="font-mono text-[11px] sm:text-xs tracking-[0.2em] uppercase text-cyan-300/90 font-medium">
+                        Next-Gen Desktop Engine
+                    </span>
+                </div>
+
+                {/* massive editorial headline */}
+                <h1 
+                    className={`text-white text-left ${outfit.className} uppercase tracking-[-0.04em] leading-[0.94] drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]`}
+                    style={{ 
+                        fontWeight: 300, 
+                        fontSize: "clamp(2.4rem, 6.2vw, 5.75rem)", 
+                    }}
+                >
+                    THE DESKTOP CUSTOMIZATION
+                    <br />
+                    <span className="text-white/90 font-[200]">YOU DESERVE.</span>
+                </h1>
+
+                {/* dynamic typewriter statement */}
+                <div className="mt-4 sm:mt-6 max-w-2xl text-left">
+                    <HeroTypewriter />
+                </div>
+            </div>
+
+            {/* bottom grid bar: tech badge, editorial story block, and action triggers */}
+            <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-6 border-t border-white/10">
+                {/* left: tech spec badge */}
+                <div className="lg:col-span-3 flex items-center">
+                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/50 border border-white/15 backdrop-blur-md shadow-lg">
+                        <div className="flex flex-col text-left font-mono">
+                            <span className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+                                Core Engine
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5">
+                                <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust + Tauri
+                            </span>
+                            <span className="text-[9px] font-medium tracking-wide text-white/60">
+                                Windows 10/11 · D3D11 / IMF
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* center: editorial story block */}
+                <div className="lg:col-span-5 flex flex-col justify-center text-left">
+                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans max-w-lg">
+                        ColorWall reimagines desktop immersion with native hardware-accelerated video decoding, audio-reactive shaders, and spatial widgets with near-zero resource consumption.
+                    </p>
+                    {/* quick experience launchers */}
+                    <div className="flex items-center gap-3 mt-3">
+                        <button
+                            type="button"
+                            onClick={handleLaunchGallery}
+                            className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-medium text-cyan-300 hover:text-cyan-200 transition-colors uppercase tracking-wider cursor-pointer"
+                        >
+                            <span>Cinematic Site</span>
+                            <span className="text-sm">→</span>
+                        </button>
+                        <span className="text-white/30 text-xs">·</span>
+                        <button
+                            type="button"
+                            onClick={handleLaunchCinematic}
+                            className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider cursor-pointer"
+                        >
+                            <span>Cinematic Mode</span>
+                            <span className="text-sm">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* right: interactive buttons & scroll indicator */}
+                <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4">
+                    <HeroInteractive />
+
+                    <div className="hidden lg:flex items-center gap-2 text-[10px] sm:text-[11px] font-mono font-semibold tracking-[0.2em] uppercase text-white/60 mt-1">
+                        <span>SCROLL TO EXPLORE</span>
+                        <span className="animate-pulse text-white">→</span>
+                    </div>
                 </div>
             </div>
         </section>
