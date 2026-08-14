@@ -121,18 +121,16 @@ export const HeroSection = () => {
             {/* top row: ambient sound status indicator and quick actions */}
             <div className="relative z-10 w-full flex items-center justify-between pt-2">
                 {/* sleek brand mark */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center">
                     <Image
-                        src="/colorwall.png"
-                        alt="ColorWall"
-                        width={36}
-                        height={36}
-                        className="w-7 h-7 sm:w-8 sm:h-8 object-contain opacity-90"
+                        src="/LxColorWall.webp"
+                        alt="ColorWall Logo"
+                        width={256}
+                        height={96}
+                        className="w-36 sm:w-44 md:w-52 h-auto object-contain drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
                         priority
+                        fetchPriority="high"
                     />
-                    <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-white/90">
-                        COLORWALL
-                    </span>
                 </div>
 
                 {/* audio status and sound trigger linked to ambient context */}
