@@ -172,25 +172,20 @@ export const HeroSection = () => {
             <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-6 border-t border-white/10">
                 {/* left: tech spec badge */}
                 <div className="lg:col-span-3 flex items-center">
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/50 border border-white/15 backdrop-blur-md shadow-lg">
-                        <div className="flex flex-col text-left font-mono">
-                            <span className="text-[9px] uppercase tracking-[0.2em] text-white/50">
-                                Core Engine
-                            </span>
-                            <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5">
-                                <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust + Tauri
-                            </span>
-                            <span className="text-[9px] font-medium tracking-wide text-white/60">
-                                Windows 10/11 · D3D11 / IMF
-                            </span>
-                        </div>
+                    <div className="flex flex-col text-left font-mono">
+                        <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5 mt-1">
+                            <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust + Tauri
+                        </span>
+                        <span className="text-[9px] font-medium tracking-wide text-white/60 mt-0.5">
+                            Windows 10/11 · Direct3D11 / MediaFoundation
+                        </span>
                     </div>
                 </div>
 
                 {/* center: editorial story block */}
                 <div className="lg:col-span-5 flex flex-col justify-center text-left">
                     <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans max-w-lg">
-                        ColorWall reimagines desktop immersion with native hardware-accelerated video decoding, audio-reactive shaders, and spatial widgets with near-zero resource consumption.
+                        ColorWall Is an upcoming Desktop customization engine with native hardware-accelerated video/shader decoding, audio-reactive, RGB* components support, and Widgets with near-zero resource consumption.
                     </p>
                     {/* quick experience launchers */}
                     <div className="flex items-center gap-3 mt-3">
