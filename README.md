@@ -13,7 +13,7 @@
 
 <br />
 
-## 🌐 The Engine
+##  The colorwall thing
 
 ColorWall is an upcoming Thingy to Ms Store and prolly Steam, it is blazingly fast, Desktop Customization engine for Windows 10 and 11. It renders 8K live wallpapers, audio-reactive shaders, and interactive web scenes directly on your desktop.
 
