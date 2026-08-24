@@ -270,7 +270,7 @@ export default function DownloadPage() {
                     </div>
 
                     {/* App UI Showcase */}
-                    <div className="pt-8 px-4 sm:px-8">
+                    {/* <div className="pt-8 px-4 sm:px-8">
                         <div className="max-w-7xl mx-auto relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50 border border-white/5 bg-black/5">
                             <Image
                                 src="/HOME.webp"
@@ -282,9 +282,9 @@ export default function DownloadPage() {
                             />
                             <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none ${isDark ? "from-black/30" : "from-white/20"}`} />
                         </div>
-                    </div>
+                    </div> */}
                     {/* Security Report Section */}
-                    <SecurityReport theme={theme} />
+                    {/* <SecurityReport theme={theme} /> */}
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
