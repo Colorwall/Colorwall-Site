@@ -258,6 +258,13 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
         setPreviews(prev => prev.filter((_, i) => i !== idx));
     };
 
+    const getSafeImagePreviewSrc = (src: string): string => {
+        if (typeof src !== 'string') return '';
+        if (src.startsWith('blob:')) return src;
+        if (/^data:image\/[a-zA-Z0-9.+-]+;base64,[a-zA-Z0-9+/=\s]+$/.test(src)) return src;
+        return '';
+    };
+
     const handleReply = async () => {
         if ((!replyText.trim() && images.length === 0) || isSubmitting) return;
         setIsSubmitting(true);
@@ -387,7 +394,7 @@ function ReplySection({ threadId, initialReplies, isAdmin }: { threadId: string,
                                         {previews.map((src, i) => (
                                             <div key={i} className="relative w-16 h-16 rounded border border-[#30363d] overflow-hidden group">
                                                 {/* CodeQL fix: sanitize image src */}
-                                                <img src={typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('http')) ? src : ''} alt="" className="w-full h-full object-cover" />
+                                                <img src={getSafeImagePreviewSrc(src)} alt="" className="w-full h-full object-cover" />
                                                 <button onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                                     <X className="w-4 h-4 text-white" />
                                                 </button>
