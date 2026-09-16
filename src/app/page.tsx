@@ -24,8 +24,8 @@ export default function ColorWallLanding() {
         <ImmersiveModeHost>
             <div className={`relative min-h-screen select-none ${theme === "dark" ? "bg-black text-white" : "bg-white text-black"}`}>
                 <TargetCursor 
-                    cursorColor={theme === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'} 
-                    cursorColorOnTarget="#0078d4" 
+                    cursorColor={theme === 'dark' ? '#ffffff' : '#111111'} 
+                    cursorColorOnTarget="#ffffff" 
                 />
 
                 <HeroSection />

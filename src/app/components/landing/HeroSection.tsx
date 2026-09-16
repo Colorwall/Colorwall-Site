@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Monitor, Cpu, Wrench } from "lucide-react";
 import { AmbientPlayer } from "./AmbientPlayer";
@@ -6,6 +8,8 @@ import { Outfit } from "next/font/google";
 import { HeroInteractive } from "./HeroInteractive";
 import { HeroTypewriter } from "./HeroTypewriter";
 import { useAmbient } from "@/app/contexts/AmbientContext";
+
+import RippleDistortion from "../ui/sexyripples";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500"] });
 
@@ -84,6 +88,65 @@ const HeroBackground = React.memo(() => (
     />
 ), () => true);
 
+// isolated webgl ripple canvas prevents hero tree re-renders and eliminates hmr refresh triggers
+const HeroRippleCanvas = React.memo(() => {
+    const [mounted, setMounted] = useState(false);
+    const [poster, setPoster] = useState(HERO_VIDEOS[0].poster);
+
+    useEffect(() => {
+        // randomly select one of the featured hero wallpaper posters for the ripple canvas
+        const randomVideo = HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)];
+        if (randomVideo?.poster) {
+            setPoster(randomVideo.poster);
+        }
+
+        // schedule webgl ripple distortion initialization only when browser main thread is idle
+        // this guarantees zero blocking on initial page paint and prevents lcp regression
+        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            const idleId = (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(() => {
+                setMounted(true);
+            }, { timeout: 2000 });
+            return () => {
+                if ("cancelIdleCallback" in window) {
+                    (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+                }
+            };
+        } else {
+            const timer = setTimeout(() => {
+                setMounted(true);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, []);
+
+    if (!mounted) return null;
+
+    return (
+        <div 
+            className="absolute inset-0 z-[1] overflow-hidden pointer-events-none transition-opacity duration-1000 opacity-100"
+        >
+            <RippleDistortion
+                src={poster}
+                brushSize={140}
+                strength={0.22}
+                swirl={0.8}
+                rings={3}
+                spread={4}
+                fade={2.6}
+                dispersion={0.02}
+                glint={0.25}
+                tint="#00d8ff"
+                tintAmount={0.03}
+                grayscale={false}
+                trigger="both"
+                quality="medium"
+                className="w-full h-full object-cover"
+            />
+        </div>
+    );
+});
+HeroRippleCanvas.displayName = "HeroRippleCanvas";
+
 export const HeroSection = () => {
     const ambient = useAmbient();
 
@@ -112,10 +175,13 @@ export const HeroSection = () => {
             {/* dynamic video background with fallback poster */}
             <HeroBackground />
 
+            {/* interactive webgl ripple distortion backdrop isolated in memoized leaf component */}
+            <HeroRippleCanvas />
+
             {/* subtle cinematic vignette overlay for optimal typography contrast */}
             <div 
                 aria-hidden="true" 
-                className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20" 
+                className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20" 
             />
 
             {/* top row: ambient sound status indicator and quick actions */}
