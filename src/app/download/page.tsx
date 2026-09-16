@@ -132,7 +132,7 @@ export default function DownloadPage() {
             {/* Global Water Background */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-50 mix-blend-screen">
                 {isIdle && (
-                    <SplashCursor 
+                    <SplashCursor
                         COLOR={isDark ? "#3b82f6" : "#2563eb"}
                         RAINBOW_MODE={false}
                         TRANSPARENT={true}
@@ -171,10 +171,10 @@ export default function DownloadPage() {
                                 <h1 className="text-4xl md:text-5xl lg:text-7xl font-outfit font-[200] tracking-tight">
                                     Download Colorwall
                                 </h1>
-                                <p 
+                                <p
                                     className="text-lg md:text-xl font-bold bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto] max-w-xl mx-auto"
-                                    style={{ 
-                                        backgroundImage: isDark 
+                                    style={{
+                                        backgroundImage: isDark
                                             ? 'linear-gradient(110deg, #ffffff 35%, #f4f9ff 45%, #8bc5f8 50%, #f4f9ff 55%, #ffffff 65%)'
                                             : 'linear-gradient(110deg, #000000 35%, #111827 45%, #3b82f6 50%, #111827 55%, #000000 65%)'
                                     }}
@@ -193,80 +193,80 @@ export default function DownloadPage() {
                         >
                             {/* Windows */}
                             <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                            <div className="space-y-2 mb-8 text-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-[1em] h-[1em] inline-block text-[36px] mx-auto mb-4 opacity-80"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z"/></svg>
-                                <h3 className="text-3xl font-black tracking-tight">Windows</h3>
-                                <p className={`text-sm ${mutedText} font-medium`}>Windows 10/11 (64-bit)</p>
-                            </div>
+                                <div className="space-y-2 mb-8 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-[1em] h-[1em] inline-block text-[36px] mx-auto mb-4 opacity-80"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z" /></svg>
+                                    <h3 className="text-3xl font-black tracking-tight">Windows</h3>
+                                    <p className={`text-sm ${mutedText} font-medium`}>Windows 10/11 (64-bit)</p>
+                                </div>
 
-                            <div className="space-y-3 w-full">
-                                <button
-                                    onClick={handleDownload}
-                                    disabled={isDownloading}
-                                    className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold transition-all duration-300 ${isDownloading ? "opacity-70 cursor-wait" : "hover:-translate-y-1 hover:shadow-xl"} ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
-                                >
-                                    <Download size={20} className={isDownloading ? "animate-bounce" : ""} />
-                                    <span>{isDownloading ? "Starting..." : "Download Now"}</span>
-                                </button>
+                                <div className="space-y-3 w-full">
+                                    <button
+                                        onClick={handleDownload}
+                                        disabled={isDownloading}
+                                        className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold transition-all duration-300 ${isDownloading ? "opacity-70 cursor-wait" : "hover:-translate-y-1 hover:shadow-xl"} ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
+                                    >
+                                        <Download size={20} className={isDownloading ? "animate-bounce" : ""} />
+                                        <span>{isDownloading ? "Starting..." : "Download Now"}</span>
+                                    </button>
 
-                                <button
-                                    disabled
-                                    className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold border transition-all duration-300 bg-black/5 dark:bg-white/5 ${borderColor} opacity-50 grayscale cursor-not-allowed`}
-                                >
-                                    <Image src="/microsoftstore.svg" alt="Microsoft Store" width={20} height={20} className="w-5 h-5" />
-                                    <span>Microsoft Store</span>
-                                </button>
+                                    <button
+                                        disabled
+                                        className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold border transition-all duration-300 bg-black/5 dark:bg-white/5 ${borderColor} opacity-50 grayscale cursor-not-allowed`}
+                                    >
+                                        <Image src="/microsoftstore.svg" alt="Microsoft Store" width={20} height={20} className="w-5 h-5" />
+                                        <span>Microsoft Store</span>
+                                    </button>
 
-                                <div className="flex items-start gap-2 text-xs pt-4 opacity-70">
-                                    <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-500" />
-                                    <span className="leading-snug">SmartScreen may appear. Select &ldquo;Run anyway&rdquo;.</span>
+                                    <div className="flex items-start gap-2 text-xs pt-4 opacity-70">
+                                        <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-500" />
+                                        <span className="leading-snug">SmartScreen may appear. Select &ldquo;Run anyway&rdquo;.</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Linux */}
-                        <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} bg-transparent transition-all`}>
-                            <div className="space-y-2 mb-8 text-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-[1em] h-[1em] inline-block text-[36px] mx-auto mb-4"><path d="M220.8 123.3c1.1.2 2.7-.4 3.6-.8 5.4-2.8 5.5-10.7-.1-12.7-7.7-2.7-8.1-13-1-16.1 4.5-1.9 9.6-1.5 13.9 1.1 5.9 3.5 13.1 1.7 16.9-3.9 3.9-5.7 2.1-13.6-3.8-17.1-11-6.5-24.8-5.3-34.6 2.9-10.3 8.6-12.5 24.1-5.1 35.1 2.3 3.5 6.4 5.9 10.3 6.5zm-59.5 73.1c16.3-17.4 39.5-27.1 63.6-26.6 24.1-.5 47.3 9.2 63.6 26.6 22.4 23.9 34 56.4 33.7 89.8V303c.5 10.3-6.6 19.3-16.7 21-14.7 2.4-30-2.3-40.4-12.6C252.1 298.6 235.8 290 218 290s-34.1 8.6-47.1 21.4c-10.5 10.3-25.7 15-40.4 12.6-10.1-1.6-17.2-10.7-16.7-21v-16.8c-.3-33.4 11.3-65.9 33.7-89.8h-.1zM113.8 359c4.2 12 14.8 20.6 27.5 22.4 21.5 3 43.4 2.1 64.6-2.5 4.8-.9 9.8-.9 14.6 0 21.2 4.6 43.1 5.5 64.6 2.5 12.6-1.8 23.3-10.4 27.5-22.4 8.7-25.3 11-54.6-5.8-76.3-11.4-14.8-29.4-23.4-48-23H213c-18.6-.5-36.6 8.2-48 23-16.8 21.7-14.5 51-5.8 76.3zm120.3-138.8c.8 4.2-2.1 8.2-6.4 9-4.2.8-8.2-2.1-9-6.4-.8-4.2 2.1-8.2 6.4-9 4.2-.8 8.1 2.1 9 6.4zm-92.4 9c-4.2.8-8.2-2.1-9-6.4-.8-4.2 2.1-8.2 6.4-9 4.2-.8 8.2 2.1 9 6.4.8 4.2-2.1 8.1-6.4 9zM30.4 200.7c5.1 1.9 10.8-.7 12.7-5.8 5.7-15.6 15-28.7 26.5-38 12.7-10.3 33.2-15.1 48-11.6 6 1.5 12.2-2 13.8-8s-2-12.2-8-13.8c-20.9-4.9-45.7 1.3-62.8 14.9-15.2 12.3-27.1 29.5-34.6 50.1-1.9 5.2.7 10.9 5.8 12.8h-1.4zM417.6 200.7c-5.1 1.9-10.8-.7-12.7-5.8-5.7-15.6-15-28.7-26.5-38-12.7-10.3-33.2-15.1-48-11.6-6 1.5-12.2-2-13.8-8s-2-12.2-8-13.8c20.9-4.9 45.7 1.3 62.8 14.9 15.2 12.3 27.1 29.5 34.6 50.1 1.9 5.2-.7 10.9-5.8 12.8h1.4z" /></svg>
-                                <h3 className="text-3xl font-black tracking-tight">Linux</h3>
-                                <p className={`text-sm ${mutedText} font-medium`}>Linux Wayland/X11</p>
-                            </div>
+                            {/* Linux */}
+                            <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} bg-transparent transition-all`}>
+                                <div className="space-y-2 mb-8 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-[1em] h-[1em] inline-block text-[36px] mx-auto mb-4"><path d="M220.8 123.3c1.1.2 2.7-.4 3.6-.8 5.4-2.8 5.5-10.7-.1-12.7-7.7-2.7-8.1-13-1-16.1 4.5-1.9 9.6-1.5 13.9 1.1 5.9 3.5 13.1 1.7 16.9-3.9 3.9-5.7 2.1-13.6-3.8-17.1-11-6.5-24.8-5.3-34.6 2.9-10.3 8.6-12.5 24.1-5.1 35.1 2.3 3.5 6.4 5.9 10.3 6.5zm-59.5 73.1c16.3-17.4 39.5-27.1 63.6-26.6 24.1-.5 47.3 9.2 63.6 26.6 22.4 23.9 34 56.4 33.7 89.8V303c.5 10.3-6.6 19.3-16.7 21-14.7 2.4-30-2.3-40.4-12.6C252.1 298.6 235.8 290 218 290s-34.1 8.6-47.1 21.4c-10.5 10.3-25.7 15-40.4 12.6-10.1-1.6-17.2-10.7-16.7-21v-16.8c-.3-33.4 11.3-65.9 33.7-89.8h-.1zM113.8 359c4.2 12 14.8 20.6 27.5 22.4 21.5 3 43.4 2.1 64.6-2.5 4.8-.9 9.8-.9 14.6 0 21.2 4.6 43.1 5.5 64.6 2.5 12.6-1.8 23.3-10.4 27.5-22.4 8.7-25.3 11-54.6-5.8-76.3-11.4-14.8-29.4-23.4-48-23H213c-18.6-.5-36.6 8.2-48 23-16.8 21.7-14.5 51-5.8 76.3zm120.3-138.8c.8 4.2-2.1 8.2-6.4 9-4.2.8-8.2-2.1-9-6.4-.8-4.2 2.1-8.2 6.4-9 4.2-.8 8.1 2.1 9 6.4zm-92.4 9c-4.2.8-8.2-2.1-9-6.4-.8-4.2 2.1-8.2 6.4-9 4.2-.8 8.2 2.1 9 6.4.8 4.2-2.1 8.1-6.4 9zM30.4 200.7c5.1 1.9 10.8-.7 12.7-5.8 5.7-15.6 15-28.7 26.5-38 12.7-10.3 33.2-15.1 48-11.6 6 1.5 12.2-2 13.8-8s-2-12.2-8-13.8c-20.9-4.9-45.7 1.3-62.8 14.9-15.2 12.3-27.1 29.5-34.6 50.1-1.9 5.2.7 10.9 5.8 12.8h-1.4zM417.6 200.7c-5.1 1.9-10.8-.7-12.7-5.8-5.7-15.6-15-28.7-26.5-38-12.7-10.3-33.2-15.1-48-11.6-6 1.5-12.2-2-13.8-8s-2-12.2-8-13.8c20.9-4.9 45.7 1.3 62.8 14.9 15.2 12.3 27.1 29.5 34.6 50.1 1.9 5.2-.7 10.9-5.8 12.8h1.4z" /></svg>
+                                    <h3 className="text-3xl font-black tracking-tight">Linux</h3>
+                                    <p className={`text-sm ${mutedText} font-medium`}>Linux Wayland/X11</p>
+                                </div>
 
-                            <div className="space-y-3 w-full">
-                                <a
-                                    href="https://github.com/LaxentaInc/WallpaperEngine-Linux"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-github"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 8 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                                    <span>View on GitHub</span>
-                                </a>
+                                <div className="space-y-3 w-full">
+                                    <a
+                                        href="https://github.com/LaxentaInc/WallpaperEngine-Linux"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-github"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 8 18v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
+                                        <span>View on GitHub</span>
+                                    </a>
 
-                                <div className="flex items-start gap-2 text-xs pt-4 opacity-70">
-                                    <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-500" />
-                                    <span className="leading-snug">Opensource for silly linux people, it's a work in progress.</span>
+                                    <div className="flex items-start gap-2 text-xs pt-4 opacity-70">
+                                        <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-500" />
+                                        <span className="leading-snug">Opensource for silly linux people, it's a work in progress.</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* macOS */}
-                        <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} bg-transparent opacity-80 backdrop-grayscale hover:backdrop-grayscale-0 transition-all`}>
-                            <div className="space-y-2 mb-8 text-center opacity-60">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 384 512" className="mx-auto mb-4 fill-current">
-                                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
-                                </svg>
-                                <h3 className="text-3xl font-black tracking-tight">macOS</h3>
-                                <p className={`text-sm ${mutedText} font-medium`}>Not Supported Yet</p>
-                            </div>
+                            {/* macOS */}
+                            <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between ${borderColor} bg-transparent opacity-80 backdrop-grayscale hover:backdrop-grayscale-0 transition-all`}>
+                                <div className="space-y-2 mb-8 text-center opacity-60">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 384 512" className="mx-auto mb-4 fill-current">
+                                        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                                    </svg>
+                                    <h3 className="text-3xl font-black tracking-tight">macOS</h3>
+                                    <p className={`text-sm ${mutedText} font-medium`}>Not Supported Yet</p>
+                                </div>
 
-                            <div className="space-y-3 w-full opacity-60">
-                                <div className={`w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold border ${borderColor} cursor-not-allowed bg-black/5 dark:bg-white/5`}>
-                                    <span>Not Available</span>
+                                <div className="space-y-3 w-full opacity-60">
+                                    <div className={`w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold border ${borderColor} cursor-not-allowed bg-black/5 dark:bg-white/5`}>
+                                        <span>Not Available</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
+                        </motion.div>
                     </div>
 
                     {/* App UI Showcase */}
@@ -284,18 +284,6 @@ export default function DownloadPage() {
                         </div>
                     </div> */}
                     {/* Security Report Section */}
-                    {/* <SecurityReport theme={theme} /> */}
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className={`text-center p-8 rounded-3xl border ${borderColor} ${cardBg} flex flex-col items-center justify-center`}
-                    >
-                        <p className={`text-sm md:text-base ${mutedText} max-w-3xl mx-auto leading-relaxed`}>
-                            We are actively working to bring ColorWall to more storefronts. In the future, we plan to add support for the Microsoft Store, Steam, and Epic Games Store to make downloading and updating as seamless as possible. Stay tuned!
-                        </p>
-                    </motion.div>
                 </div>
             </main>
 
