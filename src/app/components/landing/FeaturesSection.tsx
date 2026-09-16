@@ -82,7 +82,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     };
 
     return (
-        <section className="relative w-full">
+        <section className="hidden md:block relative w-full">
             {/* headline and stat cards */}
             <div className="pt-32 pb-14 px-4 sm:px-8">
                 <div className="max-w-7xl mx-auto">

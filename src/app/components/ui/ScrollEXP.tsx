@@ -129,20 +129,20 @@ const ScrollExpand: React.FC<ScrollExpandProps> = ({
     if (scrimRef.current) scrimRef.current.style.opacity = `${c.overlayScrim * e}`;
 
     if (titleRef.current) {
-      const out = smoothstep(0.3, 0.75, p);
+      const out = smoothstep(0.2, 0.6, p);
       titleRef.current.style.opacity = `${1 - out}`;
       titleRef.current.style.transform = `translate3d(0, ${-24 * out}px, 0) scale(${1 + 0.04 * out})`;
       titleRef.current.style.pointerEvents = out > 0.5 ? 'none' : 'auto';
     }
 
     if (hintRef.current) {
-      const gone = smoothstep(0, 0.15, p);
+      const gone = smoothstep(0, 0.12, p);
       hintRef.current.style.opacity = `${1 - gone}`;
       hintRef.current.style.transform = `translate3d(0, ${8 * gone}px, 0)`;
     }
 
     if (overlayRef.current) {
-      const inn = smoothstep(0.55, 0.95, p);
+      const inn = smoothstep(0.35, 0.8, p);
       overlayRef.current.style.opacity = `${inn}`;
       overlayRef.current.style.transform = `translate3d(0, ${16 * (1 - inn)}px, 0)`;
       overlayRef.current.style.pointerEvents = inn > 0.2 ? 'auto' : 'none';

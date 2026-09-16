@@ -30,13 +30,13 @@ export default function ColorWallLanding() {
 
                 <HeroSection />
 
-                <div className="relative w-full">
+                <div className="hidden md:block relative w-full">
                     <div className="relative z-10">
                         <FeaturesSection theme={theme} />
                     </div>
                 </div>
 
-                <div className="relative -mt-10 -mb-10 lg:-mb-16">
+                <div className="hidden md:block relative -mt-10 -mb-10 lg:-mb-16">
                     <ScrollSpiralArrow theme={theme} />
                 </div>
 
