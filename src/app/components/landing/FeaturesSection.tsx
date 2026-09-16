@@ -1,14 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence, type MotionValue } from "framer-motion";
-import Image from "next/image";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
+import ScrollExpand from "../ui/ScrollEXP";
 
-// ─── headline stat cards ────────────────────────────────────────
-// the most impressive at-a-glance proof points for colorwall's tech.
-// these sit above the main showcase and are visually distinct from it.
+// headline stat cards
+// the most impressive at a glance proof points for colorwall tech
+// these sit above the main showcase and are visually distinct from it
 const statCards = [
     {
         stat: "~0.5%",
@@ -31,227 +30,70 @@ const statCards = [
     },
 ];
 
-// ─── primary features with screenshot showcases ─────────────────
-// these are the 7 major features rendered as fullscreen scroll-driven slides.
-// each slide occupies 100vh and crossfades into the next via scroll progress.
+// primary features with screenshot showcases
+// these 5 features are rendered as scroll-expand cards linked into the landing flow
 const showcaseFeatures = [
     {
-        id: "store",
-        title: "STORE",
-        description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration \u2014 no account needed.",
-        badge: "8 SOURCES \u00b7 4K \u00b7 UNIFIED",
-        imageSrcs: ["/STORE.webp", "/modal.webp"]
+        id: "widgets",
+        title: "WIDGETS",
+        description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
+        badge: "HTML · JS · PINNED",
+        imageSrcs: ["/widgets.webp"]
     },
     {
         id: "library",
         title: "LIBRARY",
         description: "Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store.",
-        badge: "LOCAL \u00b7 OFFLINE \u00b7 CUTE",
+        badge: "LOCAL · OFFLINE · CUTE",
         imageSrcs: ["/Library.webp"]
     },
     {
         id: "customise",
         title: "CUSTOMISE",
         description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
-        badge: "RUST \u00b7 TAURI \u00b7 LOW OVERHEAD",
+        badge: "RUST · TAURI · LOW OVERHEAD",
         imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
     },
     {
-        id: "widgets",
-        title: "WIDGETS",
-        description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
-        badge: "HTML \u00b7 JS \u00b7 PINNED",
-        imageSrcs: ["/widgets.webp"]
+        id: "store",
+        title: "STORE",
+        description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration - no account needed.",
+        badge: "8 SOURCES · 4K · UNIFIED",
+        imageSrcs: ["/STORE.webp", "/modal.webp"]
     },
     {
         id: "studio",
         title: "STUDIO",
         description: "build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
-        badge: "NODE-BASED \u00b7 D3D11 \u00b7 PARTICLES",
+        badge: "NODE-BASED · D3D11 · PARTICLES",
         imageSrcs: ["/studio.webp"]
-    },
-    {
-        id: "interactive",
-        title: "INTERACTIVE",
-        description: "wallpapers that come alive. fully interactive html5 canvases and webgl shaders that respond to your mouse movements and clicks. your desktop is now a playground.",
-        badge: "WEBGL \u00b7 DYNAMIC \u00b7 INTERACTIVE",
-        imageSrcs: ["/INTERACTIVES.webp"]
-    },
-    {
-        id: "discordrpc",
-        title: "DISCORD RPC",
-        description: "show off your current wallpaper or project to your friends on discord. automatically syncs your active scene or widget directly to your profile.",
-        badge: "SYNCED \u00b7 SOCIAL \u00b7 FLEX",
-        imageSrcs: ["/discordrpc.webp"]
     }
 ];
 
-// ─── secondary features ─────────────────────────────────────────
-// features without dedicated screenshots. rendered as a simple grid
-// below the scroll showcase. always visible, no toggle.
-
-
-// ─── fullscreen feature slide ───────────────────────────────────
-// Renders inside a single sticky container. All slides sit on top
-// of each other (absolute). Opacity is driven by scroll progress.
-const FeatureSlide = ({
-    feature,
-    index,
-    total,
-    scrollYProgress,
-    isStatic = false,
-}: {
-    feature: typeof showcaseFeatures[0];
-    index: number;
-    total: number;
-    scrollYProgress: MotionValue<number>;
-    isStatic?: boolean;
-}) => {
-    // Image opacity: smooth crossfade
-    const dynamicOpacity = useTransform(scrollYProgress, (progress: number) => {
-        const activeSlide = progress * (total - 1);
-        const distance = Math.abs(activeSlide - index);
-        return Math.max(0, 1 - distance);
-    });
-
-    // Text opacity: sharp crossfade. Fades out completely before the
-    // next text fades in, preventing garbled overlapping text!
-    const dynamicTextOpacity = useTransform(scrollYProgress, (progress: number) => {
-        const activeSlide = progress * (total - 1);
-        const distance = Math.abs(activeSlide - index);
-        return Math.max(0, 1 - distance * 2.5);
-    });
-
-    const opacity = isStatic ? 1 : dynamicOpacity;
-    const textOpacity = isStatic ? 1 : dynamicTextOpacity;
-
-    return (
-        <motion.div
-            className="absolute inset-0 will-change-[opacity] transform-gpu"
-            style={{ opacity }}
-        >
-            {/* Fullscreen background image - object-cover removes all side padding */}
-            <Image
-                src={feature.imageSrcs[0]}
-                alt={feature.title}
-                fill
-                className="object-cover transform-gpu pointer-events-none"
-                sizes="100vw"
-                loading={index <= 1 ? "eager" : "lazy"}
-                priority={index === 0}
-            />
-
-            {/* gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-
-            {/* text content - uses sharper textOpacity to avoid overlapping */}
-            <motion.div 
-                className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-20 z-10 pointer-events-none will-change-[opacity]"
-                style={{ opacity: textOpacity }}
-            >
-                <div className="max-w-3xl">
-                    <div className="flex items-center gap-2.5 mb-4">
-                        <span className="w-6 h-[1px] bg-blue-400/50" />
-                        <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] uppercase text-blue-400/80">
-                            {feature.badge}
-                        </span>
-                    </div>
-
-                    <h3 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-white mb-3 sm:mb-5 leading-[0.95] drop-shadow-2xl">
-                        {feature.title}
-                    </h3>
-
-                    <p className="text-sm sm:text-base lg:text-lg leading-relaxed text-white/70 max-w-xl font-spline drop-shadow-lg">
-                        {feature.description}
-                    </p>
-                </div>
-            </motion.div>
-
-            {/* slide counter */}
-            <motion.div 
-                className="absolute bottom-8 right-8 sm:bottom-12 sm:right-12 lg:bottom-20 lg:right-20 z-10 pointer-events-none will-change-[opacity]"
-                style={{ opacity: textOpacity }}
-            >
-                <span className="text-xs font-mono tracking-widest text-white/30">
-                    {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-                </span>
-            </motion.div>
-        </motion.div>
-    );
-};
-
-
 export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isExited, setIsExited] = useState(false);
-    const [showExit, setShowExit] = useState(false);
 
-    // This handles the crossfade once it is locked at the top
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end end"],
-    });
-
-    // Show exit button only when deep inside the showcase
-    useMotionValueEvent(scrollYProgress, "change", (latest) => {
-        setShowExit(latest > 0.05 && latest < 0.95);
-    });
-
-    // This handles the entry animation (the card scaling up into fullscreen)
-    const { scrollYProgress: entryProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "start start"],
-    });
-
-    // This handles the exit animation (the fullscreen scaling down into a card)
-    const { scrollYProgress: exitProgress } = useScroll({
-        target: containerRef,
-        offset: ["end end", "end start"],
-    });
-
-    const scale = useTransform(() => {
-        if (isExited) return 0.85;
-        const e = entryProgress.get();
-        const x = exitProgress.get();
-        if (e < 1) return 0.85 + (e * 0.15);
-        if (x > 0) return 1 - (x * 0.15);
-        return 1;
-    });
-
-    const borderRadius = useTransform(() => {
-        if (isExited) return "40px";
-        const e = entryProgress.get();
-        const x = exitProgress.get();
-        // Starts at 40px, shrinks to 24px when fully "zoomed in"
-        if (e < 1) return `${40 - (e * 16)}px`;
-        if (x > 0) return `${24 + (x * 16)}px`;
-        return "24px";
-    });
-
-    const handleExit = () => {
-        setIsExited(true);
-        if (containerRef.current) {
-            // Jump scroll exactly to the top of the container so the user 
-            // is looking at the collapsed card, avoiding jarring height skips.
-            const top = containerRef.current.getBoundingClientRect().top + window.scrollY;
-            window.scrollTo({ top, behavior: "instant" });
+    // smooth scroll handler to quickly jump to any feature section card
+    const handleJumpToFeature = (featureId: string) => {
+        const el = document.getElementById(`feature-${featureId}`);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
     };
 
     return (
-        <section>
-            {/* ═══ header + stat cards (constrained width) ═══ */}
-            <div className="pt-32 pb-16 px-4 sm:px-8">
+        <section className="relative w-full">
+            {/* headline and stat cards */}
+            <div className="pt-32 pb-14 px-4 sm:px-8">
                 <div className="max-w-7xl mx-auto">
 
-                    {/* top header: heading left, blurb right */}
+                    {/* top header with title left and architectural description right */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-80px" }}
                         transition={{ duration: 0.7 }}
-                        className="mb-20 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 lg:gap-16"
+                        className="mb-16 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 lg:gap-16"
                     >
                         <div className="flex-shrink-0">
                             <div className="flex items-center gap-3 mb-4 ml-1 flex-wrap">
@@ -296,7 +138,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-60px" }}
                         transition={{ duration: 0.7, delay: 0.15 }}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-20"
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-14"
                     >
                         {statCards.map((card) => {
                             const cardClasses = `cursor-target group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
@@ -361,92 +203,75 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 </div>
             </div>
 
+            {/* quick jump category pill navigation bar */}
+            <div className="sticky top-4 z-40 px-4 mb-10 pointer-events-auto">
+                <div className="max-w-fit mx-auto flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-full bg-black/75 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    {showcaseFeatures.map((feat) => (
+                        <button
+                            key={feat.id}
+                            type="button"
+                            onClick={() => handleJumpToFeature(feat.id)}
+                            className="px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-mono tracking-wider uppercase transition-all duration-300 text-white/70 hover:text-white hover:bg-white/15 whitespace-nowrap cursor-pointer active:scale-95"
+                        >
+                            {feat.title}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
-            {/* ═══ MOBILE VIEW: simple list instead of scroll-jacking ═══ */}
-            <div className="md:hidden flex flex-col gap-8 px-4 pb-20">
+            {/* responsive scroll-expand card showcases powered by scrollexp */}
+            <div className="flex flex-col gap-12 sm:gap-20 w-full">
                 {showcaseFeatures.map((feature) => (
-                    <div key={feature.id} className="relative rounded-[2rem] overflow-hidden aspect-[4/5] flex flex-col justify-end bg-black border border-white/10 shadow-2xl">
-                        <Image
+                    <div
+                        key={feature.id}
+                        id={`feature-${feature.id}`}
+                        className="relative w-full scroll-mt-20"
+                    >
+                        <ScrollExpand
                             src={feature.imageSrcs[0]}
                             alt={feature.title}
-                            fill
-                            className="object-cover opacity-70"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-                        <div className="relative z-10 p-6 sm:p-8">
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="w-5 h-[1px] bg-blue-400/50" />
-                                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-blue-400/80">
+                            title={feature.title}
+                            scrollHint="scroll to expand"
+                            useWindowScroll={true}
+                            scrollDistance={0.7}
+                            holdDistance={0.25}
+                            startWidth={64}
+                            startHeight={64}
+                            mobileStartWidth={92}
+                            mobileStartHeight={50}
+                            startRadius={28}
+                            endRadius={0}
+                            overlayScrim={0.55}
+                            smoothing={0.08}
+                            mediaZoom={1.15}
+                        >
+                            <div className="max-w-4xl mx-auto px-4 sm:px-8 py-6 flex flex-col items-center justify-center text-center select-text pointer-events-auto">
+                                <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 backdrop-blur-md text-[10px] sm:text-xs font-mono tracking-widest uppercase text-blue-300">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                                     {feature.badge}
-                                </span>
+                                </div>
+
+                                <h3 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-4 leading-[0.95] drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] font-anurati uppercase">
+                                    {feature.title}
+                                </h3>
+
+                                <p className="text-xs sm:text-base lg:text-lg leading-relaxed text-white/85 font-spline max-w-2xl drop-shadow-md">
+                                    {feature.description}
+                                </p>
+
+                                {feature.imageSrcs.length > 1 && (
+                                    <div className="mt-4 flex items-center gap-2">
+                                        <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-white/70 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
+                                            +{feature.imageSrcs.length - 1} more previews available
+                                        </span>
+                                    </div>
+                                )}
                             </div>
-                            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-3 leading-[1.1] drop-shadow-lg">
-                                {feature.title}
-                            </h3>
-                            <p className="text-sm leading-relaxed text-white/70 font-spline drop-shadow-md">
-                                {feature.description}
-                            </p>
-                        </div>
+                        </ScrollExpand>
                     </div>
                 ))}
             </div>
 
-            {/* ═══ DESKTOP VIEW: fullscreen scroll-driven showcase ═══════════════════
-                uses a tall container with a sticky viewport-height inner
-                div. as the user scrolls, each slide crossfades in/out
-                based on scroll progress.
-            ═══════════════════════════════════════════════════════════ */}
-            <div
-                ref={containerRef}
-                className="relative hidden md:block"
-                style={{ height: isExited ? "100vh" : `${showcaseFeatures.length * 100}vh` }}
-            >
-                <motion.div 
-                    className={isExited ? "relative h-[90vh] sm:h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black" : "sticky top-3 h-[calc(100vh-24px)] w-[calc(100%-24px)] mx-auto overflow-hidden bg-black"}
-                    style={{ scale, borderRadius }}
-                >
-                    <AnimatePresence>
-                        {showExit && !isExited && (
-                            <motion.button
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                onClick={handleExit}
-                                className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-md bg-black/80 hover:bg-black border border-white/10 text-xs font-mono uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors duration-300"
-                            >
-                                <span>Skip</span>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M18 6L6 18M6 6l12 12" />
-                                </svg>
-                            </motion.button>
-                        )}
-                    </AnimatePresence>
-
-                    {isExited ? (
-                        <FeatureSlide
-                            key={showcaseFeatures[0].id}
-                            feature={showcaseFeatures[0]}
-                            index={0}
-                            total={showcaseFeatures.length}
-                            scrollYProgress={scrollYProgress}
-                            isStatic={true}
-                        />
-                    ) : (
-                        showcaseFeatures.map((feature, idx) => (
-                            <FeatureSlide
-                                key={feature.id}
-                                feature={feature}
-                                index={idx}
-                                total={showcaseFeatures.length}
-                                scrollYProgress={scrollYProgress}
-                            />
-                        ))
-                    )}
-                </motion.div>
-            </div>
-
-
-
         </section>
     );
-}
+};
