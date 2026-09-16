@@ -233,8 +233,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             title={feature.title}
                             scrollHint="scroll to expand"
                             useWindowScroll={true}
-                            scrollDistance={0.7}
-                            holdDistance={0.25}
+                            scrollDistance={0.35}
+                            holdDistance={0.05}
                             startWidth={64}
                             startHeight={64}
                             mobileStartWidth={92}
@@ -242,13 +242,15 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             startRadius={28}
                             endRadius={0}
                             overlayScrim={0.55}
-                            smoothing={0.08}
-                            mediaZoom={1.15}
+                            smoothing={0.04}
+                            mediaZoom={1.12}
                         >
                             <div className="max-w-4xl mx-auto px-4 sm:px-8 py-6 flex flex-col items-center justify-center text-center select-text pointer-events-auto">
-                                <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 backdrop-blur-md text-[10px] sm:text-xs font-mono tracking-widest uppercase text-blue-300">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                                    {feature.badge}
+                                {/* pillless minimal editorial header */}
+                                <div className="flex items-center justify-center gap-2.5 mb-3 text-[10px] sm:text-xs font-mono tracking-[0.22em] uppercase text-cyan-300/90 drop-shadow-md">
+                                    <span className="w-4 h-[1px] bg-cyan-400/60" />
+                                    <span>{feature.badge}</span>
+                                    <span className="w-4 h-[1px] bg-cyan-400/60" />
                                 </div>
 
                                 <h3 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-4 leading-[0.95] drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] font-anurati uppercase">
@@ -261,7 +263,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
                                 {feature.imageSrcs.length > 1 && (
                                     <div className="mt-4 flex items-center gap-2">
-                                        <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-white/70 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
+                                        <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] text-white/60 drop-shadow">
                                             +{feature.imageSrcs.length - 1} more previews available
                                         </span>
                                     </div>
