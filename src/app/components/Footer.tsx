@@ -40,6 +40,25 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             PRODUCED BY COLORWALL INC <br />
                             @colorwall.xyz
                         </p>
+                        <div className="pt-2 flex flex-col gap-3">
+                            <a href="https://launchstag.com/p/colorwall" target="_blank" rel="noopener noreferrer">
+                                <img 
+                                    src={`https://launchstag.com/badge-${isDark ? 'dark' : 'light'}.svg`} 
+                                    alt="Featured on Launchstag" 
+                                    width="198" 
+                                    height="62" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
+                                />
+                            </a>
+                            <a href="https://sitepatent.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
+                                <img 
+                                    src={`https://sitepatent.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
+                                    alt="Visit ColorWall on SitePatent" 
+                                    height="54" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
+                                />
+                            </a>
+                        </div>
                     </div>
 
                     {/* ════ Links ════ */}
