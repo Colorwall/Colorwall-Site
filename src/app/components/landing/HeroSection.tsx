@@ -29,7 +29,7 @@ const DEFAULT_HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/Prana_System_Error.webm", type: "video/webm", poster: "/videos/posters/Prana_System_Error.webp" },
 ];
 
-const VideoLayer = ({ video, isActive, isNext, isStruggling }: { video: HeroVideo, isActive: boolean, isNext: boolean, isStruggling: boolean }) => {
+const VideoLayer = ({ video, isActive, isNext, isPrev, isStruggling }: { video: HeroVideo, isActive: boolean, isNext: boolean, isPrev: boolean, isStruggling: boolean }) => {
     const isVideoType = video.type.startsWith("video/");
     const [isVideoReady, setIsVideoReady] = useState(false);
     const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -61,7 +61,7 @@ const VideoLayer = ({ video, isActive, isNext, isStruggling }: { video: HeroVide
     }, [isActive, isVideoReady, isVideoType]);
 
     return (
-        <div className={`absolute inset-0 transition-opacity ease-in-out ${isActive ? 'opacity-100 duration-[1000ms] z-10' : 'opacity-0 duration-[1000ms] z-0'}`}>
+        <div className={`absolute inset-0 transition-opacity ease-in-out ${isActive || isPrev ? 'opacity-100' : 'opacity-0'} ${isActive ? 'z-10' : 'z-0'} duration-[1000ms]`}>
             <img 
                 src={video.poster} 
                 alt="Background Poster" 
@@ -124,6 +124,7 @@ const HeroBackground = React.memo(({ videos = DEFAULT_HERO_VIDEOS }: { videos?: 
                         video={video}
                         isActive={isActive}
                         isNext={isNext}
+                        isPrev={isPrev}
                         isStruggling={isStruggling}
                     />
                 );
