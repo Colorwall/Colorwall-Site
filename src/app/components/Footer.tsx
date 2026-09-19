@@ -58,6 +58,15 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                                     className="h-10 w-auto hover:opacity-80 transition-opacity"
                                 />
                             </a>
+                            <a href="https://postyourstartup.co/startup/colorwall?ref=badge" target="_blank" rel="noopener noreferrer">
+                                <img 
+                                    src={`https://postyourstartup.co/api/badge/colorwall?theme=${isDark ? 'dark' : 'neutral'}`} 
+                                    alt="Featured on PostYourStartup" 
+                                    width="212" 
+                                    height="55" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
+                                />
+                            </a>
                         </div>
                     </div>
 
