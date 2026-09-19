@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Renderer, Program, Mesh, Geometry, Triangle, Texture, RenderTarget } from 'ogl';
 
@@ -243,6 +243,7 @@ const RippleDistortion = ({
   const mountRef = useRef<HTMLDivElement | null>(null);
   const configRef = useRef<WaveConfig>({} as WaveConfig);
   const uniformsRef = useRef<RippleUniforms | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   configRef.current = { brushSize, spread, fade, spacing, clickStrength, trigger, enabled };
 
@@ -287,6 +288,7 @@ const RippleDistortion = ({
       if (disposed) return;
       imageTexture.image = image;
       compositeUniforms.uTextureSize.value = [image.naturalWidth || 1, image.naturalHeight || 1];
+      setIsLoaded(true);
     };
     image.src = src;
 
@@ -543,7 +545,7 @@ const RippleDistortion = ({
   return (
     <div
       ref={mountRef}
-      className={`relative w-full h-full overflow-hidden bg-black [&>canvas]:block [&>canvas]:w-full [&>canvas]:h-full ${className}`.trim()}
+      className={`relative w-full h-full overflow-hidden transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'} [&>canvas]:block [&>canvas]:w-full [&>canvas]:h-full ${className}`.trim()}
       style={style}
     />
   );

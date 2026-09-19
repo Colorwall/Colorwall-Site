@@ -65,7 +65,7 @@ const VideoLayer = ({ video, isActive, isNext, isPrev, isStruggling }: { video: 
             <img 
                 src={video.poster} 
                 alt="Background Poster" 
-                className={`object-cover absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${(isVideoReady && !isStruggling && isVideoType) ? 'opacity-0' : 'opacity-100'}`} 
+                className={`object-cover absolute inset-0 w-full h-full`} 
             />
             {!isStruggling && isVideoType && (
                 <video 
