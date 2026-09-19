@@ -40,75 +40,6 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             PRODUCED BY COLORWALL INC <br />
                             @colorwall.xyz
                         </p>
-                        <div className="pt-2 flex flex-col gap-3">
-                            <a href="https://launchstag.com/p/colorwall" target="_blank" rel="noopener noreferrer">
-                                <img 
-                                    src={`https://launchstag.com/badge-${isDark ? 'dark' : 'light'}.svg`} 
-                                    alt="Featured on Launchstag" 
-                                    width="198" 
-                                    height="62" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://sitepatent.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
-                                <img 
-                                    src={`https://sitepatent.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
-                                    alt="Visit ColorWall" 
-                                    height="54" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://postyourstartup.co/startup/colorwall?ref=badge" target="_blank" rel="noopener noreferrer">
-                                <img 
-                                    src={`https://postyourstartup.co/api/badge/colorwall?theme=${isDark ? 'dark' : 'neutral'}`} 
-                                    alt="Featured on PostYourStartup" 
-                                    width="212" 
-                                    height="55" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://launchbuff.com/products/colorwall-x9basr" target="_blank" rel="noopener noreferrer" title="Featured on LaunchBuff">
-                                <img 
-                                    src={`https://launchbuff.com/badge-featured-${isDark ? 'dark' : 'light'}.svg`} 
-                                    alt="Featured on LaunchBuff" 
-                                    width="256" 
-                                    height="80" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://codetrendy.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
-                                <img 
-                                    src={`https://codetrendy.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
-                                    alt="Visit ColorWall — Desktop Customization Engine" 
-                                    height="54" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://mediapronet.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
-                                <img 
-                                    src={`https://mediapronet.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
-                                    alt="Visit ColorWall — Desktop Customization Engine" 
-                                    height="54" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://tools.cafe" target="_blank" rel="noopener noreferrer">
-                                <img 
-                                    src={`https://tools.cafe/b/${isDark ? 'dark' : 'light'}.svg`} 
-                                    alt="Featured on tools.cafe" 
-                                    width="256" 
-                                    height="80" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
-                                />
-                            </a>
-                            <a href="https://sellwithboost.com" target="_blank" rel="noopener noreferrer">
-                                <img 
-                                    src={`https://sellwithboost.com/badge/listing${isDark ? '-dark' : ''}.svg`} 
-                                    alt="Listed on Sell With boost" 
-                                    className="h-10 w-auto hover:opacity-80 transition-opacity" 
-                                />
-                            </a>
-                        </div>
                     </div>
 
                     {/* ════ Links ════ */}
@@ -163,6 +94,77 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             </ul>
                         </div>
                     ))}
+                </div>
+
+                {/* ════ Featured Badges ════ */}
+                <div className="mt-12 flex flex-wrap gap-4 items-center justify-center">
+                    <a href="https://launchstag.com/p/colorwall" target="_blank" rel="noopener noreferrer">
+                        <img 
+                            src={`https://launchstag.com/badge-${isDark ? 'dark' : 'light'}.svg`} 
+                            alt="Featured on Launchstag" 
+                            width="198" 
+                            height="62" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://sitepatent.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
+                        <img 
+                            src={`https://sitepatent.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
+                            alt="Visit ColorWall" 
+                            height="54" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://postyourstartup.co/startup/colorwall?ref=badge" target="_blank" rel="noopener noreferrer">
+                        <img 
+                            src={`https://postyourstartup.co/api/badge/colorwall?theme=${isDark ? 'dark' : 'neutral'}`} 
+                            alt="Featured on PostYourStartup" 
+                            width="212" 
+                            height="55" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://launchbuff.com/products/colorwall-x9basr" target="_blank" rel="noopener noreferrer" title="Featured on LaunchBuff">
+                        <img 
+                            src={`https://launchbuff.com/badge-featured-${isDark ? 'dark' : 'light'}.svg`} 
+                            alt="Featured on LaunchBuff" 
+                            width="256" 
+                            height="80" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://codetrendy.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
+                        <img 
+                            src={`https://codetrendy.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
+                            alt="Visit ColorWall — Desktop Customization Engine" 
+                            height="54" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://mediapronet.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
+                        <img 
+                            src={`https://mediapronet.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
+                            alt="Visit ColorWall — Desktop Customization Engine" 
+                            height="54" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://tools.cafe" target="_blank" rel="noopener noreferrer">
+                        <img 
+                            src={`https://tools.cafe/b/${isDark ? 'dark' : 'light'}.svg`} 
+                            alt="Featured on tools.cafe" 
+                            width="256" 
+                            height="80" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity"
+                        />
+                    </a>
+                    <a href="https://sellwithboost.com" target="_blank" rel="noopener noreferrer">
+                        <img 
+                            src={`https://sellwithboost.com/badge/listing${isDark ? '-dark' : ''}.svg`} 
+                            alt="Listed on Sell With boost" 
+                            className="h-10 w-auto hover:opacity-80 transition-opacity" 
+                        />
+                    </a>
                 </div>
 
                 {/* ════ Bottom Info ════ */}
