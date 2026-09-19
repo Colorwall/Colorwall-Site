@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { Footer } from "@/app/components/Footer";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { 
     Cpu, 
     Monitor, 
@@ -28,7 +28,8 @@ export default function AboutPage() {
     const bgSubtle = isDark ? "bg-white/[0.02]" : "bg-black/[0.02]";
     const bgHover = isDark ? "hover:bg-white/[0.04]" : "hover:bg-black/[0.04]";
 
-    const containerVariants = {
+    // framer motion stagger configuration for sequential section reveal
+    const containerVariants: Variants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
@@ -38,9 +39,10 @@ export default function AboutPage() {
         }
     };
 
-    const itemVariants = {
+    // cubic-bezier easing requires 'as const' tuple assertion so typescript infers bezierdefinition rather than number[]
+    const itemVariants: Variants = {
         hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const } }
     };
 
     return (
