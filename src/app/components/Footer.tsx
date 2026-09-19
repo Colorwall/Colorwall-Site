@@ -101,6 +101,13 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                                     className="h-10 w-auto hover:opacity-80 transition-opacity"
                                 />
                             </a>
+                            <a href="https://sellwithboost.com" target="_blank" rel="noopener noreferrer">
+                                <img 
+                                    src={`https://sellwithboost.com/badge/listing${isDark ? '-dark' : ''}.svg`} 
+                                    alt="Listed on Sell With boost" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity" 
+                                />
+                            </a>
                         </div>
                     </div>
 
