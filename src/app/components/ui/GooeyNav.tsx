@@ -17,6 +17,7 @@ export interface GooeyNavProps {
   timeVariance?: number;
   colors?: number[];
   initialActiveIndex?: number;
+  isDark?: boolean;
 }
 
 const GooeyNav: React.FC<GooeyNavProps> = ({
@@ -27,7 +28,8 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   particleR = 100,
   timeVariance = 300,
   colors = [1, 2, 3, 1, 2, 3, 1, 4],
-  initialActiveIndex = 0
+  initialActiveIndex = 0,
+  isDark = true
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLUListElement>(null);
@@ -70,7 +72,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         particle.style.setProperty('--end-y', `${p.end[1]}px`);
         particle.style.setProperty('--time', `${p.time}ms`);
         particle.style.setProperty('--scale', `${p.scale}`);
-        particle.style.setProperty('--color', `var(--color-${p.color}, white)`);
+        particle.style.setProperty('--color', `var(--color-${p.color}, ${isDark ? 'white' : 'black'})`);
         particle.style.setProperty('--rotate', `${p.rotate}deg`);
         point.classList.add('point');
         particle.appendChild(point);
@@ -152,7 +154,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   return (
     <>
       {/* This effect is quite difficult to recreate faithfully using Tailwind, so a style tag is a necessary workaround */}
-      <style>
+      <style suppressHydrationWarning>
         {`
           :root {
             --linear-ease: linear(0, 0.068, 0.19 2.7%, 0.804 8.1%, 1.037, 1.199 13.2%, 1.245, 1.27 15.8%, 1.274, 1.272 17.4%, 1.249 19.1%, 0.996 28%, 0.949, 0.928 33.3%, 0.926, 0.933 36.8%, 1.001 45.6%, 1.013, 1.019 50.8%, 1.018 54.4%, 1 63.1%, 0.995 68%, 1.001 85%, 1);
@@ -166,11 +168,11 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             z-index: 1;
           }
           .effect.text {
-            color: white;
+            color: ${isDark ? 'white' : 'black'};
             transition: color 0.3s ease;
           }
           .effect.text.active {
-            color: black;
+            color: ${isDark ? 'black' : 'white'};
           }
           .effect.filter {
             filter: url('#gooey-filter');
@@ -179,7 +181,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             content: "";
             position: absolute;
             inset: 0;
-            background: white;
+            background: ${isDark ? 'white' : 'black'};
             transform: scale(0);
             opacity: 0;
             z-index: -1;
@@ -262,7 +264,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             }
           }
           li.active {
-            color: black;
+            color: ${isDark ? 'black' : 'white'};
             text-shadow: none;
           }
           li.active::after {
@@ -274,7 +276,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             position: absolute;
             inset: 0;
             border-radius: 8px;
-            background: white;
+            background: ${isDark ? 'white' : 'black'};
             opacity: 0;
             transform: scale(0);
             transition: all 0.3s ease;
@@ -296,14 +298,14 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             ref={navRef}
             className="flex gap-8 list-none p-0 px-4 m-0 relative z-[3]"
             style={{
-              color: 'white',
-              textShadow: '0 1px 1px hsl(205deg 30% 10% / 0.2)'
+              color: isDark ? 'white' : 'black',
+              textShadow: isDark ? '0 1px 1px hsl(205deg 30% 10% / 0.2)' : 'none'
             }}
           >
             {items.map((item, index) => (
               <li
                 key={index}
-                className={`rounded-full relative cursor-pointer transition-[background-color_color_box-shadow] duration-300 ease shadow-[0_0_0.5px_1.5px_transparent] text-white ${activeIndex === index ? 'active' : ''
+                className={`rounded-full relative cursor-pointer transition-[background-color_color_box-shadow] duration-300 ease shadow-[0_0_0.5px_1.5px_transparent] ${isDark ? 'text-white' : 'text-black'} ${activeIndex === index ? 'active' : ''
                   }`}
               >
                 <Link

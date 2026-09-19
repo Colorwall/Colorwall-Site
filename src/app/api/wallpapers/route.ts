@@ -155,6 +155,52 @@ export async function GET(request: Request) {
     const tag = searchParams.get("tag") || "";
     const query = searchParams.get("q") || "";
     const token = searchParams.get("token") || "";
+    const source = searchParams.get("source") || "archive";
+    const category = searchParams.get("category") || "111"; // general, anime, people
+    const sorting = searchParams.get("sorting") || "relevance";
+
+    // ── wallhaven proxy ───────────────────────────────────────────────────────
+    if (source === "wallhaven") {
+        try {
+            const whUrl = `https://wallhaven.cc/api/v1/search?q=${encodeURIComponent(query)}&categories=${category}&purity=100&sorting=${sorting}&page=${page}`;
+            const res = await fetch(whUrl);
+            if (!res.ok) throw new Error(`Wallhaven returned ${res.status}`);
+            const data = await res.json();
+            
+            const items = data.data.map((item: any) => ({
+                url: item.path,
+                thumb: item.thumbs.small || item.thumbs.original,
+                title: `Wallpaper #${item.id}`,
+                tags: [item.category, item.resolution, item.file_size ? `${(item.file_size / 1024 / 1024).toFixed(1)}MB` : ""].filter(Boolean),
+                source: "wallhaven"
+            }));
+
+            const total = data.meta.total;
+            const hasMore = data.meta.current_page < data.meta.last_page;
+            // For wallhaven, we bypass strict token validation and just use a dummy token
+            const nextToken = hasMore ? `wh-${page + 1}` : null;
+
+            return NextResponse.json({
+                status: "ready",
+                items,
+                total,
+                page,
+                limit: data.meta.per_page,
+                hasMore,
+                nextToken,
+                builtAt: new Date().toISOString()
+            }, {
+                headers: {
+                    "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+                    "X-RateLimit-Limit": String(RATE_LIMIT),
+                    "X-RateLimit-Remaining": String(rateCheck.remaining),
+                },
+            });
+        } catch (err) {
+            console.error("Wallhaven API error:", err);
+            return NextResponse.json({ error: "failed to fetch from wallhaven" }, { status: 500 });
+        }
+    }
 
     // validate token — page 1 is always free (initial load), rest need token
     if (page > 1 && !validateToken(token, page)) {

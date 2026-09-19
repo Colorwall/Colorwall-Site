@@ -7,6 +7,7 @@ import { Navbar } from "@/app/components/Navbar";
 import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { AmbientProvider } from "@/app/contexts/AmbientContext";
 import { SmoothScroller } from "@/app/components/SmoothScroller";
+import { GlobalCursor } from "@/app/components/GlobalCursor";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -156,33 +157,53 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              "name": "ColorWall",
-              "url": "https://colorwall.xyz",
-              "operatingSystem": "Windows 10, Windows 11",
-              "applicationCategory": "Extremely fast Desktop Customization app, surpassing lively and wallpaper engine in performance!",
-              "description": "An ultra-high-performance, native spatial desktop compositor and 8K live wallpaper engine. Built with Rust, Tauri, WebGL, and deep Win32 API hooks to achieve near-zero resource usage in a ~10MB executable. Features audio-reactive shaders, custom .colorwall scene editing, and hardware-accelerated video decoding.",
-              "author": {
-                "@type": "Person",
-                "name": "Laxenta",
-                "url": "https://github.com/LaxentaInc",
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "ColorWall",
+                "url": "https://www.colorwall.xyz",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://www.colorwall.xyz/wallpapers?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "Laxenta Inc",
+                "url": "https://www.colorwall.xyz",
+                "logo": "https://www.colorwall.xyz/icon-512x512.png",
                 "sameAs": [
+                  "https://twitter.com/colorwall_xyz",
+                  "https://github.com/LaxentaInc",
                   "https://instagram.com/laxenta.me"
                 ]
               },
-              "publisher": {
-                "@type": "Organization",
-                "name": "Colorwall",
-                "url": "https://github.com/Colorwall"
-              },
-              "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "USD"
+              {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "ColorWall",
+                "url": "https://www.colorwall.xyz",
+                "operatingSystem": "Windows 10, Windows 11",
+                "applicationCategory": "DesktopEnhancementApplication",
+                "description": "An ultra-high-performance, native spatial desktop compositor and 8K live wallpaper engine. Built with Rust, Tauri, WebGL, and deep Win32 API hooks to achieve near-zero resource usage in a ~10MB executable. Features audio-reactive shaders, custom .colorwall scene editing, and hardware-accelerated video decoding.",
+                "author": {
+                  "@type": "Organization",
+                  "name": "Laxenta Inc"
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "ColorWall"
+                },
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "USD"
+                }
               }
-            })
+            ])
           }}
         />
         {/* Google tag */}
@@ -216,6 +237,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AmbientProvider>
+          <GlobalCursor />
           <Navbar />
           <GlobalAmbientPlayer />
           <div className="relative min-h-screen flex flex-col">

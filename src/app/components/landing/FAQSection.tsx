@@ -28,7 +28,44 @@ export const FAQSection = ({ theme }: { theme: "dark" | "light" }) => {
         },
         {
             question: "Which Windows versions are supported?",
-            answer: "ColorWall is optimized exclusively for Windows 10 and Windows 11 (64-bit). We deeply integrate with native Windows APIs to achieve the lowest possible resource footprint."
+            answer: (
+                <div className="space-y-4">
+                    <p>ColorWall is optimized exclusively for Windows 10 and Windows 11 (64-bit). We deeply integrate with native Windows APIs to achieve the lowest possible resource footprint.</p>
+                    <div className="overflow-x-auto mt-4 rounded-xl border border-current/10">
+                        <table className="w-full text-left border-collapse text-sm min-w-[500px]">
+                            <thead className="bg-current/5">
+                                <tr className="border-b border-current/10">
+                                    <th className="py-3 px-4 font-semibold">Component</th>
+                                    <th className="py-3 px-4 font-semibold">Minimum</th>
+                                    <th className="py-3 px-4 font-semibold">Recommended</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-current/10 opacity-90">
+                                <tr>
+                                    <td className="py-3 px-4 font-medium">Processor</td>
+                                    <td className="py-3 px-4">1.6 GHz Dual-Core</td>
+                                    <td className="py-3 px-4">2.0 GHz Quad-Core or better</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-3 px-4 font-medium">Memory</td>
+                                    <td className="py-3 px-4">1 GB RAM</td>
+                                    <td className="py-3 px-4">2 GB RAM</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-3 px-4 font-medium">Graphics</td>
+                                    <td className="py-3 px-4">DirectX 11 (e.g. HD 4000)</td>
+                                    <td className="py-3 px-4">Dedicated GPU</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-3 px-4 font-medium">Storage</td>
+                                    <td className="py-3 px-4">~200 MB</td>
+                                    <td className="py-3 px-4">1 GB+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )
         },
         {
             question: "Can I use web-based interactive wallpapers?",

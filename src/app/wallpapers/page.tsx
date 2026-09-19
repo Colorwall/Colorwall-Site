@@ -5,6 +5,14 @@ import WallpaperClient from "./WallpaperClient";
 export const metadata: Metadata = {
     title: 'Wallpapers',
     description: 'Browse thousands of 4K and 8K live wallpapers for the ColorWall desktop app. Discover interactive WebGL scenes, anime backgrounds, and more.',
+    alternates: {
+        canonical: 'https://www.colorwall.xyz/wallpapers',
+    },
+    openGraph: {
+        title: 'ColorWall - Live Wallpapers Gallery',
+        description: 'Browse thousands of 4K and 8K live wallpapers for the ColorWall desktop app. Discover interactive WebGL scenes, anime backgrounds, and more.',
+        url: 'https://www.colorwall.xyz/wallpapers',
+    }
 };
 
 export default function WallpapersPage() {

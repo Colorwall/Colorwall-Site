@@ -234,27 +234,24 @@ export const HeroSection = () => {
                 </div>
             </div>
 
-            {/* bottom grid bar: tech badge, editorial story block, and action triggers */}
-            <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-6 border-t border-white/10">
-                {/* left: tech spec badge */}
-                <div className="lg:col-span-3 flex items-center">
-                    <div className="flex flex-col text-left font-mono">
-                        <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5 mt-1">
+            {/* bottom area: two-column layout and absolute centered scroll prompt */}
+            <div className="relative z-10 w-full flex flex-col lg:flex-row justify-between items-start pt-6 border-t border-white/10 gap-8">
+                {/* Left Column: Information Cluster */}
+                <div className="flex flex-col text-left max-w-xl">
+                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans mb-4">
+                        ColorWall Is an upcoming Desktop customization engine with native hardware-accelerated video/shader decoding, audio-reactive, RGB* components support, and Widgets with near-zero resource consumption.
+                    </p>
+                    
+                    <div className="flex flex-col font-mono mb-4">
+                        <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5">
                             <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust + Tauri
                         </span>
-                        <span className="text-[9px] font-medium tracking-wide text-white/60 mt-0.5">
+                        <span className="text-[9px] font-medium tracking-wide text-white/60 mt-1">
                             Windows 10/11 · Direct3D11 / MediaFoundation
                         </span>
                     </div>
-                </div>
 
-                {/* center: editorial story block */}
-                <div className="lg:col-span-5 flex flex-col justify-center text-left">
-                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans max-w-lg">
-                        ColorWall Is an upcoming Desktop customization engine with native hardware-accelerated video/shader decoding, audio-reactive, RGB* components support, and Widgets with near-zero resource consumption.
-                    </p>
-                    {/* quick experience launchers */}
-                    <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={handleLaunchGallery}
@@ -275,15 +272,16 @@ export const HeroSection = () => {
                     </div>
                 </div>
 
-                {/* right: interactive buttons & scroll indicator */}
-                <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4">
+                {/* Right Column: Action Cluster */}
+                <div className="flex flex-col items-start lg:items-end w-full lg:w-auto">
                     <HeroInteractive />
-
-                    <div className="hidden lg:flex items-center gap-2 text-[10px] sm:text-[11px] font-mono font-semibold tracking-[0.2em] uppercase text-white/60 mt-1">
-                        <span>SCROLL TO EXPLORE</span>
-                        <span className="animate-pulse text-white">→</span>
-                    </div>
                 </div>
+            </div>
+
+            {/* Scroll indicator centered at bottom */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-2 text-[10px] sm:text-[11px] font-mono font-semibold tracking-[0.2em] uppercase text-white/60 z-10">
+                <span>SCROLL TO EXPLORE</span>
+                <span className="animate-pulse text-white">→</span>
             </div>
         </section>
     );

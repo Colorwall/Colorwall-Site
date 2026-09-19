@@ -8,7 +8,7 @@ import { GradientHeading } from "../components/landing/GradientHeading";
 import React from "react";
 import Masonry from "react-masonry-css";
 
-type Wallpaper = { url: string; title: string; tags: string[]; source?: "archive" | "yapude" };
+type Wallpaper = { url: string; title: string; tags: string[]; source?: string; thumb?: string };
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 350;
@@ -56,6 +56,7 @@ function Skeleton({ isDark }: { isDark: boolean }) {
 function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; onClick: () => void }) {
     const [loaded, setLoaded] = useState(false);
     const [error, setError] = useState(false);
+    const isVideo = w.url.match(/\.(mp4|webm)(\?.*)?$/i);
 
     if (error) return null;
 
@@ -70,14 +71,27 @@ function WallpaperCard({ w, isDark, onClick }: { w: Wallpaper; isDark: boolean; 
                     <div className={`absolute inset-0 animate-pulse ${isDark ? "bg-white/[0.04]" : "bg-zinc-200/60"}`} />
                 )}
 
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={thumbUrl(w.url)}
-                    alt={w.title}
-                    onLoad={() => setLoaded(true)}
-                    onError={() => setError(true)}
-                    className={`w-full h-full object-cover block transition-all duration-500 ${loaded ? "opacity-100 group-hover:scale-[1.03]" : "opacity-0"}`}
-                />
+                {isVideo ? (
+                    <video
+                        src={w.url}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        onLoadedData={() => setLoaded(true)}
+                        onError={() => setError(true)}
+                        className={`w-full h-full object-cover block transition-all duration-500 ${loaded ? "opacity-100 group-hover:scale-[1.03]" : "opacity-0"}`}
+                    />
+                ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                        src={w.thumb || thumbUrl(w.url)}
+                        alt={w.title}
+                        onLoad={() => setLoaded(true)}
+                        onError={() => setError(true)}
+                        className={`w-full h-full object-cover block transition-all duration-500 ${loaded ? "opacity-100 group-hover:scale-[1.03]" : "opacity-0"}`}
+                    />
+                )}
 
                 {/* hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
@@ -100,8 +114,10 @@ function Lightbox({ w, onClose }: { w: Wallpaper; onClose: () => void }) {
     const [downloading, setDownloading] = useState(false);
     const [imgLoaded, setImgLoaded] = useState(false);
 
+    const isVideo = w.url.match(/\.(mp4|webm)(\?.*)?$/i);
+
     // extract a filename from the url
-    const filename = w.url.split("/").pop() || "wallpaper.jpg";
+    const filename = w.url.split("/").pop() || (isVideo ? "wallpaper.mp4" : "wallpaper.jpg");
 
     const handleDownload = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -124,14 +140,28 @@ function Lightbox({ w, onClose }: { w: Wallpaper; onClose: () => void }) {
                         <Loader2 className="w-8 h-8 text-white/40 animate-spin" />
                     </div>
                 )}
-                {/* full-res image — no wsrv proxy here, we want the real thing */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={w.url}
-                    alt={w.title}
-                    onLoad={() => setImgLoaded(true)}
-                    className={`w-full max-h-[85vh] object-contain rounded-xl transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
-                />
+                
+                {isVideo ? (
+                    <video
+                        src={w.url}
+                        controls
+                        autoPlay
+                        loop
+                        playsInline
+                        onLoadedData={() => setImgLoaded(true)}
+                        className={`w-full max-h-[85vh] object-contain rounded-xl transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                    />
+                ) : (
+                    /* full-res image — no wsrv proxy here, we want the real thing */
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                        src={w.url}
+                        alt={w.title}
+                        onLoad={() => setImgLoaded(true)}
+                        className={`w-full max-h-[85vh] object-contain rounded-xl transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                    />
+                )}
+                
                 <div className={`absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent rounded-b-xl transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}>
                     <p className="text-white text-sm font-semibold mb-2">{w.title}</p>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -184,6 +214,12 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
     const [showAutocomplete, setShowAutocomplete] = useState(false);
     const [lightbox, setLightbox] = useState<Wallpaper | null>(null);
 
+    // Advanced Filters State
+    const [source, setSource] = useState("archive");
+    const [category, setCategory] = useState("111");
+    const [sorting, setSorting] = useState("relevance");
+    const [showFilters, setShowFilters] = useState(false);
+
     // random suggestions for empty search
     const randomSuggestions = React.useMemo(() => {
         if (!showAutocomplete || search || allTags.length === 0) return [];
@@ -195,6 +231,13 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
     const currentPageRef = useRef(1);
     const loadingRef = useRef(false);
     const currentQueryRef = useRef("");
+    const sourceRef = useRef(source);
+    const categoryRef = useRef(category);
+    const sortingRef = useRef(sorting);
+
+    useEffect(() => { sourceRef.current = source; }, [source]);
+    useEffect(() => { categoryRef.current = category; }, [category]);
+    useEffect(() => { sortingRef.current = sorting; }, [sorting]);
 
     const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -207,7 +250,7 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
     }, [search]);
 
     // ─── fetch a page (server-side search) ────────────────────────────────────
-    const fetchPage = useCallback(async (page: number, query: string, reset: boolean) => {
+    const fetchPage = useCallback(async (page: number, query: string, reset: boolean, reqSource: string, reqCategory: string, reqSorting: string) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
         setLoading(true);
@@ -215,6 +258,9 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
         try {
             const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
             if (query) params.set("q", query);
+            params.set("source", reqSource);
+            params.set("category", reqCategory);
+            params.set("sorting", reqSorting);
             // attach token for pages > 1
             if (page > 1 && nextTokenRef.current) {
                 params.set("token", nextTokenRef.current);
@@ -233,7 +279,7 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
                     nextTokenRef.current = freshData.nextToken || null;
                     // retry original page fetch with the fresh token
                     loadingRef.current = false;
-                    return fetchPage(page, query, reset);
+                    return fetchPage(page, query, reset, reqSource, reqCategory, reqSorting);
                 }
                 return;
             }
@@ -265,20 +311,22 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
             .catch(err => console.error("failed to fetch tags.json:", err));
     }, []);
 
-    // ─── re-fetch when debounced search changes ──────────────────────────────
-    // sends search to server for full-index filtering
+    // ─── re-fetch when debounced search or filters change ─────────────────────
     const prevSearchRef = useRef("");
+    const prevFiltersRef = useRef("");
     useEffect(() => {
-        // skip the initial empty search (handled by initial load)
-        if (debouncedSearch === prevSearchRef.current) return;
+        const currentFilters = `${source}-${category}-${sorting}`;
+        // skip if nothing changed (avoids double fetching on initial load)
+        if (debouncedSearch === prevSearchRef.current && currentFilters === prevFiltersRef.current) return;
         prevSearchRef.current = debouncedSearch;
+        prevFiltersRef.current = currentFilters;
 
-        // reset pagination and fetch from page 1 with new query
+        // reset pagination and fetch from page 1 with new query/filters
         nextTokenRef.current = null;
         currentPageRef.current = 1;
         setHasMore(true);
-        fetchPage(1, debouncedSearch, true);
-    }, [debouncedSearch, fetchPage]);
+        fetchPage(1, debouncedSearch, true, source, category, sorting);
+    }, [debouncedSearch, source, category, sorting, fetchPage]);
 
     // infinite scroll observer — stable deps, no loading in deps
     useEffect(() => {
@@ -289,7 +337,7 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
                 // check refs directly — no stale closures
                 if (!loadingRef.current) {
                     const nextPage = currentPageRef.current + 1;
-                    fetchPage(nextPage, currentQueryRef.current, false);
+                    fetchPage(nextPage, currentQueryRef.current, false, sourceRef.current, categoryRef.current, sortingRef.current);
                 }
             },
             { rootMargin: "3000px" }
@@ -441,6 +489,64 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
                     )}
                 </div>
 
+                {/* ─── advanced filters panel ─── */}
+                <div className="mb-8 flex flex-col items-center">
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full transition-all duration-200 border ${showFilters ? (isDark ? "bg-white text-zinc-900 border-white" : "bg-zinc-900 text-white border-zinc-900") : (isDark ? "bg-white/[0.04] text-zinc-400 border-white/10 hover:border-white/20 hover:text-white" : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300 hover:text-zinc-900")}`}
+                    >
+                        {showFilters ? "Hide Filters" : "Advanced Filters"}
+                    </button>
+                    
+                    {showFilters && (
+                        <div className={`mt-4 w-full p-6 rounded-2xl border animate-in slide-in-from-top-4 fade-in duration-300 ${isDark ? "bg-white/[0.02] border-white/10" : "bg-white border-zinc-200 shadow-sm"}`}>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Source Filter */}
+                                <div className="space-y-3">
+                                    <h4 className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>Source</h4>
+                                    <div className={`inline-flex rounded-xl p-1 ${isDark ? "bg-white/[0.04]" : "bg-zinc-100"}`}>
+                                        <button onClick={() => setSource("archive")} className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${source === "archive" ? (isDark ? "bg-white text-black shadow-sm" : "bg-white text-black shadow-sm") : (isDark ? "text-zinc-400 hover:text-white" : "text-zinc-500 hover:text-zinc-900")}`}>ColorWall Archive</button>
+                                        <button onClick={() => setSource("wallhaven")} className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${source === "wallhaven" ? (isDark ? "bg-white text-black shadow-sm" : "bg-white text-black shadow-sm") : (isDark ? "text-zinc-400 hover:text-white" : "text-zinc-500 hover:text-zinc-900")}`}>Wallhaven</button>
+                                    </div>
+                                </div>
+
+                                {/* Wallhaven Specific Filters */}
+                                {source === "wallhaven" && (
+                                    <>
+                                        <div className="space-y-3">
+                                            <h4 className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>Category</h4>
+                                            <select
+                                                value={category}
+                                                onChange={(e) => setCategory(e.target.value)}
+                                                className={`w-full rounded-xl px-4 py-2 text-sm font-medium border appearance-none outline-none focus:ring-2 focus:ring-white/20 transition-colors ${isDark ? "bg-white/[0.04] border-white/10 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"}`}
+                                            >
+                                                <option value="111">All (General, Anime, People)</option>
+                                                <option value="100">General Only</option>
+                                                <option value="010">Anime Only</option>
+                                                <option value="001">People Only</option>
+                                                <option value="110">General & Anime</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <h4 className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>Sort By</h4>
+                                            <select
+                                                value={sorting}
+                                                onChange={(e) => setSorting(e.target.value)}
+                                                className={`w-full rounded-xl px-4 py-2 text-sm font-medium border appearance-none outline-none focus:ring-2 focus:ring-white/20 transition-colors ${isDark ? "bg-white/[0.04] border-white/10 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"}`}
+                                            >
+                                                <option value="relevance">Relevance</option>
+                                                <option value="date_added">Date Added</option>
+                                                <option value="random">Random</option>
+                                                <option value="toplist">Toplist</option>
+                                            </select>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* ─── search info bar ─── */}
                 {debouncedSearch && !loading && items.length > 0 && (
                     <div className={`flex items-center gap-2 mb-6 text-xs ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
@@ -509,7 +615,7 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
                 {/* ─── end message ─── */}
                 {!hasMore && items.length > 0 && !initialLoad && (
                     <p className={`text-center text-xs font-mono py-8 ${isDark ? "text-zinc-700" : "text-zinc-400"}`}>
-                        — thats all {total.toLocaleString()} wallpapers · dual sourced from archive + yapude · scraped with wreq + rust bypassing cf —
+                        — thats all {total.toLocaleString()} wallpapers · {source === "wallhaven" ? "provided by wallhaven.cc" : "dual sourced from archive + yapude"} —
                     </p>
                 )}
             </main>

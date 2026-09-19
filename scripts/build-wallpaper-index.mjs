@@ -41,6 +41,16 @@ const SOURCES = [
         url: "https://raw.githubusercontent.com/yapude/Wallpaper-archive/main/README3.md",
         prefix: "https://raw.githubusercontent.com/yapude/Wallpaper-archive/main/assets/",
     },
+    {
+        id: "usman",
+        url: "https://raw.githubusercontent.com/usman-369/wallpapers/main/README.md",
+        prefix: "https://raw.githubusercontent.com/usman-369/wallpapers/main/",
+    },
+    {
+        id: "wall-e-desk",
+        url: "https://raw.githubusercontent.com/JoshuaThadi/Wall-E-Desk/main/README.md",
+        prefix: "https://raw.githubusercontent.com/JoshuaThadi/Wall-E-Desk/main/",
+    },
 ];
 
 // ─── filler tags to strip from yapude (generic seo spam) ──────────────────────
@@ -54,7 +64,7 @@ const FILLER_TAGS = new Set([
 // parses a single markdown table row. splits on | instead of using a giant
 // regex — much more reliable with the varied formatting between sources.
 
-const IMG_REGEX = /^<img\s+src="([^"]+)"[^>]*>$/;
+const MEDIA_REGEX = /<img\s+src="([^"]+)"[^>]*>|<video\s+src="([^"]+)"[^>]*>|!\[.*?\]\(([^)]+)\)/i;
 
 function parseRow(line, sourceId) {
     // split the row by | and trim. typical structure:
@@ -62,18 +72,29 @@ function parseRow(line, sourceId) {
     const cells = line.split("|").map(c => c.trim()).filter(Boolean);
     if (cells.length < 3) return null;
 
-    // cell 0: <img src="..." ...>
-    const imgMatch = IMG_REGEX.exec(cells[0]);
-    if (!imgMatch) return null;
-    const url = imgMatch[1];
+    // cell 0: <img src="..." ...> or <video src="..." ...> or markdown image
+    const mediaMatch = MEDIA_REGEX.exec(cells[0]);
+    if (!mediaMatch) return null;
+    let url = mediaMatch[1] || mediaMatch[2] || mediaMatch[3];
 
     // cell 1: **Title**<br>[Download](...)
+    // If cell 1 contains a link to an mp4 or webm, prioritize that (live wallpaper)
+    const downloadMatch = cells[1].match(/\[.*?\]\(([^)]+\.(mp4|webm))\)/i);
+    if (downloadMatch) {
+        url = downloadMatch[1];
+    }
+
     const titleMatch = cells[1].match(/^\*\*(.+?)\*\*/);
-    if (!titleMatch) return null;
-    let title = titleMatch[1]
-        .replace(/\s*(Desktop|Laptop|PC)\s+Wallpaper\s*(4K)?$/i, "")
-        .replace(/\s*HD wallpaper$/i, "")
-        .trim();
+    let title = "Wallpaper";
+    if (titleMatch) {
+        title = titleMatch[1]
+            .replace(/\s*(Desktop|Laptop|PC)\s+Wallpaper\s*(4K)?$/i, "")
+            .replace(/\s*HD wallpaper$/i, "")
+            .trim();
+    } else {
+        // fallback to cell 1 content if no bold text
+        title = cells[1].replace(/<[^>]+>/g, "").split("[")[0].trim() || "Wallpaper";
+    }
 
     // cell 2: comma-separated tags
     const tagsRaw = cells[2] || "";

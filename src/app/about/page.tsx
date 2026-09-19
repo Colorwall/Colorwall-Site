@@ -77,7 +77,7 @@ export default function AboutPage() {
                             </div>
                             <h3 className="font-semibold text-base mb-2">Rust & Tauri Core</h3>
                             <p className={`text-sm leading-[1.6] ${textMuted}`}>
-                                engineered with low-level rust bindings. deeply integrated with win32 apis to achieve hardware-accelerated video decoding and idle cpu usage under 0.1%.
+                                engineered with low-level rust bindings and the tauri framework. deeply integrated with the native d3d11 compositor and mediafoundation/mpv to achieve hardware-accelerated video decoding and an astonishing idle cpu overhead of just ~0.5%.
                             </p>
                         </div>
                         {/* feature block 2 */}

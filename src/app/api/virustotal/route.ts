@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 
 // cache this route for 1 hour to prevent hitting github/virustotal rate limits
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export async function GET() {

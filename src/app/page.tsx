@@ -14,7 +14,6 @@ import { GradientHeading } from "./components/landing/GradientHeading";
 import { ScrollSpiralArrow } from "@/app/components/ui/ScrollSpiralArrow";
 import { ImmersiveModeHost } from "@/app/components/landing/ImmersiveModeHost";
 
-const TargetCursor = dynamic(() => import("./components/landing/TargetCursor"), { ssr: false });
 
 export default function ColorWallLanding() {
     const { theme } = useTheme();
@@ -23,9 +22,72 @@ export default function ColorWallLanding() {
     return (
         <ImmersiveModeHost>
             <div className={`relative min-h-screen select-none ${theme === "dark" ? "bg-black text-white" : "bg-white text-black"}`}>
-                <TargetCursor 
-                    cursorColor={theme === 'dark' ? '#ffffff' : '#111111'} 
-                    cursorColorOnTarget="#ffffff" 
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "FAQPage",
+                            "mainEntity": [
+                                {
+                                    "@type": "Question",
+                                    "name": "What does ColorWall cost?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "ColorWall is completely free to download and use from our website without arbitrary limits. Future releases on storefronts like Steam or Epic Games may be premium to help fund long-term development and code signing."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Does it affect gaming performance?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Not at all. ColorWall's engine automatically pauses all rendering and video playback the second you launch a full-screen application or game, ensuring zero background GPU usage while you play."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Can I create my own interactive wallpapers?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Absolutely. ColorWall features a built-in node-based Studio Scene Editor. You can combine custom images, video layers, and native D3D11 shaders to build high-performance dynamic scenes."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Does it support audio-reactive effects?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Yes. Our native engine includes real-time audio frequency analysis, allowing your wallpapers, shaders, and particle systems to react dynamically to your system's audio playback."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Which Windows versions are supported?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "ColorWall is optimized exclusively for Windows 10 and Windows 11 (64-bit). We deeply integrate with native Windows APIs to achieve the lowest possible resource footprint."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Can I use web-based interactive wallpapers?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Yes. ColorWall fully supports HTML, CSS, and JavaScript based wallpapers via a lightweight WebView, allowing you to run complex web scenes natively on your desktop."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Does it support multiple monitors?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Yes, multi-monitor setups are fully supported. You can either span a single high-resolution wallpaper across all your displays or set different individual wallpapers for each screen."
+                                    }
+                                }
+                            ]
+                        })
+                    }}
                 />
 
                 <HeroSection />

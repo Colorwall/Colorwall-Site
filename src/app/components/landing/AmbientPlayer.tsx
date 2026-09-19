@@ -11,7 +11,7 @@ const EqualizerBars = () => (
         <span className="eq-bar inline-block w-[2.5px] rounded-full bg-current" />
         <span className="eq-bar inline-block w-[2.5px] rounded-full bg-current" />
         <span className="eq-bar inline-block w-[2.5px] rounded-full bg-current" />
-        <style>{`
+        <style suppressHydrationWarning>{`
             @keyframes eqBounce {
                 0%   { height: 20%; }
                 100% { height: 100%; }
@@ -177,7 +177,7 @@ export const AmbientPlayer = ({ theme, className = "" }: { theme: string, classN
                         </div>
                     )}
 
-                    <style>{`
+                    <style suppressHydrationWarning>{`
                         @keyframes fadeSlideIn {
                             from {
                                 opacity: 0;

@@ -19,7 +19,7 @@ import { GradientHeading } from "./GradientHeading";
 const Antigravity = dynamic(() => import("../ui/Antigravity"), { ssr: false });
 
 
-export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
+export const ComparisonTable = ({ theme, isDownloadPage = false }: { theme: "dark" | "light", isDownloadPage?: boolean }) => {
     const isDark = theme === "dark";
 
     const features = [
@@ -91,14 +91,14 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             <div className="relative z-10 pointer-events-none">
                                 <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
                                     ${isDark ? "text-white/75" : "text-black/75"}`}>
-                                  How we compare?
+                                  {isDownloadPage ? "What you're getting" : "How we compare?"}
                                 </p>
                                 <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3
                                     ${isDark ? "text-white" : "text-black"}`}>
-                                    They solve a slice.
+                                    {isDownloadPage ? "You're upgrading to" : "They solve a slice."}
                                 </h2>
                                 <GradientHeading
-                                    text="We run the whole thing."
+                                    text={isDownloadPage ? "The ultimate engine." : "We run the whole thing."}
                                     theme={theme}
                                     className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
                                 />
@@ -147,36 +147,38 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                         </div>
 
                         {/* colorwall cta */}
-                        <div className={`mt-12 pt-10 border-t w-full
-                            ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-2xl mx-auto">
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src="/colorwall.png"
-                                        alt="ColorWall Logo"
-                                        className="w-11 h-11 object-contain"
-                                    />
-                                    <div className="text-left">
-                                        <h3 className={`text-xl font-bold tracking-tight
-                                            ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
-                                            ColorWall
-                                        </h3>
-                                        <p className={`text-[13px] mt-0.5
-                                            ${isDark ? "text-white/40" : "text-[#425466]"}`}>
-                                            Free to Install. Runs it all End to end. Actively maintained!
-                                        </p>
+                        {!isDownloadPage && (
+                            <div className={`mt-12 pt-10 border-t w-full
+                                ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-2xl mx-auto">
+                                    <div className="flex items-center gap-4">
+                                        <img
+                                            src="/colorwall.png"
+                                            alt="ColorWall Logo"
+                                            className="w-11 h-11 object-contain"
+                                        />
+                                        <div className="text-left">
+                                            <h3 className={`text-xl font-bold tracking-tight
+                                                ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
+                                                ColorWall
+                                            </h3>
+                                            <p className={`text-[13px] mt-0.5
+                                                ${isDark ? "text-white/40" : "text-[#425466]"}`}>
+                                                Free to Install. Runs it all End to end. Actively maintained!
+                                            </p>
+                                        </div>
                                     </div>
+                                    <Link href="/download">
+                                        <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
+                                            ${isDark
+                                                ? "bg-white text-black hover:bg-white/90"
+                                                : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
+                                            Download Free
+                                        </button>
+                                    </Link>
                                 </div>
-                                <Link href="/download">
-                                    <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
-                                        ${isDark
-                                            ? "bg-white text-black hover:bg-white/90"
-                                            : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
-                                        Download Free
-                                    </button>
-                                </Link>
                             </div>
-                        </div>
+                        )}
                     </motion.div>
                 </div>
             </div>
