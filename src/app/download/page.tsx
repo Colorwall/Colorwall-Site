@@ -231,7 +231,7 @@ export default function DownloadPage() {
                                     className="object-contain"
                                     priority
                                 />
-                            </div>
+                            </div> 
 
                             <div className="space-y-4">
                                 <h1 className="text-4xl md:text-5xl lg:text-7xl font-outfit font-[200] tracking-tight">
@@ -250,8 +250,8 @@ export default function DownloadPage() {
                             </div>
                         </motion.div>
 
-                        {/* App UI Showcase */}
-                        <motion.div
+                        {/* App UI Showcase wrong spot */}
+                        {/* <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.05 }}
@@ -267,7 +267,7 @@ export default function DownloadPage() {
                                 />
                                 <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none ${isDark ? "from-[#0a0a0a]" : "from-white"}`} />
                             </div>
-                        </motion.div>
+                        </motion.div> */}
 
                         {/* Device-Specific CTA */}
                         {isMobile ? (
@@ -348,6 +348,7 @@ export default function DownloadPage() {
                                 transition={{ delay: 0.08 }}
                                 className="w-full relative z-10 mb-20 px-4 flex flex-col items-center text-center"
                             >
+                                {/* will do something else of this later probably    */}
                                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.04em] mb-6 leading-tight">
                                     Ready to let go of old,{" "}
                                     <span className="italic font-[300] opacity-80">
@@ -505,7 +506,7 @@ export default function DownloadPage() {
                                         <h3 className="text-2xl font-black tracking-tight mb-2 text-center md:text-left">System Requirements</h3>
                                         <p className={`${mutedText} text-sm md:text-base text-center md:text-left`}>Ensure your system meets the minimum specifications to run ColorWall smoothly.</p>
                                     </div>
-                                    <div className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase border ${borderColor} ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
+                                    <div className={`rounded-full text-xs font-bold tracking-widest uppercase ${borderColor} ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
                                         Windows Only
                                     </div>
                                 </div>
@@ -612,14 +613,31 @@ export default function DownloadPage() {
                     */}
 
                     {/* Security Report Section */}
-                    <motion.div
+                    {/* <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                         className="w-full relative z-10"
                     >
                         <SecurityReport theme={theme} isDownloadPage={true} />
-                    </motion.div>
+                    </motion.div> */}
+                      <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.05 }}
+                            className="w-full relative z-10 mb-32"
+                        >
+                            <div className="relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-500/10 border border-white/5 bg-black/5 aspect-video flex items-center justify-center">
+                                <Image
+                                    src="/HOME.webp"
+                                    alt="ColorWall Home"
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                />
+                                <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none ${isDark ? "from-[#0a0a0a]" : "from-white"}`} />
+                            </div>
+                        </motion.div>
                 </div>
             </main>
 
