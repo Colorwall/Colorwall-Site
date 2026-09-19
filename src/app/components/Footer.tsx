@@ -76,6 +76,14 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                                     className="h-10 w-auto hover:opacity-80 transition-opacity"
                                 />
                             </a>
+                            <a href="https://codetrendy.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
+                                <img 
+                                    src={`https://codetrendy.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
+                                    alt="Visit ColorWall — Desktop Customization Engine" 
+                                    height="54" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
+                                />
+                            </a>
                         </div>
                     </div>
 
