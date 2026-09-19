@@ -1,7 +1,7 @@
 {
-  "name": "Colorwall Inc",
-  "short_name": "Colorwall Inc",
-  "description": "Colorwall by Colorwall Inc.",
+  "name": "ColorWall by Laxenta LLC",
+  "short_name": "ColorWall",
+  "description": "Colorwall is the newest desktop customization app for Windows. A blazing-fast Desktop Customization Engine built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

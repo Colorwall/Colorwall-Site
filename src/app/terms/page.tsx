@@ -45,7 +45,7 @@ export default function TermsPage() {
                             </div>
                             <h3 className="text-2xl font-bold mb-4">Proprietary Software License</h3>
                             <p className="font-light text-lg opacity-80 leading-relaxed">
-                                ColorWall is a proprietary desktop application developed and maintained by Colorwall Inc. You are granted a personal, non-exclusive license to use the software for customizing your desktop environment.
+                                ColorWall is a proprietary desktop application developed and maintained by @LaxentaInc. You are granted a personal, non-exclusive license to use the software for customizing your desktop environment.
                             </p>
                             <ul className="list-disc pl-5 space-y-2 mt-4 text-sm opacity-70 font-light">
                                 <li>You may not decompile, reverse engineer, or attempt to extract the source code.</li>
@@ -69,7 +69,7 @@ export default function TermsPage() {
                             </div>
                             <h3 className="text-2xl font-bold mb-4">Liability</h3>
                             <p className="font-light text-lg opacity-80 leading-relaxed">
-                                The software is provided "as is". While we engineer ColorWall for absolute stability and performance, Colorwall Inc. is not liable for any system instability, hardware issues, or data loss that occurs while using the engine.
+                                The software is provided "as is". While we engineer ColorWall for absolute stability and performance, @LaxentaInc or Laxenta LLC. is not liable for any system instability, hardware issues, or data loss that occurs while using the engine.
                             </p>
                         </section>
 

@@ -191,7 +191,7 @@ export default function AboutPage() {
                                         className="object-cover"
                                     />
                                 </div>
-                                <h3 className="font-outfit font-medium tracking-wide text-2xl mb-1">Colorwall Inc</h3>
+                                <h3 className="font-outfit font-medium tracking-wide text-2xl mb-1">Laxenta LLC</h3>
                                 <p className={`font-mono text-xs uppercase tracking-widest ${textMuted}`}>@LaxentaInc</p>
                                 
                                 <div className="flex items-center gap-6 mt-10">

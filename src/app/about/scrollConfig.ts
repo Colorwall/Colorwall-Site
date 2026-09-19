@@ -11,7 +11,7 @@ export const TEXT_PHASES = [
     peak: 0.42,
     end: 0.52,
     left: ['WE MADE', 'COLORWALL', 'THE WALLPAPER ENGINE', 'OF THE FUTURE'],
-    right: ['PRODUCED BY', 'COLORWALL INC'],
+    right: ['PRODUCED BY', 'OLIVER LAXENTA'],
     rightItalic: true,
   },
   {

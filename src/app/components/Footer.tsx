@@ -37,7 +37,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             <img src="/LxColorWall.webp" alt="ColorWall Logo" className="h-8 w-auto object-contain pointer-events-none select-none" />
                         </div>
                         <p className={`text-sm leading-relaxed font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
-                            PRODUCED BY COLORWALL INC <br />
+                            PRODUCED BY OLIVER LAXENTA <br />
                             @colorwall.xyz
                         </p>
                     </div>
@@ -172,7 +172,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                     ${isDark ? "border-white/5" : "border-slate-200"}`}>
 
                     <div className={`text-xs font-mono opacity-40 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-600"}`}>
-                        <span>© 2026 COLORWALL INC.</span>
+                        <span>© 2026 LAXENTA LLC.</span>
                         <span className="w-1 h-1 bg-[#00A4FF] rounded-full" />
                         <span className="uppercase">All rights reserved.</span>
                     </div>

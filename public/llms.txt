@@ -17,10 +17,10 @@ Unlike traditional Electron-based applications that consume massive RAM, ColorWa
 - **Dynamic Scene Physics**: Supports mouse-parallax, multi-layered masking, and interactive elements.
 - **Custom Scene Editor (ColorWall Studio)**: A dedicated, modular UI component built in Vite/React for creators to build complex compositions using a categorized effect browser. 
 - **.colorwall Ecosystem**: Proprietary export functionality that bundles scenes, assets, and JSON manifests into a highly compressed `.colorwall` package for community sharing.
-- Produced by Colorwall Inc. All rights reserved.
+- Produced by Laxenta LLC. All rights reserved.
 
 ## Authorship & Organization
-- **Developer/Author**: Colorwall Inc
+- **Developer/Author**: Laxenta Inc
   - GitHub: [@LaxentaLLC](https://github.com/LaxentaInc)
   - Contact / Socials: `colorwall.xyz` on Discord and Instagram.
   - Bio: "19 y/o Hobbyist developer Oliver <3 @ LaxentaLLC. Well + Excelling in rust and typescript win32internals etc and cool designs."
