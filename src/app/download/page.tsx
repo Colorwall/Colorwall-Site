@@ -447,7 +447,7 @@ export default function DownloadPage() {
 
                                 <div className="space-y-3 w-full">
                                     <a
-                                        href="https://github.com/ColorwallInc/WallpaperEngine-Linux"
+                                        href="https://github.com/LaxentaInc/WallpaperEngine-Linux"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}

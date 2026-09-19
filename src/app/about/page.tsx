@@ -183,17 +183,17 @@ export default function AboutPage() {
                             <div className={`w-full aspect-square border ${borderSubtle} rounded-3xl relative p-6 flex flex-col items-center justify-center`}>
                                 <div className="w-32 h-32 rounded-full overflow-hidden mb-6 grayscale opacity-80">
                                     <Image 
-                                        src="https://github.com/ColorwallInc.png" 
-                                        alt="Colorwall Inc" 
+                                        src="https://avatars.githubusercontent.com/u/204142083?v=4" 
+                                        alt="Laxenta" 
                                         fill
                                         className="object-cover"
                                     />
                                 </div>
                                 <h3 className="font-outfit font-medium tracking-wide text-2xl mb-1">Colorwall Inc</h3>
-                                <p className={`font-mono text-xs uppercase tracking-widest ${textMuted}`}>@ColorwallInc</p>
+                                <p className={`font-mono text-xs uppercase tracking-widest ${textMuted}`}>@LaxentaInc</p>
                                 
                                 <div className="flex items-center gap-6 mt-10">
-                                    <a href="https://github.com/ColorwallInc" target="_blank" rel="noopener noreferrer" className={`text-sm font-mono font-medium uppercase tracking-wider ${textMuted} hover:${textColor} transition-colors`}>
+                                    <a href="https://github.com/LaxentaInc" target="_blank" rel="noopener noreferrer" className={`text-sm font-mono font-medium uppercase tracking-wider ${textMuted} hover:${textColor} transition-colors`}>
                                         GitHub
                                     </a>
                                     <span className={`text-xs ${textMuted}`}>·</span>
@@ -236,21 +236,21 @@ export default function AboutPage() {
                                 status: "Upcoming",
                                 icon: Compass,
                                 desc: "Browser new tab extension featuring live wallpapers, customizable widgets, and focus music integration.",
-                                href: "https://github.com/ColorwallInc/ArchiveWalls"
+                                href: "https://github.com/LaxentaInc/ArchiveWalls"
                             },
                             {
                                 title: "MTS Migrator",
                                 status: "NPM Package",
                                 icon: Code2,
                                 desc: "CLI utility to instantly migrate legacy javascript codebases to typescript with intelligent AST parsing.",
-                                href: "https://github.com/ColorwallInc/Magikk-Typescript-Migrator"
+                                href: "https://github.com/LaxentaInc/Magikk-Typescript-Migrator"
                             },
                             {
                                 title: "Aero-Chan",
                                 status: "Public Bot",
                                 icon: Bot,
                                 desc: "Powerful anti-raid, moderation, and music tooling infrastructure for discord communities built in typescript.",
-                                href: "https://github.com/ColorwallInc/Aero-Chan"
+                                href: "https://github.com/LaxentaInc/Aero-Chan"
                             }
                         ].map((proj, i) => (
                             <motion.a

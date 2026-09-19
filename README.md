@@ -35,7 +35,7 @@ Built to run as smoothly as the engine it promotes, this site is designed with m
 
 <br />
 
-ColorWall is developed entirely by the awsome team of Colorwall ([@ColorwallInc](https://github.com/ColorwallInc), [@ColorwallOrg](https://github.com/Colorwall)).
+ColorWall is developed entirely by the awsome team of Colorwall ([@Colorwall](https://github.com/LaxentaInc), [@ColorwallOrg](https://github.com/Colorwall)).
 
 If you want to support the continued development of the ColorWall ecosystem (including Colorwall Linux, ArchiveWalls, and more), consider supporting on [Patreon](https://patron.colorwall.xyz) or joining the [Discord](https://discord.gg/QYwhay7r2V).
 

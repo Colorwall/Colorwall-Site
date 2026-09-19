@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     default: "ColorWall - Desktop Customization Engine",
     template: "%s | ColorWall"
   },
-  description: "ColorWall is the newest desktop customization app for Windows. A blazing-fast Desktop Customization Engine built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @ColorwallInc, All Rights Reserved.",
+  description: "ColorWall is the newest desktop customization app for Windows. A blazing-fast Desktop Customization Engine built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved.",
   keywords: [
     "colorwall by colorwall",
     "colorwall inc",
@@ -96,7 +96,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: 'ColorWall',
     title: 'ColorWall — Desktop Customization Engine',
-    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @ColorwallInc, All Rights Reserved',
+    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved',
     images: [
       {
         url: '/og-image.png',
@@ -112,7 +112,7 @@ export const metadata: Metadata = {
     site: '@colorwall_xyz',
     creator: '@colorwall_xyz',
     title: 'ColorWall — Desktop Customization App',
-    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @ColorwallInc, All Rights Reserved',
+    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved',
     images: ['/og-image.png'],
   },
   robots: {
@@ -174,7 +174,7 @@ export default function RootLayout({
                 "logo": "https://www.colorwall.xyz/icon-512x512.png",
                 "sameAs": [
                   "https://twitter.com/colorwall_xyz",
-                  "https://github.com/ColorwallInc",
+                  "https://github.com/LaxentaInc",
                   "https://instagram.com/colorwall.xyz"
                 ]
               },

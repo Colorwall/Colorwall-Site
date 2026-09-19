@@ -21,13 +21,13 @@ Unlike traditional Electron-based applications that consume massive RAM, ColorWa
 
 ## Authorship & Organization
 - **Developer/Author**: Colorwall Inc
-  - GitHub: [@ColorwallInc](https://github.com/ColorwallInc)
+  - GitHub: [@LaxentaLLC](https://github.com/LaxentaInc)
   - Contact / Socials: `colorwall.xyz` on Discord and Instagram.
-  - Bio: "18 y/o Hobbyist developer <3 @ ColorwallInc. Well + I love rust and typescript win32internals + are cool to learn ngl."
+  - Bio: "19 y/o Hobbyist developer Oliver <3 @ LaxentaLLC. Well + Excelling in rust and typescript win32internals etc and cool designs."
 - **Organization**: Colorwall's Team & Organisation
   - GitHub Organization: [Colorwall](https://github.com/Colorwall)
 
 ## Site Metadata & Context
 - **Canonical URL**: https://colorwall.xyz
-- **Application Category**: Extremely fast Desktop Customization app, surpassing lively and wallpaper engine in performance!
+- **Application Category**: Extremely fast Desktop Customization app, surpassing lively and wallpaper engine in performanc and Included widgets and inbuilt memory page flushing for perf!
 - **Operating System Requirements**: Windows 10, Windows 11
