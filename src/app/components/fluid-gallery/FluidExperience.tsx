@@ -3,13 +3,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
 import { FluidPosterLayer, useFluidPosterSync } from "./FluidPosterLayer";
 import { FLUID_SLIDES } from "./slides";
 import CinematicLoading from "./CinematicLoading";
 import type { FluidGalleryHandle } from "./FluidGalleryCanvas";
 import StrokeText from "../ui/StrokeText";
-
+import { motion, AnimatePresence } from "framer-motion";
 
 // Three.js + shaders load only after this shell mounts (gallery opened)
 const FluidGalleryCanvas = dynamic(
@@ -54,17 +53,25 @@ const FluidTextHost = ({ index, visible, isMobile }: { index: number; visible: b
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
-      <>
+      <AnimatePresence mode="wait">
         {visible && (
           <motion.div
-            key={index} animate={{ opacity: 1 }} className="absolute px-6 w-full max-w-3xl lg:max-w-4xl pointer-events-auto"
+            key={index}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            className="absolute px-6 w-full max-w-3xl lg:max-w-4xl pointer-events-auto"
             style={{
               left: `calc(50% + ${rx}vw)`,
               top: `calc(45% + ${ry}vh)`,
               transform: "translate(-50%, -50%)",
             }}
           >
-            <motion.p className="font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase"
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="font-outfit mb-4 text-[11px] font-light tracking-[0.22em] text-white/70 uppercase"
             >
               {html.meta}
             </motion.p>
@@ -83,25 +90,38 @@ const FluidTextHost = ({ index, visible, isMobile }: { index: number; visible: b
               />
             </div>
 
-            <motion.p className="font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-lg max-w-2xl"
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.0 }}
+              className="font-fluid-serif text-[15px] font-light leading-relaxed text-white/80 md:text-lg max-w-2xl"
             >
               {html.body}
             </motion.p>
 
             {isIntro && (
-              <motion.p className="font-outfit mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40"
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.2 }}
+                className="font-outfit mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40"
               >
                 from laxenta inc,
               </motion.p>
             )}
           </motion.div>
         )}
-      </>
+      </AnimatePresence>
 
-      <>
+      <AnimatePresence mode="wait">
         {visible && (
           <motion.div
-            key={`nav-${index}`} animate={{ opacity: 1 }} className="absolute bottom-8 left-8 right-8 flex items-end justify-between gap-6 md:bottom-10 md:left-14 md:right-14 lg:left-20 lg:right-20"
+            key={`nav-${index}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute bottom-8 left-8 right-8 flex items-end justify-between gap-6 md:bottom-10 md:left-14 md:right-14 lg:left-20 lg:right-20"
           >
             <p className="font-fluid-serif max-w-[40%] text-left text-sm font-light tracking-wide text-white/75 md:text-base">
               {html.prev}
@@ -111,7 +131,7 @@ const FluidTextHost = ({ index, visible, isMobile }: { index: number; visible: b
             </p>
           </motion.div>
         )}
-      </>
+      </AnimatePresence>
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { GradientHeading } from "./GradientHeading";
 import ScrollExpand from "../ui/ScrollEXP";
-import { ComparisonTable } from "./ComparisonTable";
 
 // headline stat cards
 // the most impressive at a glance proof points for colorwall tech
@@ -37,7 +36,7 @@ const showcaseFeatures = [
     {
         id: "widgets",
         title: "WIDGETS",
-        description: "Desktop widgets powered by modern web tech. Add calendars, clocks, or custom information directly to your desktop. Clean, fast, and fully customizable.",
+        description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
         badge: "HTML · JS · PINNED",
         imageSrcs: ["/widgets.webp"]
     },
@@ -51,21 +50,21 @@ const showcaseFeatures = [
     {
         id: "customise",
         title: "CUSTOMISE",
-        description: "Unmatched performance and control. Built on Rust & Tauri for near-zero impact. Style your taskbar with blur and acrylic effects, control multi-monitor setups, and tweak renderer presets.",
+        description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
         badge: "RUST · TAURI · LOW OVERHEAD",
         imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
     },
     {
         id: "store",
         title: "STORE",
-        description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration—no account needed.",
+        description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration - no account needed.",
         badge: "8 SOURCES · 4K · UNIFIED",
         imageSrcs: ["/STORE.webp", "/modal.webp"]
     },
     {
         id: "studio",
         title: "STUDIO",
-        description: "Build your own native scene wallpapers using our built-in node editor. Combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
+        description: "build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
         badge: "NODE-BASED · D3D11 · PARTICLES",
         imageSrcs: ["/studio.webp"]
     }
@@ -74,12 +73,18 @@ const showcaseFeatures = [
 export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
 
-
+    // smooth scroll handler to quickly jump to any feature section card
+    const handleJumpToFeature = (featureId: string) => {
+        const el = document.getElementById(`feature-${featureId}`);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
 
     return (
         <section className="hidden md:block relative w-full">
             {/* headline and stat cards */}
-            <div className="pt-32 pb-4 px-4 sm:px-8">
+            <div className="pt-32 pb-14 px-4 sm:px-8">
                 <div className="max-w-7xl mx-auto">
 
                     {/* top header with title left and architectural description right */}
@@ -113,7 +118,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             <GradientHeading
                                 text={"Performance\nwithout compromise."}
                                 theme={theme}
-                                className="text-4xl sm:text-5xl md:text-6xl font-outfit font-bold tracking-widest uppercase whitespace-pre-wrap leading-[1.1]"
+                                className="text-4xl sm:text-5xl md:text-6xl font-anurati tracking-widest uppercase whitespace-pre-wrap leading-[1.1]"
                             />
                         </div>
 
@@ -133,7 +138,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-60px" }}
                         transition={{ duration: 0.7, delay: 0.15 }}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-4"
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-14"
                     >
                         {statCards.map((card) => {
                             const cardClasses = `cursor-target group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden
@@ -149,7 +154,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             const cardContent = (
                                 <>
                                     <div className="flex items-start justify-between mb-4">
-                                        <span className={`text-4xl sm:text-5xl font-outfit font-bold tracking-widest uppercase leading-none
+                                        <span className={`text-4xl sm:text-5xl font-anurati tracking-widest uppercase leading-none
                                             ${card.accent
                                                 ? "text-white"
                                                 : (isDark ? "text-white" : "text-black")
@@ -198,9 +203,21 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 </div>
             </div>
 
-            <ComparisonTable theme={theme} />
-
-
+            {/* quick jump category pill navigation bar */}
+            <div className="sticky top-4 z-40 px-4 mb-10 pointer-events-auto">
+                <div className="max-w-fit mx-auto flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-full bg-black/75 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    {showcaseFeatures.map((feat) => (
+                        <button
+                            key={feat.id}
+                            type="button"
+                            onClick={() => handleJumpToFeature(feat.id)}
+                            className="px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-mono tracking-wider uppercase transition-all duration-300 text-white/70 hover:text-white hover:bg-white/15 whitespace-nowrap cursor-pointer active:scale-95"
+                        >
+                            {feat.title}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* responsive scroll-expand card showcases powered by scrollexp */}
             <div className="flex flex-col gap-12 sm:gap-20 w-full">
@@ -236,7 +253,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                     <span className="w-4 h-[1px] bg-cyan-400/60" />
                                 </div>
 
-                                <h3 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-4 leading-[0.95] drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] font-outfit uppercase">
+                                <h3 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-4 leading-[0.95] drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] font-anurati uppercase">
                                     {feature.title}
                                 </h3>
 
