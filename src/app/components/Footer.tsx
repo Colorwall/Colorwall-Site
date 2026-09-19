@@ -97,7 +97,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                 </div>
 
                 {/* ════ Featured Badges ════ */}
-                <div className="mt-12 flex overflow-x-auto gap-4 items-center sm:justify-center pb-4 [&>a]:shrink-0 scrollbar-hide">
+                <div className="mt-12 flex items-center justify-center gap-2 sm:gap-4 w-full [&>a]:min-w-0 [&_img]:max-w-full [&_img]:h-auto [&_img]:max-h-8 sm:[&_img]:max-h-10">
                     <a href="https://launchstag.com/p/colorwall" target="_blank" rel="noopener noreferrer">
                         <img 
                             src={`https://launchstag.com/badge-${isDark ? 'dark' : 'light'}.svg`} 
