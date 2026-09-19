@@ -277,8 +277,8 @@ export default function DownloadPage() {
                                 transition={{ delay: 0.08 }}
                                 className="w-full relative z-10 mb-20 px-4 flex flex-col items-center text-center"
                             >
-                                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6 leading-tight">
-                                    Looks like you&apos;re on a <span className="italic opacity-80">mobile</span> device.
+                                <h2 className="text-3xl sm:text-4xl md:text-5xl font-outfit font-[200] tracking-tight mb-6 leading-tight">
+                                    Looks like you&apos;re on a <span className="italic font-[300] opacity-80">mobile</span> device.
                                 </h2>
                                 
                                 <p className={`max-w-md mx-auto text-sm sm:text-base mb-10 ${mutedText}`}>
@@ -348,9 +348,9 @@ export default function DownloadPage() {
                                 transition={{ delay: 0.08 }}
                                 className="w-full relative z-10 mb-20 px-4 flex flex-col items-center text-center"
                             >
-                                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6 leading-tight">
+                                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.04em] mb-6 leading-tight">
                                     Ready to let go of old,{" "}
-                                    <span className="italic opacity-80">
+                                    <span className="italic font-[300] opacity-80">
                                         clunky
                                     </span>
                                     <br className="hidden sm:block" /> wallpaper engines?
@@ -599,7 +599,8 @@ export default function DownloadPage() {
                         </motion.div>
                     </div>
 
-                    {/* Comparison Table Section */}
+                    {/* comparison table intentionally disabled on download route to prevent layout fatigue when user already intends to download */}
+                    {/*
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -608,6 +609,7 @@ export default function DownloadPage() {
                     >
                         <ComparisonTable theme={theme} isDownloadPage={true} />
                     </motion.div>
+                    */}
 
                     {/* Security Report Section */}
                     <motion.div
