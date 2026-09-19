@@ -67,6 +67,15 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                                     className="h-10 w-auto hover:opacity-80 transition-opacity"
                                 />
                             </a>
+                            <a href="https://launchbuff.com/products/colorwall-x9basr" target="_blank" rel="noopener noreferrer" title="Featured on LaunchBuff">
+                                <img 
+                                    src={`https://launchbuff.com/badge-featured-${isDark ? 'dark' : 'light'}.svg`} 
+                                    alt="Featured on LaunchBuff" 
+                                    width="256" 
+                                    height="80" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
+                                />
+                            </a>
                         </div>
                     </div>
 
