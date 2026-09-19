@@ -181,7 +181,7 @@ export async function POST(req: Request) {
 <body>
     <div class="container">
         <div class="logo-container">
-            <img src="https://colorwall.xyz/colorwall.png" alt="ColorWall">
+            <img src="https://raw.githubusercontent.com/Colorwall/Colorwall-Site/main/public/colorwall.png" alt="ColorWall">
         </div>
 
         <h1>Ready to <span class="highlight">customize</span> your desktop?</h1>
