@@ -5,7 +5,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
 import { SmoothScroller } from "@/app/components/SmoothScroller";
-import { GlobalCursor } from "@/app/components/GlobalCursor";
+import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
+import { AmbientProvider } from "@/app/contexts/AmbientContext";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -232,19 +233,21 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-clip`}
       >
         <ThemeProvider>
-          <GlobalCursor />
-          <Navbar />
-          <div className="relative min-h-screen flex flex-col">
-            {/* Background elements for glass effect depth */}
-            {/* <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none z-0" /> */}
+          <AmbientProvider>
+            <Navbar />
+            <GlobalAmbientPlayer />
+            <div className="relative min-h-screen flex flex-col">
+              {/* background elements for glass effect depth */}
+              {/* <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none z-0" /> */}
 
-            <main className="relative flex-1 flex flex-col transition-all duration-300">
-              <SmoothScroller>
-                {children}
-              </SmoothScroller>
-            </main>
-          </div>
-          {/* <Analytics /> */}
+              <main className="relative flex-1 flex flex-col transition-all duration-300">
+                <SmoothScroller>
+                  {children}
+                </SmoothScroller>
+              </main>
+            </div>
+            {/* <Analytics /> */}
+          </AmbientProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -19,7 +19,13 @@ import { GradientHeading } from "./GradientHeading";
 const Antigravity = dynamic(() => import("../ui/Antigravity"), { ssr: false });
 
 
-export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
+export const ComparisonTable = ({ 
+    theme, 
+    isDownloadPage = false 
+}: { 
+    theme: "dark" | "light"; 
+    isDownloadPage?: boolean;
+}) => {
     const isDark = theme === "dark";
 
     const features = [
@@ -64,7 +70,7 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
     ];
 
     return (
-        <section className="py-32 px-4 sm:px-8 relative overflow-hidden">
+        <section className={`${isDownloadPage ? "py-12" : "py-32"} px-4 sm:px-8 relative overflow-hidden`}>
             <div className="max-w-6xl mx-auto relative z-10">
 
                 <div className="flex flex-col items-center justify-center text-center mb-24 max-w-4xl mx-auto">
@@ -146,44 +152,46 @@ export const ComparisonTable = ({ theme }: { theme: "dark" | "light" }) => {
                             </div>
                         </div>
 
-                        {/* colorwall cta */}
-                        <div className={`mt-12 pt-10 border-t w-full
-                            ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-2xl mx-auto">
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src="/colorwall.png"
-                                        alt="ColorWall Logo"
-                                        className="w-11 h-11 object-contain"
-                                    />
-                                    <div className="text-left">
-                                        <h3 className={`text-xl font-bold tracking-tight
-                                            ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
-                                            ColorWall
-                                        </h3>
-                                        <p className={`text-[13px] mt-0.5
-                                            ${isDark ? "text-white/40" : "text-[#425466]"}`}>
-                                            Free to Install. Runs it all End to end. Actively maintained!
-                                        </p>
+                        {/* colorwall cta (hidden on download page since user is already on download route) */}
+                        {!isDownloadPage && (
+                            <div className={`mt-12 pt-10 border-t w-full
+                                ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-2xl mx-auto">
+                                    <div className="flex items-center gap-4">
+                                        <img
+                                            src="/colorwall.png"
+                                            alt="ColorWall Logo"
+                                            className="w-11 h-11 object-contain"
+                                        />
+                                        <div className="text-left">
+                                            <h3 className={`text-xl font-bold tracking-tight
+                                                ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
+                                                ColorWall
+                                            </h3>
+                                            <p className={`text-[13px] mt-0.5
+                                                ${isDark ? "text-white/40" : "text-[#425466]"}`}>
+                                                Free to Install. Runs it all End to end. Actively maintained!
+                                            </p>
+                                        </div>
                                     </div>
+                                    <Link href="/download">
+                                        <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
+                                            ${isDark
+                                                ? "bg-white text-black hover:bg-white/90"
+                                                : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
+                                            Download Free
+                                        </button>
+                                    </Link>
                                 </div>
-                                <Link href="/download">
-                                    <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
-                                        ${isDark
-                                            ? "bg-white text-black hover:bg-white/90"
-                                            : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
-                                        Download Free
-                                    </button>
-                                </Link>
                             </div>
-                        </div>
+                        )}
                     </motion.div>
                 </div>
             </div>
 
-            {/* ═══ benchmark showcase - wider container ═══ */}
+            {/* benchmark showcase container with responsive width */}
             <div className="max-w-[100rem] mx-auto relative z-10 mt-12 px-2 lg:px-8">
-                <BenchmarkShowcase theme={theme} />
+                <BenchmarkShowcase theme={theme} isDownloadPage={isDownloadPage} />
             </div>
         </section>
     );

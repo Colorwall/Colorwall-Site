@@ -144,7 +144,7 @@ export const SecurityReport = ({
                     <GradientHeading
                         text="VirusTotal Report"
                         theme={theme}
-                        className="text-4xl sm:text-5xl lg:text-6xl font-outfit font-bold tracking-widest uppercase leading-tight"
+                        className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
                     />
 
                     <p className={`text-[15px] leading-relaxed mt-6 max-w-md ${mutedText}`}>

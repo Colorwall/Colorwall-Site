@@ -105,7 +105,7 @@ export const FAQSection = ({ theme }: { theme: "dark" | "light" }) => {
                         as="h2"
                         text="Frequently asked questions"
                         theme={theme}
-                        className="text-4xl md:text-5xl font-outfit font-bold tracking-widest uppercase leading-[1.1]"
+                        className="text-4xl md:text-5xl font-anurati tracking-widest uppercase leading-[1.1]"
                     />
                 </motion.div>
 
