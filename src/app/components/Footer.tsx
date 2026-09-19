@@ -53,7 +53,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             <a href="https://sitepatent.com/?utm_source=colorwall.xyz&utm_medium=badge" target="_blank" rel="nofollow noopener noreferrer">
                                 <img 
                                     src={`https://sitepatent.com/api/badge?style=${isDark ? 'dark' : 'classic'}`} 
-                                    alt="Visit ColorWall on SitePatent" 
+                                    alt="Visit ColorWall" 
                                     height="54" 
                                     className="h-10 w-auto hover:opacity-80 transition-opacity"
                                 />
