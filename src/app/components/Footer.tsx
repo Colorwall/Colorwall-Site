@@ -92,6 +92,15 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                                     className="h-10 w-auto hover:opacity-80 transition-opacity"
                                 />
                             </a>
+                            <a href="https://tools.cafe" target="_blank" rel="noopener noreferrer">
+                                <img 
+                                    src={`https://tools.cafe/b/${isDark ? 'dark' : 'light'}.svg`} 
+                                    alt="Featured on tools.cafe" 
+                                    width="256" 
+                                    height="80" 
+                                    className="h-10 w-auto hover:opacity-80 transition-opacity"
+                                />
+                            </a>
                         </div>
                     </div>
 
