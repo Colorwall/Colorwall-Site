@@ -35,31 +35,41 @@ export const FAQSection = ({ theme }: { theme: "dark" | "light" }) => {
                         <table className="w-full text-left border-collapse text-sm min-w-[500px]">
                             <thead className="bg-current/5">
                                 <tr className="border-b border-current/10">
-                                    <th className="py-3 px-4 font-semibold">Component</th>
-                                    <th className="py-3 px-4 font-semibold">Minimum</th>
-                                    <th className="py-3 px-4 font-semibold">Recommended</th>
+                                    <th className="py-3 px-4 font-semibold">Hardware</th>
+                                    <th className="py-3 px-4 font-semibold">Minimum Requirements</th>
+                                    <th className="py-3 px-4 font-semibold">Recommended Specifications</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-current/10 opacity-90">
                                 <tr>
+                                    <td className="py-3 px-4 font-medium">OS</td>
+                                    <td className="py-3 px-4">Windows 10 (64-bit)</td>
+                                    <td className="py-3 px-4">Windows 10 / 11 (64-bit)</td>
+                                </tr>
+                                <tr>
                                     <td className="py-3 px-4 font-medium">Processor</td>
-                                    <td className="py-3 px-4">1.6 GHz Dual-Core</td>
-                                    <td className="py-3 px-4">2.0 GHz Quad-Core or better</td>
+                                    <td className="py-3 px-4">1.5 GHz Dual-Core (Intel i3 / AMD Ryzen 3)</td>
+                                    <td className="py-3 px-4">2.0 GHz+ Quad-Core (Intel i5 / AMD Ryzen 5)</td>
                                 </tr>
                                 <tr>
                                     <td className="py-3 px-4 font-medium">Memory</td>
-                                    <td className="py-3 px-4">1 GB RAM</td>
                                     <td className="py-3 px-4">2 GB RAM</td>
+                                    <td className="py-3 px-4">4 GB RAM</td>
                                 </tr>
                                 <tr>
                                     <td className="py-3 px-4 font-medium">Graphics</td>
-                                    <td className="py-3 px-4">DirectX 11 (e.g. HD 4000)</td>
-                                    <td className="py-3 px-4">Dedicated GPU</td>
+                                    <td className="py-3 px-4">Intel HD Graphics 4000 or equivalent</td>
+                                    <td className="py-3 px-4">NVIDIA GeForce GTX 660 / AMD Radeon HD 7850</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-3 px-4 font-medium">DirectX</td>
+                                    <td className="py-3 px-4">Version 10</td>
+                                    <td className="py-3 px-4">Version 11 or higher</td>
                                 </tr>
                                 <tr>
                                     <td className="py-3 px-4 font-medium">Storage</td>
-                                    <td className="py-3 px-4">~200 MB</td>
-                                    <td className="py-3 px-4">1 GB+</td>
+                                    <td className="py-3 px-4">500 MB available space</td>
+                                    <td className="py-3 px-4">1 GB+ available space (SSD preferred)</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -95,7 +105,7 @@ export const FAQSection = ({ theme }: { theme: "dark" | "light" }) => {
                         as="h2"
                         text="Frequently asked questions"
                         theme={theme}
-                        className="text-4xl md:text-5xl font-anurati tracking-widest uppercase leading-[1.1]"
+                        className="text-4xl md:text-5xl font-outfit font-bold tracking-widest uppercase leading-[1.1]"
                     />
                 </motion.div>
 

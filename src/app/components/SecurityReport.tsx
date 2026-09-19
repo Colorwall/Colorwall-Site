@@ -34,9 +34,11 @@ interface VTReport {
 export const SecurityReport = ({
     theme = "dark",
     className = "",
+    isDownloadPage = false,
 }: {
     theme?: "dark" | "light";
     className?: string;
+    isDownloadPage?: boolean;
 }) => {
     const [vtReport, setVtReport] = useState<VTReport | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -124,7 +126,7 @@ export const SecurityReport = ({
     return (
         <section
             ref={ref}
-            className={`py-24 px-4 sm:px-8 relative w-full flex justify-center overflow-hidden ${className}`}
+            className={`${isDownloadPage ? "py-0 px-0" : "py-24 px-4 sm:px-8"} relative w-full flex justify-center overflow-hidden ${className}`}
         >
 
             <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-20 items-start relative z-10">
@@ -140,13 +142,13 @@ export const SecurityReport = ({
                         Zero trust.
                     </h2>
                     <GradientHeading
-                        text="Virustotal report"
+                        text="VirusTotal Report"
                         theme={theme}
-                        className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
+                        className="text-4xl sm:text-5xl lg:text-6xl font-outfit font-bold tracking-widest uppercase leading-tight"
                     />
 
                     <p className={`text-[15px] leading-relaxed mt-6 max-w-md ${mutedText}`}>
-                        Every release is automatically scanned via 70~ish Antivirus Scanners, Sometimes AI based ones might act up but it is safe. Hashes are computed directly from the live binary and verified. You can click to see the report on VirustTotal.
+                        Every release is automatically scanned by over 70 antivirus engines. Occasionally, AI-based scanners might flag false positives, but it is 100% safe. Hashes are computed directly from the live binary and verified. Click below to view the full report on VirusTotal.
                     </p>
 
                     {/* live status */}

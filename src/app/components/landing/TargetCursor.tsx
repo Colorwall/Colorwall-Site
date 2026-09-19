@@ -7,13 +7,9 @@ export interface TargetCursorProps {
   spinDuration?: number;
   hoverDuration?: number;
   parallaxOn?: boolean;
-  cursorColor?: string;
-  cursorColorOnTarget?: string;
 }
 
-const TargetCursor: React.FC<TargetCursorProps> = ({
-  cursorColor = "#ffffff",
-}) => {
+const TargetCursor: React.FC<TargetCursorProps> = ({}) => {
   const dotRef = useRef<HTMLDivElement | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -129,7 +125,8 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       className="fixed top-0 left-0 w-2 h-2 rounded-full pointer-events-none z-[99999] opacity-0 transition-transform duration-75 ease-out"
       style={{
         willChange: "transform, opacity",
-        backgroundColor: cursorColor,
+        backgroundColor: "#ffffff",
+        mixBlendMode: "difference",
       }}
     />
   );

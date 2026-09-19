@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Download, ShieldCheck, AlertTriangle, Eye } from "lucide-react";
+import { Download, ShieldCheck, MailCheck, AlertTriangle, Eye } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
@@ -34,10 +34,21 @@ export default function DownloadPage() {
     const [views, setViews] = useState<number | null>(null);
     const [isIdle, setIsIdle] = useState(false);
     const [isWindows, setIsWindows] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [showDownloadsMobile, setShowDownloadsMobile] = useState(false);
+    
+    // Email form state
+    const [email, setEmail] = useState("");
+    const [isEmailSending, setIsEmailSending] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
+    const [emailError, setEmailError] = useState("");
+    
     const prevShowVideoModal = useRef(showVideoModal);
 
     useEffect(() => {
-        setIsWindows(navigator.userAgent.toLowerCase().includes('win'));
+        const ua = navigator.userAgent.toLowerCase();
+        setIsWindows(ua.includes('win'));
+        setIsMobile(/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua));
     }, []);
 
     useEffect(() => {
@@ -111,6 +122,33 @@ export default function DownloadPage() {
         return () => clearInterval(interval);
     }, [showVideoModal]);
 
+    const handleSendEmail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+        setIsEmailSending(true);
+        setEmailError("");
+        
+        try {
+            const res = await fetch("/api/send-link", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+            
+            if (res.ok) {
+                setEmailSent(true);
+                setEmail("");
+            } else {
+                const data = await res.json();
+                setEmailError(data.error || "Failed to send link. Please try again.");
+            }
+        } catch (err) {
+            setEmailError("A network error occurred. Please try again.");
+        } finally {
+            setIsEmailSending(false);
+        }
+    };
+
     const handleDownload = async (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         e.preventDefault();
         setShowVideoModal(true);
@@ -178,7 +216,7 @@ export default function DownloadPage() {
                 <div className="max-w-4xl mx-auto space-y-16">
 
                     {/* Unified Hero + Cards Wrapper */}
-                    <div className="relative pt-10 pb-16 w-full rounded-3xl">
+                    <div className="relative pt-10 w-full rounded-3xl">
                         {/* Hero / Main Download Area */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -231,8 +269,79 @@ export default function DownloadPage() {
                             </div>
                         </motion.div>
 
-                        {/* Windows Auto-detect CTA */}
-                        {isWindows && (
+                        {/* Device-Specific CTA */}
+                        {isMobile ? (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.08 }}
+                                className="w-full relative z-10 mb-20 px-4 flex flex-col items-center text-center"
+                            >
+                                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6 leading-tight">
+                                    Looks like you&apos;re on a <span className="italic opacity-80">mobile</span> device.
+                                </h2>
+                                
+                                <p className={`max-w-md mx-auto text-sm sm:text-base mb-10 ${mutedText}`}>
+                                    ColorWall is a desktop customization engine designed for Windows. 
+                                    Enter your email to send the download link to your PC.
+                                </p>
+                                
+                                <div className={`w-full max-w-md p-6 sm:p-8 rounded-3xl border shadow-2xl ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                                    {emailSent ? (
+                                        <motion.div 
+                                            initial={{ opacity: 0, scale: 0.95 }} 
+                                            animate={{ opacity: 1, scale: 1 }} 
+                                            className="flex flex-col items-center justify-center space-y-5 py-6 px-4"
+                                        >
+                                            <div className="relative">
+                                                <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse"></div>
+                                                <div className="relative w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                                                    <MailCheck size={32} />
+                                                </div>
+                                            </div>
+                                            <div className="text-center space-y-2">
+                                                <h3 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-500">Link Secured!</h3>
+                                                <p className={`text-sm ${mutedText} leading-relaxed`}>We&apos;ve sent the download link to your inbox. Open it on your PC to get started.</p>
+                                            </div>
+                                        </motion.div>
+                                    ) : (
+                                        <form onSubmit={handleSendEmail} className="flex flex-col gap-4">
+                                            <div className="space-y-2">
+                                                <input 
+                                                    type="email" 
+                                                    placeholder="Enter your email address" 
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    required
+                                                    className={`w-full px-5 py-4 rounded-xl border ${borderColor} bg-transparent outline-none focus:border-blue-500 transition-colors text-base`}
+                                                />
+                                                {emailError && (
+                                                    <p className="text-red-500 text-xs text-left px-1">{emailError}</p>
+                                                )}
+                                            </div>
+                                            <button 
+                                                type="submit"
+                                                disabled={isEmailSending}
+                                                className={`w-full group relative inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold transition-all duration-300 ${isEmailSending ? "opacity-70 cursor-wait" : "hover:-translate-y-1 hover:shadow-xl"} ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
+                                            >
+                                                {isEmailSending ? "Sending..." : "Send Link to Email"}
+                                            </button>
+                                        </form>
+                                    )}
+                                    
+                                    {!showDownloadsMobile && (
+                                        <div className={`mt-8 pt-6 border-t flex flex-col items-center ${isDark ? "border-white/10" : "border-black/10"}`}>
+                                            <button 
+                                                onClick={() => setShowDownloadsMobile(true)}
+                                                className={`text-xs font-semibold underline decoration-transparent hover:decoration-current transition-colors opacity-60 hover:opacity-100 ${isDark ? "text-white" : "text-black"}`}
+                                            >
+                                                Download .exe to this device anyway
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ) : isWindows ? (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -274,15 +383,16 @@ export default function DownloadPage() {
                                     )}
                                 </div>
                             </motion.div>
-                        )}
+                        ) : null}
 
                         {/* Platform Downloads */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="grid md:grid-cols-3 gap-6 w-full relative z-10"
-                        >
+                        {(!isMobile || showDownloadsMobile) && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 }}
+                                className="grid md:grid-cols-3 gap-6 w-full relative z-10"
+                            >
                             {/* Windows */}
                             <div className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between transition-all duration-300 ${borderColor} ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"}`}>
                                 <div className="space-y-2 mb-8 text-center">
@@ -336,7 +446,7 @@ export default function DownloadPage() {
 
                                 <div className="space-y-3 w-full">
                                     <a
-                                        href="https://github.com/LaxentaInc/WallpaperEngine-Linux"
+                                        href="https://github.com/ColorwallInc/WallpaperEngine-Linux"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={`w-full group relative inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
@@ -379,7 +489,8 @@ export default function DownloadPage() {
                                     </form>
                                 </div>
                             </div>
-                        </motion.div>
+                            </motion.div>
+                        )}
 
                         {/* System Requirements */}
                         <motion.div
@@ -403,9 +514,9 @@ export default function DownloadPage() {
                                     <table className="w-full text-left border-collapse min-w-[700px]">
                                         <thead>
                                             <tr className={`border-b-2 ${borderColor} text-sm tracking-wider uppercase`}>
-                                                <th className={`py-4 px-4 font-bold ${mutedText}`}>Component</th>
-                                                <th className={`py-4 px-4 font-bold ${mutedText}`}>Minimum (1080p)</th>
-                                                <th className={`py-4 px-4 font-bold ${mutedText}`}>Recommended (4K/8K)</th>
+                                                <th className={`py-4 px-4 font-bold ${mutedText}`}>Hardware</th>
+                                                <th className={`py-4 px-4 font-bold ${mutedText}`}>Minimum Requirements</th>
+                                                <th className={`py-4 px-4 font-bold ${mutedText}`}>Recommended Specifications</th>
                                             </tr>
                                         </thead>
                                         <tbody className={`text-sm md:text-base divide-y ${borderColor}`}>
@@ -418,7 +529,7 @@ export default function DownloadPage() {
                                                         OS
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-4 font-medium">Windows 10 / 11 (64-bit)</td>
+                                                <td className="py-4 px-4 font-medium">Windows 10 (64-bit)</td>
                                                 <td className="py-4 px-4 font-medium">Windows 10 / 11 (64-bit)</td>
                                             </tr>
                                             <tr className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -430,8 +541,8 @@ export default function DownloadPage() {
                                                         Processor
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-4 font-medium">1.6 GHz Dual-Core</td>
-                                                <td className="py-4 px-4 font-medium">2.0 GHz Quad-Core or better</td>
+                                                <td className="py-4 px-4 font-medium">1.5 GHz Dual-Core (Intel i3 / AMD Ryzen 3)</td>
+                                                <td className="py-4 px-4 font-medium">2.0 GHz+ Quad-Core (Intel i5 / AMD Ryzen 5)</td>
                                             </tr>
                                             <tr className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                                 <td className="py-4 px-4 font-semibold text-current">
@@ -442,8 +553,8 @@ export default function DownloadPage() {
                                                         Memory
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-4 font-medium">1 GB RAM</td>
                                                 <td className="py-4 px-4 font-medium">2 GB RAM</td>
+                                                <td className="py-4 px-4 font-medium">4 GB RAM</td>
                                             </tr>
                                             <tr className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                                 <td className="py-4 px-4 font-semibold text-current">
@@ -454,8 +565,20 @@ export default function DownloadPage() {
                                                         Graphics
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-4 font-medium text-black/80 dark:text-white/80">DirectX 11 compatible<br/><span className="text-xs opacity-70">(e.g., Intel HD 4000)</span></td>
-                                                <td className="py-4 px-4 font-medium text-black/80 dark:text-white/80">Dedicated GPU<br/><span className="text-xs opacity-70">(with hardware video decoding)</span></td>
+                                                <td className="py-4 px-4 font-medium">Intel HD Graphics 4000 or equivalent</td>
+                                                <td className="py-4 px-4 font-medium">NVIDIA GeForce GTX 660 / AMD Radeon HD 7850</td>
+                                            </tr>
+                                            <tr className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                                <td className="py-4 px-4 font-semibold text-current">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-lg ${isDark ? "bg-white/10" : "bg-black/10"} flex items-center justify-center`}>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                                        </div>
+                                                        DirectX
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-4 font-medium">Version 10</td>
+                                                <td className="py-4 px-4 font-medium">Version 11 or higher</td>
                                             </tr>
                                             <tr className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                                 <td className="py-4 px-4 font-semibold text-current">
@@ -466,8 +589,8 @@ export default function DownloadPage() {
                                                         Storage
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-4 font-medium">~200 MB <span className="text-xs opacity-70 block">(Base installation)</span></td>
-                                                <td className="py-4 px-4 font-medium">1 GB+ <span className="text-xs opacity-70 block">(For offline library caches)</span></td>
+                                                <td className="py-4 px-4 font-medium">500 MB available space</td>
+                                                <td className="py-4 px-4 font-medium">1 GB+ available space (SSD preferred)</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -481,7 +604,7 @@ export default function DownloadPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.25 }}
-                        className="w-full relative z-10 mt-16"
+                        className="w-full relative z-10"
                     >
                         <ComparisonTable theme={theme} isDownloadPage={true} />
                     </motion.div>
@@ -491,9 +614,9 @@ export default function DownloadPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="w-full relative z-10 mt-16"
+                        className="w-full relative z-10"
                     >
-                        <SecurityReport theme={theme} />
+                        <SecurityReport theme={theme} isDownloadPage={true} />
                     </motion.div>
                 </div>
             </main>

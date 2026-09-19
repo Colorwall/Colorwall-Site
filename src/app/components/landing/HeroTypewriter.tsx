@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const WORDS = [
-    "Your Desktop Called, It wants Personality!!!",
-    "Free to Use · No Arbitrary limits, no subscriptions",
-    "A Wallpaper Engine built for performance and You!",
-    "Built in Rust + Tauri · DirectX 11/IMF/MPV/WEB2",
-    "8K Video · Workshop/Studio · Advanced D3D11 Shader Effects",
-    "Desktop Widgets · Taskbar Customization · Audio Reactive",
+    "Your desktop called. It wants its personality back.",
+    "100% Free · No arbitrary limits, no subscriptions.",
+    "A wallpaper engine that respects your hardware.",
+    "Built with Rust + Tauri · DirectX 11 / IMF / MPV / WEB",
+    "8K Video · Studio Editor · Advanced D3D11 Shaders",
+    "Desktop Widgets · Taskbar Customization · Audio-Reactive Effects",
 ];
 
 export function HeroTypewriter() {

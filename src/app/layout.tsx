@@ -4,8 +4,6 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
-import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
-import { AmbientProvider } from "@/app/contexts/AmbientContext";
 import { SmoothScroller } from "@/app/components/SmoothScroller";
 import { GlobalCursor } from "@/app/components/GlobalCursor";
 
@@ -59,12 +57,10 @@ export const metadata: Metadata = {
     default: "ColorWall - Desktop Customization Engine",
     template: "%s | ColorWall"
   },
-  description: "ColorWall is the newest desktop customization app for Windows. A blazing-fast Desktop Customization Engine built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved.",
+  description: "ColorWall is the newest desktop customization app for Windows. A blazing-fast Desktop Customization Engine built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @ColorwallInc, All Rights Reserved.",
   keywords: [
-    "colorwall by laxenta",
-    "colorwall for windows",
-    "oliver laxenta",
-    "laxenta inc",
+    "colorwall by colorwall",
+    "colorwall inc",
     "colorwall app",
     "colorwall windows",
     "colorwall download",
@@ -99,7 +95,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: 'ColorWall',
     title: 'ColorWall — Desktop Customization Engine',
-    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved',
+    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @ColorwallInc, All Rights Reserved',
     images: [
       {
         url: '/og-image.png',
@@ -115,7 +111,7 @@ export const metadata: Metadata = {
     site: '@colorwall_xyz',
     creator: '@colorwall_xyz',
     title: 'ColorWall — Desktop Customization App',
-    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @LaxentaInc, All Rights Reserved',
+    description: 'ColorWall is the newest desktop customization app for Windows. A blazing-fast Wallpaper Engine alternative built in Rust, featuring 8K live wallpapers, interactive widgets, and taskbar effects with near-zero resource usage. Produced and maintained by @ColorwallInc, All Rights Reserved',
     images: ['/og-image.png'],
   },
   robots: {
@@ -172,13 +168,13 @@ export default function RootLayout({
               {
                 "@context": "https://schema.org",
                 "@type": "Organization",
-                "name": "Laxenta Inc",
+                "name": "Colorwall Inc",
                 "url": "https://www.colorwall.xyz",
                 "logo": "https://www.colorwall.xyz/icon-512x512.png",
                 "sameAs": [
                   "https://twitter.com/colorwall_xyz",
-                  "https://github.com/LaxentaInc",
-                  "https://instagram.com/laxenta.me"
+                  "https://github.com/ColorwallInc",
+                  "https://instagram.com/colorwall.xyz"
                 ]
               },
               {
@@ -191,7 +187,7 @@ export default function RootLayout({
                 "description": "An ultra-high-performance, native spatial desktop compositor and 8K live wallpaper engine. Built with Rust, Tauri, WebGL, and deep Win32 API hooks to achieve near-zero resource usage in a ~10MB executable. Features audio-reactive shaders, custom .colorwall scene editing, and hardware-accelerated video decoding.",
                 "author": {
                   "@type": "Organization",
-                  "name": "Laxenta Inc"
+                  "name": "Colorwall Inc"
                 },
                 "publisher": {
                   "@type": "Organization",
@@ -236,10 +232,8 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-jakarta overflow-x-clip`}
       >
         <ThemeProvider>
-          <AmbientProvider>
           <GlobalCursor />
           <Navbar />
-          <GlobalAmbientPlayer />
           <div className="relative min-h-screen flex flex-col">
             {/* Background elements for glass effect depth */}
             {/* <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none z-0" /> */}
@@ -251,7 +245,6 @@ export default function RootLayout({
             </main>
           </div>
           {/* <Analytics /> */}
-          </AmbientProvider>
         </ThemeProvider>
       </body>
     </html>

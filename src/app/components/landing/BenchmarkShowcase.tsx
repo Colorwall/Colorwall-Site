@@ -60,9 +60,10 @@ const entries: BenchmarkEntry[] = [
 
 interface BenchmarkShowcaseProps {
     theme: "dark" | "light";
+    isDownloadPage?: boolean;
 }
 
-export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
+export const BenchmarkShowcase = ({ theme, isDownloadPage = false }: BenchmarkShowcaseProps) => {
     const isDark = theme === "dark";
     const [modalOpen, setModalOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -154,7 +155,7 @@ export const BenchmarkShowcase = ({ theme }: BenchmarkShowcaseProps) => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="relative w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-7xl mx-auto cursor-pointer group"
+                className={`relative max-w-7xl mx-auto cursor-pointer group ${isDownloadPage ? 'w-full' : 'w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)]'}`}
                 onClick={() => setModalOpen(true)}
             >
                 <div className={`relative w-full aspect-video rounded-2xl overflow-hidden border transition-all duration-300

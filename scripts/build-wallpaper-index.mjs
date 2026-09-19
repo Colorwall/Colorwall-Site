@@ -23,7 +23,7 @@ const TAGS_OUTPUT_FILE = join(PUBLIC_DIR, "tags.json");
 const SOURCES = [
     {
         id: "archive",
-        url: "https://raw.githubusercontent.com/LaxentaInc/Wallpaper-Archive/main/README.md",
+        url: "https://raw.githubusercontent.com/ColorwallInc/Wallpaper-Archive/main/README.md",
         prefix: "https://raw.githubusercontent.com/yap02417-create/site-archive/main/wallpapersclan/",
     },
     {

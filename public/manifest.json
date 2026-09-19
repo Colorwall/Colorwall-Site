@@ -1,7 +1,7 @@
 {
-  "name": "Laxenta Inc",
-  "short_name": "Laxenta Inc",
-  "description": "Colorwall by Laxenta inc.",
+  "name": "Colorwall Inc",
+  "short_name": "Colorwall Inc",
+  "description": "Colorwall by Colorwall Inc.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
