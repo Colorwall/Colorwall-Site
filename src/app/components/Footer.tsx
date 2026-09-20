@@ -98,7 +98,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
 
                 {/* ════ Featured Badges ════ */}
                 <div className="mt-12 flex items-center justify-center gap-2 sm:gap-4 w-full [&>a]:min-w-0 [&_img]:max-w-full [&_img]:h-auto [&_img]:max-h-8 sm:[&_img]:max-h-10">
-                    <a href="https://launchstag.com/p/colorwall" target="_blank" rel="noopener noreferrer">
+                    <a href="https://launchstag.com/p/colorwall" target="_blank" rel="nofollow noopener noreferrer">
                         <img 
                             src={`https://launchstag.com/badge-${isDark ? 'dark' : 'light'}.svg`} 
                             alt="Featured on Launchstag" 
@@ -115,7 +115,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             className="h-10 w-auto hover:opacity-80 transition-opacity"
                         />
                     </a>
-                    <a href="https://postyourstartup.co/startup/colorwall?ref=badge" target="_blank" rel="noopener noreferrer">
+                    <a href="https://postyourstartup.co/startup/colorwall?ref=badge" target="_blank" rel="nofollow noopener noreferrer">
                         <img 
                             src={`https://postyourstartup.co/api/badge/colorwall?theme=${isDark ? 'dark' : 'neutral'}`} 
                             alt="Featured on PostYourStartup" 
@@ -124,7 +124,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             className="h-10 w-auto hover:opacity-80 transition-opacity"
                         />
                     </a>
-                    <a href="https://launchbuff.com/products/colorwall-x9basr" target="_blank" rel="noopener noreferrer" title="Featured on LaunchBuff">
+                    <a href="https://launchbuff.com/products/colorwall-x9basr" target="_blank" rel="nofollow noopener noreferrer" title="Featured on LaunchBuff">
                         <img 
                             src={`https://launchbuff.com/badge-featured-${isDark ? 'dark' : 'light'}.svg`} 
                             alt="Featured on LaunchBuff" 
@@ -149,7 +149,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             className="h-10 w-auto hover:opacity-80 transition-opacity"
                         />
                     </a>
-                    <a href="https://tools.cafe" target="_blank" rel="noopener noreferrer">
+                    <a href="https://tools.cafe" target="_blank" rel="nofollow noopener noreferrer">
                         <img 
                             src={`https://tools.cafe/b/${isDark ? 'dark' : 'light'}.svg`} 
                             alt="Featured on tools.cafe" 
@@ -158,7 +158,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                             className="h-10 w-auto hover:opacity-80 transition-opacity"
                         />
                     </a>
-                    <a href="https://sellwithboost.com" target="_blank" rel="noopener noreferrer">
+                    <a href="https://sellwithboost.com" target="_blank" rel="nofollow noopener noreferrer">
                         <img 
                             src={`https://sellwithboost.com/badge/listing${isDark ? '-dark' : ''}.svg`} 
                             alt="Listed on Sell With boost" 
