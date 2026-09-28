@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 
-// in-memory hot cache for zero-latency public get responses
-let inMemoryOiCache: any = null;
-let lastCacheUpdateMs: number = 0;
+// in-memory cache keyed by target symbol to prevent cross-coin contamination
+interface CachedOiEntry {
+    data: any;
+    updatedAtMs: number;
+}
+const symbolCache = new Map<string, CachedOiEntry>();
 
-// cors headers allowing universal access from any external frontend or script
+// cors headers allowing universal access from any external frontend, trading bot, or script
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -21,13 +24,31 @@ export async function OPTIONS() {
 }
 
 // public get endpoint: callable by anyone without authentication
-// returns the latest sovereign aggregated open interest snapshot
-export async function GET() {
+// validates requested targetSymbol and returns exact symbol metrics with freshness metadata
+export async function GET(req: Request) {
     try {
-        // 1. check hot memory cache first if updated recently (< 30 seconds old)
-        if (inMemoryOiCache && (Date.now() - lastCacheUpdateMs < 30_000)) {
+        const { searchParams } = new URL(req.url);
+        const requestedSymbol = (searchParams.get('targetSymbol') || searchParams.get('symbol') || 'BTC').toUpperCase();
+
+        const now = Date.now();
+
+        // 1. check hot memory cache for the specific requested symbol
+        const cached = symbolCache.get(requestedSymbol);
+        if (cached && (now - cached.updatedAtMs < 30_000)) {
+            const ageSeconds = Math.round((now - cached.updatedAtMs) / 1000);
             return NextResponse.json(
-                { success: true, source: 'memory_cache', data: inMemoryOiCache },
+                {
+                    success: true,
+                    meta: {
+                        targetSymbol: requestedSymbol,
+                        source: 'memory_cache',
+                        cacheAgeSeconds: ageSeconds,
+                        isFresh: ageSeconds < 900,
+                        refreshCadence: '10m',
+                        lastSyncedUtc: new Date(cached.updatedAtMs).toISOString(),
+                    },
+                    data: cached.data,
+                },
                 {
                     status: 200,
                     headers: {
@@ -38,17 +59,36 @@ export async function GET() {
             );
         }
 
-        // 2. retrieve latest snapshot from mongodb
+        // 2. retrieve symbol-specific record from mongodb
         try {
             const db = await getDb();
             const collection = db.collection('market_metrics');
-            const record = await collection.findOne({ metric: 'aggregated_open_interest' });
+            const record = await collection.findOne({
+                metric: 'aggregated_open_interest',
+                targetSymbol: requestedSymbol,
+            });
 
             if (record && record.data) {
-                inMemoryOiCache = record.data;
-                lastCacheUpdateMs = Date.now();
+                const updatedEpoch = record.updated_at_epoch_ms || now;
+                symbolCache.set(requestedSymbol, {
+                    data: record.data,
+                    updatedAtMs: updatedEpoch,
+                });
+
+                const ageSeconds = Math.round((now - updatedEpoch) / 1000);
                 return NextResponse.json(
-                    { success: true, source: 'database', data: record.data, updated_at: record.updated_at },
+                    {
+                        success: true,
+                        meta: {
+                            targetSymbol: requestedSymbol,
+                            source: 'database',
+                            cacheAgeSeconds: ageSeconds,
+                            isFresh: ageSeconds < 900,
+                            refreshCadence: '10m',
+                            lastSyncedUtc: record.updated_at || new Date(updatedEpoch).toISOString(),
+                        },
+                        data: record.data,
+                    },
                     {
                         status: 200,
                         headers: {
@@ -59,29 +99,40 @@ export async function GET() {
                 );
             }
         } catch (dbErr) {
-            console.warn('[open-interest-api] database lookup warning:', dbErr);
+            console.warn(`[open-interest-api] database lookup warning for ${requestedSymbol}:`, dbErr);
         }
 
-        // 3. fallback to cached memory object if database was unavailable
-        if (inMemoryOiCache) {
+        // 3. fallback to cached memory entry if db was unreachable
+        if (cached) {
+            const ageSeconds = Math.round((now - cached.updatedAtMs) / 1000);
             return NextResponse.json(
-                { success: true, source: 'memory_fallback', data: inMemoryOiCache },
                 {
-                    status: 200,
-                    headers: CORS_HEADERS,
-                }
+                    success: true,
+                    meta: {
+                        targetSymbol: requestedSymbol,
+                        source: 'memory_fallback',
+                        cacheAgeSeconds: ageSeconds,
+                        isFresh: ageSeconds < 900,
+                        refreshCadence: '10m',
+                        lastSyncedUtc: new Date(cached.updatedAtMs).toISOString(),
+                    },
+                    data: cached.data,
+                },
+                { status: 200, headers: CORS_HEADERS }
             );
         }
 
-        // 4. default response when no sync has been received yet
+        // 4. symbol not found or unsupported: return explicit 404 to prevent trading bots from misinterpreting data
         return NextResponse.json(
             {
                 success: false,
-                status: 'awaiting_initial_sync',
-                message: 'no open interest snapshot has been synchronized yet from the local quant engine.',
+                error: 'unsupported_symbol',
+                requestedSymbol,
+                supportedSymbols: ['BTC'],
+                message: `macro 22-exchange aggregated open interest is currently only calibrated for BTC. token '${requestedSymbol}' is not currently tracked by this sovereign endpoint.`,
             },
             {
-                status: 200,
+                status: 404,
                 headers: CORS_HEADERS,
             }
         );
@@ -95,7 +146,7 @@ export async function GET() {
 }
 
 // secure post endpoint: requires authentication header
-// accepts the latest summary.json generated by the local sovereign engine
+// accepts the latest summary.json generated by the local sovereign engine for a given symbol
 export async function POST(req: Request) {
     try {
         // 1. authenticate caller via x-sync-secret or bearer token
@@ -121,21 +172,28 @@ export async function POST(req: Request) {
             );
         }
 
+        const targetSymbol = (payload.targetSymbol || 'BTC').toUpperCase();
         const now = new Date();
 
-        // 3. update hot in-memory cache
-        inMemoryOiCache = payload;
-        lastCacheUpdateMs = now.getTime();
+        // 3. update symbol-specific in-memory hot cache
+        symbolCache.set(targetSymbol, {
+            data: payload,
+            updatedAtMs: now.getTime(),
+        });
 
-        // 4. persist snapshot into mongodb collection 'market_metrics'
+        // 4. persist snapshot into mongodb collection 'market_metrics' indexed by symbol
         try {
             const db = await getDb();
             const collection = db.collection('market_metrics');
             await collection.updateOne(
-                { metric: 'aggregated_open_interest' },
+                {
+                    metric: 'aggregated_open_interest',
+                    targetSymbol,
+                },
                 {
                     $set: {
                         metric: 'aggregated_open_interest',
+                        targetSymbol,
                         data: payload,
                         updated_at: now.toISOString(),
                         updated_at_epoch_ms: now.getTime(),
@@ -144,13 +202,14 @@ export async function POST(req: Request) {
                 { upsert: true }
             );
         } catch (dbErr) {
-            console.warn('[open-interest-api] database persistence warning (cached in memory):', dbErr);
+            console.warn(`[open-interest-api] database persistence warning for ${targetSymbol} (cached in memory):`, dbErr);
         }
 
         return NextResponse.json(
             {
                 success: true,
-                message: 'open interest summary synchronized successfully',
+                targetSymbol,
+                message: `open interest summary for ${targetSymbol} synchronized successfully`,
                 updated_at: now.toISOString(),
             },
             { status: 200, headers: CORS_HEADERS }
