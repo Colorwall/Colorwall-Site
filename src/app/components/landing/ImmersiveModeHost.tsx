@@ -92,6 +92,12 @@ export function ImmersiveModeHost({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     syncBodyDataset(mode);
+    return () => {
+      // guarantee cleanup of all cinematic and gallery flags when navigating away
+      syncBodyDataset("none");
+      clearQueryParam("cinematic");
+      clearQueryParam("gallery");
+    };
   }, [mode]);
 
   if (mode !== "none" && Experience) {

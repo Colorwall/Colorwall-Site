@@ -275,6 +275,7 @@ export default function FluidExperience({ onExit }: Props) {
         <div className="absolute right-10 top-1/2 z-30 -translate-y-1/2 md:right-16 lg:right-24">
           <Link
             href="/download"
+            onClick={onExit}
             className="font-fluid-serif group flex h-28 w-28 items-center justify-center rounded-full border border-white/50 bg-white/10 text-lg tracking-[0.2em] text-white backdrop-blur-sm transition-all duration-500 hover:bg-white/20 hover:border-white/80 hover:scale-105 md:h-32 md:w-32 md:text-xl"
             style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.35)" }}
           >

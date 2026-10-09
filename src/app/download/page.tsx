@@ -349,19 +349,21 @@ export default function DownloadPage() {
                                 className="w-full relative z-10 mb-20 px-4 flex flex-col items-center text-center"
                             >
                                 {/* will do something else of this later probably    */}
-                                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.04em] mb-6 leading-tight">
+                                {/* <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.04em] mb-6 leading-tight">
                                     Ready to let go of old,{" "}
                                     <span className="italic font-[300] opacity-80">
                                         clunky
                                     </span>
                                     <br className="hidden sm:block" /> wallpaper engines?
-                                </h2>
+                                </h2> */}
                                 
-                                <div className={`inline-flex flex-col sm:flex-row items-center gap-2 text-sm sm:text-base font-medium mb-10 ${mutedText}`}>
-                                    <span>FYI: Colorwall only uses <span className={`font-bold ${isDark ? "text-white" : "text-black"}`}>~0.5% CPU</span></span>
-                                    <span className="hidden sm:inline">&middot;</span>
-                                    <span>Near-zero overhead even at 4K/8K 60FPS</span>
+                                <div className={`inline-flex flex-col sm:flex-row items-center gap-2 text-sm sm:text-base font-medium mb-2 ${mutedText}`}>
+                                    <span>Ram ain't free; idle 100-200MB & 1-5% GPU usage for most.</span>
+                                    {/* <span className="hidden sm:inline">&middot;</span> */}
                                 </div>
+                                
+                                {/* <h2 className={`text-sm py-2 mb-6 ${isDark ? "text-white" : "text-black"}`}>Ram ain't free. Promised Near-zero overhead even at 4K/8K</h2> */}
+
                                 
                                 <button
                                     onClick={handleDownload}

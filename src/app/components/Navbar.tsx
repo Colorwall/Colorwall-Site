@@ -89,6 +89,11 @@ export const Navbar = () => {
 
     useEffect(() => {
         setLoadingRoute(null);
+        // ensure navbar is always visible whenever navigating away from immersive landing host
+        if (pathname !== "/") {
+            setIsCinematicActive(false);
+            setIsVisible(true);
+        }
     }, [pathname]);
 
     const navLinks = [

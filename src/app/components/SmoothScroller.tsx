@@ -38,9 +38,16 @@ export function SmoothScroller({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Reset scroll on route change
+  // reset scroll and release any lingering scroll lock on route change
   useEffect(() => {
+    if (typeof document !== "undefined" && pathname !== "/") {
+      delete document.body.dataset.cinematic;
+      delete document.body.dataset.fluidGallery;
+      delete document.body.dataset.showcaseLocked;
+      window.dispatchEvent(new Event("cinematic-change"));
+    }
     if (lenis) {
+      lenis.start();
       lenis.scrollTo(0, { immediate: true });
     }
   }, [pathname, lenis]);
