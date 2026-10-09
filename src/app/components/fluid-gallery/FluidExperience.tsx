@@ -106,7 +106,7 @@ const FluidTextHost = ({ index, visible, isMobile }: { index: number; visible: b
                 transition={{ duration: 0.8, delay: 1.2 }}
                 className="font-outfit mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40"
               >
-                from laxenta inc,
+                by laxenta LLC,
               </motion.p>
             )}
           </motion.div>
