@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Monitor, Cpu, Wrench } from "lucide-react";
+import { RustIcon, TauriIcon } from "@/app/components/icons/TechIcons";
 import { AmbientPlayer } from "./AmbientPlayer";
 import { Outfit } from "next/font/google";
 import { HeroInteractive } from "./HeroInteractive";
@@ -239,9 +239,17 @@ export const HeroSection = () => {
                 {/* left: tech spec badge */}
                 <div className="lg:col-span-3 flex items-center">
                     <div className="flex flex-col text-left font-mono">
-                        <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5 mt-1">
-                            <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust + Tauri
-                        </span>
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5">
+                                <RustIcon className="w-3.5 h-3.5 text-white/90 shrink-0" />
+                                <span>Rust</span>
+                            </span>
+                            <span className="text-white/40 text-xs font-normal">+</span>
+                            <span className="text-xs sm:text-sm font-bold tracking-wider text-white flex items-center gap-1.5">
+                                <TauriIcon className="w-3.5 h-3.5 text-white/90 shrink-0" />
+                                <span>Tauri</span>
+                            </span>
+                        </div>
                         <span className="text-[9px] font-medium tracking-wide text-white/60 mt-0.5">
                             Windows 10/11 · Direct3D11 / MediaFoundation
                         </span>
