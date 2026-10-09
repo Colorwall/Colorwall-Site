@@ -269,19 +269,19 @@ export const HeroSection = () => {
                     <div className="flex items-center gap-3 mt-3">
                         <button
                             type="button"
-                            onClick={handleLaunchGallery}
+                            onClick={handleLaunchCinematic}
                             className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-medium text-cyan-300 hover:text-cyan-200 transition-colors uppercase tracking-wider cursor-pointer"
                         >
-                            <span>Cinematic Site</span>
+                            <span>Cinematic Mode</span>
                             <span className="text-sm">→</span>
                         </button>
                         <span className="text-white/30 text-xs">·</span>
                         <button
                             type="button"
-                            onClick={handleLaunchCinematic}
+                            onClick={handleLaunchGallery}
                             className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-medium text-white/70 hover:text-white transition-colors uppercase tracking-wider cursor-pointer"
                         >
-                            <span>Cinematic Mode</span>
+                            <span>3D Scene</span>
                             <span className="text-sm">→</span>
                         </button>
                     </div>

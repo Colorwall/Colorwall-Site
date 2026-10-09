@@ -279,7 +279,7 @@ export default function FluidExperience({ onExit }: Props) {
             style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.35)" }}
           >
             <span className="pl-1">
-              PLAY <span className="opacity-70 group-hover:opacity-100">›</span>
+              GET <span className="opacity-70 group-hover:opacity-100">›</span>
             </span>
           </Link>
         </div>

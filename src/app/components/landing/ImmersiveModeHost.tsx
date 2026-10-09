@@ -37,10 +37,11 @@ export function ImmersiveModeHost({ children }: { children: React.ReactNode }) {
     if (loadingRef.current) return;
     loadingRef.current = true;
     try {
+      // cinematic route loads the interactive fluid wallpaper experience while gallery loads the 3d scene
       const mod =
         target === "cinematic"
-          ? await import("./CinematicExperience")
-          : await import("../fluid-gallery/FluidExperience");
+          ? await import("../fluid-gallery/FluidExperience")
+          : await import("./CinematicExperience");
       setExperience(() => mod.default);
       setMode(target);
     } finally {
@@ -68,16 +69,16 @@ export function ImmersiveModeHost({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("popstate", handleUrlChange);
   }, [loadExperience]);
 
-  // prefetch JS chunks only when browser is idle without mounting WebGL
+  // prefetch js chunks only when browser is idle without mounting webgl
   useEffect(() => {
     const prefetchChunks = () => {
       if (!prefetched.current.cinematic) {
         prefetched.current.cinematic = true;
-        void import("./CinematicExperience");
+        void import("../fluid-gallery/FluidExperience");
       }
       if (!prefetched.current.gallery) {
         prefetched.current.gallery = true;
-        void import("../fluid-gallery/FluidExperience");
+        void import("./CinematicExperience");
       }
     };
 
