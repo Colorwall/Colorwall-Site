@@ -36,8 +36,8 @@ const HeroBackground = React.memo(() => (
         className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: `
-            <img id="hero-poster" src="${HERO_VIDEOS[0].poster}" alt="Background Poster" fetchpriority="high" class="object-cover absolute inset-0 w-full h-full opacity-100 transition-opacity duration-1000 ease-in-out" />
-            <video id="hero-video" src="${HERO_VIDEOS[0].src}" autoplay muted loop playsinline preload="none" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out"></video>
+            <img id="hero-poster" src="${HERO_VIDEOS[0].poster}" alt="Background Poster" fetchpriority="high" class="object-cover absolute inset-0 z-0 w-full h-full opacity-100 transition-opacity duration-1000 ease-in-out" />
+            <video id="hero-video" src="${HERO_VIDEOS[0].src}" autoplay muted loop playsinline preload="none" class="absolute inset-0 z-[1] w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out"></video>
             <script>
                 (function() {
                     try {
@@ -48,6 +48,8 @@ const HeroBackground = React.memo(() => (
                         
                         poster.src = v.poster;
                         video.src = v.src;
+                        window.__HERO_POSTER__ = v.poster;
+                        window.__HERO_VIDEO__ = v.src;
 
                         var forcePlay = function() {
                             var playPromise = video.play();
@@ -57,10 +59,7 @@ const HeroBackground = React.memo(() => (
                         };
 
                         video.oncanplay = function() {
-                            if (poster.classList.contains('opacity-100')) {
-                                video.classList.replace('opacity-0', 'opacity-100');
-                                poster.classList.replace('opacity-100', 'opacity-0');
-                            }
+                            video.classList.replace('opacity-0', 'opacity-100');
                             forcePlay();
                         };
 
@@ -94,10 +93,14 @@ const HeroRippleCanvas = React.memo(() => {
     const [poster, setPoster] = useState(HERO_VIDEOS[0].poster);
 
     useEffect(() => {
-        // randomly select one of the featured hero wallpaper posters for the ripple canvas
-        const randomVideo = HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)];
-        if (randomVideo?.poster) {
-            setPoster(randomVideo.poster);
+        // synchronize webgl texture source with pre-hydration poster to prevent redundant network fetches
+        const cachedPoster = 
+            (typeof window !== "undefined" && (window as Window & { __HERO_POSTER__?: string }).__HERO_POSTER__) ||
+            document.getElementById('hero-poster')?.getAttribute('src') ||
+            HERO_VIDEOS[0].poster;
+
+        if (cachedPoster) {
+            setPoster(cachedPoster);
         }
 
         // schedule webgl ripple distortion initialization only when browser main thread is idle
@@ -123,7 +126,7 @@ const HeroRippleCanvas = React.memo(() => {
 
     return (
         <div 
-            className="absolute inset-0 z-[1] overflow-hidden pointer-events-none transition-opacity duration-1000 opacity-100"
+            className="absolute inset-0 z-[2] overflow-hidden pointer-events-none transition-opacity duration-1000 opacity-100"
         >
             <RippleDistortion
                 src={poster}
@@ -138,6 +141,7 @@ const HeroRippleCanvas = React.memo(() => {
                 tint="#00d8ff"
                 tintAmount={0.03}
                 grayscale={false}
+                transparent={true}
                 trigger="both"
                 quality="medium"
                 className="w-full h-full object-cover"
@@ -181,7 +185,7 @@ export const HeroSection = () => {
             {/* subtle cinematic vignette overlay for optimal typography contrast */}
             <div 
                 aria-hidden="true" 
-                className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20" 
+                className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20" 
             />
 
             {/* top row: ambient sound status indicator and quick actions */}

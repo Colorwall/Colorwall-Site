@@ -81,6 +81,7 @@ uniform float uDispersion;
 uniform float uGlint;
 uniform float uTintAmount;
 uniform float uGrayscale;
+uniform float uTransparent;
 
 const float TAU = 6.283185307179586;
 
@@ -128,7 +129,23 @@ void main() {
     color += uHighlight * clamp((raw - flatSpec) / max(1.0 - flatSpec, 0.0001), 0.0, 1.0) * uGlint;
   }
 
-  gl_FragColor = vec4(color, 1.0);
+  // dynamic alpha calculation ensures 100 percent transparency when idle
+  float alpha = 1.0;
+  if (uTransparent > 0.5) {
+    float glintAlpha = 0.0;
+    if (uGlint > 0.001) {
+      float ex = texture2D(uDisplacement, vUv + vec2(uTexel.x, 0.0)).r - texture2D(uDisplacement, vUv - vec2(uTexel.x, 0.0)).r;
+      float ey = texture2D(uDisplacement, vUv + vec2(0.0, uTexel.y)).r - texture2D(uDisplacement, vUv - vec2(0.0, uTexel.y)).r;
+      vec3 normal = normalize(vec3(-ex * 26.0, -ey * 26.0, 1.0));
+      vec3 light = normalize(vec3(-0.35, 0.55, 1.0));
+      float raw = pow(max(dot(normal, light), 0.0), 22.0);
+      float flatSpec = pow(max(light.z, 0.0), 22.0);
+      glintAlpha = clamp((raw - flatSpec) / max(1.0 - flatSpec, 0.0001), 0.0, 1.0) * uGlint;
+    }
+    alpha = clamp(amount * 4.5 + glintAlpha, 0.0, 1.0);
+  }
+
+  gl_FragColor = vec4(color, alpha);
 }
 `;
 
@@ -154,6 +171,7 @@ export interface RippleDistortionProps {
   clickStrength?: number;
   quality?: RippleQuality;
   enabled?: boolean;
+  transparent?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -191,6 +209,7 @@ interface CompositeUniforms {
   uGlint: { value: number };
   uTintAmount: { value: number };
   uGrayscale: { value: number };
+  uTransparent: { value: number };
   [key: string]: { value: unknown };
 }
 
@@ -237,6 +256,7 @@ const RippleDistortion = ({
   clickStrength = 3,
   quality = 'low',
   enabled = true,
+  transparent = false,
   className = '',
   style
 }: RippleDistortionProps) => {
@@ -256,12 +276,12 @@ const RippleDistortion = ({
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const renderer = new Renderer({
-      alpha: false,
+      alpha: true,
       antialias: false,
       dpr: Math.min(window.devicePixelRatio || 1, 2)
     });
     const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(0, 0, 0, 0);
     const canvas = gl.canvas;
     canvas.style.width = '100%';
     canvas.style.height = '100%';
@@ -348,7 +368,8 @@ const RippleDistortion = ({
       uDispersion: { value: dispersion },
       uGlint: { value: glint },
       uTintAmount: { value: tintAmount },
-      uGrayscale: { value: grayscale ? 1 : 0 }
+      uGrayscale: { value: grayscale ? 1 : 0 },
+      uTransparent: { value: transparent ? 1 : 0 }
     };
 
     const compositeMesh = new Mesh(gl, {
@@ -357,6 +378,7 @@ const RippleDistortion = ({
         vertex: screenVertex,
         fragment: compositeFragment,
         uniforms: compositeUniforms,
+        transparent: true,
         depthTest: false,
         depthWrite: false
       })
@@ -536,14 +558,15 @@ const RippleDistortion = ({
     u.composite.uGlint.value = glint;
     u.composite.uTintAmount.value = tintAmount;
     u.composite.uGrayscale.value = grayscale ? 1 : 0;
+    u.composite.uTransparent.value = transparent ? 1 : 0;
     u.composite.uHighlight.value = hexToRGB(highlightColor);
     u.composite.uTint.value = hexToRGB(tint);
-  }, [rings, strength, swirl, dispersion, glint, tintAmount, grayscale, highlightColor, tint]);
+  }, [rings, strength, swirl, dispersion, glint, tintAmount, grayscale, highlightColor, tint, transparent]);
 
   return (
     <div
       ref={mountRef}
-      className={`relative w-full h-full overflow-hidden bg-black [&>canvas]:block [&>canvas]:w-full [&>canvas]:h-full ${className}`.trim()}
+      className={`relative w-full h-full overflow-hidden ${transparent ? 'bg-transparent' : 'bg-black'} [&>canvas]:block [&>canvas]:w-full [&>canvas]:h-full ${className}`.trim()}
       style={style}
     />
   );
