@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import dynamic from "next/dynamic";
 import { FluidPosterLayer, useFluidPosterSync } from "./FluidPosterLayer";
 import { FLUID_SLIDES } from "./slides";
@@ -222,14 +223,22 @@ export default function FluidExperience({ onExit }: Props) {
       )}
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between px-8 pt-7 md:px-14 lg:px-20">
-        <div className="font-fluid-serif pointer-events-auto flex items-center gap-2 text-sm tracking-wide text-white/90 md:text-base">
+        {/* branding mark wired to exit immersive gallery and restore parent page scroll */}
+        <div className="pointer-events-auto flex items-center">
           <button
             type="button"
             onClick={onExit}
-            className="hover:text-white transition-colors cursor-pointer"
-            aria-label="Exit gallery"
+            className="group flex items-center focus:outline-none cursor-pointer"
+            aria-label="Exit gallery and return home"
           >
-            COLORWALL
+            <NextImage
+              src="/LxColorWall.webp"
+              alt="ColorWall Logo"
+              width={220}
+              height={80}
+              className="w-28 sm:w-32 md:w-36 h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] group-hover:opacity-80 transition-opacity"
+              priority
+            />
           </button>
         </div>
         <div className="font-fluid-serif pointer-events-auto flex items-center text-sm tracking-wide text-white/70 md:text-base">
