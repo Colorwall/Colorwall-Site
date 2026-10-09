@@ -11,8 +11,12 @@ const smoothstep = (edge0: number, edge1: number, x: number): number => {
 type ConfigKey =
   | 'startWidth'
   | 'startHeight'
+  | 'endWidth'
+  | 'endHeight'
   | 'mobileStartWidth'
   | 'mobileStartHeight'
+  | 'mobileEndWidth'
+  | 'mobileEndHeight'
   | 'startRadius'
   | 'endRadius'
   | 'mediaZoom'
@@ -32,8 +36,12 @@ export interface ScrollExpandProps {
   scrollHint?: string;
   startWidth?: number;
   startHeight?: number;
+  endWidth?: number;
+  endHeight?: number;
   mobileStartWidth?: number;
   mobileStartHeight?: number;
+  mobileEndWidth?: number;
+  mobileEndHeight?: number;
   startRadius?: number;
   endRadius?: number;
   mediaZoom?: number;
@@ -56,17 +64,21 @@ const ScrollExpand: React.FC<ScrollExpandProps> = ({
   alt = '',
   title = '',
   scrollHint = '',
-  startWidth = 62,
-  startHeight = 62,
-  mobileStartWidth = 92,
-  mobileStartHeight = 52,
+  startWidth = 60,
+  startHeight = 58,
+  endWidth = 86,
+  endHeight = 80,
+  mobileStartWidth = 90,
+  mobileStartHeight = 50,
+  mobileEndWidth = 95,
+  mobileEndHeight = 80,
   startRadius = 24,
-  endRadius = 0,
-  mediaZoom = 1.15,
-  scrollDistance = 0.8,
-  holdDistance = 0.25,
-  smoothing = 0.08,
-  overlayScrim = 0.5,
+  endRadius = 20,
+  mediaZoom = 1.12,
+  scrollDistance = 0.4,
+  holdDistance = 0.18,
+  smoothing = 0.04,
+  overlayScrim = 0.55,
   useWindowScroll = false,
   enabled = true,
   children,
@@ -91,8 +103,12 @@ const ScrollExpand: React.FC<ScrollExpandProps> = ({
   propsRef.current = {
     startWidth,
     startHeight,
+    endWidth,
+    endHeight,
     mobileStartWidth,
     mobileStartHeight,
+    mobileEndWidth,
+    mobileEndHeight,
     startRadius,
     endRadius,
     mediaZoom,
@@ -110,15 +126,18 @@ const ScrollExpand: React.FC<ScrollExpandProps> = ({
     if (!frame || !media) return;
     const c = propsRef.current;
 
-    // determine responsive base dimensions based on current window width
+    // determine responsive base and target dimensions bounded within the viewport
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const baseW = isMobile ? c.mobileStartWidth : c.startWidth;
     const baseH = isMobile ? c.mobileStartHeight : c.startHeight;
+    const maxW = isMobile ? c.mobileEndWidth : c.endWidth;
+    const maxH = isMobile ? c.mobileEndHeight : c.endHeight;
 
     const e = smoothstep(0, 1, p);
 
-    const w = baseW + (100 - baseW) * e;
-    const h = baseH + (100 - baseH) * e;
+    // smoothly scale dimensions to designated ceiling rather than 100% full screen
+    const w = baseW + (maxW - baseW) * e;
+    const h = baseH + (maxH - baseH) * e;
     const ix = Math.max(0, (100 - w) / 2);
     const iy = Math.max(0, (100 - h) / 2);
     const r = c.startRadius + (c.endRadius - c.startRadius) * e;
