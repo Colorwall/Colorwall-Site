@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
 import { FLUID_VIDEO_URLS } from "./slides";
+import { FluidGalleryEngine } from "./FluidGalleryEngine";
 
 export type FluidGalleryHandle = {
   step: (dir: 1 | -1) => void;
@@ -63,32 +64,29 @@ export const FluidGalleryCanvas = forwardRef<FluidGalleryHandle, Props>(
 
       bindSize();
 
-      void import("./FluidGalleryEngine").then(({ FluidGalleryEngine }) => {
-        if (cancelled || !canvasRef.current) return;
-
-        const engine = new FluidGalleryEngine({
-          canvas: canvasRef.current,
-          slides: FLUID_VIDEO_URLS,
-          current: startAt,
-          onReady: () => onReadyRef.current?.(),
-        });
-        engineRef.current = engine;
-        currentRef.current = startAt;
-
-        const tick = () => {
-          if (cancelled) return;
-          engine.update();
-          engine.render();
-          if (currentRef.current !== engine.activeIndex) {
-            currentRef.current = engine.activeIndex;
-            onChangeRef.current?.(currentRef.current);
-          }
-          raf = requestAnimationFrame(tick);
-        };
-        raf = requestAnimationFrame(tick);
-
-        readyFallback = window.setTimeout(() => onReadyRef.current?.(), 1800);
+      // instantiate engine synchronously on mount to eliminate async dynamic import lag
+      const engine = new FluidGalleryEngine({
+        canvas,
+        slides: FLUID_VIDEO_URLS,
+        current: startAt,
+        onReady: () => onReadyRef.current?.(),
       });
+      engineRef.current = engine;
+      currentRef.current = startAt;
+
+      const tick = () => {
+        if (cancelled) return;
+        engine.update();
+        engine.render();
+        if (currentRef.current !== engine.activeIndex) {
+          currentRef.current = engine.activeIndex;
+          onChangeRef.current?.(currentRef.current);
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+
+      readyFallback = window.setTimeout(() => onReadyRef.current?.(), 1800);
 
       const onResize = () => bindSize();
       window.addEventListener("resize", onResize);
@@ -108,9 +106,7 @@ export const FluidGalleryCanvas = forwardRef<FluidGalleryHandle, Props>(
     }, [bindSize, startAt]);
 
     useEffect(() => {
-      const el = containerRef.current;
-      if (!el) return;
-
+      // attach wheel listeners globally to window so scrolling works anywhere on the screen
       const onWheel = (e: WheelEvent) => {
         e.preventDefault();
         engineRef.current?.onScroll(e.deltaY);
@@ -133,16 +129,16 @@ export const FluidGalleryCanvas = forwardRef<FluidGalleryHandle, Props>(
         touchY.current = null;
       };
 
-      el.addEventListener("wheel", onWheel, { passive: false });
-      el.addEventListener("touchstart", onTouchStart, { passive: true });
-      el.addEventListener("touchmove", onTouchMove, { passive: false });
-      el.addEventListener("touchend", onTouchEnd);
+      window.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("touchend", onTouchEnd);
 
       return () => {
-        el.removeEventListener("wheel", onWheel);
-        el.removeEventListener("touchstart", onTouchStart);
-        el.removeEventListener("touchmove", onTouchMove);
-        el.removeEventListener("touchend", onTouchEnd);
+        window.removeEventListener("wheel", onWheel);
+        window.removeEventListener("touchstart", onTouchStart);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
       };
     }, []);
 

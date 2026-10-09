@@ -168,21 +168,35 @@ export class FluidGalleryEngine {
     return this._position;
   }
 
-  // trigger single slide advance per mouse movement
+  private _scrollAccumulator = 0;
+
+  // trigger single slide advance per mouse movement with threshold accumulator
   onScroll(deltaY: number) {
-    if (Math.abs(deltaY) < 0.1) return;
+    if (Math.abs(deltaY) < 0.5) return;
 
     const now = Date.now();
-    if (now - this._lastScrollTime < 320) return;
-    this._lastScrollTime = now;
+    // reset accumulator if scrolling paused for more than 200ms
+    if (now - this._lastScrollTime > 200) {
+      this._scrollAccumulator = 0;
+    }
 
-    const n = this._textures.length;
-    if (n === 0) return;
+    this._scrollAccumulator += deltaY;
 
-    if (deltaY > 0) {
-      this._targetIndex = (this._targetIndex + 1) % n;
-    } else if (deltaY < 0) {
-      this._targetIndex = (this._targetIndex - 1 + n) % n;
+    // threshold of 24px prevents micro jitter while triggering immediately on deliberate scrolls
+    const threshold = 24;
+    if (Math.abs(this._scrollAccumulator) >= threshold) {
+      if (now - this._lastScrollTime >= 320) {
+        const n = this._textures.length;
+        if (n === 0) return;
+
+        if (this._scrollAccumulator > 0) {
+          this._targetIndex = (this._targetIndex + 1) % n;
+        } else {
+          this._targetIndex = (this._targetIndex - 1 + n) % n;
+        }
+        this._lastScrollTime = now;
+        this._scrollAccumulator = 0;
+      }
     }
   }
 

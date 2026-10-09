@@ -141,7 +141,7 @@ export default function FluidExperience({ onExit }: Props) {
   const [index, setIndex] = useState(0);
   const [glReady, setGlReady] = useState(false);
   const [postersReady, setPostersReady] = useState(false);
-  const [mountCanvas, setMountCanvas] = useState(false);
+  const [mountCanvas, setMountCanvas] = useState(true);
   const [introDone, setIntroDone] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const textBooted = useRef(false);
@@ -183,16 +183,6 @@ export default function FluidExperience({ onExit }: Props) {
 
   useFluidPosterSync(index);
 
-  // poster + UI first; arm WebGL canvas after first paint / idle
-  useEffect(() => {
-    const arm = () => setMountCanvas(true);
-    if (typeof window.requestIdleCallback === "function") {
-      const id = window.requestIdleCallback(arm, { timeout: 400 });
-      return () => window.cancelIdleCallback(id);
-    }
-    const t = setTimeout(arm, 120);
-    return () => clearTimeout(t);
-  }, []);
 
   const [textVisible, setTextVisible] = useState(false);
 
@@ -314,9 +304,41 @@ export default function FluidExperience({ onExit }: Props) {
         </span>
       </div>
 
-      <p className="font-outfit pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2 text-[10px] tracking-[0.35em] uppercase text-white/35">
-        scroll
-      </p>
+      {/* animated svg scroll mouse indicator */}
+      <div 
+        aria-hidden="true" 
+        className="pointer-events-none absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1.5 opacity-60"
+      >
+        <svg
+          width="14"
+          height="22"
+          viewBox="0 0 14 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="text-white/75"
+        >
+          <rect
+            x="0.75"
+            y="0.75"
+            width="12.5"
+            height="20.5"
+            rx="6.25"
+            stroke="currentColor"
+            strokeWidth="1.25"
+          />
+          <motion.circle
+            cx="7"
+            cy="6"
+            r="1.5"
+            fill="currentColor"
+            animate={{ y: [0, 5, 0], opacity: [1, 0.25, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </svg>
+        <span className="font-mono text-[8px] font-semibold tracking-[0.3em] uppercase text-white/50">
+          scroll
+        </span>
+      </div>
     </div>
   );
 }
