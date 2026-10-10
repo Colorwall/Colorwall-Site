@@ -463,9 +463,9 @@ export default function DownloadPage() {
                                         <h3 className="text-2xl font-black tracking-tight mb-2 text-center md:text-left">System Requirements</h3>
                                         <p className={`${mutedText} text-sm md:text-base text-center md:text-left`}>Ensure your system meets the minimum specifications to run ColorWall smoothly.</p>
                                     </div>
-                                    <div className={`rounded-full text-xs font-bold tracking-widest uppercase ${borderColor} ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
+                                    {/* <div className={`rounded-full text-xs font-bold tracking-widest uppercase ${borderColor} ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
                                         Windows Only
-                                    </div>
+                                    </div> */}
                                 </div>
                                 
                                 <div className="overflow-x-auto">
