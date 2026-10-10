@@ -11,7 +11,7 @@ const PlayStoreFlask = () => (
             viewBox="0 0 100 120" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-full drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]"
+            className="w-full h-full"
         >
             {/* main erlenmeyer flask outline */}
             <path 
@@ -172,7 +172,7 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
 
                     <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? "text-white/70" : "text-black/70"}`}>
                         {status === "joining"
-                            ? "Adding your account to the program. It may take a few seconds."
+                            ? "Adding your account to the program. It may take a few minutes."
                             : status === "enrolled"
                                 ? "You'll see new features and Direct3D11 compositor builds before the public does. Give feedback to help the developers improve."
                                 : "Try new features before they're officially released and give feedback to the developers. All builds are completely safe and community-verified."}
@@ -201,8 +201,8 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
                                     Join
                                 </button>
                             </form>
-                            <p className={`text-[10px] sm:text-[11px] font-mono leading-relaxed ${isDark ? "text-white/40" : "text-black/40"}`}>
-                                * Your Gmail isn&apos;t stored as plain text and is encrypted end-to-end.
+                            <p className={`text-[10px] italic sm:text-[9px] font-mono leading-relaxed ${isDark ? "text-white/40" : "text-black/40"}`}>
+                                *Your Gmail isn&apos;t stored as plain text and is encrypted end-to-end using AES-256-GCM.
                             </p>
                         </div>
                     )}
