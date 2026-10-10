@@ -52,6 +52,23 @@ const HeroBackground = React.memo(() => (
                         window.__HERO_POSTER__ = v.poster;
                         window.__HERO_VIDEO__ = v.src;
 
+                        // automatic audio activation specifically for gtrrari on first user interaction
+                        var isGtr = v.src && v.src.indexOf('GTRRARI') !== -1;
+                        if (isGtr) {
+                            var unmuteGtr = function() {
+                                if (video) {
+                                    video.muted = false;
+                                    video.volume = 0.85;
+                                }
+                                window.removeEventListener('click', unmuteGtr);
+                                window.removeEventListener('pointerdown', unmuteGtr);
+                                window.removeEventListener('keydown', unmuteGtr);
+                            };
+                            window.addEventListener('click', unmuteGtr, { once: true, passive: true });
+                            window.addEventListener('pointerdown', unmuteGtr, { once: true, passive: true });
+                            window.addEventListener('keydown', unmuteGtr, { once: true, passive: true });
+                        }
+
                         var forcePlay = function() {
                             var playPromise = video.play();
                             if (playPromise !== undefined) {
