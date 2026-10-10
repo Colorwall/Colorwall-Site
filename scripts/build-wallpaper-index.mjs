@@ -40,17 +40,7 @@ const SOURCES = [
         id: "yapude",
         url: "https://raw.githubusercontent.com/yapude/Wallpaper-archive/main/README3.md",
         prefix: "https://raw.githubusercontent.com/yapude/Wallpaper-archive/main/assets/",
-    },
-    {
-        id: "usman",
-        url: "https://raw.githubusercontent.com/usman-369/wallpapers/main/README.md",
-        prefix: "https://raw.githubusercontent.com/usman-369/wallpapers/main/",
-    },
-    {
-        id: "wall-e-desk",
-        url: "https://raw.githubusercontent.com/JoshuaThadi/Wall-E-Desk/main/README.md",
-        prefix: "https://raw.githubusercontent.com/JoshuaThadi/Wall-E-Desk/main/",
-    },
+    }
 ];
 
 // ─── filler tags to strip from yapude (generic seo spam) ──────────────────────
