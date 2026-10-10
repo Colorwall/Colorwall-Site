@@ -713,7 +713,7 @@ export default function DownloadPage() {
                                     Why am I seeing SmartScreen?
                                 </p>
                                 <p className={`text-[10px] ${isDark ? "text-emerald-400/80" : "text-emerald-600"} leading-snug`}>
-                                    Windows flags new files without a long reputation. Colorwall is 100% clean.{" "}
+                                    What you are downloading is Colorwall Beta Version as an experimental user, and it is completely safe.{" "}
                                     <a href="https://www.virustotal.com/gui/file/e4b28bc9a6b9e86ae370fec0f7193ba6b9d146be533e8dc5b980f1b6e409cc6b/detection" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:opacity-80 transition-opacity">
                                         View VirusTotal report
                                     </a>.
