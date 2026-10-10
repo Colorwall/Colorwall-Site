@@ -56,7 +56,7 @@ export const FLUID_SLIDES: FluidSlide[] = [
     tag: "ATMOSPHERE",
     title: "Cinematic Depth",
     description:
-      "Immersive visual depth with dynamic rain shaders and volumetric lighting running effortlessly at high framerates.",
+      "Immersive visual depth with shaders and scenes running effortlessly at high framerates.",
     video: "/videos/Sci-Fi_Astronaut_at_Rainy_Bus_Stop.webm",
     poster: "/videos/posters/Sci-Fi_Astronaut_at_Rainy_Bus_Stop.webp",
   },
@@ -96,7 +96,7 @@ export const FLUID_SLIDES: FluidSlide[] = [
     tag: "AUTOMOTIVE",
     title: "Pure Velocity",
     description:
-      "High-octane supercars rendered in crisp detail. Speed, aggressive aesthetics, and precision directly on your desktop.",
+      "High-octane wallpapers rendered in crisp detail. Speed, aggressive aesthetics, and precision directly on your desktop.",
     video: "/videos/GTRRARI.webm",
     poster: "/videos/posters/GTRRARI.webp",
   },
