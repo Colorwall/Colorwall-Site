@@ -282,7 +282,7 @@ export default function DownloadPage() {
                                 </h2>
                                 
                                 <p className={`max-w-md mx-auto text-sm sm:text-base mb-10 ${mutedText}`}>
-                                    ColorWall is a desktop customization engine designed for Windows. 
+                                    ColorWall is a desktop customization engine designed for Windows and Linux. (Beta) 
                                     Enter your email to send the download link to your PC.
                                 </p>
                                 
@@ -338,51 +338,6 @@ export default function DownloadPage() {
                                                 Download .exe to this device anyway
                                             </button>
                                         </div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        ) : isWindows ? (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.08 }}
-                                className="w-full relative z-10 mb-20 px-4 flex flex-col items-center text-center"
-                            >
-                                {/* will do something else of this later probably    */}
-                                {/* <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-outfit font-[200] tracking-[-0.04em] mb-6 leading-tight">
-                                    Ready to let go of old,{" "}
-                                    <span className="italic font-[300] opacity-80">
-                                        clunky
-                                    </span>
-                                    <br className="hidden sm:block" /> wallpaper engines?
-                                </h2> */}
-                                
-                                <div className={`inline-flex flex-col sm:flex-row items-center gap-2 text-sm sm:text-base font-medium mb-2 ${mutedText}`}>
-                                    <span>Ram ain't free; idle 100-200MB & 1-5% GPU usage for most.</span>
-                                    {/* <span className="hidden sm:inline">&middot;</span> */}
-                                </div>
-                                
-                                {/* <h2 className={`text-sm py-2 mb-6 ${isDark ? "text-white" : "text-black"}`}>Ram ain't free. Promised Near-zero overhead even at 4K/8K</h2> */}
-
-                                
-                                <button
-                                    onClick={handleDownload}
-                                    disabled={isDownloading}
-                                    className={`group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-base transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
-                                        isDownloading 
-                                            ? "opacity-70 cursor-wait" 
-                                            : ""
-                                    } ${isDark ? "bg-white text-black hover:shadow-white/10" : "bg-black text-white hover:shadow-black/10"}`}
-                                >
-                                    <Download size={20} className={isDownloading ? "animate-bounce" : ""} />
-                                    <span>{isDownloading ? "Starting Download..." : "Download Colorwall for Windows"}</span>
-                                </button>
-                                
-                                <div className="flex items-center justify-center gap-2 text-xs font-medium opacity-50 mt-6">
-                                    {releaseMeta ? (
-                                        <span>Version {releaseMeta.version} &middot; {releaseMeta.size}</span>
-                                    ) : (
-                                        <span className="animate-pulse">Fetching latest release...</span>
                                     )}
                                 </div>
                             </motion.div>
