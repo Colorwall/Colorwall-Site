@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkAndNotifyNewRelease } from "@/app/api/beta/notify-release/route";
 
-// github api url — hardcoded to prevent any injection
+// github api url hardcoded to prevent any injection
 const GITHUB_API_URL =
     "https://api.github.com/repos/colorwall/colorwall/releases/latest";
 
@@ -44,7 +45,11 @@ export async function GET(request: NextRequest) {
 
         const data = await res.json();
 
-        // extract only what the tauri app needs — never forward raw github response
+        // extract only what the tauri app needs without forwarding raw github payload
+        // trigger background early peeps notification check asynchronously
+        // non-blocking execution ensures instant response for desktop clients
+        void checkAndNotifyNewRelease().catch(() => {});
+
         // tag format is "Colorwall-vX.Y.Z", strip the prefix for a clean semver
         const version = (data.tag_name || "").replace(/^.*?v/i, "");
         const name = data.name || `ColorWall v${version}`;

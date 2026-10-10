@@ -2,10 +2,11 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Download, ShieldCheck, MailCheck, AlertTriangle, Eye } from "lucide-react";
+import { Download, ShieldCheck, MailCheck, AlertTriangle, Eye, FlaskConical } from "lucide-react";
 import { Footer } from "@/app/components/Footer";
 import { SecurityReport } from "@/app/components/SecurityReport";
 import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
+import { BetaProgramCard } from "@/app/components/download/BetaProgramCard";
 import { useTheme } from "@/app/contexts/ThemeContext";
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
@@ -343,6 +344,9 @@ export default function DownloadPage() {
                             </motion.div>
                         ) : null}
 
+                        {/* google play store style beta program enrollment card */}
+                        <BetaProgramCard isDark={isDark} />
+
                         {/* Platform Downloads */}
                         {(!isMobile || showDownloadsMobile) && (
                             <motion.div
@@ -371,9 +375,10 @@ export default function DownloadPage() {
                                         <span>{isDownloading ? "Starting..." : "Download Now"}</span>
                                     </button>
 
-                                    <div className="flex items-center justify-center gap-2 text-xs font-medium opacity-70 mb-2">
+                                    <div className="flex items-center justify-center gap-1.5 text-xs font-medium opacity-70 mb-2 font-mono">
+                                        <FlaskConical size={12} className="text-emerald-500" />
                                         {releaseMeta ? (
-                                            <span>{releaseMeta.version} • {releaseMeta.size}</span>
+                                            <span>Beta Build • {releaseMeta.version} • {releaseMeta.size}</span>
                                         ) : (
                                             <span className="animate-pulse">Fetching version info...</span>
                                         )}

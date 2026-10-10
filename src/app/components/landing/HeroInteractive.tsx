@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Download, LoaderCircle } from "lucide-react";
+import { Download, LoaderCircle, FlaskConical } from "lucide-react";
 
 export function HeroInteractive() {
     const router = useRouter();
@@ -41,8 +41,9 @@ export function HeroInteractive() {
                             <Download className="w-4 h-4" />
                         )}
                         Download
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md ml-0.5 bg-black/10 text-black/70 font-mono">
-                            Win 10/11
+                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md ml-1 text-black/80 font-mono font-medium">
+                            <FlaskConical className="w-3 h-3 text-emerald-600" />
+                            <span>Beta</span>
                         </span>
                     </Link>
                 </div>

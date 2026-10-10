@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "postbuild": "next-sitemap",
-    "index:wallpapers": "node scripts/build-wallpaper-index.mjs"
+    "index:wallpapers": "node scripts/build-wallpaper-index.mjs",
+    "decrypt-testers": "node scripts/decrypt-beta-testers.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
