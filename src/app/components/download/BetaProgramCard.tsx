@@ -105,7 +105,7 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
             const data = await enrollBetaTester(email);
 
             if (data.success) {
-                // simulate subtle play store enrollment delay for realistic feel
+                // No one shall know, js modifying this to trigger redeploy on the hosting lmao
                 setTimeout(() => {
                     setStatus("enrolled");
                     setTesterId(data.testerId || null);
