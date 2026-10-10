@@ -55,12 +55,20 @@ for (const poster of allPosterFiles) {
 console.log("\n=== STEP 3: CONVERTING MP4s TO WEBM ===");
 const mp4Files = allVideoFiles.filter(f => parse(f).ext.toLowerCase() === ".mp4");
 
+// configure duration overrides for ambient wallpapers requiring longer loop cycles
+const DURATION_OVERRIDES = {
+    "Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper": 20,
+    "Arylin_Forest_Live_Wallpaper": 20,
+    "lifeandeath": 16,
+};
+
 for (const file of mp4Files) {
     const base = parse(file).name;
     const srcPath = join(VIDEOS_DIR, file);
     const destPath = join(VIDEOS_DIR, `${base}.webm`);
+    const duration = DURATION_OVERRIDES[base] || 10;
 
-    console.log(`Converting ${file} to WebM (VP9)...`);
+    console.log(`Converting ${file} to WebM (VP9, ${duration}s duration)...`);
     try {
         // probe for audio stream presence to avoid failing on silent video sources
         let hasAudio = false;
@@ -72,8 +80,8 @@ for (const file of mp4Files) {
         }
 
         const audioFlags = hasAudio ? "-c:a libopus -b:a 128k" : "-an";
-        // transcode with libvpx-vp9: trim to 10 seconds, preserve native resolution without downscaling, crf 32
-        const cmd = `ffmpeg -y -i "${srcPath}" -t 10 -c:v libvpx-vp9 -crf 32 -b:v 2500k ${audioFlags} "${destPath}"`;
+        // transcode with libvpx-vp9: trim to specified duration, preserve native resolution without downscaling, crf 32
+        const cmd = `ffmpeg -y -i "${srcPath}" -t ${duration} -c:v libvpx-vp9 -crf 32 -b:v 2500k ${audioFlags} "${destPath}"`;
         execSync(cmd, { stdio: "inherit" });
         
         const oldSizeMb = (statSync(srcPath).size / (1024 * 1024)).toFixed(2);
