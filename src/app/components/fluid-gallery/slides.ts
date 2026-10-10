@@ -8,7 +8,7 @@ export type FluidSlide = {
   poster: string;
 };
 
-/** First slide = Misty Valley — matches the cinematic landscape reference vibe. */
+// fluid gallery slides configuration linked to verified webm assets in public/videos
 export const FLUID_SLIDES: FluidSlide[] = [
   {
     id: "colorwall-intro",
@@ -21,14 +21,14 @@ export const FLUID_SLIDES: FluidSlide[] = [
     poster: "/videos/posters/initals.webp",
   },
   {
-    id: "misty-valley",
+    id: "panda-performance",
     index: "#001",
     tag: "PERFORMANCE",
     title: "Zero-Compromise",
     description:
-      "Built entirely in Rust & Tauri with a native Direct3D11 compositor. Near-zero CPU overhead, even at 8K.",
-    video: "/videos/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webm",
-    poster: "/videos/posters/Download_Misty_Valley_Live_Wallpaper_live_wallpaper__4K_HD_.webp",
+      "Built entirely in Rust & Tauri with a native Direct3D11 compositor. Near-zero CPU overhead, even at native 4K.",
+    video: "/videos/Uncle_Panda_Remnant_Tale.webm",
+    poster: "/videos/posters/Uncle_Panda_Remnant_Tale.webp",
   },
   {
     id: "hifumi",
@@ -51,24 +51,24 @@ export const FLUID_SLIDES: FluidSlide[] = [
     poster: "/videos/posters/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webp",
   },
   {
-    id: "autumn",
+    id: "astronaut",
     index: "#004",
-    tag: "STUDIO",
-    title: "Node-Based Studio",
+    tag: "ATMOSPHERE",
+    title: "Cinematic Depth",
     description:
-      "Build your own native scenes. Combine video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
-    video: "/videos/Autumn_Leaves_And_Water_Reflection_Live_Wallpaper.webm",
-    poster: "/videos/posters/Autumn_Leaves_And_Water_Reflection_Live_Wallpaper.webp",
+      "Immersive visual depth with dynamic rain shaders and volumetric lighting running effortlessly at high framerates.",
+    video: "/videos/Sci-Fi_Astronaut_at_Rainy_Bus_Stop.webm",
+    poster: "/videos/posters/Sci-Fi_Astronaut_at_Rainy_Bus_Stop.webp",
   },
   {
-    id: "background",
+    id: "windmills",
     index: "#005",
-    tag: "INTERACTIVE",
-    title: "Living Desktop",
+    tag: "LANDSCAPES",
+    title: "Living Horizons",
     description:
-      "Wallpapers that respond to you. Fully interactive HTML5 canvases and WebGL shaders that turn your desktop into a playground.",
-    video: "/videos/background.webm",
-    poster: "/videos/posters/background.webp",
+      "Expansive high-framerate environments that bring your monitor to life with subtle atmospheric motion.",
+    video: "/videos/Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper.webm",
+    poster: "/videos/posters/Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper.webp",
   },
   {
     id: "nte",
@@ -91,14 +91,14 @@ export const FLUID_SLIDES: FluidSlide[] = [
     poster: "/videos/posters/laxenta.webp",
   },
   {
-    id: "prana",
+    id: "velocity",
     index: "#008",
-    tag: "SOCIAL",
-    title: "Discord RPC",
+    tag: "AUTOMOTIVE",
+    title: "Pure Velocity",
     description:
-      "Show off your current scene to your friends. Automatically syncs your active workspace directly to your profile.",
-    video: "/videos/Prana_System_Error.webm",
-    poster: "/videos/posters/Prana_System_Error.webp",
+      "High-octane supercars rendered in crisp detail. Speed, aggressive aesthetics, and precision directly on your desktop.",
+    video: "/videos/GTRRARI.webm",
+    poster: "/videos/posters/GTRRARI.webp",
   },
 ];
 
