@@ -250,7 +250,7 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
                         <div className={`mt-3 p-3.5 rounded-xl text-[11px] leading-relaxed font-mono ${
                             isDark ? "bg-black/40 text-white/60 border border-white/5" : "bg-black/5 text-black/60 border border-black/5"
                         }`}>
-                            Colorwall is currently in beta testing ahead of public launch. Early peeps get exclusive in-app badges and early access to experimental Rust compositor builds and widget updates.
+                            Colorwall is currently in beta testing ahead of public launch. Early peeps get exclusive in-app badges and early access to such an amazing piece of work, and future updates, and in the near future will have badges in the community on socials, will get perks under our descretion, and will be Listed on the patreons page when the app is formally advertised and launched!
                         </div>
                     )}
                 </div>
