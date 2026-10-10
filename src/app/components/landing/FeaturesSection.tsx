@@ -10,9 +10,9 @@ import ScrollExpand from "../ui/ScrollEXP";
 // these sit above the main showcase and are visually distinct from it
 const statCards = [
     {
-        stat: "~0.5%",
-        label: "CPU",
-        detail: "Near-zero CPU overhead even at 4K/8K 60FPS. Built entirely in Rust & Tauri.",
+        stat: "~1-5%",
+        label: "gpu",
+        detail: "Hardware Accel, Low GPU overhead even at 4K/8K 60FPS and Widgets. Built for performance.",
         accent: false,
     },
     {
@@ -24,7 +24,7 @@ const statCards = [
     {
         stat: "8K",
         label: "Ready",
-        detail: "Full 8K resolution support with multi-monitor layouts and permanent widget saves.",
+        detail: "Full 8K resolution support with multi-monitor layouts, studio, and never before seen performance.",
         accent: true,
         href: "/download",
     },
@@ -124,11 +124,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
                         <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right
                             ${isDark ? "text-white/50" : "text-black/50"}`}>
-                            A desktop engine built from scratch in{" "}
-                            <span className={isDark ? "text-white/80" : "text-black/80"}>Rust &amp; Tauri</span>{" "}
-                            with a{" "}
-                            <span className={isDark ? "text-white/80" : "text-black/80"}>Direct3D11 compositor</span>.
-                            {" "}It doesn&apos;t guess. It&apos;s engineered to perform.
+                            Colorwall performs with minimal resource usage, It isn't a crutch. It&apos;s engineered to perform.
                         </p>
                     </motion.div>
 

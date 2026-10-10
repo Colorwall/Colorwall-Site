@@ -139,16 +139,16 @@ export const SecurityReport = ({
                 >
 
                     <h2 className={`text-5xl md:text-6xl lg:text-7xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3 ${isDark ? "text-white" : "text-black"}`}>
-                        Zero trust.
+                        SAFE?. Ofcourse!
                     </h2>
-                    <GradientHeading
-                        text="VirusTotal Report"
+                    {/* <GradientHeading
+                        text="Security Report"
                         theme={theme}
                         className="text-4xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase leading-tight"
-                    />
+                    /> */}
 
                     <p className={`text-[15px] leading-relaxed mt-6 max-w-md ${mutedText}`}>
-                        Every release is automatically scanned by over 70 antivirus engines. Occasionally, AI-based scanners might flag false positives, but it is 100% safe. Hashes are computed directly from the live binary and verified. Click below to view the full report on VirusTotal.
+                        Every release is automatically scanned by over 70 antivirus engines. Occasionally, AI-based scanners might flag false positives because this is a beta testing phase, but it is 100% safe. Hashes are computed directly from the live binary and verified. Click below to view the full report on VirusTotal.
                     </p>
 
                     {/* live status */}

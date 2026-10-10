@@ -7,7 +7,7 @@ import { useProtection } from "@/hooks/use-protection";
 import { HeroSection } from "@/app/components/landing/HeroSection";
 import { FeaturesSection } from "@/app/components/landing/FeaturesSection";
 import { ComparisonTable } from "@/app/components/landing/ComparisonTable";
-import { SecurityReport } from "@/app/components/SecurityReport";
+// import { SecurityReport } from "@/app/components/SecurityReport";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
 import { GradientHeading } from "./components/landing/GradientHeading";
@@ -55,7 +55,7 @@ export default function ColorWallLanding() {
                     </div>
                 </div>
 
-                <SecurityReport theme={theme} className="py-24 lg:pl-[20%] lg:pr-[10%]" />
+                {/* <SecurityReport theme={theme} className="py-24 lg:pl-[20%] lg:pr-[10%]" /> */}
 
                 <FAQSection theme={theme} />
 

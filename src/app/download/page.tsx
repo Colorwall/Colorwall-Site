@@ -615,14 +615,14 @@ export default function DownloadPage() {
                     */}
 
                     {/* Security Report Section */}
-                    {/* <motion.div
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                         className="w-full relative z-10"
                     >
                         <SecurityReport theme={theme} isDownloadPage={true} />
-                    </motion.div> */}
+                    </motion.div>
                       <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

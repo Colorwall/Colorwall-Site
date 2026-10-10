@@ -31,22 +31,21 @@ export const ComparisonTable = ({
     const features = [
         {
             title: "Discover",
-            desc: "Over 105,000 wallpapers. 4K videos, WebGL scenes, and community .colorwall projects. One click to download.",
+            desc: "Over 305,000 wallpapers. 4K videos, WebGL scenes, and community .colorwall projects(not yet welp, the app is not launched yet). One click to download.",
             icon: Store,
-            tag: "UNDER DEV",
             colSpan: "lg:col-span-2",
         },
         {
             title: "Performance First",
-            desc: "Auto-pauses on fullscreen games and battery mode. Built to step out of your way.",
-            icon: Zap,
+            desc: "This is not a joke, it has barely any resource usage, actively stays around 100~MB on idle, GPU usage barely is there. Plus it Auto-pauses on fullscreen games and battery mode.",
+            icon: Cpu,
             colSpan: "lg:col-span-1",
         },
         {
             title: "Shaders & Particles",
             desc: "Real-time HLSL effects — reflections, sway, chromatic aberration, blur, and rain drops. All GPU-accelerated.",
             icon: Wand2,
-            tag: "UNDER DEV",
+            tag: "UNDER WORK",
             colSpan: "lg:col-span-1",
         },
         {
