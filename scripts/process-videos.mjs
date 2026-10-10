@@ -62,8 +62,18 @@ for (const file of mp4Files) {
 
     console.log(`Converting ${file} to WebM (VP9)...`);
     try {
-        // transcode with libvpx-vp9: trim to 10 seconds, crf 32 with opus audio, scaled to max 1920 if 4k to keep streaming smooth
-        const cmd = `ffmpeg -y -i "${srcPath}" -t 10 -c:v libvpx-vp9 -crf 32 -b:v 2500k -vf "scale='min(1920,iw)':-2" -c:a libopus -b:a 128k "${destPath}"`;
+        // probe for audio stream presence to avoid failing on silent video sources
+        let hasAudio = false;
+        try {
+            const probeOut = execSync(`ffprobe -v error -select_streams a -show_entries stream=codec_name -of csv=p=0 "${srcPath}"`, { encoding: "utf8" });
+            hasAudio = probeOut.trim().length > 0;
+        } catch {
+            hasAudio = false;
+        }
+
+        const audioFlags = hasAudio ? "-c:a libopus -b:a 128k" : "-an";
+        // transcode with libvpx-vp9: trim to 10 seconds, preserve native resolution without downscaling, crf 32
+        const cmd = `ffmpeg -y -i "${srcPath}" -t 10 -c:v libvpx-vp9 -crf 32 -b:v 2500k ${audioFlags} "${destPath}"`;
         execSync(cmd, { stdio: "inherit" });
         
         const oldSizeMb = (statSync(srcPath).size / (1024 * 1024)).toFixed(2);
