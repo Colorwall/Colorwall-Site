@@ -360,8 +360,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
             {/* respective feature cards rendered horizontally in contained viewport deck */}
             <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-16">
                 <div className="flex items-center justify-between gap-4 mb-4">
-                    <span className="text-xs font-mono tracking-wider text-white/40">
-                        Interactive Feature Deck ({showcaseFeatures.length}) · Click card to inspect
+                    <span className="text-xs tracking-wider text-white/40">
+                        *Does not represent everything. Just a Quick Feature Deck, One will find more in app, remember you are an beta tester.
                     </span>
 
                     <div className="flex items-center gap-2">
