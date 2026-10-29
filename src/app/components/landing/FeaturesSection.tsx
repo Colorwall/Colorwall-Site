@@ -182,24 +182,28 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                     href="https://patron.colorwall.xyz"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`text-xs font-mono tracking-wider transition-colors duration-300 ${
-                                        isDark ? "text-white/35 hover:text-white/80" : "text-black/35 hover:text-black/80"
-                                    }`}
+                                    className={`text-xs font-mono tracking-wider transition-colors duration-300 ${isDark ? "text-white/35 hover:text-white/80" : "text-black/35 hover:text-black/80"
+                                        }`}
                                 >
                                     Supported by patrons &#9829;
                                 </a>
                             </div>
                             <h2 className="text-4xl sm:text-6xl md:text-7xl font-outfit font-[200] tracking-[-0.04em] leading-[1.02]">
-                                Performance <br />
+                                <GradientHeading
+                                    text="Performance"
+                                    theme={theme}
+                                    as="span"
+                                    className="inline-block font-outfit font-[200]"
+                                />
+                                <br />
                                 <span className={isDark ? "text-white/40" : "text-black/40"}>
                                     without compromise.
                                 </span>
                             </h2>
                         </div>
 
-                        <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right ${
-                            isDark ? "text-white/50" : "text-black/50"
-                        }`}>
+                        <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right ${isDark ? "text-white/50" : "text-black/50"
+                            }`}>
                             Colorwall delivers smooth dynamic motion with minimal resource usage. It isn&apos;t a compromise—it&apos;s engineered to perform.
                         </p>
                     </motion.div>
@@ -213,22 +217,20 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-14"
                     >
                         {statCards.map((card) => {
-                            const cardClasses = `cursor-target group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden ${
-                                card.accent
-                                    ? isDark
-                                        ? "bg-[#0078d4] text-white hover:bg-[#006cbd]"
-                                        : "bg-[#111111] text-white hover:bg-[#1a1a1a]"
-                                    : isDark
-                                        ? "border border-white/10 bg-white/[0.02]"
-                                        : "border border-black/10 bg-black/[0.02]"
-                            }`;
+                            const cardClasses = `cursor-target group relative rounded-2xl p-7 sm:p-8 transition-all duration-500 overflow-hidden ${card.accent
+                                ? isDark
+                                    ? "bg-[#0078d4] text-white hover:bg-[#006cbd]"
+                                    : "bg-[#111111] text-white hover:bg-[#1a1a1a]"
+                                : isDark
+                                    ? "border border-white/10 bg-white/[0.02]"
+                                    : "border border-black/10 bg-black/[0.02]"
+                                }`;
 
                             const cardContent = (
                                 <>
                                     <div className="flex items-start justify-between mb-4">
-                                        <span className={`text-4xl sm:text-5xl font-outfit font-[200] tracking-tight leading-none ${
-                                            card.accent ? "text-white" : isDark ? "text-white" : "text-black"
-                                        }`}>
+                                        <span className={`text-4xl sm:text-5xl font-outfit font-[200] tracking-tight leading-none ${card.accent ? "text-white" : isDark ? "text-white" : "text-black"
+                                            }`}>
                                             {card.stat}
                                             <span className={`text-base font-normal ml-2 tracking-normal ${card.accent ? "text-white/70" : isDark ? "text-white/40" : "text-black/40"}`}>
                                                 {card.label}
@@ -244,9 +246,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                             </span>
                                         )}
                                     </div>
-                                    <p className={`text-sm leading-relaxed font-spline ${
-                                        card.accent ? "text-white/80" : isDark ? "text-white/45" : "text-black/55"
-                                    }`}>
+                                    <p className={`text-sm leading-relaxed font-spline ${card.accent ? "text-white/80" : isDark ? "text-white/45" : "text-black/55"
+                                        }`}>
                                         {card.detail}
                                     </p>
                                 </>
@@ -307,8 +308,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         {/* flagship editorial description on the right with patreon link */}
                         <div className="lg:col-span-4 p-8 sm:p-10 flex flex-col justify-between h-full border-t lg:border-t-0 lg:border-l border-white/10">
                             <div>
-                                <div className="text-xs font-mono tracking-wider text-cyan-400 mb-2 font-medium">
-                                    Next-Gen Wallpaper Runtime
+                                <div className="text-xs tracking-wider text-cyan-400 mb-2 font-medium">
+                                    Performance first runtime. Comes With Non-chalant Aura.
                                 </div>
                                 <h3 className="text-4xl sm:text-5xl font-outfit font-[200] tracking-[-0.03em] text-white mb-4 leading-tight">
                                     Colorwall
