@@ -11,20 +11,20 @@ import { GradientHeading } from "./GradientHeading";
 const statCards = [
     {
         stat: "~1-5%",
-        label: "gpu",
-        detail: "Hardware Accel, Low GPU overhead even at 4K/8K 60FPS and Widgets. Built for performance.",
+        label: "GPU",
+        detail: "Hardware acceleration with near-zero overhead, even running multi-monitor 8K 60FPS setups.",
         accent: false,
     },
     {
         stat: "D3D11",
         label: "Engine",
-        detail: "Hardware-accelerated DirectX11 compositor. Zero-copy rendering via IMF, MPV for 8K video.",
+        detail: "DirectX 11 compositor architecture with zero-copy rendering via IMF and MPV for smooth playback.",
         accent: false,
     },
     {
         stat: "8K",
         label: "Ready",
-        detail: "Full 8K resolution support with multi-monitor layouts, studio, and never before seen performance.",
+        detail: "Full native 8K display support, independent monitor scaling, and real-time audio reactivity.",
         accent: true,
         href: "/download",
     },
@@ -34,77 +34,77 @@ const statCards = [
 const showcaseFeatures = [
     {
         id: "widgets",
-        title: "WIDGETS",
-        subtitle: "html5 desktop overlay engine",
-        description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
-        badge: "HTML · JS · PINNED",
+        title: "Widgets",
+        subtitle: "HTML5 Desktop Overlay Engine",
+        description: "Desktop widgets powered by modern web technology. Add live calendars, clocks, or custom system information directly onto your desktop.",
+        badge: "HTML · JS · Pinned",
         thumbnailSrc: "/widgets.webp",
         imageSrcs: ["/widgets.webp"],
         techSpecs: [
-            { label: "runtime", value: "webview2 / chromium" },
-            { label: "latency", value: "< 1.2ms input delay" },
-            { label: "placement", value: "direct desktop plane hook" },
-            { label: "telemetry", value: "0.2% cpu idle" }
+            { label: "Runtime", value: "WebView2 / Chromium" },
+            { label: "Input Latency", value: "< 1.2ms input delay" },
+            { label: "Hook Type", value: "Direct desktop plane hook" },
+            { label: "Idle Telemetry", value: "0.2% CPU idle" }
         ]
     },
     {
         id: "library",
-        title: "LIBRARY",
-        subtitle: "offline first asset manager",
-        description: "your personal collection. offline-first with automatic thumbnails and instant previews. upload your own, link local files, or save from the store.",
-        badge: "LOCAL · OFFLINE · CUTE",
+        title: "Library",
+        subtitle: "Offline-First Asset Manager",
+        description: "Your personal collection. Completely offline-first with automatic thumbnails and instant previews. Link local files or save directly from the store.",
+        badge: "Local · Offline · Instant",
         thumbnailSrc: "/Library.webp",
         imageSrcs: ["/Library.webp"],
         techSpecs: [
-            { label: "storage", value: "sqlite local cache" },
-            { label: "indexing", value: "asynchronous thumbnail thread" },
-            { label: "format support", value: "mp4, webm, gif, shaders, exe" },
-            { label: "sync", value: "zero telemetry offline mode" }
+            { label: "Database", value: "SQLite local cache" },
+            { label: "Indexing", value: "Async thumbnail thread" },
+            { label: "Formats", value: "MP4, WebM, GIF, Shaders, EXE" },
+            { label: "Privacy", value: "Zero telemetry offline mode" }
         ]
     },
     {
         id: "customise",
-        title: "CUSTOMISE",
-        subtitle: "hardware compositor control",
-        description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
-        badge: "RUST · TAURI · LOW OVERHEAD",
+        title: "Customise",
+        subtitle: "Hardware Compositor Control",
+        description: "Unmatched performance and deep desktop control. Style your Windows taskbar with acrylic blur, configure multi-monitor setups, and tweak renderer presets.",
+        badge: "Rust · Tauri · Low Overhead",
         thumbnailSrc: "/PEAKmodalpreview.webp",
         imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"],
         techSpecs: [
-            { label: "core", value: "tauri v2 / rust core" },
-            { label: "rendering", value: "directx11 swapchain" },
-            { label: "monitors", value: "independent multi-display clocking" },
-            { label: "taskbar", value: "dwm acrylic backdrop hook" }
+            { label: "Core", value: "Tauri v2 / Rust native" },
+            { label: "Compositor", value: "DirectX 11 swapchain" },
+            { label: "Displays", value: "Independent multi-display clocking" },
+            { label: "Taskbar Hook", value: "DWM acrylic backdrop injection" }
         ]
     },
     {
         id: "store",
-        title: "STORE",
-        subtitle: "unified community repository",
-        description: "access thousands of wallpapers from 8+ sources. one unified search bar, infinite inspiration without an account requirement.",
-        badge: "8 SOURCES · 4K · UNIFIED",
+        title: "Store",
+        subtitle: "Unified Community Repository",
+        description: "Access thousands of wallpapers curated from 8+ sources through one unified search bar. Discover infinite inspiration without needing an account.",
+        badge: "8 Sources · 4K/8K · Unified",
         thumbnailSrc: "/STORE.webp",
         imageSrcs: ["/STORE.webp", "/modal.webp"],
         techSpecs: [
-            { label: "sources", value: "8 aggregated registries" },
-            { label: "resolution", value: "up to native 8k masters" },
-            { label: "cdn", value: "edge cached multi-source proxy" },
-            { label: "indexing", value: "prebuilt json dictionary" }
+            { label: "Catalog", value: "8 aggregated registries" },
+            { label: "Resolution", value: "Up to native 8K masters" },
+            { label: "Delivery", value: "Edge-cached multi-source proxy" },
+            { label: "Search Index", value: "Prebuilt JSON dictionary" }
         ]
     },
     {
         id: "studio",
-        title: "STUDIO",
-        subtitle: "node graph scene authoring",
-        description: "build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
-        badge: "NODE-BASED · D3D11 · PARTICLES",
+        title: "Studio",
+        subtitle: "Node Graph Scene Authoring",
+        description: "Build your own native scene wallpapers using our visual node editor. Combine image layers, video, real-time audio-reactive shaders, and particle systems effortlessly.",
+        badge: "Node-Based · D3D11 · Particles",
         thumbnailSrc: "/studio.webp",
         imageSrcs: ["/studio.webp"],
         techSpecs: [
-            { label: "graph engine", value: "acyclic node evaluation" },
-            { label: "audio hook", value: "wasapi loopback fft 128-band" },
-            { label: "shaders", value: "hlsl / glsl realtime transpiler" },
-            { label: "particles", value: "gpu compute directx11 compute shader" }
+            { label: "Graph Engine", value: "Acyclic node evaluation" },
+            { label: "Audio Reactive", value: "WASAPI loopback FFT 128-band" },
+            { label: "Shaders", value: "HLSL / GLSL realtime pipeline" },
+            { label: "Compute", value: "DirectX 11 compute particles" }
         ]
     }
 ];
@@ -127,7 +127,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
     // step horizontal carousel left or right
     const handleStepCarousel = (direction: "left" | "right") => {
         if (!carouselRef.current) return;
-        const scrollAmount = 300;
+        const scrollAmount = 320;
         carouselRef.current.scrollBy({
             left: direction === "left" ? -scrollAmount : scrollAmount,
             behavior: "smooth"
@@ -175,35 +175,36 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         <div className="flex-shrink-0">
                             <div className="flex items-center gap-3 mb-4 ml-1 flex-wrap">
                                 <p className={`text-xs font-mono uppercase tracking-[0.2em] ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-                                    under active development
+                                    Under Active Development
                                 </p>
                                 <span className={`text-xs ${isDark ? "text-white/15" : "text-black/15"}`}>&middot;</span>
                                 <a
                                     href="https://patron.colorwall.xyz"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`text-xs font-mono uppercase tracking-[0.2em] transition-colors duration-300 ${
-                                        isDark ? "text-white/25 hover:text-white/60" : "text-black/25 hover:text-black/60"
+                                    className={`text-xs font-mono tracking-wider transition-colors duration-300 ${
+                                        isDark ? "text-white/35 hover:text-white/80" : "text-black/35 hover:text-black/80"
                                     }`}
                                 >
                                     Supported by patrons &#9829;
                                 </a>
                             </div>
-                            <GradientHeading
-                                text={"Performance\nwithout compromise."}
-                                theme={theme}
-                                className="text-4xl sm:text-5xl md:text-6xl font-anurati tracking-widest uppercase whitespace-pre-wrap leading-[1.1]"
-                            />
+                            <h2 className="text-4xl sm:text-6xl md:text-7xl font-outfit font-[200] tracking-[-0.04em] leading-[1.02]">
+                                Performance <br />
+                                <span className={isDark ? "text-white/40" : "text-black/40"}>
+                                    without compromise.
+                                </span>
+                            </h2>
                         </div>
 
                         <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right ${
                             isDark ? "text-white/50" : "text-black/50"
                         }`}>
-                            Colorwall performs with minimal resource usage, It isn&apos;t a crutch. It&apos;s engineered to perform.
+                            Colorwall delivers smooth dynamic motion with minimal resource usage. It isn&apos;t a compromise—it&apos;s engineered to perform.
                         </p>
                     </motion.div>
 
-                    {/* stat cards row */}
+                    {/* stat cards row with outfit typography */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -225,11 +226,11 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             const cardContent = (
                                 <>
                                     <div className="flex items-start justify-between mb-4">
-                                        <span className={`text-4xl sm:text-5xl font-anurati tracking-widest uppercase leading-none ${
+                                        <span className={`text-4xl sm:text-5xl font-outfit font-[200] tracking-tight leading-none ${
                                             card.accent ? "text-white" : isDark ? "text-white" : "text-black"
                                         }`}>
                                             {card.stat}
-                                            <span className={`text-lg font-medium ml-1 ${card.accent ? "text-white/70" : isDark ? "text-white/40" : "text-black/40"}`}>
+                                            <span className={`text-base font-normal ml-2 tracking-normal ${card.accent ? "text-white/70" : isDark ? "text-white/40" : "text-black/40"}`}>
                                                 {card.label}
                                             </span>
                                         </span>
@@ -244,7 +245,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                         )}
                                     </div>
                                     <p className={`text-sm leading-relaxed font-spline ${
-                                        card.accent ? "text-white/70" : isDark ? "text-white/40" : "text-black/50"
+                                        card.accent ? "text-white/80" : isDark ? "text-white/45" : "text-black/55"
                                     }`}>
                                         {card.detail}
                                     </p>
@@ -285,26 +286,32 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             {/* top subtle overlay gradient */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
+                            {/* editorial film badge */}
+                            {/* <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-[11px] font-mono tracking-wider text-cyan-300">
+                                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                                <span>Showcase Film · 1080p 60FPS</span>
+                            </div> */}
+
                             {/* expand video modal button */}
                             {/* <button
                                 type="button"
                                 onClick={() => setIsVideoModalOpen(true)}
-                                aria-label="expand showcase video"
-                                className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs font-mono uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 cursor-pointer active:scale-95"
+                                aria-label="Expand showcase video"
+                                className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs font-mono tracking-wider hover:bg-white hover:text-black transition-all duration-300 cursor-pointer active:scale-95"
                             >
                                 <Maximize2 className="w-4 h-4" />
-                                <span>expand?</span>
+                                <span>Expand Film</span>
                             </button> */}
                         </div>
 
                         {/* flagship editorial description on the right with patreon link */}
                         <div className="lg:col-span-4 p-8 sm:p-10 flex flex-col justify-between h-full border-t lg:border-t-0 lg:border-l border-white/10">
                             <div>
-                                <div className="text-xs font-mono uppercase tracking-[0.25em] text-cyan-400 mb-2">
-                                    The Next-gen wallpaper runtime
+                                <div className="text-xs font-mono tracking-wider text-cyan-400 mb-2 font-medium">
+                                    Next-Gen Wallpaper Runtime
                                 </div>
-                                <h3 className="text-3xl sm:text-4xl font-anurati tracking-wider text-white uppercase mb-4">
-                                    COLORWALL
+                                <h3 className="text-4xl sm:text-5xl font-outfit font-[200] tracking-[-0.03em] text-white mb-4 leading-tight">
+                                    Colorwall
                                 </h3>
                                 <p className="text-sm sm:text-base leading-relaxed text-white/70 font-spline mb-6">
                                     A next-generation desktop experience engineered in Rust and DirectX 11. Zero compromise on performance, infinite customization, and native fluid shaders built for high-refresh displays.
@@ -314,19 +321,19 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             <div>
                                 <div className="grid grid-cols-2 gap-2.5 mb-6">
                                     <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-                                        <span className="block text-[10px] font-mono uppercase tracking-wider text-white/40 mb-0.5">
-                                            architecture
+                                        <span className="block text-[11px] font-mono text-white/40 mb-0.5">
+                                            Architecture
                                         </span>
                                         <span className="block text-xs font-mono font-medium text-white/90">
-                                            rust + d3d11
+                                            Rust + D3D11
                                         </span>
                                     </div>
                                     <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-                                        <span className="block text-[10px] font-mono uppercase tracking-wider text-white/40 mb-0.5">
-                                            overhead
+                                        <span className="block text-[11px] font-mono text-white/40 mb-0.5">
+                                            Overhead
                                         </span>
                                         <span className="block text-xs font-mono font-medium text-white/90">
-                                            &lt; 1-5% gpu
+                                            &lt; 1-5% GPU
                                         </span>
                                     </div>
                                 </div>
@@ -336,7 +343,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                     href="https://patron.colorwall.xyz"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-full py-3.5 px-5 rounded-2xl border border-white/20 bg-black/40 hover:border-[#ff424D]/60 hover:bg-[#ff424D]/20 text-white hover:text-[#ff424D] text-xs font-mono uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer shadow-lg active:scale-98"
+                                    className="w-full py-3.5 px-5 rounded-2xl border border-white/20 bg-black/40 hover:border-[#ff424D]/60 hover:bg-[#ff424D]/20 text-white hover:text-[#ff424D] text-xs font-mono tracking-wider transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer shadow-lg active:scale-98"
                                 >
                                     <svg viewBox="0 0 512 512" fill="currentColor" className="w-4 h-4 inline-block">
                                         <path d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z" />
@@ -352,15 +359,15 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
             {/* respective feature cards rendered horizontally in contained viewport deck */}
             <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-16">
                 <div className="flex items-center justify-between gap-4 mb-4">
-                    <span className="text-xs font-mono uppercase text-white/40  ">
-                        More WLittle Features you will see in app c:
+                    <span className="text-xs font-mono tracking-wider text-white/40">
+                        Interactive Feature Deck ({showcaseFeatures.length}) · Click card to inspect
                     </span>
 
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
                             onClick={() => handleStepCarousel("left")}
-                            aria-label="previous card"
+                            aria-label="Previous feature card"
                             className="w-9 h-9 rounded-full border border-white/10 bg-black/50 backdrop-blur-xl text-white/70 hover:text-white hover:bg-white/15 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95"
                         >
                             <ChevronLeft className="w-4 h-4" />
@@ -368,7 +375,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                         <button
                             type="button"
                             onClick={() => handleStepCarousel("right")}
-                            aria-label="next card"
+                            aria-label="Next feature card"
                             className="w-9 h-9 rounded-full border border-white/10 bg-black/50 backdrop-blur-xl text-white/70 hover:text-white hover:bg-white/15 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95"
                         >
                             <ChevronRight className="w-4 h-4" />
@@ -405,12 +412,12 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 </div> */}
                             </div>
 
-                            {/* card content summary */}
+                            {/* card content summary with outfit thin typography */}
                             <div className="p-4">
-                                <h4 className="text-base sm:text-lg font-anurati tracking-wider text-white uppercase mb-1">
+                                <h4 className="text-lg sm:text-xl font-outfit font-[300] tracking-tight text-white mb-1">
                                     {feat.title}
                                 </h4>
-                                <p className="text-[11px] leading-relaxed text-white/60 font-spline line-clamp-2">
+                                <p className="text-xs leading-relaxed text-white/60 font-spline line-clamp-2">
                                     {feat.description}
                                 </p>
                             </div>
@@ -441,7 +448,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 type="button"
                                 onClick={() => setIsVideoModalOpen(false)}
                                 className="absolute top-6 right-6 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 cursor-pointer"
-                                aria-label="close video modal"
+                                aria-label="Close video modal"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -461,17 +468,17 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 <button
                                     type="button"
                                     onClick={() => setIsMuted((prev) => !prev)}
-                                    className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-white text-xs font-mono uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                                    className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-white text-xs font-mono tracking-wider hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
                                 >
                                     {isMuted ? (
                                         <>
                                             <VolumeX className="w-4 h-4" />
-                                            <span>unmute audio</span>
+                                            <span>Unmute Audio</span>
                                         </>
                                     ) : (
                                         <>
                                             <Volume2 className="w-4 h-4 text-cyan-400" />
-                                            <span>sound active</span>
+                                            <span>Sound Active</span>
                                         </>
                                     )}
                                 </button>
@@ -479,18 +486,18 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
                             <div className="flex items-center justify-between px-2">
                                 <div>
-                                    <h3 className="text-xl font-anurati text-white uppercase tracking-wider">
-                                        COLORWALL EDITORIAL FILM
+                                    <h3 className="text-2xl font-outfit font-[200] text-white tracking-tight">
+                                        Colorwall
                                     </h3>
                                     <p className="text-xs text-white/50 font-mono">
-                                        1080P 60FPS · HARDWARE ACCELERATED DIRECTX 11
+                                        1080p 60FPS · Hardware-Accelerated DirectX 11
                                     </p>
                                 </div>
                                 <a
                                     href="https://patron.colorwall.xyz"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-[#ff424D]/20 hover:border-[#ff424D]/60 hover:text-[#ff424D] text-white text-xs font-mono uppercase tracking-wider transition-all duration-300 flex items-center gap-2"
+                                    className="px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-[#ff424D]/20 hover:border-[#ff424D]/60 hover:text-[#ff424D] text-white text-xs font-mono tracking-wider transition-all duration-300 flex items-center gap-2"
                                 >
                                     <svg viewBox="0 0 512 512" fill="currentColor" className="w-3.5 h-3.5 inline-block">
                                         <path d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z" />
@@ -526,19 +533,19 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 type="button"
                                 onClick={() => setActiveModalFeature(null)}
                                 className="absolute top-6 right-6 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 cursor-pointer"
-                                aria-label="close modal"
+                                aria-label="Close modal"
                             >
                                 <X className="w-5 h-5" />
                             </button>
 
-                            {/* modal header */}
+                            {/* modal header with outfit thin typography */}
                             <div>
-                                <div className="flex items-center gap-2 text-xs font-mono tracking-[0.25em] text-cyan-400 uppercase mb-2">
+                                <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-cyan-400 mb-2 font-medium">
                                     <span>{modalFeature.badge}</span>
                                     <span className="text-white/20">&middot;</span>
                                     <span className="text-white/50">{modalFeature.subtitle}</span>
                                 </div>
-                                <h2 className="text-3xl sm:text-5xl font-anurati tracking-wider text-white uppercase mb-3">
+                                <h2 className="text-4xl sm:text-6xl font-outfit font-[200] tracking-[-0.03em] text-white mb-3">
                                     {modalFeature.title}
                                 </h2>
                                 <p className="text-sm sm:text-base leading-relaxed text-white/80 font-spline max-w-2xl">
@@ -558,8 +565,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
                             {/* technical specifications grid */}
                             <div>
-                                <h4 className="text-xs font-mono uppercase tracking-[0.25em] text-white/40 mb-4">
-                                    architectural telemetry
+                                <h4 className="text-xs font-mono tracking-wider text-white/40 mb-4 font-medium uppercase">
+                                    Architectural Telemetry
                                 </h4>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     {modalFeature.techSpecs.map((spec) => (
@@ -567,7 +574,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                             key={spec.label}
                                             className="p-4 rounded-xl border border-white/10 bg-white/[0.02] flex flex-col justify-between"
                                         >
-                                            <span className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-1">
+                                            <span className="text-[11px] font-mono text-white/40 mb-1">
                                                 {spec.label}
                                             </span>
                                             <span className="text-xs font-mono font-medium text-white/90">
@@ -581,8 +588,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             {/* gallery of respective screenshot assets */}
                             {modalFeature.imageSrcs.length > 0 && (
                                 <div>
-                                    <h4 className="text-xs font-mono uppercase tracking-[0.25em] text-white/40 mb-4">
-                                        interface previews
+                                    <h4 className="text-xs font-mono tracking-wider text-white/40 mb-4 font-medium uppercase">
+                                        Interface Previews
                                     </h4>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {modalFeature.imageSrcs.map((imgSrc, imgIndex) => (
