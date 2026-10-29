@@ -14,8 +14,6 @@ import { GradientHeading } from "./components/landing/GradientHeading";
 import { ScrollSpiralArrow } from "@/app/components/ui/ScrollSpiralArrow";
 import { ImmersiveModeHost } from "@/app/components/landing/ImmersiveModeHost";
 
-const TargetCursor = dynamic(() => import("./components/landing/TargetCursor"), { ssr: false });
-
 export default function ColorWallLanding() {
     const { theme } = useTheme();
     useProtection();
@@ -23,11 +21,6 @@ export default function ColorWallLanding() {
     return (
         <ImmersiveModeHost>
             <div className={`relative min-h-screen select-none ${theme === "dark" ? "bg-black text-white" : "bg-white text-black"}`}>
-                <TargetCursor 
-                    cursorColor={theme === 'dark' ? '#ffffff' : '#111111'} 
-                    cursorColorOnTarget="#ffffff" 
-                />
-
                 <HeroSection />
 
                 <div className="hidden md:block relative w-full">

@@ -387,7 +387,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                 {/* horizontal row of smaller cards containing their respective images */}
                 <div
                     ref={carouselRef}
-                    className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden select-none"
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                    className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 select-none"
                 >
                     {showcaseFeatures.map((feat, index) => (
                         <motion.div
