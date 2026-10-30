@@ -589,7 +589,7 @@ export default function DownloadPage() {
                             transition={{ delay: 0.05 }}
                             className="w-full relative z-10 mb-32"
                         >
-                            <div className="relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-500/10 border border-white/5 bg-black/5 aspect-video flex items-center justify-center">
+                            {/* <div className="relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-500/10 border border-white/5 bg-black/5 aspect-video flex items-center justify-center">
                                 <Image
                                     src="/HOME.webp"
                                     alt="ColorWall Home"
@@ -598,7 +598,7 @@ export default function DownloadPage() {
                                     priority
                                 />
                                 <div className={`absolute inset-0 bg-gradient-to-t to-transparent pointer-events-none ${isDark ? "from-[#0a0a0a]" : "from-white"}`} />
-                            </div>
+                            </div> */}
                         </motion.div>
                 </div>
             </main>

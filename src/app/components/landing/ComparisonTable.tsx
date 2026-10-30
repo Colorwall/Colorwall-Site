@@ -9,15 +9,13 @@ import {
     Layout, 
     Palette, 
     Wand2, 
-    MonitorCheck,
     Music,
-    Zap
+    ArrowUpRight
 } from "lucide-react";
 import { BenchmarkShowcase } from "./BenchmarkShowcase";
 import { GradientHeading } from "./GradientHeading";
 
 const Antigravity = dynamic(() => import("../ui/Antigravity"), { ssr: false });
-
 
 export const ComparisonTable = ({ 
     theme, 
@@ -28,168 +26,246 @@ export const ComparisonTable = ({
 }) => {
     const isDark = theme === "dark";
 
-    const features = [
-        {
-            title: "Discover",
-            desc: "Over 305,000 wallpapers. 4K videos, WebGL scenes, and community .colorwall projects(not yet welp, the app is not launched yet). One click to download.",
-            icon: Store,
-            colSpan: "lg:col-span-2",
-        },
+    // comparison bento pillars structured with spaceship layout hierarchy
+    const bentoCards = [
         {
             title: "Performance First",
-            desc: "This is not a joke, it has barely any resource usage, actively stays around 100~MB on idle, GPU usage barely is there. Plus it Auto-pauses on fullscreen games and battery mode.",
+            subtitle: "NEAR-ZERO IMPACT",
+            desc: "This is not a gimmick. Colorwall actively sits around ~100 MB RAM on idle, with GPU overhead barely registering. Automatically pauses instantly during fullscreen games or battery mode.",
             icon: Cpu,
-            colSpan: "lg:col-span-1",
+            badge: "< 1-5% GPU",
+            gradient: "from-blue-500/10 via-cyan-500/5 to-transparent",
+            colSpan: "lg:col-span-6",
+        },
+        {
+            title: "305,000+ Wallpapers",
+            subtitle: "UNIFIED VAULT",
+            desc: "Over 305,000 community wallpapers curated from 8+ sources. Native 4K/8K video loops, interactive WebGL canvases, and offline-first library indexing with one click.",
+            icon: Store,
+            badge: "8 Sources · 4K/8K",
+            gradient: "from-purple-500/10 via-indigo-500/5 to-transparent",
+            colSpan: "lg:col-span-6",
         },
         {
             title: "Shaders & Particles",
-            desc: "Real-time HLSL effects — reflections, sway, chromatic aberration, blur, and rain drops. All GPU-accelerated.",
+            subtitle: "GPU ACCELERATED",
+            desc: "Real-time HLSL compute effects directly injected into wallpapers: chromatic aberration, bloom, rain drops, procedural sway, and optical lens blur.",
             icon: Wand2,
+            badge: "HLSL · Compute",
             tag: "UNDER WORK",
-            colSpan: "lg:col-span-1",
+            gradient: "from-amber-500/10 via-orange-500/5 to-transparent",
+            colSpan: "lg:col-span-4",
         },
         {
-            title: "Audio Reactive",
-            desc: "Native system audio analysis injects rhythmic life into wallpapers, particles, and widgets in real-time.",
+            title: "Audio Reactivity",
+            subtitle: "WASAPI FFT HOOK",
+            desc: "Hardware loopback system audio analysis transforms music and desktop sound into rhythmic pulses across live wallpaper shaders and widgets in real-time.",
             icon: Music,
-            colSpan: "lg:col-span-1",
+            badge: "128-Band FFT",
+            gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
+            colSpan: "lg:col-span-4",
         },
         {
             title: "Desktop Widgets",
-            desc: "Add clocks, system monitors, and custom elements right to your desktop.",
+            subtitle: "HTML5 & JS PINNED",
+            desc: "Pin responsive clocks, system telemetry, and custom web components directly onto the Windows desktop plane with less than 1.2ms input delay.",
             icon: Layout,
-            colSpan: "lg:col-span-1",
+            badge: "Direct Plane Hook",
+            gradient: "from-cyan-500/10 via-blue-500/5 to-transparent",
+            colSpan: "lg:col-span-4",
         },
         {
-            title: "Taskbar",
-            desc: "Transparent, blur, or acrylic effects on your taskbar — completely independent of the wallpaper engine.",
+            title: "Taskbar Styling",
+            subtitle: "DWM ACRYLIC INJECTION",
+            desc: "Transparent, acrylic blur, or fluid colorway gradients on your Windows taskbar. Operates completely independent of the wallpaper engine with zero CPU consumption.",
             icon: Palette,
-            colSpan: "lg:col-span-3 md:col-span-2",
+            badge: "Independent DWM",
+            gradient: "from-rose-500/10 via-pink-500/5 to-transparent",
+            colSpan: "lg:col-span-12",
         },
     ];
 
     return (
-        <section className={`${isDownloadPage ? "py-12" : "py-32"} px-4 sm:px-8 relative overflow-hidden`}>
-            <div className="max-w-6xl mx-auto relative z-10">
+        <section className={`${isDownloadPage ? "py-16" : "py-32"} px-4 sm:px-8 relative overflow-hidden bg-transparent`}>
+            <div className="max-w-7xl mx-auto relative z-10">
 
-                <div className="flex flex-col items-center justify-center text-center mb-24 max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{ duration: 0.7 }}
-                        className="flex flex-col items-center w-full"
+                <div className="relative mb-24 sm:mb-28">
+                    {/* expanded antigravity canvas with smooth radial falloff mask */}
+                    <div 
+                        className="absolute -inset-x-16 -inset-y-20 sm:-inset-x-32 sm:-inset-y-28 lg:-inset-x-48 lg:-inset-y-36 z-0 pointer-events-none opacity-85 mix-blend-screen"
+                        style={{
+                            maskImage: "radial-gradient(ellipse 68% 60% at 50% 45%, black 25%, transparent 95%)",
+                            WebkitMaskImage: "radial-gradient(ellipse 68% 60% at 50% 45%, black 25%, transparent 95%)"
+                        }}
                     >
-                        {/* main statement with antigravity background */}
-                        <div className="relative w-full">
-                            {/* The 3D particle background */}
-                            <div className="absolute inset-0 -mx-32 -my-32 z-0 pointer-events-none opacity-80 mix-blend-screen">
-                                <Antigravity 
-                                    color={isDark ? "#00e5ff" : "#0284c7"} 
-                                    count={200}
-                                    particleSize={1.0}
-                                    waveAmplitude={2.0}
-                                    autoAnimate={true}
-                                />
-                            </div>
-                            
-                            <div className="relative z-10 pointer-events-none">
-                                <p className={`text-[11px] font-mono tracking-[0.3em] uppercase mb-8
-                                    ${isDark ? "text-white/75" : "text-black/75"}`}>
-                                  How we compare?
+                        <Antigravity 
+                            color={isDark ? "#00e5ff" : "#0284c7"} 
+                            count={260}
+                            particleSize={0.95}
+                            waveAmplitude={2.2}
+                            autoAnimate={true}
+                        />
+                    </div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.96 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: true, margin: "-60px" }}
+                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start"
+                    >
+                        {/* left column: 88px heading with tight tracking */}
+                        <div className="lg:col-span-7">
+                            {/* <div className="flex items-center gap-2 mb-6">
+                                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                                <p className="text-xs font-mono uppercase tracking-[0.25em] text-cyan-400 font-medium">
+                                    How we compare?
                                 </p>
-                                <h2 className={`text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3
-                                    ${isDark ? "text-white" : "text-black"}`}>
-                                    They solve a slice.
-                                </h2>
-                                <GradientHeading
-                                    text="We run the whole thing."
-                                    theme={theme}
-                                    className="text-4xl md:text-5xl lg:text-6xl font-anurati tracking-widest uppercase"
-                                />
-                            </div>
+                            </div> */}
+
+                            <h2 className="text-4xl sm:text-6xl md:text-7xl py-3 font-outfit font-[200] tracking-[-0.04em] leading-[1.02]">
+                                They solve a slice.
+                            </h2>
+                            
+                            <GradientHeading
+                                text="We run the whole thing"
+                                theme={theme}
+                                className="text-3xl sm:text-5xl lg:text-6xl font-anurati tracking-widest uppercase block"
+                            />
                         </div>
 
-                        {/* Modern Feature Grid (Bento Box style) */}
-                        <div className="w-full mt-24 mb-16 relative z-10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {features.map((feature, i) => {
-                                    const Icon = feature.icon;
-                                    return (
-                                        <motion.div
-                                            key={feature.title}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            whileInView={{ opacity: 1, y: 0 }}
-                                            viewport={{ once: true, margin: "-50px" }}
-                                            transition={{ delay: i * 0.1, duration: 0.5 }}
-                                            className={`p-6 md:p-8 rounded-3xl border flex flex-col justify-between text-left group transition-all duration-300 hover:-translate-y-1
-                                                ${feature.colSpan}
-                                                ${isDark 
-                                                    ? "bg-white/[0.02] hover:bg-white/[0.04] border-white/10 hover:border-white/20" 
-                                                    : "bg-black/[0.02] hover:bg-black/[0.04] border-black/10 hover:border-black/20"}`}
-                                        >
-                                            <div className="flex items-center gap-4 mb-5">
-                                                <Icon size={20} strokeWidth={1.5} className={`shrink-0 opacity-60 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? "text-white" : "text-black"}`} />
-                                                <h3 className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-black"}`}>
-                                                    {feature.title}
-                                                </h3>
-                                                {feature.tag && (
-                                                    <span className={`text-[9px] font-mono tracking-[0.15em] uppercase px-2 py-0.5 rounded-full
-                                                        ${isDark ? "bg-white/10 text-white/50" : "bg-black/10 text-black/50"}`}>
-                                                        {feature.tag}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <p className={`text-[14px] leading-relaxed ${isDark ? "text-white/50" : "text-black/50"}`}>
-                                                    {feature.desc}
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        {/* right column: companion description with generous breathing room */}
+                        <div className="lg:col-span-5 lg:pt-10 flex flex-col justify-between h-full">
+                            <p className="text-base sm:text-lg leading-relaxed text-[#b3b3b4] font-spline max-w-lg mb-8">
+                                Most wallpaper apps just loop video files and consume 20% of your GPU. Colorwall is an entire desktop runtime built from scratch in Rust and DirectX 11. It handles 8K video, audio reactivity, live widgets, and taskbar styling seamlessly.
+                            </p>
 
-                        {/* colorwall cta (hidden on download page since user is already on download route) */}
-                        {!isDownloadPage && (
-                            <div className={`mt-12 pt-10 border-t w-full
-                                ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 max-w-2xl mx-auto">
-                                    <div className="flex items-center gap-4">
-                                        <img
-                                            src="/colorwall.png"
-                                            alt="ColorWall Logo"
-                                            className="w-11 h-11 object-contain"
-                                        />
-                                        <div className="text-left">
-                                            <h3 className={`text-xl font-bold tracking-tight
-                                                ${isDark ? "text-white" : "text-[#1a1f36]"}`}>
-                                                ColorWall
-                                            </h3>
-                                            <p className={`text-[13px] mt-0.5
-                                                ${isDark ? "text-white/40" : "text-[#425466]"}`}>
-                                                Free to Install. Runs it all End to end. Actively maintained!
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Link href="/download">
-                                        <button className={`px-8 py-3 rounded-full text-sm font-semibold transition-colors duration-200
-                                            ${isDark
-                                                ? "bg-white text-black hover:bg-white/90"
-                                                : "bg-[#1a1f36] text-white hover:bg-[#2a2f46]"}`}>
-                                            Download Free
-                                        </button>
-                                    </Link>
+                            <div className="flex items-center gap-6 pt-6 border-t border-white/10">
+                                <div>
+                                    <span className="block text-2xl sm:text-3xl font-outfit font-[700] text-white tracking-tight">
+                                        ~100MB
+                                    </span>
+                                    <span className="block text-[11px] font-mono text-white/40 uppercase tracking-wider">
+                                        Idle memory
+                                    </span>
+                                </div>
+                                <div className="w-[1px] h-8 bg-white/10" />
+                                <div>
+                                    <span className="block text-2xl sm:text-3xl font-outfit font-[700] text-white tracking-tight">
+                                        0% Load
+                                    </span>
+                                    <span className="block text-[11px] font-mono text-white/40 uppercase tracking-wider">
+                                        Game auto-pause
+                                    </span>
+                                </div>
+                                <div className="w-[1px] h-8 bg-white/10" />
+                                <div>
+                                    <span className="block text-2xl sm:text-3xl font-outfit font-[700] text-white tracking-tight">
+                                        8K Ready
+                                    </span>
+                                    <span className="block text-[11px] font-mono text-white/40 uppercase tracking-wider">
+                                        Hardware IMF
+                                    </span>
                                 </div>
                             </div>
-                        )}
+                        </div>
                     </motion.div>
                 </div>
+
+                {/* spaceship-style bento grid with 32px gaps and 80px scroll translation */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-20">
+                    {bentoCards.map((card, i) => {
+                        const Icon = card.icon;
+                        return (
+                            <motion.div
+                                key={card.title}
+                                initial={{ opacity: 0, y: 80 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-60px" }}
+                                transition={{ delay: i * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                                whileHover={{ y: -6 }}
+                                className={`group relative rounded-[32px] border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] p-8 sm:p-10 flex flex-col justify-between overflow-hidden shadow-[0_16px_50px_rgba(0,0,0,0.5)] transition-all duration-500 hover:border-white/25 ${card.colSpan}`}
+                            >
+                                {/* subtle ambient radial glow */}
+                                <div className={`absolute top-0 right-0 w-80 h-80 rounded-full bg-gradient-to-br ${card.gradient} blur-3xl pointer-events-none opacity-30 group-hover:opacity-100 transition-opacity duration-700`} />
+
+                                <div>
+                                    {/* card top badges and icon */}
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/80 group-hover:text-cyan-400 group-hover:border-cyan-400/40 group-hover:scale-105 transition-all duration-300">
+                                            <Icon size={22} strokeWidth={1.5} />
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {card.tag && (
+                                                <span className="text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 font-semibold">
+                                                    {card.tag}
+                                                </span>
+                                            )}
+                                            <span className="text-[10px] font-mono tracking-wider uppercase px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white/70">
+                                                {card.badge}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* card typography */}
+                                    <span className="block text-[11px] font-mono uppercase tracking-[0.2em] text-white/40 mb-2 font-medium">
+                                        {card.subtitle}
+                                    </span>
+                                    <h3 className="text-2xl sm:text-3xl font-outfit font-[700] tracking-tight text-[#f9f9f9] mb-4">
+                                        {card.title}
+                                    </h3>
+                                    <p className="text-sm sm:text-base leading-relaxed text-[#b3b3b4] font-spline">
+                                        {card.desc}
+                                    </p>
+                                </div>
+
+                                <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono uppercase tracking-wider text-white/40 group-hover:text-cyan-300 transition-colors duration-300">
+                                    <span>Engine component</span>
+                                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
+                {/* colorwall cta bar */}
+                {!isDownloadPage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7 }}
+                        className="rounded-[32px] border border-white/15 bg-white/[0.02] hover:bg-white/[0.03] p-8 sm:p-12 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-8 max-w-5xl mx-auto transition-all duration-300"
+                    >
+                        <div className="flex items-center gap-5">
+                            <img
+                                src="/colorwall.png"
+                                alt="ColorWall Logo"
+                                className="w-14 h-14 object-contain shrink-0"
+                            />
+                            <div className="text-left">
+                                <h3 className="text-2xl font-outfit font-[700] text-white tracking-tight">
+                                    ColorWall Engine
+                                </h3>
+                                <p className="text-sm text-[#b3b3b4] font-spline mt-1">
+                                    Free to install. Runs it all end to end with near-zero overhead.
+                                </p>
+                            </div>
+                        </div>
+
+                        <Link href="/download">
+                            <button className="px-8 py-3.5 rounded-2xl text-xs font-mono uppercase tracking-widest bg-white text-black font-semibold hover:bg-cyan-300 transition-all duration-300 cursor-pointer shadow-lg active:scale-95">
+                                Download Free
+                            </button>
+                        </Link>
+                    </motion.div>
+                )}
+
             </div>
 
             {/* benchmark showcase container with responsive width */}
-            <div className="max-w-[100rem] mx-auto relative z-10 mt-12 px-2 lg:px-8">
+            <div className="max-w-[100rem] mx-auto relative z-10 mt-20 px-2 lg:px-8">
                 <BenchmarkShowcase theme={theme} isDownloadPage={isDownloadPage} />
             </div>
         </section>

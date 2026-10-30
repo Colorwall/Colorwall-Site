@@ -139,7 +139,7 @@ export const SecurityReport = ({
                 >
 
                     <h2 className={`text-5xl md:text-6xl lg:text-7xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-3 ${isDark ? "text-white" : "text-black"}`}>
-                        SAFE?. Ofcourse!
+                        Security Audit
                     </h2>
                     {/* <GradientHeading
                         text="Security Report"
