@@ -204,7 +204,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
                         <p className={`cursor-target relative p-4 -m-4 max-w-md text-base sm:text-lg leading-relaxed font-spline lg:text-right ${isDark ? "text-white/50" : "text-black/50"
                             }`}>
-                            Colorwall delivers smooth dynamic motion with minimal resource usage. It isn&apos;t a compromise—it&apos;s engineered to perform.
+                            Colorwall delivers smooth dynamic motion with minimal resource usage. It isn&apos;t a crutch, it&apos;s engineered to perform.
                         </p>
                     </motion.div>
 
