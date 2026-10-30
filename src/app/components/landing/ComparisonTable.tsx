@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import {
-    Cpu,
-    Store,
-    Layout,
-    Palette,
-    Wand2,
+import { 
+    Cpu, 
+    Store, 
+    Layout, 
+    Palette, 
+    Wand2, 
     Music
 } from "lucide-react";
 import { BenchmarkShowcase } from "./BenchmarkShowcase";
@@ -18,11 +18,11 @@ import { GradientHeading } from "./GradientHeading";
 
 const Antigravity = dynamic(() => import("../ui/Antigravity"), { ssr: false });
 
-export const ComparisonTable = ({
-    theme,
-    isDownloadPage = false
-}: {
-    theme: "dark" | "light";
+export const ComparisonTable = ({ 
+    theme, 
+    isDownloadPage = false 
+}: { 
+    theme: "dark" | "light"; 
     isDownloadPage?: boolean;
 }) => {
     const isDark = theme === "dark";
@@ -43,7 +43,7 @@ export const ComparisonTable = ({
         }
     }, []);
 
-    // bento cards with respective background images spanning the entire card
+    // flat bento cards with static styling and no hover or blur overhead
     const bentoCards = [
         {
             title: "Performance First",
@@ -91,22 +91,23 @@ export const ComparisonTable = ({
     ];
 
     return (
-        <section className={`py-24 sm:py-32 px-4 sm:px-8 relative overflow-hidden ${isDark ? "bg-black text-white" : "bg-white text-black"
-            }`}>
+        <section className={`py-24 sm:py-32 px-4 sm:px-8 relative overflow-hidden ${
+            isDark ? "bg-black text-white" : "bg-white text-black"
+        }`}>
             <div className="max-w-7xl mx-auto relative z-10">
 
                 {/* breathy two-column heading with contained antigravity backdrop */}
                 <div className="relative mb-20 sm:mb-24">
                     {/* expanded antigravity canvas with smooth radial falloff mask */}
-                    <div
+                    <div 
                         className="absolute -inset-x-16 -inset-y-20 sm:-inset-x-32 sm:-inset-y-28 lg:-inset-x-48 lg:-inset-y-36 z-0 pointer-events-none opacity-80 mix-blend-screen"
                         style={{
                             maskImage: "radial-gradient(ellipse 68% 60% at 50% 45%, black 25%, transparent 95%)",
                             WebkitMaskImage: "radial-gradient(ellipse 68% 60% at 50% 45%, black 25%, transparent 95%)"
                         }}
                     >
-                        <Antigravity
-                            color={isDark ? "#00e5ff" : "#0284c7"}
+                        <Antigravity 
+                            color={isDark ? "#00e5ff" : "#0284c7"} 
                             count={260}
                             particleSize={0.95}
                             waveAmplitude={2.2}
@@ -125,17 +126,19 @@ export const ComparisonTable = ({
                         <div className="lg:col-span-7">
                             <div className="flex items-center gap-2 mb-6">
                                 <span className={`w-2 h-2 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-600"} animate-pulse`} />
-                                <p className={`text-xs font-mono uppercase tracking-[0.25em] font-medium ${isDark ? "text-cyan-400" : "text-blue-600"
-                                    }`}>
+                                <p className={`text-xs font-mono uppercase tracking-[0.25em] font-medium ${
+                                    isDark ? "text-cyan-400" : "text-blue-600"
+                                }`}>
                                     How we compare?
                                 </p>
                             </div>
 
-                            <h2 className={`text-5xl sm:text-7xl lg:text-[88px] font-outfit font-[700] tracking-[-0.6px] leading-[0.96] mb-4 ${isDark ? "text-white" : "text-black"
-                                }`}>
+                            <h2 className={`text-5xl sm:text-7xl lg:text-[88px] font-outfit font-[700] tracking-[-0.6px] leading-[0.96] mb-4 ${
+                                isDark ? "text-white" : "text-black"
+                            }`}>
                                 They solve a slice.
                             </h2>
-
+                            
                             <GradientHeading
                                 text="We run the whole thing."
                                 theme={theme}
@@ -145,42 +148,50 @@ export const ComparisonTable = ({
 
                         {/* right column: companion description with proper theme contrast */}
                         <div className="lg:col-span-5 lg:pt-10 flex flex-col justify-between h-full">
-                            <p className={`text-base sm:text-lg leading-relaxed font-spline max-w-lg mb-8 ${isDark ? "text-[#b3b3b4]" : "text-[#52525b]"
-                                }`}>
+                            <p className={`text-base sm:text-lg leading-relaxed font-spline max-w-lg mb-8 ${
+                                isDark ? "text-[#b3b3b4]" : "text-[#52525b]"
+                            }`}>
                                 Most wallpaper apps just loop video files and consume 20% of your GPU. Colorwall is an entire desktop runtime built from scratch in Rust and DirectX 11. It handles 8K video, audio reactivity, live widgets, and taskbar styling seamlessly.
                             </p>
 
-                            <div className={`flex items-center gap-6 pt-6 border-t ${isDark ? "border-white/10" : "border-black/10"
-                                }`}>
+                            <div className={`flex items-center gap-6 pt-6 border-t ${
+                                isDark ? "border-white/10" : "border-black/10"
+                            }`}>
                                 <div>
-                                    <span className={`block text-2xl sm:text-3xl font-outfit font-[700] tracking-tight ${isDark ? "text-white" : "text-black"
-                                        }`}>
+                                    <span className={`block text-2xl sm:text-3xl font-outfit font-[700] tracking-tight ${
+                                        isDark ? "text-white" : "text-black"
+                                    }`}>
                                         ~100MB
                                     </span>
-                                    <span className={`block text-[11px] font-mono uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/40"
-                                        }`}>
+                                    <span className={`block text-[11px] font-mono uppercase tracking-wider ${
+                                        isDark ? "text-white/40" : "text-black/40"
+                                    }`}>
                                         Idle memory
                                     </span>
                                 </div>
                                 <div className={`w-[1px] h-8 ${isDark ? "bg-white/10" : "bg-black/10"}`} />
                                 <div>
-                                    <span className={`block text-2xl sm:text-3xl font-outfit font-[700] tracking-tight ${isDark ? "text-white" : "text-black"
-                                        }`}>
+                                    <span className={`block text-2xl sm:text-3xl font-outfit font-[700] tracking-tight ${
+                                        isDark ? "text-white" : "text-black"
+                                    }`}>
                                         0% Load
                                     </span>
-                                    <span className={`block text-[11px] font-mono uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/40"
-                                        }`}>
+                                    <span className={`block text-[11px] font-mono uppercase tracking-wider ${
+                                        isDark ? "text-white/40" : "text-black/40"
+                                    }`}>
                                         Game auto-pause
                                     </span>
                                 </div>
                                 <div className={`w-[1px] h-8 ${isDark ? "bg-white/10" : "bg-black/10"}`} />
                                 <div>
-                                    <span className={`block text-2xl sm:text-3xl font-outfit font-[700] tracking-tight ${isDark ? "text-white" : "text-black"
-                                        }`}>
+                                    <span className={`block text-2xl sm:text-3xl font-outfit font-[700] tracking-tight ${
+                                        isDark ? "text-white" : "text-black"
+                                    }`}>
                                         8K Ready
                                     </span>
-                                    <span className={`block text-[11px] font-mono uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/40"
-                                        }`}>
+                                    <span className={`block text-[11px] font-mono uppercase tracking-wider ${
+                                        isDark ? "text-white/40" : "text-black/40"
+                                    }`}>
                                         Hardware IMF
                                     </span>
                                 </div>
@@ -189,25 +200,22 @@ export const ComparisonTable = ({
                     </motion.div>
                 </div>
 
-                {/* solid bento cards with true edge-to-edge full-bleed background images */}
+                {/* solid bento cards: zero hover animations, zero blur, zero shadows */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 mb-20">
-                    {bentoCards.map((card, i) => {
+                    {bentoCards.map((card) => {
                         const Icon = card.icon;
                         return (
-                            <motion.div
+                            <div
                                 key={card.title}
-                                initial={{ opacity: 0, y: 50 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-60px" }}
-                                transition={{ delay: i * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                                whileHover={{ y: -4 }}
-                                className={`group relative rounded-[28px] sm:rounded-[32px] border p-8 sm:p-10 flex flex-col justify-between overflow-hidden transition-all duration-300 min-h-[280px] sm:min-h-[320px] ${card.colSpan
-                                    } ${isDark
-                                        ? "bg-[#111113] border-white/10 hover:border-white/25 shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
-                                        : "bg-[#f5f5f7] border-black/10 hover:border-black/20 shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
-                                    }`}
+                                className={`relative rounded-[28px] sm:rounded-[32px] border p-8 sm:p-10 flex flex-col justify-between overflow-hidden min-h-[280px] sm:min-h-[320px] ${
+                                    card.colSpan
+                                } ${
+                                    isDark
+                                        ? "bg-[#111113] border-white/10"
+                                        : "bg-[#f5f5f7] border-black/10"
+                                }`}
                             >
-                                {/* image spans 100% of card from edge to edge with zero split-boxes */}
+                                {/* static full-bleed background image with zero hover scaling */}
                                 {idleLoaded && card.bgImage && (
                                     <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
                                         <Image
@@ -218,68 +226,71 @@ export const ComparisonTable = ({
                                             loading="lazy"
                                             fetchPriority="low"
                                             sizes="(max-width: 768px) 100vw, 50vw"
-                                            className={`object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 ${isDark ? "opacity-75" : "opacity-85"
-                                                }`}
+                                            className={`object-cover object-center ${
+                                                isDark ? "opacity-75" : "opacity-85"
+                                            }`}
                                         />
 
-                                        {/* smooth directional fade over the text on the left */}
-                                        <div
-                                            className={`absolute inset-0 pointer-events-none ${isDark
-                                                    ? "bg-gradient-to-r from-[#111113] via-[#111113]/60 to-transparent"
+                                        {/* static smooth directional fade on text side with zero blur */}
+                                        <div 
+                                            className={`absolute inset-0 pointer-events-none ${
+                                                isDark 
+                                                    ? "bg-gradient-to-r from-[#111113] via-[#111113]/60 to-transparent" 
                                                     : "bg-gradient-to-r from-[#f5f5f7] via-[#f5f5f7]/60 to-transparent"
-                                                }`}
+                                            }`}
                                         />
                                     </div>
                                 )}
 
                                 <div className="relative z-10 flex flex-col justify-between h-full">
-                                    {/* card top icon and status tag if present */}
+                                    {/* card top icon and status tag with zero blur */}
                                     <div className="flex items-center gap-3 mb-8">
-                                        <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all duration-300 backdrop-blur-md ${isDark
-                                                ? "bg-black/60 border-white/15 text-white group-hover:text-cyan-400 group-hover:border-cyan-400/40"
-                                                : "bg-white/80 border-black/15 text-black group-hover:text-blue-600 group-hover:border-blue-600/40"
-                                            }`}>
+                                        <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${
+                                            isDark 
+                                                ? "bg-black/60 border-white/15 text-white" 
+                                                : "bg-white/80 border-black/15 text-black"
+                                        }`}>
                                             <Icon size={22} strokeWidth={1.5} />
                                         </div>
 
                                         {card.tag && (
-                                            <span className={`text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full font-semibold border backdrop-blur-md ${isDark
+                                            <span className={`text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full font-semibold border ${
+                                                isDark
                                                     ? "bg-amber-400/20 border-amber-400/40 text-amber-300"
                                                     : "bg-amber-500/20 border-amber-500/40 text-amber-700"
-                                                }`}>
+                                            }`}>
                                                 {card.tag}
                                             </span>
                                         )}
                                     </div>
 
-                                    {/* card typography */}
+                                    {/* card typography with zero drop-shadows */}
                                     <div>
-                                        <h3 className={`text-2xl sm:text-3xl font-outfit font-[700] tracking-tight mb-3 transition-colors duration-300 drop-shadow-sm ${isDark ? "text-white" : "text-[#111111]"
-                                            }`}>
+                                        <h3 className={`text-2xl sm:text-3xl font-outfit font-[700] tracking-tight mb-3 ${
+                                            isDark ? "text-white" : "text-[#111111]"
+                                        }`}>
                                             {card.title}
                                         </h3>
-                                        <p className={`text-sm sm:text-base leading-relaxed font-spline max-w-lg ${isDark ? "text-[#b3b3b4]" : "text-[#3f3f46]"
-                                            }`}>
+                                        <p className={`text-sm sm:text-base leading-relaxed font-spline max-w-lg ${
+                                            isDark ? "text-[#b3b3b4]" : "text-[#3f3f46]"
+                                        }`}>
                                             {card.desc}
                                         </p>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         );
                     })}
                 </div>
 
-                {/* colorwall cta bar */}
+                {/* colorwall cta bar without shadows or blurs */}
                 {!isDownloadPage && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className={`rounded-[28px] sm:rounded-[32px] border p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-8 max-w-5xl mx-auto transition-all duration-300 ${isDark
-                                ? "bg-[#111113] border-white/10 shadow-2xl"
-                                : "bg-[#f5f5f7] border-black/10 shadow-lg"
-                            }`}
+                    <div
+                        className={`rounded-[28px] sm:rounded-[32px] border p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-8 max-w-5xl mx-auto ${
+                            isDark
+                                ? "bg-[#111113] border-white/10"
+                                : "bg-[#f5f5f7] border-black/10"
+                        }`}
                     >
                         <div className="flex items-center gap-5">
                             <img
@@ -288,26 +299,29 @@ export const ComparisonTable = ({
                                 className="w-14 h-14 object-contain shrink-0"
                             />
                             <div className="text-left">
-                                <h3 className={`text-2xl font-outfit font-[700] tracking-tight ${isDark ? "text-white" : "text-black"
-                                    }`}>
+                                <h3 className={`text-2xl font-outfit font-[700] tracking-tight ${
+                                    isDark ? "text-white" : "text-black"
+                                }`}>
                                     ColorWall Engine
                                 </h3>
-                                <p className={`text-sm font-spline mt-1 ${isDark ? "text-[#a1a1aa]" : "text-[#52525b]"
-                                    }`}>
+                                <p className={`text-sm font-spline mt-1 ${
+                                    isDark ? "text-[#a1a1aa]" : "text-[#52525b]"
+                                }`}>
                                     Free to install. Runs it all end to end with near-zero overhead.
                                 </p>
                             </div>
                         </div>
 
                         <Link href="/download">
-                            <button className={`px-8 py-3.5 rounded-2xl text-xs font-mono uppercase tracking-widest font-semibold transition-all duration-300 cursor-pointer shadow-md active:scale-95 ${isDark
-                                    ? "bg-white text-black hover:bg-cyan-300"
+                            <button className={`px-8 py-3.5 rounded-2xl text-xs font-mono uppercase tracking-widest font-semibold cursor-pointer active:scale-95 ${
+                                isDark
+                                    ? "bg-white text-black hover:bg-neutral-200"
                                     : "bg-black text-white hover:bg-neutral-800"
-                                }`}>
+                            }`}>
                                 Download Free
                             </button>
                         </Link>
-                    </motion.div>
+                    </div>
                 )}
 
             </div>
