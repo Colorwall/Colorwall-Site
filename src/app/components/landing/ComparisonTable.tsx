@@ -7,11 +7,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { 
     Cpu, 
-    Store, 
-    Layout, 
-    Palette, 
-    Wand2, 
-    Music
+    Layout
 } from "lucide-react";
 import { BenchmarkShowcase } from "./BenchmarkShowcase";
 import { GradientHeading } from "./GradientHeading";
@@ -43,9 +39,10 @@ export const ComparisonTable = ({
         }
     }, []);
 
-    // flat bento cards with static styling and no hover or blur overhead
+    // bento cards with specific icon and header asset rules
     const bentoCards = [
         {
+            id: "perf",
             title: "Performance First",
             desc: "This is not a gimmick. Colorwall actively sits around ~100 MB RAM on idle, with GPU overhead barely registering. Automatically pauses instantly during fullscreen games or battery mode.",
             icon: Cpu,
@@ -53,28 +50,30 @@ export const ComparisonTable = ({
             colSpan: "lg:col-span-6",
         },
         {
+            id: "store",
             title: "305,000+ Wallpapers",
             desc: "Over 305,000 community wallpapers curated from 8+ sources. Native 4K/8K video loops, interactive WebGL canvases, and offline-first library indexing with one click.",
-            icon: Store,
+            svgAsset: "/editorial/smol1.svg",
             bgImage: "/editorial/store.webp",
             colSpan: "lg:col-span-6",
         },
         {
+            id: "shaders",
             title: "Shaders & Particles",
             desc: "Real-time HLSL compute effects directly injected into wallpapers: chromatic aberration, bloom, rain drops, procedural sway, and optical lens blur.",
-            icon: Wand2,
             tag: "UNDER WORK",
             bgImage: "/editorial/shaders.svg",
             colSpan: "lg:col-span-4",
         },
         {
+            id: "audio",
             title: "Audio Reactivity",
             desc: "Hardware loopback system audio analysis transforms music and desktop sound into rhythmic pulses across live wallpaper shaders and widgets in real-time.",
-            icon: Music,
             bgImage: "/editorial/audio_reactive.webp",
             colSpan: "lg:col-span-4",
         },
         {
+            id: "widgets",
             title: "Desktop Widgets",
             desc: "Pin responsive clocks, system telemetry, and custom web components directly onto the Windows desktop plane with less than 1.2ms input delay.",
             icon: Layout,
@@ -82,9 +81,9 @@ export const ComparisonTable = ({
             colSpan: "lg:col-span-4",
         },
         {
+            id: "taskbar",
             title: "Taskbar Styling",
             desc: "Transparent, acrylic blur, or fluid colorway gradients on your Windows taskbar. Operates completely independent of the wallpaper engine with zero CPU consumption.",
-            icon: Palette,
             bgImage: "/editorial/taskbarstyle.webp",
             colSpan: "lg:col-span-12",
         },
@@ -200,7 +199,7 @@ export const ComparisonTable = ({
                     </motion.div>
                 </div>
 
-                {/* solid bento cards: zero hover animations, zero blur, zero shadows */}
+                {/* solid bento cards with clean custom iconography */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 mb-20">
                     {bentoCards.map((card) => {
                         const Icon = card.icon;
@@ -215,7 +214,7 @@ export const ComparisonTable = ({
                                         : "bg-[#f5f5f7] border-black/10"
                                 }`}
                             >
-                                {/* static full-bleed background image with zero hover scaling */}
+                                {/* static full-bleed background image */}
                                 {idleLoaded && card.bgImage && (
                                     <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
                                         <Image
@@ -231,7 +230,7 @@ export const ComparisonTable = ({
                                             }`}
                                         />
 
-                                        {/* static smooth directional fade on text side with zero blur */}
+                                        {/* static smooth directional fade on text side */}
                                         <div 
                                             className={`absolute inset-0 pointer-events-none ${
                                                 isDark 
@@ -243,28 +242,36 @@ export const ComparisonTable = ({
                                 )}
 
                                 <div className="relative z-10 flex flex-col justify-between h-full">
-                                    {/* card top icon and status tag with zero blur */}
-                                    <div className="flex items-center gap-3 mb-8">
-                                        <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${
-                                            isDark 
-                                                ? "bg-black/60 border-white/15 text-white" 
-                                                : "bg-white/80 border-black/15 text-black"
-                                        }`}>
-                                            <Icon size={22} strokeWidth={1.5} />
-                                        </div>
+                                    {/* card top area: bare icons without boxes, bare text tags */}
+                                    <div className="flex items-center justify-between mb-8 min-h-[32px]">
+                                        {/* store card smol1.svg asset without box */}
+                                        {card.svgAsset ? (
+                                            <div className="relative h-7 w-28">
+                                                <Image
+                                                    src={card.svgAsset}
+                                                    alt="Store icon"
+                                                    fill
+                                                    className="object-contain object-left"
+                                                />
+                                            </div>
+                                        ) : Icon ? (
+                                            /* bare icon with zero box around it */
+                                            <Icon size={24} strokeWidth={1.5} className={isDark ? "text-white/80" : "text-black/80"} />
+                                        ) : (
+                                            <div />
+                                        )}
 
+                                        {/* shaders under work tag as clean bare text */}
                                         {card.tag && (
-                                            <span className={`text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full font-semibold border ${
-                                                isDark
-                                                    ? "bg-amber-400/20 border-amber-400/40 text-amber-300"
-                                                    : "bg-amber-500/20 border-amber-500/40 text-amber-700"
+                                            <span className={`text-[11px] font-mono tracking-wider uppercase font-semibold ${
+                                                isDark ? "text-amber-400" : "text-amber-600"
                                             }`}>
                                                 {card.tag}
                                             </span>
                                         )}
                                     </div>
 
-                                    {/* card typography with zero drop-shadows */}
+                                    {/* card typography */}
                                     <div>
                                         <h3 className={`text-2xl sm:text-3xl font-outfit font-[700] tracking-tight mb-3 ${
                                             isDark ? "text-white" : "text-[#111111]"
@@ -272,7 +279,7 @@ export const ComparisonTable = ({
                                             {card.title}
                                         </h3>
                                         <p className={`text-sm sm:text-base leading-relaxed font-spline max-w-lg ${
-                                            isDark ? "text-[#b3b3b4]" : "text-[#3f3f46]"
+                                            isDark ? "text-[#b3b3b4]" : "text-[#52525b]"
                                         }`}>
                                             {card.desc}
                                         </p>
@@ -283,7 +290,7 @@ export const ComparisonTable = ({
                     })}
                 </div>
 
-                {/* colorwall cta bar without shadows or blurs */}
+                {/* colorwall cta bar */}
                 {!isDownloadPage && (
                     <div
                         className={`rounded-[28px] sm:rounded-[32px] border p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-8 max-w-5xl mx-auto ${
@@ -302,7 +309,7 @@ export const ComparisonTable = ({
                                 <h3 className={`text-2xl font-outfit font-[700] tracking-tight ${
                                     isDark ? "text-white" : "text-black"
                                 }`}>
-                                    ColorWall Engine
+                                    ColorWall
                                 </h3>
                                 <p className={`text-sm font-spline mt-1 ${
                                     isDark ? "text-[#a1a1aa]" : "text-[#52525b]"
