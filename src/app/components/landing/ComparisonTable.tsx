@@ -123,16 +123,8 @@ export const ComparisonTable = ({
                     >
                         {/* left column: 88px heading with tight tracking */}
                         <div className="lg:col-span-7">
-                            <div className="flex items-center gap-2 mb-6">
-                                <span className={`w-2 h-2 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-600"} animate-pulse`} />
-                                <p className={`text-xs font-mono uppercase tracking-[0.25em] font-medium ${
-                                    isDark ? "text-cyan-400" : "text-blue-600"
-                                }`}>
-                                    How we compare?
-                                </p>
-                            </div>
 
-                            <h2 className={`text-5xl sm:text-7xl lg:text-[88px] font-outfit font-[700] tracking-[-0.6px] leading-[0.96] mb-4 ${
+                            <h2 className={`text-4xl sm:text-6xl py-3 md:text-7xl font-outfit font-[200] tracking-[-0.04em] leading-[1.02] ${
                                 isDark ? "text-white" : "text-black"
                             }`}>
                                 They solve a slice.
