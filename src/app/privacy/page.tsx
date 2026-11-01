@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { Shield } from "lucide-react";
+import Link from "next/link";
 import { Footer } from "@/app/components/Footer";
 import { useTheme } from "@/app/contexts/ThemeContext";
 
@@ -10,77 +9,170 @@ export default function PrivacyPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    const bgColor = isDark ? "bg-[#0a0a0a]" : "bg-white";
-    const textColor = isDark ? "text-white" : "text-black";
-    const mutedText = isDark ? "text-white/60" : "text-black/60";
     const borderColor = isDark ? "border-white/10" : "border-black/10";
-    const proseClass = isDark ? "prose-invert" : "";
+    const mutedText = isDark ? "text-white/60" : "text-black/60";
+    const bodyText = isDark ? "text-white/80" : "text-black/80";
 
     return (
-        <div className={`min-h-screen ${bgColor} ${textColor} font-sans selection:bg-blue-500/30`}>
-            <div className="h-16" />
+        <div className={`min-h-screen ${isDark ? "bg-[#070709] text-white" : "bg-[#fafafa] text-black"} font-sans selection:bg-cyan-500/30`}>
+            {/* top subtle ambient light with clean heading */}
+            <div className="relative overflow-hidden pt-32 pb-16 px-6 sm:px-12">
+                <div 
+                    aria-hidden="true" 
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-cyan-500/10 blur-[130px] pointer-events-none rounded-full" 
+                />
 
-            <main className="pt-24 pb-24 px-6">
-                <div className="max-w-3xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-16"
-                    >
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500">
-                                <Shield size={32} />
-                            </div>
+                <div className="max-w-3xl mx-auto relative z-10">
+                    {/* page navigation tab switcher */}
+                    <div className="flex items-center gap-3 mb-8">
+                        {/* <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                            Privacy Policy
+                        </span> */}
+                        <Link 
+                            href="/terms" 
+                            className={`px-3 py-1 rounded-full text-xs font-mono font-medium transition-colors ${
+                                isDark ? "text-white/40 hover:text-white" : "text-black/40 hover:text-black"
+                            }`}
+                        >
+                            Terms of Service &rarr;
+                        </Link>
+                    </div>
+
+                    <h1 className="text-4xl sm:text-6xl font-outfit font-[200] tracking-[-0.04em] leading-[1.05] mb-4">
+                        Privacy Policy
+                    </h1>
+                    <p className={`text-base sm:text-lg leading-relaxed font-spline ${mutedText}`}>
+                        Transparent legal and technical boundaries for the ColorWall desktop engine, runtime processes, and connected community ecosystem.
+                    </p>
+                </div>
+            </div>
+
+            {/* main legal document flow without card boxes */}
+            <main className="pb-28 px-6 sm:px-12">
+                <div className="max-w-3xl mx-auto space-y-16">
+
+                    {/* section 01 */}
+                    <section className={`pt-12 border-t ${borderColor}`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-xs font-mono text-cyan-400 tracking-widest font-semibold uppercase">
+                                § 1.0
+                            </span>
+                            <span className="text-xs font-mono text-white/30 tracking-wider uppercase">
+                                Application Runtime Architecture
+                            </span>
                         </div>
-                        <h1 className="text-5xl sm:text-6xl font-black mb-6 tracking-tight">Privacy Architecture</h1>
-                        <p className={`text-xl ${mutedText} font-light leading-relaxed max-w-2xl`}>
-                            We build high-performance software, not spyware. ColorWall is engineered from the ground up to respect your digital boundary.
+                        <h2 className="text-2xl sm:text-3xl font-outfit font-[300] tracking-tight mb-4">
+                            Local Engine Isolation & Storage
+                        </h2>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline mb-4 ${bodyText}`}>
+                            ColorWall executes on your machine via three dedicated native processes: the primary shell (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">colorwall.exe</code>), the media player (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">cw-player.exe</code>), and the DirectX 11 compositor (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">cw-render.exe</code>).
                         </p>
-                    </motion.div>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline ${bodyText}`}>
+                            These processes communicate exclusively via local encrypted named pipes protected by compile-time authentication tokens. All your downloaded wallpapers, custom node scenes, SQLite caches, and application configurations remain strictly on your local disk at <code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">%LOCALAPPDATA%\ColorWall</code>. We never scan, index, or inspect non-ColorWall files on your filesystem.
+                        </p>
+                    </section>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className={`prose prose-lg ${proseClass} max-w-none space-y-12`}
-                    >
-                        <section className="relative">
-                            <div className="absolute -left-8 top-2 hidden md:block">
-                                <span className={`text-sm font-mono tracking-widest ${mutedText} uppercase`}>01</span>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4">Zero Telemetry Promise</h3>
-                            <p className="font-light text-lg opacity-80 leading-relaxed">
-                                ColorWall does not track your usage habits, screen time, or hardware fingerprints. Your desktop is your personal space. We have deliberately omitted analytics engines from our core rendering pipeline to ensure absolute performance and privacy.
-                            </p>
-                        </section>
-
-                        <section className="relative">
-                            <div className="absolute -left-8 top-2 hidden md:block">
-                                <span className={`text-sm font-mono tracking-widest ${mutedText} uppercase`}>02</span>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4">Local-First Storage</h3>
-                            <p className="font-light text-lg opacity-80 leading-relaxed">
-                                Every configuration, scene preset, and downloaded asset remains strictly on your local disk. We do not sync your custom wallpapers to our servers, nor do we require an account to unlock the full power of the engine.
-                            </p>
-                        </section>
-
-                        <section className="relative">
-                            <div className="absolute -left-8 top-2 hidden md:block">
-                                <span className={`text-sm font-mono tracking-widest ${mutedText} uppercase`}>03</span>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4">Network Activity</h3>
-                            <p className="font-light text-lg opacity-80 leading-relaxed">
-                                ColorWall only connects to external servers under two explicit conditions: when you actively search for wallpapers in the Store, and when the engine checks for critical software updates. These connections are direct and encrypted.
-                            </p>
-                        </section>
-
-                     <div className={`p-6 rounded-2xl border ${borderColor} ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                            <p className="text-sm m-0 font-mono opacity-70">
-                                Last Updated: August, 2026 <br />
-                                Contact: help.colorwall@gmail.com
+                    {/* section 02 */}
+                    <section className={`pt-12 border-t ${borderColor}`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-xs font-mono text-cyan-400 tracking-widest font-semibold uppercase">
+                                § 2.0
+                            </span>
+                            <span className="text-xs font-mono text-white/30 tracking-wider uppercase">
+                                Telemetry & Error Reporting
+                            </span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-outfit font-[300] tracking-tight mb-4">
+                            Diagnostic Logs & Settings Opt-Out
+                        </h2>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline mb-4 ${bodyText}`}>
+                            ColorWall does not collect personal surveillance data, keystrokes, viewing habits, or device identity. To maintain engine stability across diverse graphics drivers and Windows versions, ColorWall incorporates standard Sentry crash reporting for runtime panics, stack traces, and GPU device resets.
+                        </p>
+                        <div className="pl-4 py-1 border-l-2 border-cyan-400/80 my-4">
+                            <p className="text-xs font-mono leading-relaxed text-cyan-300/90">
+                                <strong>User Control:</strong> You can completely disable Sentry telemetry and error diagnostic reporting at any time by toggling off crash reporting directly in <em>ColorWall &rarr; Settings &rarr; Privacy</em>.
                             </p>
                         </div>
-                    </motion.div>
+                    </section>
+
+                    {/* section 03 */}
+                    <section className={`pt-12 border-t ${borderColor}`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-xs font-mono text-cyan-400 tracking-widest font-semibold uppercase">
+                                § 3.0
+                            </span>
+                            <span className="text-xs font-mono text-white/30 tracking-wider uppercase">
+                                Network Connectivity
+                            </span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-outfit font-[300] tracking-tight mb-4">
+                            Connected Services, Store & Auto-Updates
+                        </h2>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline mb-4 ${bodyText}`}>
+                            While rendering occurs entirely on your local hardware, ColorWall interfaces with our official backend servers (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">colorwall.xyz</code>) and edge content delivery networks under explicit scenarios:
+                        </p>
+                        <ul className={`list-disc pl-5 space-y-2 text-sm sm:text-base font-spline ${bodyText}`}>
+                            <li><strong>Automatic Engine Updates:</strong> Checking version manifests and pulling binary updates into the <code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">updates/</code> directory.</li>
+                            <li><strong>Store & Discover Repositories:</strong> Querying search terms, tags, and downloading wallpaper video assets, interactive scenes, or widget packages.</li>
+                            <li><strong>Cloud Authentication & Accounts:</strong> Managing user sessions, creator profiles, and sync preferences when signed in.</li>
+                        </ul>
+                    </section>
+
+                    {/* section 04 */}
+                    <section className={`pt-12 border-t ${borderColor}`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-xs font-mono text-cyan-400 tracking-widest font-semibold uppercase">
+                                § 4.0
+                            </span>
+                            <span className="text-xs font-mono text-white/30 tracking-wider uppercase">
+                                Audio Reactivity Disclosure
+                            </span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-outfit font-[300] tracking-tight mb-4">
+                            Windows WASAPI Loopback Privacy
+                        </h2>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline ${bodyText}`}>
+                            ColorWall features a hardware-hooked audio visualizer engine utilizing the Windows Audio Session API (WASAPI) loopback hook. This process calculates 128-band Fast Fourier Transform (FFT) frequencies solely to drive dynamic visualizer waveforms and shader parameters. <strong>Audio streams are processed strictly in volatile RAM and are never recorded, cached to disk, listened to, or transmitted over the internet.</strong>
+                        </p>
+                    </section>
+
+                    {/* section 05 */}
+                    <section className={`pt-12 border-t ${borderColor}`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-xs font-mono text-cyan-400 tracking-widest font-semibold uppercase">
+                                § 5.0
+                            </span>
+                            <span className="text-xs font-mono text-white/30 tracking-wider uppercase">
+                                Widgets & Third-Party APIs
+                            </span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-outfit font-[300] tracking-tight mb-4">
+                            HTML5 Desktop Widgets & Sandbox Environment
+                        </h2>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline mb-4 ${bodyText}`}>
+                            ColorWall exposes a comprehensive JavaScript API allowing creators to craft desktop widgets and interactive canvases using HTML, CSS, and JS. These run within managed, isolated host windows.
+                        </p>
+                        <p className={`text-sm sm:text-base leading-relaxed font-spline ${bodyText}`}>
+                            Third-party widgets may make outbound requests to external web APIs (such as Spotify, OpenWeather, or cryptocurrency feeds) according to the code written by the widget creator. Any credentials or API keys you configure inside community widgets are subject to that widget's respective network endpoints.
+                        </p>
+                    </section>
+
+                    {/* contact info and timestamp */}
+                    <div className={`pt-12 border-t ${borderColor} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6`}>
+                        <div>
+                            <span className="text-xs font-mono uppercase tracking-widest text-cyan-400 block mb-1">
+                                Questions or Concerns?
+                            </span>
+                            <span className={`text-sm font-mono ${mutedText}`}>
+                                Contact: help.colorwall@gmail.com &middot; Laxenta LLC
+                            </span>
+                        </div>
+                        <div className={`text-xs font-mono ${mutedText} sm:text-right`}>
+                            Engine Revision: v4.4.2<br />
+                            Last Revised: November 2026
+                        </div>
+                    </div>
+
                 </div>
             </main>
 
