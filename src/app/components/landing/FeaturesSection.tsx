@@ -69,7 +69,7 @@ const showcaseFeatures = [
         description: "Unmatched performance and deep desktop control. Style your Windows taskbar with acrylic blur, configure multi-monitor setups, and tweak renderer presets.",
         badge: "Rust · Tauri · Low Overhead",
         thumbnailSrc: "/PEAKmodalpreview.webp",
-        imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"],
+        imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/perf.webp"],
         techSpecs: [
             { label: "Core", value: "Tauri v2 / Rust native" },
             { label: "Compositor", value: "DirectX 11 swapchain" },
@@ -423,25 +423,23 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                             onClick={() => setActiveModalFeature(index)}
                             className="cursor-pointer group relative shrink-0 w-64 sm:w-72 snap-start rounded-2xl overflow-hidden border border-white/10 bg-[#0d0e12]/80 hover:border-cyan-400/60 hover:bg-white/[0.04] transition-all duration-300 shadow-lg"
                         >
-                            {/* respective screenshot image container */}
+                            {/* clean thumbnail preview container */}
                             <div className="relative aspect-[16/10] w-full overflow-hidden bg-black/50">
                                 <Image
                                     src={feat.thumbnailSrc}
                                     alt={feat.title}
                                     fill
+                                    loading="lazy"
+                                    decoding="async"
+                                    sizes="(max-width: 768px) 256px, 288px"
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-                                {/* inspect hint */}
-                                {/* <div className="absolute bottom-2.5 right-2.5 z-10 text-[9px] font-mono tracking-wider px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/70 group-hover:text-cyan-300 group-hover:border-cyan-400/40 uppercase transition-colors duration-300">
-                                    inspect &rarr;
-                                </div> */}
                             </div>
 
-                            {/* card content summary with outfit thin typography */}
-                            <div className="p-4">
-                                <h4 className="text-lg sm:text-xl font-outfit font-[300] tracking-tight text-white mb-1">
+                            {/* card title and description */}
+                            <div className="p-4 sm:p-5">
+                                <h4 className="text-lg sm:text-xl font-outfit font-[300] tracking-tight text-white mb-1.5">
                                     {feat.title}
                                 </h4>
                                 <p className="text-xs leading-relaxed text-white/60 font-spline line-clamp-2">
@@ -565,13 +563,8 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 <X className="w-5 h-5" />
                             </button>
 
-                            {/* modal header with outfit thin typography */}
+                            {/* clean modal header */}
                             <div>
-                                <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-cyan-400 mb-2 font-medium">
-                                    <span>{modalFeature.badge}</span>
-                                    <span className="text-white/20">&middot;</span>
-                                    <span className="text-white/50">{modalFeature.subtitle}</span>
-                                </div>
                                 <h2 className="text-4xl sm:text-6xl font-outfit font-[200] tracking-[-0.03em] text-white mb-3">
                                     {modalFeature.title}
                                 </h2>
@@ -590,36 +583,14 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 />
                             </div>
 
-                            {/* technical specifications grid */}
-                            <div>
-                                <h4 className="text-xs font-mono tracking-wider text-white/40 mb-4 font-medium uppercase">
-                                    Architectural Telemetry
-                                </h4>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {modalFeature.techSpecs.map((spec) => (
-                                        <div
-                                            key={spec.label}
-                                            className="p-4 rounded-xl border border-white/10 bg-white/[0.02] flex flex-col justify-between"
-                                        >
-                                            <span className="text-[11px] font-mono text-white/40 mb-1">
-                                                {spec.label}
-                                            </span>
-                                            <span className="text-xs font-mono font-medium text-white/90">
-                                                {spec.value}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* gallery of respective screenshot assets */}
-                            {modalFeature.imageSrcs.length > 0 && (
+                            {/* gallery of additional interface preview assets */}
+                            {modalFeature.imageSrcs.filter(src => src !== modalFeature.thumbnailSrc).length > 0 && (
                                 <div>
                                     <h4 className="text-xs font-mono tracking-wider text-white/40 mb-4 font-medium uppercase">
                                         Interface Previews
                                     </h4>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {modalFeature.imageSrcs.map((imgSrc, imgIndex) => (
+                                        {modalFeature.imageSrcs.filter(src => src !== modalFeature.thumbnailSrc).map((imgSrc, imgIndex) => (
                                             <div
                                                 key={imgSrc}
                                                 className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40 group"
