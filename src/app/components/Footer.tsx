@@ -38,7 +38,7 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                         </div>
                         <p className={`text-sm leading-relaxed font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
                             PRODUCED BY OLIVER LAXENTA <br />
-                      ©      @2026 Laxenta LLC
+                      ©      2026 Laxenta LLC
                         </p>
                     </div>
 
