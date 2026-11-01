@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { GradientHeading } from "./GradientHeading";
 
 // -- benchmark data stays the same, just consumed differently now --
 // each entry represents one screenshot from task manager with its metadata.
@@ -111,11 +112,24 @@ export const BenchmarkShowcase = ({ theme, isDownloadPage = false }: BenchmarkSh
 
     return (
         <div className="flex flex-col w-full">
+
+            <div className="relative w-full overflow-hidden flex items-center justify-center py-20 lg:py-24">
+                                <div className="text-center px-4 relative z-10 pointer-events-none">
+                                    <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-4`}>
+                                        Seems too good to be true?
+                                    </div>
+                                    {/* <GradientHeading
+                                        text="Oh how our standards have fallen off, It is.."
+                                        theme={theme}
+                                        className="block mt-2 text-2xl md:text-3xl tracking-tight"
+                                    /> */}
+                                </div>
+                            </div>
             {/* ─── section header ─── */}
-            <div className="flex flex-col items-center justify-center mb-10 text-center">
-                <h3 className={`text-xl sm:text-2xl font-outfit font-[300] tracking-[0.3em] uppercase
+            <div className="flex flex-col items-center justify-center mb-5 text-center">
+                <h3 className={`text-xl sm:text-2xl font-outfit font-[300] tracking-[0.3em]
                     ${isDark ? "text-white" : "text-black"}`}>
-                   Quick Performance Comparison
+                   Let's look at the performance we talk about.
                 </h3>
                 <p className={`text-[11px] font-mono mt-4 uppercase tracking-[0.2em]
                     ${isDark ? "text-white/40" : "text-black/40"}`}>

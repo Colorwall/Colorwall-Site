@@ -282,8 +282,7 @@ export const ComparisonTable = ({
                     })}
                 </div>
 
-                {/* colorwall cta bar */}
-                {!isDownloadPage && (
+                {/* {!isDownloadPage && (
                     <div
                         className={`rounded-[28px] sm:rounded-[32px] border p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-8 max-w-5xl mx-auto ${
                             isDark
@@ -321,7 +320,7 @@ export const ComparisonTable = ({
                             </button>
                         </Link>
                     </div>
-                )}
+                )} */}
 
             </div>
 

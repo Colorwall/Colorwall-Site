@@ -35,18 +35,18 @@ export default function ColorWallLanding() {
 
                 <ComparisonTable theme={theme} />
 
-                <div className="relative w-full overflow-hidden flex items-center justify-center py-20 lg:py-24">
+                {/* <div className="relative w-full overflow-hidden flex items-center justify-center py-20 lg:py-24">
                     <div className="text-center px-4 relative z-10 pointer-events-none">
                         <div className={`${theme === "dark" ? "text-white" : "text-black"} flex justify-center text-5xl md:text-7xl lg:text-8xl font-outfit font-[200] tracking-[-0.06em] leading-[0.95] mb-4`}>
                             Seems too good to be true?
                         </div>
                         <GradientHeading
-                            text="It is. That's why I built it."
+                            text="It is.."
                             theme={theme}
                             className="block mt-2 text-2xl md:text-3xl tracking-tight"
                         />
                     </div>
-                </div>
+                </div> */}
 
                 {/* <SecurityReport theme={theme} className="py-24 lg:pl-[20%] lg:pr-[10%]" /> */}
 
