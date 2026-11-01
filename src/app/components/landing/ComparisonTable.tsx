@@ -48,6 +48,7 @@ export const ComparisonTable = ({
             icon: Cpu,
             bgImage: "/editorial/performance.webp",
             colSpan: "lg:col-span-6",
+            minHeight: "min-h-[380px] sm:min-h-[430px] lg:min-h-[460px]",
         },
         {
             id: "store",
@@ -56,6 +57,7 @@ export const ComparisonTable = ({
             svgAsset: "/editorial/smol1.svg",
             bgImage: "/editorial/store.webp",
             colSpan: "lg:col-span-6",
+            minHeight: "min-h-[380px] sm:min-h-[430px] lg:min-h-[460px]",
         },
         {
             id: "shaders",
@@ -198,7 +200,9 @@ export const ComparisonTable = ({
                         return (
                             <div
                                 key={card.title}
-                                className={`relative rounded-[28px] sm:rounded-[32px] border p-8 sm:p-10 flex flex-col justify-between overflow-hidden min-h-[280px] sm:min-h-[320px] ${
+                                className={`relative rounded-[28px] sm:rounded-[32px] border p-8 sm:p-10 lg:p-12 flex flex-col justify-between overflow-hidden ${
+                                    card.minHeight || "min-h-[280px] sm:min-h-[340px]"
+                                } ${
                                     card.colSpan
                                 } ${
                                     isDark
