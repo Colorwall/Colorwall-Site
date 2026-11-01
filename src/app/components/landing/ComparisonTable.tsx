@@ -217,19 +217,10 @@ export const ComparisonTable = ({
                                             loading="lazy"
                                             fetchPriority="low"
                                             sizes="(max-width: 768px) 100vw, 50vw"
-                                            className={`object-cover object-center ${
-                                                isDark ? "opacity-75" : "opacity-85"
-                                            }`}
+                                            className="object-cover object-center"
                                         />
 
-                                        {/* static smooth directional fade on text side */}
-                                        <div 
-                                            className={`absolute inset-0 pointer-events-none ${
-                                                isDark 
-                                                    ? "bg-gradient-to-r from-[#111113] via-[#111113]/60 to-transparent" 
-                                                    : "bg-gradient-to-r from-[#f5f5f7] via-[#f5f5f7]/60 to-transparent"
-                                            }`}
-                                        />
+                                        {/* full bleed background artwork rendered without whitewashing overlay mask */}
                                     </div>
                                 )}
 
