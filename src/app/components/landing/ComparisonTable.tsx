@@ -49,15 +49,17 @@ export const ComparisonTable = ({
             bgImage: "/editorial/performance.webp",
             colSpan: "lg:col-span-6",
             minHeight: "min-h-[380px] sm:min-h-[430px] lg:min-h-[460px]",
+            darkText: true,
         },
         {
             id: "store",
-            title: "405,000+ Wallpapers",
-            desc: "A Creator store, With Over 305,000 community wallpapers curated from 8+ sources. Native 4K/8K videos, interactive WebGL canvases, and offline-first library indexing with one click.",
+            title: "",
+            desc: "",
             svgAsset: "/editorial/smol1.svg",
             bgImage: "/editorial/store.webp",
             colSpan: "lg:col-span-6",
             minHeight: "min-h-[380px] sm:min-h-[430px] lg:min-h-[460px]",
+            darkText: true,
         },
         {
             id: "shaders",
@@ -66,6 +68,7 @@ export const ComparisonTable = ({
             tag: "UNDER WORK",
             bgImage: "/editorial/shaders.svg",
             colSpan: "lg:col-span-4",
+            darkText: false,
         },
         {
             id: "audio",
@@ -73,6 +76,7 @@ export const ComparisonTable = ({
             desc: "Hardware loopback system audio hooking using global session media player provides the source and cool effects across live wallpaper shaders and widgets.",
             bgImage: "/editorial/audio_reactive.webp",
             colSpan: "lg:col-span-4",
+            darkText: true,
         },
         {
             id: "widgets",
@@ -81,6 +85,7 @@ export const ComparisonTable = ({
             icon: Layout,
             bgImage: "/editorial/widgets.svg",
             colSpan: "lg:col-span-4",
+            darkText: false,
         },
         {
             id: "taskbar",
@@ -88,6 +93,7 @@ export const ComparisonTable = ({
             desc: "Transparent, acrylic blur, or fluid colorway gradients on your Windows taskbar. Operates completely independent of the wallpaper engine with zero resource consumption.",
             bgImage: "/editorial/taskbarstyle.webp",
             colSpan: "lg:col-span-12",
+            darkText: false,
         },
     ];
 
@@ -233,7 +239,7 @@ export const ComparisonTable = ({
                                     <div className="flex items-center justify-between mb-8 min-h-[32px]">
                                         {/* store card smol1.svg asset without box */}
                                         {card.svgAsset ? (
-                                            <div className="relative h-7 w-28">
+                                            <div className="relative h-7 w-28 brightness-0">
                                                 <Image
                                                     src={card.svgAsset}
                                                     alt="Store icon"
@@ -243,7 +249,7 @@ export const ComparisonTable = ({
                                             </div>
                                         ) : Icon ? (
                                             /* bare icon with zero box around it */
-                                            <Icon size={24} strokeWidth={1.5} className={isDark ? "text-white/80" : "text-black/80"} />
+                                            <Icon size={24} strokeWidth={1.8} className={card.darkText ? "text-[#0d0e12]" : "text-white/90"} />
                                         ) : (
                                             <div />
                                         )}
@@ -258,19 +264,21 @@ export const ComparisonTable = ({
                                         )}
                                     </div>
 
-                                    {/* card typography */}
-                                    <div>
-                                        <h3 className={`text-2xl sm:text-3xl font-outfit font-[700] tracking-tight mb-3 ${
-                                            isDark ? "text-white" : "text-[#111111]"
-                                        }`}>
-                                            {card.title}
-                                        </h3>
-                                        <p className={`text-sm sm:text-base leading-relaxed font-spline max-w-lg ${
-                                            isDark ? "text-[#b3b3b4]" : "text-[#52525b]"
-                                        }`}>
-                                            {card.desc}
-                                        </p>
-                                    </div>
+                                    {/* card typography rendered with background-aware contrast */}
+                                    {card.title ? (
+                                        <div>
+                                            <h3 className={`text-2xl sm:text-3xl font-outfit font-[800] tracking-tight mb-3 ${
+                                                card.darkText ? "text-[#0d0e12]" : "text-white"
+                                            }`}>
+                                                {card.title}
+                                            </h3>
+                                            <p className={`text-sm sm:text-base leading-relaxed font-spline max-w-lg ${
+                                                card.darkText ? "text-[#27272a] font-medium" : "text-white/85"
+                                            }`}>
+                                                {card.desc}
+                                            </p>
+                                        </div>
+                                    ) : null}
                                 </div>
                             </div>
                         );
