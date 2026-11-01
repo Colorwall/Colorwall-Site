@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { RustIcon, TauriIcon } from "@/app/components/icons/TechIcons";
 import { AmbientPlayer } from "./AmbientPlayer";
@@ -175,6 +175,31 @@ HeroRippleCanvas.displayName = "HeroRippleCanvas";
 
 export const HeroSection = () => {
     const ambient = useAmbient();
+    const heroRef = useRef<HTMLElement | null>(null);
+
+    // automatically pause background hero video when section is scrolled out of viewport
+    useEffect(() => {
+        const hero = heroRef.current;
+        if (!hero) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    const video = document.getElementById("hero-video") as HTMLVideoElement | null;
+                    if (!video) return;
+                    if (entry.isIntersecting) {
+                        video.play().catch(() => {});
+                    } else {
+                        video.pause();
+                    }
+                });
+            },
+            { threshold: 0.05 }
+        );
+
+        observer.observe(hero);
+        return () => observer.disconnect();
+    }, []);
 
     // handler for launching the 3d webgl gallery scene while initiating ambient audio
     const handleLaunchGallery = () => {
@@ -196,6 +221,7 @@ export const HeroSection = () => {
 
     return (
         <section
+            ref={heroRef}
             className="min-h-screen flex flex-col justify-between relative overflow-hidden px-6 sm:px-10 md:px-14 lg:px-20 pt-24 sm:pt-28 pb-10 sm:pb-14 bg-black text-white select-none"
         >
             {/* dynamic video background with fallback poster */}

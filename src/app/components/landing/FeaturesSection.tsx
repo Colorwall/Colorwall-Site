@@ -120,6 +120,30 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
 
     // video modal mute toggle state
     const [isMuted, setIsMuted] = useState<boolean>(true);
+    // reference to flagship showcase video to pause hardware decoding when scrolled offscreen
+    const showcaseVideoRef = useRef<HTMLVideoElement | null>(null);
+
+    // automatically pause the showcase video when scrolled off-screen to free hardware decoder and gpu memory
+    useEffect(() => {
+        const video = showcaseVideoRef.current;
+        if (!video) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        video.play().catch(() => {});
+                    } else {
+                        video.pause();
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+
+        observer.observe(video);
+        return () => observer.disconnect();
+    }, []);
 
     // reference to horizontal card scroller track for programmatic category navigation
     const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -279,6 +303,7 @@ export const FeaturesSection = ({ theme }: { theme: "dark" | "light" }) => {
                                 loop
                                 muted
                                 playsInline
+                                ref={showcaseVideoRef}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
                             >
                                 <source src="/editorial/editorialtest.mp4" type="video/mp4" />

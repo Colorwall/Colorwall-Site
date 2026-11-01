@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 
 interface AntigravityProps {
@@ -20,6 +20,7 @@ interface AntigravityProps {
   pulseSpeed?: number;
   particleShape?: 'capsule' | 'sphere' | 'box' | 'tetrahedron';
   fieldStrength?: number;
+  isPaused?: boolean;
 }
 
 const AntigravityInner: React.FC<AntigravityProps> = ({
@@ -37,7 +38,8 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   depthFactor = 1,
   pulseSpeed = 3,
   particleShape = 'capsule',
-  fieldStrength = 10
+  fieldStrength = 10,
+  isPaused = false
 }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const { viewport } = useThree();
@@ -89,6 +91,7 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   }, [count, viewport.width, viewport.height]);
 
   useFrame(state => {
+    if (isPaused) return;
     const mesh = meshRef.current;
     if (!mesh) return;
 
@@ -188,10 +191,34 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
 };
 
 const Antigravity: React.FC<AntigravityProps> = props => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+
+    // suspend three.js webgl canvas frames when offscreen to preserve gpu resources
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: "250px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <Canvas camera={{ position: [0, 0, 50], fov: 35 }}>
-      <AntigravityInner {...props} />
-    </Canvas>
+    <div ref={containerRef} className="w-full h-full">
+      <Canvas 
+        camera={{ position: [0, 0, 50], fov: 35 }}
+        frameloop={isInView ? "always" : "never"}
+      >
+        <AntigravityInner {...props} isPaused={!isInView} />
+      </Canvas>
+    </div>
   );
 };
 

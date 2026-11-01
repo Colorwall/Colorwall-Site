@@ -472,8 +472,11 @@ const RippleDistortion = ({
     let raf = 0;
     let previousTime = 0;
     let hadActiveWaves = true;
+    let isVisible = true;
+    let isRunning = false;
 
     const loop = (now: number) => {
+      if (!isRunning) return;
       raf = requestAnimationFrame(loop);
       const delta = previousTime ? Math.min(0.05, (now - previousTime) / 1000) : 0;
       previousTime = now;
@@ -529,11 +532,41 @@ const RippleDistortion = ({
 
       renderer.render({ scene: compositeMesh });
     };
-    raf = requestAnimationFrame(loop);
+    const startLoop = () => {
+      if (isRunning || disposed || !isVisible) return;
+      isRunning = true;
+      previousTime = 0;
+      raf = requestAnimationFrame(loop);
+    };
+
+    const stopLoop = () => {
+      isRunning = false;
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
+
+    startLoop();
+
+    // halt ogl webgl render loop when scrolled out of view to release gpu execution pipeline
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      });
+    }, { rootMargin: "150px" });
+
+    observer.observe(mount);
 
     return () => {
       disposed = true;
-      cancelAnimationFrame(raf);
+      stopLoop();
+      observer.disconnect();
       ro.disconnect();
       window.removeEventListener('resize', updateRect);
       window.removeEventListener('scroll', updateRect);
