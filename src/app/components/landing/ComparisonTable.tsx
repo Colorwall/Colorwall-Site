@@ -44,15 +44,15 @@ export const ComparisonTable = ({
         {
             id: "perf",
             title: "Performance First",
-            desc: "This is not a gimmick. Colorwall actively sits around ~100 MB RAM on idle, with GPU overhead barely registering. Automatically pauses instantly during fullscreen games or battery mode.",
+            desc: "No jokes, Colorwall actively sits around ~30-100 MB RAM on idle, with GPU overhead barely registering. Automatically pauses instantly during fullscreen games or battery mode. It never get's better than this honestly. Try it.",
             icon: Cpu,
             bgImage: "/editorial/performance.webp",
             colSpan: "lg:col-span-6",
         },
         {
             id: "store",
-            title: "305,000+ Wallpapers",
-            desc: "Over 305,000 community wallpapers curated from 8+ sources. Native 4K/8K video loops, interactive WebGL canvases, and offline-first library indexing with one click.",
+            title: "405,000+ Wallpapers",
+            desc: "A Creator store, With Over 305,000 community wallpapers curated from 8+ sources. Native 4K/8K videos, interactive WebGL canvases, and offline-first library indexing with one click.",
             svgAsset: "/editorial/smol1.svg",
             bgImage: "/editorial/store.webp",
             colSpan: "lg:col-span-6",
@@ -60,7 +60,7 @@ export const ComparisonTable = ({
         {
             id: "shaders",
             title: "Shaders & Particles",
-            desc: "Real-time HLSL compute effects directly injected into wallpapers: chromatic aberration, bloom, rain drops, procedural sway, and optical lens blur.",
+            desc: "Real-time HLSL compute effects directly injected into wallpapers: chromatic aberration, bloom, rain drops, procedural sway, and optical lens blur. Whatever you think, the studio got it! (maybe)",
             tag: "UNDER WORK",
             bgImage: "/editorial/shaders.svg",
             colSpan: "lg:col-span-4",
@@ -68,14 +68,14 @@ export const ComparisonTable = ({
         {
             id: "audio",
             title: "Audio Reactivity",
-            desc: "Hardware loopback system audio analysis transforms music and desktop sound into rhythmic pulses across live wallpaper shaders and widgets in real-time.",
+            desc: "Hardware loopback system audio hooking using global session media player provides the source and cool effects across live wallpaper shaders and widgets.",
             bgImage: "/editorial/audio_reactive.webp",
             colSpan: "lg:col-span-4",
         },
         {
             id: "widgets",
             title: "Desktop Widgets",
-            desc: "Pin responsive clocks, system telemetry, and custom web components directly onto the Windows desktop plane with less than 1.2ms input delay.",
+            desc: "Timers, clocks, system stuff, one even could make thier own custom widgets, place directly anywhere on your desktop, over ANY wallpaper, no more ugly forced widgets with your favorite wallpapers or shaders.",
             icon: Layout,
             bgImage: "/editorial/widgets.svg",
             colSpan: "lg:col-span-4",
@@ -83,7 +83,7 @@ export const ComparisonTable = ({
         {
             id: "taskbar",
             title: "Taskbar Styling",
-            desc: "Transparent, acrylic blur, or fluid colorway gradients on your Windows taskbar. Operates completely independent of the wallpaper engine with zero CPU consumption.",
+            desc: "Transparent, acrylic blur, or fluid colorway gradients on your Windows taskbar. Operates completely independent of the wallpaper engine with zero resource consumption.",
             bgImage: "/editorial/taskbarstyle.webp",
             colSpan: "lg:col-span-12",
         },
