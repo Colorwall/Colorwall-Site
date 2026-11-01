@@ -70,7 +70,6 @@ export default function TermsPage() {
                         </p>
                         <ul className={`list-disc pl-5 space-y-2 text-sm sm:text-base font-spline ${bodyText}`}>
                             <li>You may not decompile, reverse engineer, disassemble, or attempt to extract source code from the engine binaries.</li>
-                            <li>You may not intercept or spoof IPC pipe communications between engine processes.</li>
                             <li>You may not redistribute, repackage, sub-license, or sell modified engine binaries without explicit written authorization from Laxenta LLC.</li>
                         </ul>
                     </section>
