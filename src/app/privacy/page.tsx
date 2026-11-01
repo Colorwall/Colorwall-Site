@@ -68,7 +68,7 @@ export default function PrivacyPage() {
                             ColorWall executes on your machine via three dedicated native processes: the primary shell (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">colorwall.exe</code>), the media player (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">cw-player.exe</code>), and the DirectX 11 compositor (<code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">cw-render.exe</code>).
                         </p>
                         <p className={`text-sm sm:text-base leading-relaxed font-spline ${bodyText}`}>
-                            These processes communicate exclusively via local encrypted named pipes protected by compile-time authentication tokens. All your downloaded wallpapers, custom node scenes, SQLite caches, and application configurations remain strictly on your local disk at <code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">%LOCALAPPDATA%\ColorWall</code>. We never scan, index, or inspect non-ColorWall files on your filesystem.
+                            These processes communicate exclusively via local encrypted named pipes. All your downloaded wallpapers, custom node scenes, caches, and application configurations remain strictly on your local disk at <code className="text-xs font-mono px-1.5 py-0.5 rounded bg-white/10 text-cyan-300">%LOCALAPPDATA%\ColorWall</code>. We never scan, index, or inspect non-ColorWall files on your filesystem.
                         </p>
                     </section>
 
