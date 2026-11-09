@@ -142,7 +142,7 @@ interface WigglyFeatureShowcaseProps {
   theme?: "dark" | "light";
 }
 
-// split screen feature showcase combining interactive wiggly threejs canvas with breathy typography
+// signature tactile scrolly card with rounded top corners slipping directly over the hero section
 export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseProps) {
   const isDark = theme === "dark";
   const [activeIndex, setActiveIndex] = useState(0);
@@ -168,8 +168,8 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const width = canvas.clientWidth || 700;
-    const height = canvas.clientHeight || 450;
+    const width = canvas.clientWidth || 800;
+    const height = canvas.clientHeight || 500;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -317,75 +317,111 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
     rotTargetRef.current.y = 0;
   };
 
-  return (
-    <section className="relative w-full max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-8 py-16 sm:py-24 select-none">
-      {/* section top metadata and title */}
-      <div className="mb-10 sm:mb-14 flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b pb-6 border-white/10 dark:border-white/10">
-       <div>
-          <h2
-            className={cn(
-              "font-outfit text-4xl sm:text-6xl font-[200] tracking-[-0.04em] leading-[1.05]",
-              isDark ? "text-white" : "text-black"
-            )}
-          >
-            Perofrmance without compromise
-          </h2>
-        </div>
+  // scroll handler to smoothly slide down into the feature showcase
+  const handleScrollDown = () => {
+    window.scrollBy({ top: 520, behavior: "smooth" });
+  };
 
-        <p
+  return (
+    <section
+      className={cn(
+        "relative z-20 w-full -mt-16 sm:-mt-24 lg:-mt-32 rounded-t-[3rem] sm:rounded-t-[4rem] lg:rounded-t-[5rem] border-t border-x pt-14 sm:pt-20 pb-16 sm:pb-24 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
+        isDark
+          ? "bg-[#0b0c16]/98 border-white/10 text-white bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:32px_32px]"
+          : "bg-white/98 border-black/10 text-slate-900 bg-[linear-gradient(to_right,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"
+      )}
+    >
+      {/* squircle scroll pill floating right on the transition seam */}
+      <div className="absolute -top-7 sm:-top-9 right-8 sm:right-16 lg:right-24 z-30 pointer-events-auto">
+        <button
+          type="button"
+          onClick={handleScrollDown}
+          aria-label="Scroll down into feature showcase"
           className={cn(
-            "text-xs sm:text-sm font-light max-w-sm leading-relaxed sm:text-right",
-            isDark ? "text-white/50" : "text-black/60"
+            "flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-[1.3rem] sm:rounded-[1.6rem] shadow-2xl border backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
+            isDark
+              ? "bg-[#1d2042]/90 border-white/20 text-white hover:bg-[#252a55]"
+              : "bg-[#e5ecfb]/95 border-black/10 text-slate-800 hover:bg-[#d8e3fa]"
           )}
         >
-          DirectX 11 compositor architecture with sub-millisecond dispatch and hardware zero-copy presentation.
-        </p>
+          <span className="text-sm sm:text-base font-bold mb-0.5 animate-bounce">↓</span>
+          <span className="text-[10px] sm:text-xs font-sans font-medium tracking-wide">Scroll</span>
+        </button>
       </div>
 
-      {/* main layout grid with optional sideway typography rail */}
-      <div className="relative flex gap-6 lg:gap-10 xl:gap-14 items-stretch">
-        {/* sideway typography rail */}
+      {/* inner content wrapper with responsive edge margins */}
+      <div className="relative z-10 w-full max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* section top metadata and title */}
         <div
-          aria-hidden="true"
-          className="hidden xl:flex items-center gap-4 select-none pointer-events-none [writing-mode:vertical-rl] rotate-180 text-[10px] font-mono tracking-[0.3em] uppercase opacity-25 text-current py-4"
+          className={cn(
+            "mb-8 sm:mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-5",
+            isDark ? "border-white/10" : "border-black/10"
+          )}
         >
-          <span>directx 11 zero-copy engine</span>
-          <span className="w-8 h-[1px] bg-current" />
-          <span>rust native desktop runtime</span>
-          <span className="w-8 h-[1px] bg-current" />
-          <span>hardware accelerated</span>
-        </div>
-
-        {/* split screen showcase */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
-          {/* left half: pure interactive wiggly threejs canvas without boxes or overlay text */}
-          <div
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            className="lg:col-span-6 relative w-full aspect-[16/10] flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
-          >
-            {/* threejs canvas rendering fluid wave ripples */}
-            <canvas ref={canvasRef} className="w-full h-full block" />
+          <div>
+            <h2
+              className={cn(
+                "font-outfit text-3xl sm:text-5xl lg:text-6xl font-[200] tracking-[-0.04em] leading-[1.05]",
+                isDark ? "text-white" : "text-slate-900"
+              )}
+            >
+              Performance without compromise
+            </h2>
           </div>
 
-          {/* right half: navigable feature deck with breathy thin typography */}
-          <div className="lg:col-span-6 flex flex-col justify-center">
-            <div className="flex flex-col">
-              {FEATURES.map((feat, idx) => {
-                const isActive = idx === activeIndex;
+          <p
+            className={cn(
+              "text-xs sm:text-sm font-light max-w-sm leading-relaxed sm:text-right",
+              isDark ? "text-white/50" : "text-slate-600"
+            )}
+          >
+            DirectX 11 compositor architecture with sub-millisecond dispatch and hardware zero-copy presentation.
+          </p>
+        </div>
 
-                return (
-                  <div
-                    key={feat.id}
-                    onClick={() => handleSelectFeature(idx)}
-                    onMouseEnter={() => handleSelectFeature(idx)}
-                    className={cn(
-                      "group border-b py-5 sm:py-6 cursor-pointer transition-colors duration-300",
-                      isDark ? "border-white/10" : "border-black/10"
-                    )}
-                  >
-                    {/* feature header row */}
-                    <div className="flex items-baseline justify-between gap-4">
+        {/* main layout grid with sleek sideways rail */}
+        <div className="relative flex gap-4 sm:gap-6 lg:gap-8 items-stretch">
+          {/* sideway typography rail */}
+          <div
+            aria-hidden="true"
+            className="hidden xl:flex items-center gap-4 select-none pointer-events-none [writing-mode:vertical-rl] rotate-180 text-[10px] font-mono tracking-[0.3em] uppercase opacity-30 text-current py-2"
+          >
+            <span>directx 11 zero-copy engine</span>
+            <span className="w-8 h-[1px] bg-current" />
+            <span>rust native desktop runtime</span>
+            <span className="w-8 h-[1px] bg-current" />
+            <span>hardware accelerated</span>
+          </div>
+
+          {/* split screen showcase */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">
+            {/* left half: prominently sized interactive wiggly threejs canvas */}
+            <div
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              className="lg:col-span-7 relative w-full aspect-[16/10] flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
+            >
+              {/* threejs canvas rendering fluid wave ripples */}
+              <canvas ref={canvasRef} className="w-full h-full block" />
+            </div>
+
+            {/* right half: navigable feature deck with breathy thin typography */}
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              <div className="flex flex-col">
+                {FEATURES.map((feat, idx) => {
+                  const isActive = idx === activeIndex;
+
+                  return (
+                    <div
+                      key={feat.id}
+                      onClick={() => handleSelectFeature(idx)}
+                      onMouseEnter={() => handleSelectFeature(idx)}
+                      className={cn(
+                        "group border-b py-4 sm:py-5 cursor-pointer transition-colors duration-300",
+                        isDark ? "border-white/10" : "border-black/10"
+                      )}
+                    >
+                      {/* feature header row */}
                       <div className="flex items-baseline gap-4 sm:gap-6">
                         <span
                           className={cn(
@@ -393,8 +429,8 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                             isActive
                               ? "text-[#00a4ff]"
                               : isDark
-                              ? "text-white/30 group-hover:text-white/60"
-                              : "text-black/35 group-hover:text-black/70"
+                              ? "text-white/35 group-hover:text-white/70"
+                              : "text-slate-400 group-hover:text-slate-800"
                           )}
                         >
                           {feat.num}
@@ -406,80 +442,68 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                             isActive
                               ? isDark
                                 ? "text-white translate-x-1 font-[300]"
-                                : "text-black translate-x-1 font-[300]"
+                                : "text-slate-900 translate-x-1 font-[300]"
                               : isDark
                               ? "text-white/45 group-hover:text-white/80"
-                              : "text-black/45 group-hover:text-black/80"
+                              : "text-slate-400 group-hover:text-slate-700"
                           )}
                         >
                           {feat.title}
                         </h3>
                       </div>
 
-                      {/* active status indicator pill */}
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn(
-                            "w-2 h-2 rounded-full transition-all duration-300",
-                            isActive
-                              ? "bg-[#00a4ff] scale-125 shadow-[0_0_8px_#00a4ff]"
-                              : "bg-transparent scale-75 opacity-0 group-hover:opacity-40 group-hover:bg-current"
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    {/* expandable details drawer */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                          className="overflow-hidden"
-                        >
-                          <p
-                            className={cn(
-                              "mt-3 text-xs sm:text-sm font-light leading-relaxed pl-8 sm:pl-12 max-w-lg",
-                              isDark ? "text-white/70" : "text-black/70"
-                            )}
+                      {/* expandable details drawer */}
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                            className="overflow-hidden"
                           >
-                            {feat.desc}
-                          </p>
+                            <p
+                              className={cn(
+                                "mt-3 text-xs sm:text-sm font-light leading-relaxed pl-8 sm:pl-12 max-w-lg",
+                                isDark ? "text-white/70" : "text-slate-700"
+                              )}
+                            >
+                              {feat.desc}
+                            </p>
 
-                          {/* technical metric telemetry chips */}
-                          <div className="mt-3.5 pl-8 sm:pl-12 flex flex-wrap gap-2.5">
-                            {feat.stats.map((s, sIdx) => (
-                              <div
-                                key={sIdx}
-                                className={cn(
-                                  "px-3 py-1.5 rounded-lg border backdrop-blur-sm",
-                                  isDark
-                                    ? "bg-white/[0.03] border-white/10"
-                                    : "bg-black/[0.03] border-black/10"
-                                )}
-                              >
+                            {/* technical metric telemetry chips */}
+                            <div className="mt-3.5 pl-8 sm:pl-12 flex flex-wrap gap-2.5">
+                              {feat.stats.map((s, sIdx) => (
                                 <div
+                                  key={sIdx}
                                   className={cn(
-                                    "font-mono text-[9px] uppercase tracking-wider",
-                                    isDark ? "text-white/40" : "text-black/40"
+                                    "px-3 py-1.5 rounded-lg border backdrop-blur-sm",
+                                    isDark
+                                      ? "bg-white/[0.04] border-white/10"
+                                      : "bg-black/[0.04] border-black/10"
                                   )}
                                 >
-                                  {s.label}
+                                  <div
+                                    className={cn(
+                                      "font-mono text-[9px] uppercase tracking-wider",
+                                      isDark ? "text-white/40" : "text-slate-500"
+                                    )}
+                                  >
+                                    {s.label}
+                                  </div>
+                                  <div className="font-outfit text-xs sm:text-sm font-normal text-[#00a4ff]">
+                                    {s.val}
+                                  </div>
                                 </div>
-                                <div className="font-outfit text-xs sm:text-sm font-normal text-[#00a4ff]">
-                                  {s.val}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
