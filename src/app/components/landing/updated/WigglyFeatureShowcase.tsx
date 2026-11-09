@@ -5,6 +5,7 @@ import * as THREE from "three";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ThingsCardsShowcase } from "./ThingsCardsShowcase";
 
 interface FeatureItem {
   id: string;
@@ -390,9 +391,9 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
             <Image
               src="/editorial/homepage/673662960f25280c0ca517c7_plant_new-p-800.png"
               alt="Editorial Plant Asset"
-              width={100}
-              height={100}
-              className="w-14 sm:w-20 md:w-24 h-auto object-contain pointer-events-none drop-shadow-[0_16px_32px_rgba(0,0,0,0.4)] shrink-0"
+              width={160}
+              height={160}
+              className="w-20 sm:w-28 md:w-36 h-auto object-contain pointer-events-none drop-shadow-[0_16px_32px_rgba(0,0,0,0.4)] shrink-0"
               priority
             />
             <div>
@@ -420,6 +421,9 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
             Colorwall while being a full desktop customization engine delivers never beforeseen performance with minimal resource usage. It isn&apos;t a crutch, it&apos;s engineered to perform. Sounds cool? Maybe..
           </p>
         </div>
+
+        {/* things.inc aesthetic showcase cards placed directly under the heading */}
+        <ThingsCardsShowcase isDark={isDark} />
 
         {/* main layout grid with sleek sideways rail */}
         <div className="relative flex gap-4 sm:gap-6 lg:gap-8 items-stretch">
@@ -541,6 +545,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
             </div>
           </div>
         </div>
+
       </div>
     </section>
   );
