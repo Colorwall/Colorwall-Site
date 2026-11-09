@@ -22,8 +22,8 @@ const FEATURES: FeatureItem[] = [
     id: "store",
     num: "01",
     tag: "Community Catalog",
-    title: "Unified Store",
-    desc: "Over 10,000+ curated wallpapers sourced from 8+ major registries directly in one app. Free instant downloads at native resolution without creating an account.",
+    title: "MarketPlace & Store",
+    desc: "Tons of Scenes sourced from 8+ major registries directly in one app. Free instant downloads at native resolution without creating an account.",
     stats: [
       { label: "Wallpapers", val: "10,000+" },
       { label: "Registries", val: "8 Sources" },
@@ -36,7 +36,7 @@ const FEATURES: FeatureItem[] = [
     num: "02",
     tag: "Desktop Overlay",
     title: "Desktop Widgets",
-    desc: "Pin customizable live clocks, system telemetry dials, weather forecasts, and dynamic music visualizers straight onto your desktop with drag-and-drop ease.",
+    desc: "The most killer part of the app, Widgets are NOT pre-embedded in the wallpaper, you could use them On ANY wallpaper or scene you may like! And it's not even heavy!",
     stats: [
       { label: "Prebuilt", val: "24+ Widgets" },
       { label: "Input Delay", val: "< 1.2ms" },
@@ -48,8 +48,8 @@ const FEATURES: FeatureItem[] = [
     id: "library",
     num: "03",
     tag: "Local Asset Hub",
-    title: "Offline Library",
-    desc: "Manage your personal collection 100% offline. Instant search indexing with automatic thumbnail generation across MP4, WebM, animated GIFs, and live shaders.",
+    title: "Your Permanent Library",
+    desc: "Manage your personal collection 100% offline and free. Upload your own collection to keep it In once place. Or save from AppStore. Any codec, and live shaders could be saved.",
     stats: [
       { label: "Storage", val: "100% Offline" },
       { label: "Formats", val: "MP4 · WebM · Shaders" },
@@ -61,12 +61,12 @@ const FEATURES: FeatureItem[] = [
     id: "displays",
     num: "04",
     tag: "Multi-Screen Engine",
-    title: "8K Panoramic Spans",
-    desc: "Seamlessly stretch ultra-wide wallpapers across 2, 3, or more displays with independent per-monitor scaling, 10-bit HDR10 color, and zero bezel stretching.",
+    title: "Multi-Monitor & RGB Support",
+    desc: "Seamlessly stretch ultra-wide wallpapers across 2, 3, or more displays with independent per-monitor scaling, management, widgets, 10-bit HDR10 color, and zero bezel stretching.",
     stats: [
-      { label: "Max Resolution", val: "Native 8K" },
-      { label: "Displays", val: "Up to 8 Monitors" },
-      { label: "Color Space", val: "10-bit HDR10" },
+      { label: "Max Resolution", val: "Upto 8k or whatever the resolution is." },
+      { label: "Displays", val: "Up to 8 Monitors, or any number works!" },
+      // { label: "Color Space", val: "10-bit HDR10" },
     ],
     image: "/multi.webp",
   },
@@ -77,9 +77,9 @@ const FEATURES: FeatureItem[] = [
     title: "Taskbar Customization",
     desc: "Customize your Windows taskbar with crystal clear acrylic blur, centered icons, custom color tints, and floating dock layouts without risking explorer crashes.",
     stats: [
-      { label: "Blur Modes", val: "Clear · Blur · Acrylic" },
-      { label: "Docking", val: "Centered & Floating" },
-      { label: "Hook Type", val: "Direct DWM Injection" },
+      { label: "Modes", val: "Clear · Blur · Acrylic" },
+      // { label: "Docking", val: "Centered & Floating" },
+      // { label: "Hook Type", val: "Direct DWM Injection" },
     ],
     image: "/taskbar.webp",
   },
@@ -88,11 +88,11 @@ const FEATURES: FeatureItem[] = [
     num: "06",
     tag: "Hardware Acceleration",
     title: "Sub-1% Performance",
-    desc: "Engineered from the metal up in Rust and DirectX 11. Uses less than 1% GPU overhead and automatically pauses instantly whenever you launch a fullscreen game.",
+    desc: "Try it. Engineered from the metal up in Rust and DirectX 11. Uses less than 5% GPU overhead and automatically pauses instantly whenever you launch a fullscreen game and uses less than 100mb ram.",
     stats: [
-      { label: "GPU Load", val: "< 1.0% GPU" },
-      { label: "Game Detection", val: "Instant Pause" },
-      { label: "VRAM Impact", val: "Zero-Copy IMF" },
+      { label: "GPU Load", val: "< 5.0% GPU" },
+      { label: "Game Detection", val: "Auto Pauses <3" },
+      { label: "VRAM Usage?", val: "Maybe 1-5%" },
     ],
     image: "/colorwall-hardware.webp",
   },
@@ -101,11 +101,11 @@ const FEATURES: FeatureItem[] = [
     num: "07",
     tag: "Audio-Reactive Pipeline",
     title: "Fluid Live Shaders",
-    desc: "Interactive visual shaders that pulse and ripple in real time to your system audio and music with dynamic particle simulations running smoothly up to 360 FPS.",
+    desc: "Inbuilt store and upcoming MarketPlace with everything from video to scenes and prebuilt widgets by creators~!, we are working towards it!",
     stats: [
       { label: "Audio Sync", val: "128-Band WASAPI" },
       { label: "Refresh Target", val: "Up to 360Hz" },
-      { label: "Pipeline", val: "DirectX 11 Compute" },
+      { label: "Available?", val: "Well technically yes!" },
     ],
     image: "/INTERACTIVES.webp",
   },
@@ -471,8 +471,8 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                             isActive
                               ? "text-[#00a4ff]"
                               : isDark
-                              ? "text-white/35 group-hover:text-white/70"
-                              : "text-slate-400 group-hover:text-slate-800"
+                                ? "text-white/35 group-hover:text-white/70"
+                                : "text-slate-400 group-hover:text-slate-800"
                           )}
                         >
                           {feat.num}
@@ -486,8 +486,8 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                                 ? "text-white translate-x-1 font-[300]"
                                 : "text-slate-900 translate-x-1 font-[300]"
                               : isDark
-                              ? "text-white/45 group-hover:text-white/80"
-                              : "text-slate-400 group-hover:text-slate-700"
+                                ? "text-white/45 group-hover:text-white/80"
+                                : "text-slate-400 group-hover:text-slate-700"
                           )}
                         >
                           {feat.title}
@@ -513,29 +513,21 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                               {feat.desc}
                             </p>
 
-                            {/* technical metric telemetry chips */}
-                            <div className="mt-3 pl-8 sm:pl-12 flex flex-wrap gap-2">
+                            {/* clean subtext metrics without pill containers */}
+                            <div className="mt-3.5 pl-8 sm:pl-12 flex flex-wrap items-baseline gap-6 sm:gap-8">
                               {feat.stats.map((s, sIdx) => (
-                                <div
-                                  key={sIdx}
-                                  className={cn(
-                                    "px-2.5 py-1 rounded-lg border backdrop-blur-sm",
-                                    isDark
-                                      ? "bg-white/[0.04] border-white/10"
-                                      : "bg-black/[0.04] border-black/10"
-                                  )}
-                                >
-                                  <div
+                                <div key={sIdx} className="flex flex-col">
+                                  <span
                                     className={cn(
-                                      "font-mono text-[8px] uppercase tracking-wider",
+                                      "font-mono text-[9px] uppercase tracking-wider",
                                       isDark ? "text-white/40" : "text-slate-500"
                                     )}
                                   >
                                     {s.label}
-                                  </div>
-                                  <div className="font-outfit text-xs font-normal text-[#00a4ff]">
+                                  </span>
+                                  <span className="font-outfit text-xs sm:text-sm font-medium text-[#00a4ff] mt-0.5">
                                     {s.val}
-                                  </div>
+                                  </span>
                                 </div>
                               ))}
                             </div>
