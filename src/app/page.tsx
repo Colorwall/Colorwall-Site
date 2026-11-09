@@ -7,7 +7,6 @@ import { HeroSection } from "@/app/components/landing/HeroSection";
 import { FAQSection } from "@/app/components/landing/FAQSection";
 import { Footer } from "@/app/components/Footer";
 import { ImmersiveModeHost } from "@/app/components/landing/ImmersiveModeHost";
-import { AtmosphericSky } from "@/app/components/landing/updated/AtmosphericSky";
 
 // dynamic client only import for interactive threejs wave canvas to avoid ssr window reference issues
 const WigglyFeatureShowcase = dynamic(
@@ -22,9 +21,6 @@ export default function ColorWallLanding() {
   return (
     <ImmersiveModeHost>
       <div className={`relative min-h-screen select-none ${theme === "dark" ? "text-white" : "text-slate-900"}`}>
-        {/* page wide atmospheric sky canvas rendering celestial body stars and floating 3d clouds */}
-        <AtmosphericSky theme={theme} />
-
         <div className="relative z-10">
           <HeroSection />
 

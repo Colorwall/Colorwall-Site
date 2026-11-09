@@ -8,6 +8,7 @@ import { SmoothScroller } from "@/app/components/SmoothScroller";
 import { CustomScrollbar } from "@/app/components/CustomScrollbar";
 import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { AmbientProvider } from "@/app/contexts/AmbientContext";
+import { AtmosphericSky } from "@/app/components/landing/updated/AtmosphericSky";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -265,6 +266,8 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AmbientProvider>
+            {/* page wide global atmospheric sky background with stars, celestial bodies, and floating clouds */}
+            <AtmosphericSky />
             <Navbar />
             <GlobalAmbientPlayer />
             <CustomScrollbar />

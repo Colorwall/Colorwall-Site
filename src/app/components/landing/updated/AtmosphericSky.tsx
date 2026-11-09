@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/app/contexts/ThemeContext";
 
 interface AtmosphericSkyProps {
   theme?: "dark" | "light";
@@ -24,8 +25,10 @@ function generateStarField(count = 54) {
 }
 
 // page wide atmospheric sky canvas rendering celestial body stars and floating 3d clouds
-export function AtmosphericSky({ theme = "dark" }: AtmosphericSkyProps) {
-  const isDark = theme === "dark";
+export function AtmosphericSky({ theme: propTheme }: AtmosphericSkyProps) {
+  const themeContext = useTheme();
+  const activeTheme = propTheme || themeContext?.theme || "dark";
+  const isDark = activeTheme === "dark";
   const starField = useMemo(() => generateStarField(54), []);
 
   return (
