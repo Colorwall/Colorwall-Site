@@ -417,7 +417,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
               isDark ? "text-white/50" : "text-slate-600"
             )}
           >
-            Lightweight desktop engine built for ultra-fast response, 8K multi-monitor setups, and near-zero GPU load.
+            Colorwall while being a full desktop customization engine delivers never beforeseen performance with minimal resource usage. It isn&apos;t a crutch, it&apos;s engineered to perform. Sounds cool? Maybe..
           </p>
         </div>
 
@@ -428,11 +428,11 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
             aria-hidden="true"
             className="hidden xl:flex items-center gap-4 select-none pointer-events-none [writing-mode:vertical-rl] rotate-180 text-[10px] font-mono tracking-[0.3em] uppercase opacity-30 text-current py-2"
           >
-            <span>directx 11 zero-copy engine</span>
+            <span>Directx 11 zero-copy engine</span>
             <span className="w-8 h-[1px] bg-current" />
-            <span>rust native desktop runtime</span>
+            <span>Rust native desktop runtime</span>
             <span className="w-8 h-[1px] bg-current" />
-            <span>hardware accelerated</span>
+            <span>Hardware accelerated</span>
           </div>
 
           {/* split screen showcase */}
