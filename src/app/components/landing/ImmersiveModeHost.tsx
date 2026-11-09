@@ -30,7 +30,6 @@ function syncBodyDataset(mode: ImmersiveMode) {
 export function ImmersiveModeHost({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ImmersiveMode>("none");
   const [Experience, setExperience] = useState<ExperienceComponent | null>(null);
-  const prefetched = useRef({ cinematic: false, gallery: false });
   const loadingRef = useRef(false);
 
   const loadExperience = useCallback(async (target: "cinematic" | "gallery") => {
@@ -69,26 +68,7 @@ export function ImmersiveModeHost({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("popstate", handleUrlChange);
   }, [loadExperience]);
 
-  // prefetch js chunks only when browser is idle without mounting webgl
-  useEffect(() => {
-    const prefetchChunks = () => {
-      if (!prefetched.current.cinematic) {
-        prefetched.current.cinematic = true;
-        void import("../fluid-gallery/FluidExperience");
-      }
-      if (!prefetched.current.gallery) {
-        prefetched.current.gallery = true;
-        void import("./CinematicExperience");
-      }
-    };
 
-    if (typeof window.requestIdleCallback === "function") {
-      const id = window.requestIdleCallback(prefetchChunks, { timeout: 12000 });
-      return () => window.cancelIdleCallback(id);
-    }
-    const t = setTimeout(prefetchChunks, 5000);
-    return () => clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     syncBodyDataset(mode);

@@ -251,11 +251,14 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
     scene.add(mesh);
     meshRef.current = mesh;
 
-    let animId: number;
+    let isVisible = true;
+    let animId: number = 0;
     const clock = new THREE.Clock();
 
     // animation loop updating wave uniforms and smoothing mouse parallax
     const animate = () => {
+      if (!isVisible) return;
+
       const elapsedTime = clock.getElapsedTime();
 
       if (materialRef.current) {
@@ -291,6 +294,25 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
       animId = requestAnimationFrame(animate);
     };
 
+    // observe canvas visibility to halt requestanimationframe when scrolled out of view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          if (!isVisible) {
+            isVisible = true;
+            clock.start();
+            animId = requestAnimationFrame(animate);
+          }
+        } else {
+          isVisible = false;
+          cancelAnimationFrame(animId);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(canvas);
+
     animId = requestAnimationFrame(animate);
 
     // resize observer to maintain aspect ratio without stretching
@@ -308,6 +330,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
     window.addEventListener("resize", handleResize);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", handleResize);
       renderer.dispose();
@@ -354,30 +377,12 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
   return (
     <section
       className={cn(
-        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-[3rem] sm:rounded-[4rem] lg:rounded-[5rem] border pt-16 sm:pt-20 lg:pt-24 pb-14 sm:pb-20 mb-12 sm:mb-16 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
+        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-[3rem] sm:rounded-[4rem] lg:rounded-[5rem] border pt-16 sm:pt-20 lg:pt-24 pb-14 sm:pb-20 mb-12 sm:mb-16 select-none transition-colors duration-700",
         isDark
-          ? "bg-[#0a0b14]/98 border-white/10 text-white backdrop-blur-xl"
-          : "bg-white/98 border-black/10 text-slate-900 backdrop-blur-xl"
+          ? "bg-[#0a0b14] border-white/10 text-white"
+          : "bg-[#f8f9fc] border-black/10 text-slate-900"
       )}
     >
-      {/* squircle scroll pill floating right on the transition seam */}
-      {/* <div className="absolute -top-7 sm:-top-8 right-8 sm:right-16 lg:right-24 z-30 pointer-events-auto">
-        <button
-          type="button"
-          onClick={handleScrollDown}
-          aria-label="Scroll down into feature showcase"
-          className={cn(
-            "flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-[1.2rem] sm:rounded-[1.4rem] shadow-2xl border backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
-            isDark
-              ? "bg-[#181a38]/90 border-white/20 text-white hover:bg-[#20234a]"
-              : "bg-[#e5ecfb]/95 border-black/10 text-slate-800 hover:bg-[#d8e3fa]"
-          )}
-        >
-          <span className="text-xs sm:text-sm font-bold mb-0.5 animate-bounce">↓</span>
-          <span className="text-[9px] sm:text-[10px] font-sans font-medium tracking-wide">Scroll</span>
-        </button>
-      </div> */}
-
       {/* inner content wrapper with responsive edge margins */}
       <div className="relative z-10 w-full max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* section top heading pushed down along y axis with 3d plant asset */}
@@ -394,8 +399,9 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
               alt="Editorial Plant Asset"
               width={160}
               height={160}
-              className="w-20 sm:w-28 md:w-36 h-auto object-contain pointer-events-none drop-shadow-[0_16px_32px_rgba(0,0,0,0.4)] shrink-0"
-              priority
+              className="w-20 sm:w-28 md:w-36 h-auto object-contain pointer-events-none shrink-0"
+              loading="lazy"
+              decoding="async"
             />
             <div>
               <h2

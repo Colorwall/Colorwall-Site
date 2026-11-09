@@ -27,7 +27,9 @@ export function TeamBreathingSection({ isDark = true }: TeamBreathingSectionProp
           alt="Retro TV Voxel Asset"
           width={450}
           height={450}
-          className="w-44 sm:w-56 md:w-72 lg:w-84 xl:w-96 h-auto object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.5)]"
+          loading="lazy"
+          decoding="async"
+          className="w-44 sm:w-56 md:w-72 lg:w-84 xl:w-96 h-auto object-contain"
         />
       </motion.div>
 
@@ -44,7 +46,9 @@ export function TeamBreathingSection({ isDark = true }: TeamBreathingSectionProp
           alt="Train Voxel Asset"
           width={1000}
           height={1000}
-          className="w-[360px] sm:w-[520px] md:w-[680px] lg:w-[840px] xl:w-[980px] h-auto object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
+          loading="lazy"
+          decoding="async"
+          className="w-[360px] sm:w-[520px] md:w-[680px] lg:w-[840px] xl:w-[980px] h-auto object-contain"
         />
       </motion.div>
 
@@ -98,7 +102,9 @@ export function TeamBreathingSection({ isDark = true }: TeamBreathingSectionProp
                 src="/editorial/homepage/alever.png"
                 alt="Arcade Lever Asset"
                 fill
-                className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:rotate-12 transition-transform duration-300"
+                loading="lazy"
+                decoding="async"
+                className="object-contain hover:rotate-12 transition-transform duration-300"
               />
             </span>
             <span className="whitespace-nowrap">when we feel bored,</span>
@@ -112,7 +118,9 @@ export function TeamBreathingSection({ isDark = true }: TeamBreathingSectionProp
                 src="/editorial/homepage/portal-item_gem.png"
                 alt="Gem Asset"
                 fill
-                className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:scale-110 transition-transform duration-300"
+                loading="lazy"
+                decoding="async"
+                className="object-contain hover:scale-110 transition-transform duration-300"
               />
             </span>
             <span className="whitespace-nowrap">when we make cool stuff,</span>
