@@ -312,7 +312,7 @@ export const HeroSection = () => {
                 {/* center: editorial story block */}
                 <div className="lg:col-span-5 flex flex-col justify-center text-left">
                     <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans max-w-lg">
-                        ColorWall Is an upcoming Desktop customization engine with native hardware-accelerated video/shader decoding, audio-reactive, RGB* components support, and Widgets with near-zero resource consumption.
+                        ColorWall Is a upcoming Desktop customization engine with native hardware-accelerated video/shader decoding, audio-reactive, RGB* components support, and Widgets with near-zero resource consumption.
                     </p>
                     {/* quick experience launchers */}
                     <div className="flex items-center gap-3 mt-3">
