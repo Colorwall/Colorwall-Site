@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThingsCardsShowcase } from "./ThingsCardsShowcase";
+import { TeamBreathingSection } from "./TeamBreathingSection";
 
 interface FeatureItem {
   id: string;
@@ -424,11 +425,17 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
 
         {/* things.inc aesthetic showcase cards placed directly under the heading */}
         <ThingsCardsShowcase isDark={isDark} />
+      </div>
 
+      {/* spacious team identity section spanning 100% true viewport width to the physical edges */}
+      <TeamBreathingSection isDark={isDark} />
+
+      {/* inner content wrapper resumed for the interactive feature stage */}
+      <div className="relative z-10 w-full max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* main layout grid with sleek sideways rail */}
         <div className="relative flex gap-4 sm:gap-6 lg:gap-8 items-stretch">
           {/* sideway typography rail */}
-          <div
+          {/* <div
             aria-hidden="true"
             className="hidden xl:flex items-center gap-4 select-none pointer-events-none [writing-mode:vertical-rl] rotate-180 text-[10px] font-mono tracking-[0.3em] uppercase opacity-30 text-current py-2"
           >
@@ -437,7 +444,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
             <span>Rust native desktop runtime</span>
             <span className="w-8 h-[1px] bg-current" />
             <span>Hardware accelerated</span>
-          </div>
+          </div> */}
 
           {/* split screen showcase */}
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">

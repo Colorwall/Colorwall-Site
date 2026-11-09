@@ -54,10 +54,9 @@ export function ThingsCardsShowcase({ isDark = true }: ThingsCardsShowcaseProps)
 
           {/* top row: 3d scene incentive badge on left and things squircle dot button on right */}
           <div className="relative z-10 flex items-center justify-between w-full">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/20 text-[11px] sm:text-xs font-mono font-medium text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#70d6ff] animate-pulse" />
-              <span className="uppercase tracking-wider">3D Scene</span>
-              <span className="text-sm leading-none ml-0.5">→</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-black/30 border text-[11px] sm:text-xs font-mono font-medium text-white transition-transform duration-200 group-hover:scale-105">
+              {/* <span className="w-1.5 h-1.5 rounded-full bg-[#70d6ff] animate-pulse" /> */}
+              <span className="uppercase tracking-wider">Click for magic!</span>
             </div>
 
             {/* signature things squircle pill with center dot */}
@@ -72,7 +71,7 @@ export function ThingsCardsShowcase({ isDark = true }: ThingsCardsShowcaseProps)
               8K Ready
             </h3>
             <p className="mt-1.5 text-xs sm:text-sm font-sans text-[#2c3367] leading-relaxed">
-              Hardware IMF with native 8K display support and independent monitor scaling. Click to launch the live 3D gallery.
+              Hardware IMF with native 8K display support and independent monitor scaling. Also, you could Click to launch the live 3D animation. it's just a flex factor maybe made for fun, nothing serious.
             </p>
           </div>
         </motion.div>
