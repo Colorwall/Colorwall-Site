@@ -2,28 +2,31 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 type Props = {
   isReady: boolean;
   onComplete: () => void;
+  isDark?: boolean;
 };
 
-export default function CinematicLoading({ isReady, onComplete }: Props) {
+// cinematic split curtain loading transition for site entry and fluid gallery
+export default function CinematicLoading({ isReady, onComplete, isDark = true }: Props) {
   const [phase, setPhase] = useState<"loading" | "opening" | "done">("loading");
 
   useEffect(() => {
     if (!isReady) return;
 
-    // Once WebGL shaders are ready, wait a beat then open the slit
+    // once assets and dom are ready, wait a beat then slide open the top and bottom curtain panels
     const timer1 = setTimeout(() => {
       setPhase("opening");
-    }, 500);
+    }, 450);
 
-    // The opening phase takes about 1.5 seconds, then unmount
+    // curtain split takes 1.1s, then mark done and fire oncomplete to unmount cleanly
     const timer2 = setTimeout(() => {
       setPhase("done");
       onComplete();
-    }, 2000);
+    }, 1750);
 
     return () => {
       clearTimeout(timer1);
@@ -31,55 +34,68 @@ export default function CinematicLoading({ isReady, onComplete }: Props) {
     };
   }, [isReady, onComplete]);
 
+  if (phase === "done") return null;
+
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden pointer-events-auto"
+        className="fixed inset-0 z-[99999] flex flex-col items-center justify-center overflow-hidden pointer-events-auto select-none"
         initial={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.1, delay: 1.2 } }}
+        exit={{ opacity: 0, transition: { duration: 0.2 } }}
       >
-        {/* Top white panel that slides up */}
+        {/* top curtain panel that slides up */}
         <motion.div
-          className="absolute top-0 left-0 right-0 bg-white z-10"
+          className={cn(
+            "absolute top-0 left-0 right-0 z-10",
+            isDark ? "bg-[#08090e]" : "bg-white"
+          )}
           initial={{ height: "50%" }}
           animate={{ height: phase === "opening" ? "0%" : "50%" }}
-          transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+          transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.1 }}
         />
 
-        {/* Bottom white panel that slides down */}
+        {/* bottom curtain panel that slides down */}
         <motion.div
-          className="absolute bottom-0 left-0 right-0 bg-white z-10"
+          className={cn(
+            "absolute bottom-0 left-0 right-0 z-10",
+            isDark ? "bg-[#08090e]" : "bg-white"
+          )}
           initial={{ height: "50%" }}
           animate={{ height: phase === "opening" ? "0%" : "50%" }}
-          transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+          transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.1 }}
         />
 
-        {/* Center UI elements (text and line) that sit on top of the panels */}
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
-          {/* Text */}
+        {/* center brand typography and animated accent progress line */}
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6">
           <motion.div
-            className="text-black font-fluid-serif text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.6em] whitespace-nowrap mb-4"
+            className={cn(
+              "font-mono text-[10px] sm:text-xs tracking-[0.35em] sm:tracking-[0.55em] uppercase whitespace-nowrap mb-4",
+              isDark ? "text-white/90" : "text-slate-900"
+            )}
             initial={{ opacity: 0, y: 10 }}
-            animate={{ 
+            animate={{
               opacity: phase === "opening" ? 0 : 1,
-              y: phase === "opening" ? -10 : 0 
+              y: phase === "opening" ? -12 : 0,
             }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            C O L O R W A L L &nbsp;&nbsp;B Y &nbsp;&nbsp;L A X E N T A &nbsp;&nbsp;LLC
+            COLORWALL &nbsp;&bull;&nbsp; BY LAXENTA LLC
           </motion.div>
 
-          {/* Loading line */}
+          {/* horizontal loading progress line */}
           <motion.div
-            className="w-1/3 md:w-1/4 h-[1px] bg-black origin-left"
-            initial={{ scaleX: 0, opacity: 1 }}
-            animate={{ 
-              scaleX: phase === "loading" ? 1 : 1, // Slow fill until ready
-              opacity: phase === "opening" ? 0 : 1
+            className={cn(
+              "w-40 sm:w-56 h-[1px] origin-center",
+              isDark ? "bg-white/40" : "bg-slate-900/40"
+            )}
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{
+              scaleX: 1,
+              opacity: phase === "opening" ? 0 : 1,
             }}
-            transition={{ 
-              scaleX: { duration: 8, ease: "circOut" }, 
-              opacity: { duration: 0.3 } 
+            transition={{
+              scaleX: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+              opacity: { duration: 0.3 },
             }}
           />
         </div>
