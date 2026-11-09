@@ -476,6 +476,31 @@ body {
 }
 
 
+/* completely disable native chrome, safari, edge, and firefox scrollbars globally */
+html,
+body,
+*,
+*::before,
+*::after {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar,
+::-webkit-scrollbar,
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
 /* utility to hide scrollbars while preserving scroll functionality */
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;

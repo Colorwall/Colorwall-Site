@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
 import { Navbar } from "@/app/components/Navbar";
 import { SmoothScroller } from "@/app/components/SmoothScroller";
+import { CustomScrollbar } from "@/app/components/CustomScrollbar";
 import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { AmbientProvider } from "@/app/contexts/AmbientContext";
 
@@ -232,6 +233,31 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* completely eliminate native chrome, safari, edge, and firefox scrollbars */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              html, body, *, *::before, *::after {
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+              }
+              ::-webkit-scrollbar,
+              *::-webkit-scrollbar,
+              html::-webkit-scrollbar,
+              body::-webkit-scrollbar,
+              ::-webkit-scrollbar-track,
+              ::-webkit-scrollbar-thumb,
+              ::-webkit-scrollbar-button,
+              ::-webkit-scrollbar-corner {
+                display: none !important;
+                width: 0px !important;
+                height: 0px !important;
+                background: transparent !important;
+                opacity: 0 !important;
+              }
+            `,
+          }}
+        />
       </head>
       <body
         suppressHydrationWarning
@@ -241,6 +267,7 @@ export default function RootLayout({
           <AmbientProvider>
             <Navbar />
             <GlobalAmbientPlayer />
+            <CustomScrollbar />
             <div className="relative min-h-screen flex flex-col">
               {/* background elements for glass effect depth */}
               {/* <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none z-0" /> */}
