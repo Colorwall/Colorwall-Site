@@ -81,9 +81,9 @@ export function ThingsCardsShowcase({ isDark = true }: ThingsCardsShowcaseProps)
             )}
           >
             {/* voxel desk asset in top right corner */}
-            <div className="absolute right-3 top-3 w-32 sm:w-40 h-32 sm:h-40 pointer-events-none opacity-40">
+            <div className="absolute right-5 sm:right-8 top-12 sm:top-14 w-32 sm:w-44 h-24 sm:h-32 pointer-events-none opacity-85">
               <Image
-                src="/editorial/homepage/Desk_things_new-p-800.png"
+                src="/editorial/homepage/Desk_things_cropped.png"
                 alt="Memory Efficiency Graphic"
                 fill
                 loading="lazy"
@@ -122,7 +122,7 @@ export function ThingsCardsShowcase({ isDark = true }: ThingsCardsShowcaseProps)
             )}
           >
             {/* retro tv voxel asset in top right corner */}
-            <div className="absolute right-4 top-2 w-32 sm:w-36 h-32 sm:h-36 pointer-events-none opacity-40">
+            <div className="absolute right-4 top-2 w-32 sm:w-36 h-32 sm:h-36 pointer-events-none opacity-80">
               <Image
                 src="/editorial/homepage/670f18f95e251b5a9c8be968_Retro_TV_On2.png"
                 alt="GPU Auto-pause Graphic"
