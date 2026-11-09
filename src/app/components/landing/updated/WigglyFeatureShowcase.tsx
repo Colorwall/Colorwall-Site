@@ -325,27 +325,27 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
   return (
     <section
       className={cn(
-        "relative z-20 w-full -mt-16 sm:-mt-24 lg:-mt-32 rounded-t-[3rem] sm:rounded-t-[4rem] lg:rounded-t-[5rem] border-t border-x pt-14 sm:pt-20 pb-16 sm:pb-24 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
+        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-t-[3rem] sm:rounded-t-[4rem] lg:rounded-t-[5rem] border-t border-x pt-12 sm:pt-16 pb-16 sm:pb-24 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
         isDark
-          ? "bg-[#0b0c16]/98 border-white/10 text-white bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:32px_32px]"
-          : "bg-white/98 border-black/10 text-slate-900 bg-[linear-gradient(to_right,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"
+          ? "bg-[#0a0b14]/98 border-white/10 text-white backdrop-blur-xl"
+          : "bg-white/98 border-black/10 text-slate-900 backdrop-blur-xl"
       )}
     >
       {/* squircle scroll pill floating right on the transition seam */}
-      <div className="absolute -top-7 sm:-top-9 right-8 sm:right-16 lg:right-24 z-30 pointer-events-auto">
+      <div className="absolute -top-7 sm:-top-8 right-8 sm:right-16 lg:right-24 z-30 pointer-events-auto">
         <button
           type="button"
           onClick={handleScrollDown}
           aria-label="Scroll down into feature showcase"
           className={cn(
-            "flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-[1.3rem] sm:rounded-[1.6rem] shadow-2xl border backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
+            "flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-[1.2rem] sm:rounded-[1.4rem] shadow-2xl border backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
             isDark
-              ? "bg-[#1d2042]/90 border-white/20 text-white hover:bg-[#252a55]"
+              ? "bg-[#181a38]/90 border-white/20 text-white hover:bg-[#20234a]"
               : "bg-[#e5ecfb]/95 border-black/10 text-slate-800 hover:bg-[#d8e3fa]"
           )}
         >
-          <span className="text-sm sm:text-base font-bold mb-0.5 animate-bounce">↓</span>
-          <span className="text-[10px] sm:text-xs font-sans font-medium tracking-wide">Scroll</span>
+          <span className="text-xs sm:text-sm font-bold mb-0.5 animate-bounce">↓</span>
+          <span className="text-[9px] sm:text-[10px] font-sans font-medium tracking-wide">Scroll</span>
         </button>
       </div>
 
