@@ -46,3 +46,4 @@ export function LaxentaRunner({ isDark = true }: LaxentaRunnerProps) {
     />
   );
 }
+

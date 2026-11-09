@@ -10,12 +10,12 @@ type AmbientTrack = {
 
 const AMBIENT_TRACKS: AmbientTrack[] = [
     { id: "default", label: "Default", src: "/audio/default.mp3" },
-    { id: "crypto-dreams", label: "Crypto Dreams", src: "/audio/crypto-dreams.mp3" },
+    { id: "ambient2afterwescroll", label: "Ambient? Maybe", src: "/audio/ambient2afterwescroll.mp3" },
     { id: "atmosphere", label: "Atmosphere", src: "/audio/atmosphere.mp3" },
-    { id: "burialthumping", label: "Burial Thumping", src: "/audio/burialthumping.mp3" },
+    { id: "ambient1startonsite", label: "Ambient Skies", src: "/audio/ambient1startonsite.mp3" },
     { id: "hue-sparkles", label: "Hue Sparkles", src: "/audio/hueSparkles.mp3" },
-    { id: "humm-plus-bass", label: "Humm Plus Bass", src: "/audio/hummplusbass.mp3" },
-    { id: "spacetype-track", label: "Spacetype Track", src: "/audio/SPACETYPEtrack.mp3" },
+    { id: "humm-birb", label: "Birb", src: "/audio/beforethebirb.mp3" },
+    { id: "spacetype-track", label: "Spaceeyy", src: "/audio/SPACETYPEtrack.mp3" },
 ];
 
 const getDefaultTrack = (): AmbientTrack => {
@@ -44,7 +44,7 @@ export function AmbientProvider({ children }: { children: ReactNode }) {
         if (hasInitializedTrack.current) return null;
         hasInitializedTrack.current = true;
 
-        const randomPoolIds = ["default", "atmosphere", "hue-sparkles", "spacetype-track"];
+        const randomPoolIds = ["humm-birb" ,"ambient1startonsite", "ambient2afterwescroll", "default", "atmosphere", "hue-sparkles", "spacetype-track"];
         const randomId = randomPoolIds[Math.floor(Math.random() * randomPoolIds.length)];
         const track = AMBIENT_TRACKS.find(t => t.id === randomId) || AMBIENT_TRACKS[0];
         
