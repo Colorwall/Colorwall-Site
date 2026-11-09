@@ -11,7 +11,7 @@ export const TEXT_PHASES = [
     peak: 0.42,
     end: 0.52,
     left: ['WE MADE', 'COLORWALL', 'THE WALLPAPER ENGINE', 'OF THE FUTURE'],
-    right: ['PRODUCED BY', 'OLIVER LAXENTA'],
+    right: ['PRODUCED BY', 'LAXENTA LLC'],
     rightItalic: true,
   },
   {
@@ -28,7 +28,7 @@ export const TEXT_PHASES = [
     start: 0.68,
     peak: 0.74,
     end: 0.82,
-    left: ['CRAFTED WITH', 'PRECISION', 'AND CARE'],
+    left: ['CRAFTED FOR', 'ABSOLUTE', 'PERFORMANCE'],
     right: ['DESIGNED FOR', 'WINDOWS', '10/11'],
     rightItalic: true,
   },
