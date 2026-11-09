@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -15,72 +16,98 @@ interface FeatureItem {
   image: string;
 }
 
-// core technical specifications mapped directly to verified engine assets
+// user focused feature list with verified metrics in exact requested order
 const FEATURES: FeatureItem[] = [
   {
-    id: "compositor",
+    id: "store",
     num: "01",
-    tag: "Rust + DirectX 11 Pipeline",
-    title: "Zero-Copy Compositor",
-    desc: "Engineered from the metal up in Rust. Hardware-accelerated desktop swapchain maintaining sub-1.5% GPU overhead with instantaneous zero-copy frame dispatch.",
+    tag: "Community Catalog",
+    title: "Unified Store",
+    desc: "Over 10,000+ curated wallpapers sourced from 8+ major registries directly in one app. Free instant downloads at native resolution without creating an account.",
     stats: [
-      { label: "Overhead", val: "< 1.5% GPU" },
-      { label: "Engine Core", val: "Rust + D3D11" },
-      { label: "Frame Dispatch", val: "Zero-Copy" },
+      { label: "Wallpapers", val: "10,000+" },
+      { label: "Registries", val: "8 Sources" },
+      { label: "Account", val: "0 Required" },
+    ],
+    image: "/STORE.webp",
+  },
+  {
+    id: "widgets",
+    num: "02",
+    tag: "Desktop Overlay",
+    title: "Desktop Widgets",
+    desc: "Pin customizable live clocks, system telemetry dials, weather forecasts, and dynamic music visualizers straight onto your desktop with drag-and-drop ease.",
+    stats: [
+      { label: "Prebuilt", val: "24+ Widgets" },
+      { label: "Input Delay", val: "< 1.2ms" },
+      { label: "RAM Impact", val: "~15MB Idle" },
+    ],
+    image: "/widgets.webp",
+  },
+  {
+    id: "library",
+    num: "03",
+    tag: "Local Asset Hub",
+    title: "Offline Library",
+    desc: "Manage your personal collection 100% offline. Instant search indexing with automatic thumbnail generation across MP4, WebM, animated GIFs, and live shaders.",
+    stats: [
+      { label: "Storage", val: "100% Offline" },
+      { label: "Formats", val: "MP4 · WebM · Shaders" },
+      { label: "Telemetry", val: "Zero Tracking" },
+    ],
+    image: "/Library.webp",
+  },
+  {
+    id: "displays",
+    num: "04",
+    tag: "Multi-Screen Engine",
+    title: "8K Panoramic Spans",
+    desc: "Seamlessly stretch ultra-wide wallpapers across 2, 3, or more displays with independent per-monitor scaling, 10-bit HDR10 color, and zero bezel stretching.",
+    stats: [
+      { label: "Max Resolution", val: "Native 8K" },
+      { label: "Displays", val: "Up to 8 Monitors" },
+      { label: "Color Space", val: "10-bit HDR10" },
+    ],
+    image: "/multi.webp",
+  },
+  {
+    id: "taskbar",
+    num: "05",
+    tag: "Desktop Styling",
+    title: "Taskbar Customization",
+    desc: "Customize your Windows taskbar with crystal clear acrylic blur, centered icons, custom color tints, and floating dock layouts without risking explorer crashes.",
+    stats: [
+      { label: "Blur Modes", val: "Clear · Blur · Acrylic" },
+      { label: "Docking", val: "Centered & Floating" },
+      { label: "Hook Type", val: "Direct DWM Injection" },
+    ],
+    image: "/taskbar.webp",
+  },
+  {
+    id: "performance",
+    num: "06",
+    tag: "Hardware Acceleration",
+    title: "Sub-1% Performance",
+    desc: "Engineered from the metal up in Rust and DirectX 11. Uses less than 1% GPU overhead and automatically pauses instantly whenever you launch a fullscreen game.",
+    stats: [
+      { label: "GPU Load", val: "< 1.0% GPU" },
+      { label: "Game Detection", val: "Instant Pause" },
+      { label: "VRAM Impact", val: "Zero-Copy IMF" },
     ],
     image: "/colorwall-hardware.webp",
   },
   {
     id: "shaders",
-    num: "02",
-    tag: "Realtime Compute Passes",
+    num: "07",
+    tag: "Audio-Reactive Pipeline",
     title: "Fluid Live Shaders",
-    desc: "DirectX 11 compute and HLSL/GLSL shader passes with 128-band WASAPI audio loopback reactivity, procedural waves, and continuous 60-360 FPS delivery.",
+    desc: "Interactive visual shaders that pulse and ripple in real time to your system audio and music with dynamic particle simulations running smoothly up to 360 FPS.",
     stats: [
+      { label: "Audio Sync", val: "128-Band WASAPI" },
       { label: "Refresh Target", val: "Up to 360Hz" },
-      { label: "Latency", val: "0.2ms Dispatch" },
-      { label: "Audio FFT", val: "WASAPI 128-band" },
+      { label: "Pipeline", val: "DirectX 11 Compute" },
     ],
     image: "/INTERACTIVES.webp",
-  },
-  {
-    id: "sandboxes",
-    num: "03",
-    tag: "Modular Desktop Docks",
-    title: "Translucent Sandboxes",
-    desc: "Customizable taskbars, interactive diagnostic overlays, and web-component sandboxes injected directly into the desktop plane without Windows Explorer hooks.",
-    stats: [
-      { label: "Backdrop Blur", val: "DWM Acrylic" },
-      { label: "Isolation", val: "Process Sandbox" },
-      { label: "Memory Idle", val: "0.2% CPU Idle" },
-    ],
-    image: "/taskbar.webp",
-  },
-  {
-    id: "displays",
-    num: "04",
-    tag: "Independent Scaling Engine",
-    title: "8K Panoramic Spans",
-    desc: "Multi-monitor workspace coordination with independent per-display refresh synchronization, native HDR10 color profiles, and ultra-wide spans without tearing.",
-    stats: [
-      { label: "Max Resolution", val: "8K Native HDR" },
-      { label: "Multi-Screen", val: "Per-Screen Sync" },
-      { label: "Color Space", val: "10-bit Rec.2020" },
-    ],
-    image: "/multi.webp",
-  },
-  {
-    id: "library",
-    num: "05",
-    tag: "Offline-First Local Storage",
-    title: "Instant Asset Cache",
-    desc: "Zero tracking, zero cloud lock-in. SQLite-backed local repository with asynchronous thumbnail threads and instant switching across 8+ wallpaper formats.",
-    stats: [
-      { label: "Database", val: "SQLite Local" },
-      { label: "Privacy", val: "Zero Telemetry" },
-      { label: "Formats", val: "Shaders / MP4 / EXE" },
-    ],
-    image: "/Library.webp",
   },
 ];
 
@@ -142,7 +169,7 @@ interface WigglyFeatureShowcaseProps {
   theme?: "dark" | "light";
 }
 
-// signature tactile scrolly card with rounded top corners slipping directly over the hero section
+// signature tactile scrolly card with threejs interactive mesh and real metrics
 export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseProps) {
   const isDark = theme === "dark";
   const [activeIndex, setActiveIndex] = useState(0);
@@ -325,7 +352,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
   return (
     <section
       className={cn(
-        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-[3rem] sm:rounded-[4rem] lg:rounded-[5rem] border pt-12 sm:pt-16 pb-14 sm:pb-20 mb-12 sm:mb-16 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
+        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-[3rem] sm:rounded-[4rem] lg:rounded-[5rem] border pt-16 sm:pt-20 lg:pt-24 pb-14 sm:pb-20 mb-12 sm:mb-16 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
         isDark
           ? "bg-[#0a0b14]/98 border-white/10 text-white backdrop-blur-xl"
           : "bg-white/98 border-black/10 text-slate-900 backdrop-blur-xl"
@@ -351,31 +378,46 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
 
       {/* inner content wrapper with responsive edge margins */}
       <div className="relative z-10 w-full max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* section top metadata and title */}
+        {/* section top heading pushed down along y axis with 3d plant asset */}
         <div
           className={cn(
-            "mb-8 sm:mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-5",
+            "mb-8 sm:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-6 sm:pb-8",
             isDark ? "border-white/10" : "border-black/10"
           )}
         >
-          <div>
-            <h2
-              className={cn(
-                "font-outfit text-3xl sm:text-5xl lg:text-6xl font-[200] tracking-[-0.04em] leading-[1.05]",
-                isDark ? "text-white" : "text-slate-900"
-              )}
-            >
-              Performance without compromise
-            </h2>
+          {/* 2 line large bold heading paired with the voxel plant asset */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            <Image
+              src="/editorial/homepage/673662960f25280c0ca517c7_plant_new-p-800.png"
+              alt="Editorial Plant Asset"
+              width={100}
+              height={100}
+              className="w-14 sm:w-20 md:w-24 h-auto object-contain pointer-events-none drop-shadow-[0_16px_32px_rgba(0,0,0,0.4)] shrink-0"
+              priority
+            />
+            <div>
+              <h2
+                className={cn(
+                  "font-outfit text-4xl sm:text-6xl md:text-7xl font-[400] tracking-[-0.03em] leading-[1.02]",
+                  isDark ? "text-white" : "text-slate-900"
+                )}
+              >
+                Performance
+                <br />
+                <span className={isDark ? "text-white/60 font-[300]" : "text-slate-500 font-[300]"}>
+                  without compromise.
+                </span>
+              </h2>
+            </div>
           </div>
 
           <p
             className={cn(
-              "text-xs sm:text-sm font-light max-w-sm leading-relaxed sm:text-right",
+              "text-xs sm:text-sm font-light max-w-sm leading-relaxed md:text-right",
               isDark ? "text-white/50" : "text-slate-600"
             )}
           >
-            DirectX 11 compositor architecture with sub-millisecond dispatch and hardware zero-copy presentation.
+            Lightweight desktop engine built for ultra-fast response, 8K multi-monitor setups, and near-zero GPU load.
           </p>
         </div>
 
@@ -417,7 +459,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                       onClick={() => handleSelectFeature(idx)}
                       onMouseEnter={() => handleSelectFeature(idx)}
                       className={cn(
-                        "group border-b py-4 sm:py-5 cursor-pointer transition-colors duration-300",
+                        "group border-b py-3.5 sm:py-4 cursor-pointer transition-colors duration-300",
                         isDark ? "border-white/10" : "border-black/10"
                       )}
                     >
@@ -438,7 +480,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
 
                         <h3
                           className={cn(
-                            "font-outfit text-2xl sm:text-3xl lg:text-4xl font-[200] tracking-tight transition-all duration-300",
+                            "font-outfit text-xl sm:text-2xl lg:text-3xl font-[200] tracking-tight transition-all duration-300",
                             isActive
                               ? isDark
                                 ? "text-white translate-x-1 font-[300]"
@@ -464,7 +506,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                           >
                             <p
                               className={cn(
-                                "mt-3 text-xs sm:text-sm font-light leading-relaxed pl-8 sm:pl-12 max-w-lg",
+                                "mt-2.5 text-xs sm:text-sm font-light leading-relaxed pl-8 sm:pl-12 max-w-lg",
                                 isDark ? "text-white/70" : "text-slate-700"
                               )}
                             >
@@ -472,12 +514,12 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                             </p>
 
                             {/* technical metric telemetry chips */}
-                            <div className="mt-3.5 pl-8 sm:pl-12 flex flex-wrap gap-2.5">
+                            <div className="mt-3 pl-8 sm:pl-12 flex flex-wrap gap-2">
                               {feat.stats.map((s, sIdx) => (
                                 <div
                                   key={sIdx}
                                   className={cn(
-                                    "px-3 py-1.5 rounded-lg border backdrop-blur-sm",
+                                    "px-2.5 py-1 rounded-lg border backdrop-blur-sm",
                                     isDark
                                       ? "bg-white/[0.04] border-white/10"
                                       : "bg-black/[0.04] border-black/10"
@@ -485,13 +527,13 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
                                 >
                                   <div
                                     className={cn(
-                                      "font-mono text-[9px] uppercase tracking-wider",
+                                      "font-mono text-[8px] uppercase tracking-wider",
                                       isDark ? "text-white/40" : "text-slate-500"
                                     )}
                                   >
                                     {s.label}
                                   </div>
-                                  <div className="font-outfit text-xs sm:text-sm font-normal text-[#00a4ff]">
+                                  <div className="font-outfit text-xs font-normal text-[#00a4ff]">
                                     {s.val}
                                   </div>
                                 </div>
