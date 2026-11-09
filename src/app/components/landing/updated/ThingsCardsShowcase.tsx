@@ -151,7 +151,7 @@ export function ThingsCardsShowcase({ isDark = true }: ThingsCardsShowcaseProps)
                 </span>
               </div>
               <p className="mt-1 text-xs sm:text-sm font-sans text-[#2c3367] leading-relaxed">
-                Direct hardware swapchain bypass when full-screen 3D games or GPU-heavy applications are detected.
+                Direct hardware swapchain pause when full-screen 3D games or GPU-heavy applications are detected. Built to step out of your way &lt;3
               </p>
             </div>
           </div>
