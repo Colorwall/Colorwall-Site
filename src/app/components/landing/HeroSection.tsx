@@ -23,6 +23,8 @@ type HeroVideo = {
 // hero background video rotation with verified webm files (initals.webm is kept exclusive to fluid gallery)
 const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/lifeandeath.webm", type: "video/webm", poster: "/videos/posters/lifeandeath.webp" },
+    { src: "/videos/fkingaura_ofbirb_60fps.webm", type: "video/webm", poster: "/videos/posters/fkingaura_ofbirb_60fps.webp" },
+    { src: "/videos/12868344_2560_1440_30fps.webm", type: "video/webm", poster: "/videos/posters/12868344_2560_1440_30fps.webp" },
     { src: "/videos/Arylin_Forest_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Arylin_Forest_Live_Wallpaper.webp" },
     { src: "/videos/Sacred_Tree_Falling_Leaves_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Sacred_Tree_Falling_Leaves_Live_Wallpaper.webp" },
     { src: "/videos/laxenta.webm", type: "video/webm", poster: "/videos/posters/laxenta.webp" },

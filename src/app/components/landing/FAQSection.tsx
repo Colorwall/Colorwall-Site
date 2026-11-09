@@ -12,19 +12,19 @@ export const FAQSection = ({ theme }: { theme: "dark" | "light" }) => {
     const faqs = [
         {
             question: "What does ColorWall cost?",
-            answer: "ColorWall is completely free to download and use from our website without arbitrary limits. Future releases on storefronts like Steam or Epic Games may be premium to help fund long-term development and code signing."
+            answer: "ColorWall is completely free to download and use from our website without arbitrary limits. Future releases on storefronts like Steam or Epic Games will be free too, The marketplace and creator ecosystem we are trying to plan may help fund long-term development and code signing <3 you can support us if you want to :)."
         },
         {
             question: "Does it affect gaming performance?",
-            answer: "Not at all. ColorWall's engine automatically pauses all rendering and video playback the second you launch a full-screen application or game, ensuring zero background GPU usage while you play."
+            answer: "Not at all. It will Always drop to 0% GPU, And around 100-150mb RAM . ColorWall's runtime automatically pauses all rendering and unloads it's UI and playback when you launch a full-screen application or game, Enjoy we gotcha :)"
         },
         {
-            question: "Can I create my own interactive wallpapers?",
-            answer: "Absolutely. ColorWall features a built-in node-based Studio Scene Editor. You can combine custom images, video layers, and native D3D11 shaders to build high-performance dynamic scenes."
+            question: "Can I create my own stuff or scenes instead of relying on Marketplace?",
+            answer: "Absolutely. ColorWall features a built-in Full Directly rendered on your desktop Studio Scene Editor, Unlike other app's which provide an In app editor, we took an different aproach, that outpaces everyone in usablity. You can combine custom images, video layers, particles and native D3D11 shaders to build high-performance dynamic scenes."
         },
         {
-            question: "Does it support audio-reactive effects?",
-            answer: "Yes. Our native engine includes real-time audio frequency analysis, allowing your wallpapers, shaders, and particle systems to react dynamically to your system's audio playback."
+            question: "Does it support audio-reactive effects? Or RGB",
+            answer: "HELL Yes. Our runtime includes real-time audio frequency analysis, allowing your wallpapers, shaders, and particle systems to react dynamically to your system's audio playback."
         },
         {
             question: "Which Windows versions are supported?",
@@ -78,8 +78,8 @@ export const FAQSection = ({ theme }: { theme: "dark" | "light" }) => {
             )
         },
         {
-            question: "Can I use web-based interactive wallpapers?",
-            answer: "Yes. ColorWall fully supports HTML, CSS, and JavaScript based wallpapers via a lightweight WebView, allowing you to run complex web scenes natively on your desktop."
+            question: "Can I use web-based interactive wallpapers or widgets?",
+            answer: "Yes. ColorWall fully supports HTML, CSS, and JavaScript based wallpapers/widgets via a lightweight WebView, allowing you to run complex web scenes natively on your desktop."
         },
         {
             question: "Does it support multiple monitors?",
