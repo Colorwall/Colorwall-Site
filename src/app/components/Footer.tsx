@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Github, Twitter, MessageCircle, Heart, Mail } from "lucide-react";
+import { LaxentaRunner } from "./LaxentaRunner";
 
 export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
     const isDark = theme === "dark";
@@ -167,17 +168,30 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                     </a>
                 </div>
 
-                {/* ════ Bottom Info ════ */}
-                <div className={`mt-16 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4
-                    ${isDark ? "border-white/5" : "border-slate-200"}`}>
+                {/* ════ Bottom Sign-Off Banner ════ */}
+                <div className={`mt-16 pt-8 border-t flex flex-col md:flex-row justify-between items-start md:items-end gap-6
+                    ${isDark ? "border-white/10" : "border-slate-200"}`}>
 
-                    <div className={`text-xs font-mono opacity-40 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-600"}`}>
-                        <span>© 2026 LAXENTA LLC.</span>
-                        <span className="w-1 h-1 bg-[#00A4FF] rounded-full" />
-                        <span className="uppercase">All rights reserved.</span>
+                    {/* bottom sign off section replacing legacy copyright with brutalist running man mark */}
+                    <div className="flex items-center gap-2 sm:gap-4 select-none">
+                        {/* client side lottie vector runner anchored to the brand mark baseline */}
+                        <LaxentaRunner isDark={isDark} />
+
+                        {/* massive bold brutalist typography paired with tight tracking and uppercase styling */}
+                        <div className="flex flex-col">
+                            <span className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-none select-none
+                                ${isDark ? "text-white" : "text-slate-900"}`}>
+                                /LAXENTA
+                            </span>
+                            <span className={`text-[10px] sm:text-xs font-mono tracking-widest uppercase mt-1
+                                ${isDark ? "text-white/40" : "text-slate-500"}`}>
+                                © 2026 LAXENTA LLC. ALL RIGHTS RESERVED.
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="flex gap-4">
+                    {/* social community links anchored to the right of the sign off banner */}
+                    <div className="flex gap-3 pb-2">
                         {[
                             { icon: Github, href: "https://github.com/shelleyloosespatience", label: "GitHub" },
                             { icon: MessageCircle, href: "https://discord.gg/QYwhay7r2V", label: "Discord" },
@@ -189,12 +203,12 @@ export const Footer = ({ theme }: { theme: "dark" | "light" }) => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={item.label}
-                                className={`p-2 rounded-lg transition-colors duration-200
+                                className={`p-2.5 rounded-lg transition-colors duration-200
                                     ${isDark
                                         ? "bg-white/5 text-white/60 hover:bg-[#00A4FF] hover:text-white"
                                         : "bg-slate-100 text-slate-500 hover:bg-[#00A4FF] hover:text-white"}`}
                             >
-                                <item.icon size={16} />
+                                <item.icon size={18} />
                             </a>
                         ))}
                     </div>
