@@ -361,7 +361,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
       )}
     >
       {/* squircle scroll pill floating right on the transition seam */}
-      <div className="absolute -top-7 sm:-top-8 right-8 sm:right-16 lg:right-24 z-30 pointer-events-auto">
+      {/* <div className="absolute -top-7 sm:-top-8 right-8 sm:right-16 lg:right-24 z-30 pointer-events-auto">
         <button
           type="button"
           onClick={handleScrollDown}
@@ -376,7 +376,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
           <span className="text-xs sm:text-sm font-bold mb-0.5 animate-bounce">↓</span>
           <span className="text-[9px] sm:text-[10px] font-sans font-medium tracking-wide">Scroll</span>
         </button>
-      </div>
+      </div> */}
 
       {/* inner content wrapper with responsive edge margins */}
       <div className="relative z-10 w-full max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8">
