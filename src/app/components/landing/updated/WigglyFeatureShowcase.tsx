@@ -325,7 +325,7 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
   return (
     <section
       className={cn(
-        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-t-[3rem] sm:rounded-t-[4rem] lg:rounded-t-[5rem] border-t border-x pt-12 sm:pt-16 pb-16 sm:pb-24 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
+        "relative z-20 w-full -mt-2 sm:-mt-2 lg:-mt-8 rounded-[3rem] sm:rounded-[4rem] lg:rounded-[5rem] border pt-12 sm:pt-16 pb-14 sm:pb-20 mb-12 sm:mb-16 select-none transition-colors duration-700 shadow-[0_-24px_70px_rgba(0,0,0,0.85)]",
         isDark
           ? "bg-[#0a0b14]/98 border-white/10 text-white backdrop-blur-xl"
           : "bg-white/98 border-black/10 text-slate-900 backdrop-blur-xl"
