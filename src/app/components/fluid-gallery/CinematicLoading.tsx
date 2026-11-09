@@ -66,7 +66,7 @@ export default function CinematicLoading({ isReady, onComplete }: Props) {
             }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            C O L O R W A L L &nbsp;&nbsp;B Y &nbsp;&nbsp;L A X E N T A &nbsp;&nbsp;I N C
+            C O L O R W A L L &nbsp;&nbsp;B Y &nbsp;&nbsp;L A X E N T A &nbsp;&nbsp;LLC
           </motion.div>
 
           {/* Loading line */}
