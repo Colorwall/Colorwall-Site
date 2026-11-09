@@ -182,7 +182,7 @@ export default function DownloadPage() {
 
     const isDark = theme === "dark";
 
-    const bgColor = isDark ? "bg-[#0a0a0a]" : "bg-white";
+    const bgColor = "bg-transparent";
     const textColor = isDark ? "text-white" : "text-black";
     const mutedText = isDark ? "text-white/60" : "text-black/60";
     const borderColor = isDark ? "border-white/10" : "border-black/10";

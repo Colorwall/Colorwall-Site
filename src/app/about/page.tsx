@@ -21,7 +21,7 @@ export default function AboutPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    const bgColor = isDark ? "bg-black" : "bg-white";
+    const bgColor = "bg-transparent";
     const textColor = isDark ? "text-white" : "text-black";
     const textMuted = isDark ? "text-white/60" : "text-black/60";
     const borderSubtle = isDark ? "border-white/10" : "border-black/10";

@@ -309,7 +309,7 @@ export default function WallpaperClient({ initialItems, initialTotal, initialNex
 
     return (
         <div
-            className={`min-h-screen relative overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#080809] text-zinc-100" : "bg-slate-50 text-zinc-900"}`}
+            className={`min-h-screen relative overflow-hidden transition-colors duration-500 bg-transparent ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
             style={{ fontFamily: "'DM Sans', 'Geist', sans-serif" }}
         >
             {/* ─── subtle ambient bg ─── */}
