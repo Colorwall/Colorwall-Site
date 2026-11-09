@@ -22,7 +22,7 @@ export function GlobalAmbientPlayer() {
     // other pages — simple fixed bottom float
     return (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[90]">
-            <AmbientPlayer theme={theme} />
+            <AmbientPlayer theme={theme} direction="up" align="center" />
         </div>
     );
 }

@@ -255,7 +255,7 @@ export const HeroSection = () => {
 
                 {/* ambient player replacing the static sound button */}
                 <div className="flex items-center">
-                    <AmbientPlayer theme="dark" />
+                    <AmbientPlayer theme="dark" direction="down" align="right" />
                 </div>
             </div>
 
