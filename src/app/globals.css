@@ -13,6 +13,10 @@
 @custom-variant dark (&:is(.dark *));
 @plugin "@tailwindcss/typography";
 
+@theme {
+  --font-outfit: var(--font-outfit), sans-serif;
+}
+
 /* Disable text selection */
 /* * {
   -webkit-user-select: none;
