@@ -9,6 +9,7 @@ import { CustomScrollbar } from "@/app/components/CustomScrollbar";
 import { GlobalAmbientPlayer } from "@/app/components/GlobalAmbientPlayer";
 import { AmbientProvider } from "@/app/contexts/AmbientContext";
 import { AtmosphericSky } from "@/app/components/landing/updated/AtmosphericSky";
+import { GlobalLoadingCurtain } from "@/app/components/GlobalLoadingCurtain";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -265,6 +266,7 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-transparent text-[var(--text-primary)] font-jakarta overflow-x-clip`}
       >
         <ThemeProvider>
+          <GlobalLoadingCurtain />
           <AmbientProvider>
             {/* page wide global atmospheric sky background with stars, celestial bodies, and floating clouds */}
             <AtmosphericSky />
