@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
-import { Users, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Wallpaper } from "lucide-react";
+import { Users, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Wallpaper, Heart } from "lucide-react";
 import GooeyNav from "./ui/GooeyNav";
 
 const SunIcon = () => (
@@ -103,6 +103,7 @@ export const Navbar = () => {
         { name: "Wallpapers", href: "/wallpapers", icon: Wallpaper },
         { name: "Feedback", href: "/feedback", icon: MessageSquare },
         { name: "About", href: "/about", icon: Users },
+        { name: "Donate", href: "/donate", icon: Heart },
     ];
 
     const handleNavClick = (
@@ -164,22 +165,23 @@ export const Navbar = () => {
                         </span>
                     </Link>
 
-                    <nav className="hidden md:flex items-center justify-center flex-1 mx-1">
+                    <nav aria-label="Main navigation" className="hidden min-[1200px]:flex min-w-0 items-center justify-center flex-1">
                         <GooeyNav
-                            items={navLinks.map(l => ({ label: l.name, href: l.href, icon: l.icon }))}
-                            initialActiveIndex={Math.max(0, navLinks.findIndex(l => l.href === pathname))}
+                            key={pathname}
+                            items={navLinks.map(link => ({ label: link.name, href: link.href, icon: link.icon }))}
+                            initialActiveIndex={navLinks.findIndex(link => link.href === pathname)}
                             particleCount={12}
                             particleDistances={[60, 10]}
                             particleR={80}
                             animationTime={500}
                             timeVariance={200}
-                            colors={[1, 2, 3, 1, 2, 3, 1, 4]} // These map to custom CSS variables if needed
+                            colors={[1, 2, 3, 1, 2, 3, 1, 4]}
                             isDark={isDark}
                         />
                     </nav>
 
                     {/* Mobile standard nav mapping */}
-                    <nav className="flex md:hidden items-center justify-evenly gap-1 flex-1 mx-1">
+                    <nav aria-label="Quick navigation" className="grid grid-cols-4 min-[1200px]:hidden items-center flex-1 mx-1">
                         {navLinks.slice(0, 4).map((link) => {
                             const isActive = pathname === link.href;
                             const isExternal = link.href.startsWith("http");
@@ -191,7 +193,7 @@ export const Navbar = () => {
                                     rel={isExternal ? "noopener noreferrer" : undefined}
                                     onClick={(event) => handleNavClick(event, link.href, isExternal)}
                                     title={link.name}
-                                    className={`p-2.5 rounded-xl transition-all duration-200 flex items-center
+                                    className={`p-2.5 rounded-xl transition-all duration-200 flex items-center justify-center
                                         ${isActive
                                             ? (isDark ? "bg-white/10 text-white" : "bg-black/10 text-black")
                                             : (isDark ? "text-white/60 hover:text-white hover:bg-white/7" : "text-black/60 hover:text-black hover:bg-black/7")
@@ -209,7 +211,7 @@ export const Navbar = () => {
 
                     <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                         {/* Desktop-only Socials */}
-                        <div className="hidden md:flex items-center gap-0.5">
+                        <div className="hidden min-[1200px]:flex items-center gap-0.5">
                             <a href="https://github.com/colorwall/colorwall" target="_blank" rel="noopener noreferrer"
                                 aria-label="GitHub" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
                                 <GithubIcon />
@@ -235,7 +237,7 @@ export const Navbar = () => {
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-                            className={`md:hidden p-2.5 sm:p-3 rounded-xl transition-all duration-200 ${iconBtn}`}
+                            className={`min-[1200px]:hidden p-2.5 sm:p-3 rounded-xl transition-all duration-200 ${iconBtn}`}
                         >
                             {isMobileMenuOpen ? <X size={20} strokeWidth={2} /> : <Menu size={20} strokeWidth={2} />}
                         </button>
@@ -243,9 +245,9 @@ export const Navbar = () => {
                 </div>
                 {isMobileMenuOpen && (
                     <div
-                        className="md:hidden overflow-hidden transition-all duration-200"
+                        className="min-[1200px]:hidden overflow-y-auto transition-all duration-200"
                         style={{
-                            maxHeight: "500px",
+                            maxHeight: "min(500px, calc(100dvh - 5rem))",
                             opacity: 1,
                         }}
                     >

@@ -120,20 +120,6 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       makeParticles(filterRef.current);
     }
   };
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      const liEl = e.currentTarget.parentElement;
-      if (liEl) {
-        handleClick(
-          {
-            currentTarget: liEl
-          } as React.MouseEvent<HTMLAnchorElement>,
-          index
-        );
-      }
-    }
-  };
   useEffect(() => {
     if (!navRef.current || !containerRef.current) return;
     const activeLi = navRef.current.querySelectorAll('li')[activeIndex] as HTMLElement;
@@ -284,7 +270,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
           }
         `}
       </style>
-      <div className="relative" ref={containerRef}>
+      <div className="relative w-full" ref={containerRef}>
         <svg style={{ visibility: 'hidden', position: 'absolute', width: 0, height: 0 }}>
           <defs>
             <filter id="gooey-filter">
@@ -293,11 +279,12 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             </filter>
           </defs>
         </svg>
-        <nav className="flex relative" style={{ transform: 'translate3d(0,0,0.01px)' }}>
+        <div className="flex relative w-full" style={{ transform: 'translate3d(0,0,0.01px)' }}>
           <ul
             ref={navRef}
-            className="flex gap-8 list-none p-0 px-4 m-0 relative z-[3]"
+            className="grid w-full list-none p-0 m-0 relative z-[3]"
             style={{
+              gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
               color: isDark ? 'white' : 'black',
               textShadow: isDark ? '0 1px 1px hsl(205deg 30% 10% / 0.2)' : 'none'
             }}
@@ -311,8 +298,8 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
                 <Link
                   href={item.href}
                   onClick={e => handleClick(e as any, index)}
-                  onKeyDown={e => handleKeyDown(e as any, index)}
-                  className="outline-none py-[0.6em] px-[1em] inline-flex items-center gap-2 text-xs font-mono font-semibold tracking-widest uppercase"
+                  aria-current={activeIndex === index ? 'page' : undefined}
+                  className="w-full py-[0.6em] px-1 flex items-center justify-center gap-1.5 whitespace-nowrap text-xs font-mono font-semibold tracking-wide uppercase focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   {item.icon && <item.icon size={16} strokeWidth={2} />}
                   {item.label}
@@ -320,7 +307,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
               </li>
             ))}
           </ul>
-        </nav>
+        </div>
         <span className="effect filter" ref={filterRef} />
         <span className="effect text" ref={textRef} />
       </div>
