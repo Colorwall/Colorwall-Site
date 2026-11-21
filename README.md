@@ -43,3 +43,6 @@ If you want to support the continued development of the ColorWall ecosystem (inc
 <div align="center">
   <sub>Built out of boredom by the Colorwall Team.</sub>
 </div>
+### Donations
+
+The Donate page uses Razorpay Standard Checkout for INR, USD, EUR, GBP, CAD and AUD donations. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` in the server environment (for local development, in `.env.local`). Use Razorpay test keys for testing and live keys only when ready to accept payments. International currencies require international payments to be enabled on the Razorpay account. The secret must remain server-side. Without these keys, currency checkout displays an unavailable message; crypto donations remain available.

@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/changelog',
     '/about',
     '/feedback',
+    '/donate',
     '/privacy',
     '/terms',
   ].map((route) => ({
