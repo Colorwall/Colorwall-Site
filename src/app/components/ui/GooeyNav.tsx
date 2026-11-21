@@ -282,9 +282,8 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         <div className="flex relative w-full" style={{ transform: 'translate3d(0,0,0.01px)' }}>
           <ul
             ref={navRef}
-            className="grid w-full list-none p-0 m-0 relative z-[3]"
+            className="flex w-full items-center justify-between list-none p-0 m-0 relative z-[3]"
             style={{
-              gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
               color: isDark ? 'white' : 'black',
               textShadow: isDark ? '0 1px 1px hsl(205deg 30% 10% / 0.2)' : 'none'
             }}
@@ -299,7 +298,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
                   href={item.href}
                   onClick={e => handleClick(e as any, index)}
                   aria-current={activeIndex === index ? 'page' : undefined}
-                  className="w-full py-[0.6em] px-1 flex items-center justify-center gap-1.5 whitespace-nowrap text-xs font-mono font-semibold tracking-wide uppercase focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="py-[0.6em] px-1 flex items-center justify-center gap-1.5 whitespace-nowrap text-xs font-mono font-semibold tracking-wide uppercase focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   {item.icon && <item.icon size={16} strokeWidth={2} />}
                   {item.label}

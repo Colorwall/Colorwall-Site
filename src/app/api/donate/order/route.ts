@@ -7,7 +7,7 @@ export async function POST(request: Request) {
 
     let amount: unknown;
     let currency: unknown;
-    try { ({ amount, currency = "INR" } = await request.json()); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
+    try { ({ amount, currency = "USD" } = await request.json()); } catch { return NextResponse.json({ error: "Invalid request." }, { status: 400 }); }
     if (typeof amount !== "number" || !Number.isSafeInteger(amount) || amount < 100 || amount > 100000000) {
         return NextResponse.json({ error: "Enter an amount between 1 and 1,000,000 in the selected currency." }, { status: 400 });
     }

@@ -30,6 +30,8 @@ test("order uses the selected currency, correct minor units and a valid receipt"
     assert.equal(sent.currency, "USD");
     assert.ok(sent.receipt.length <= 40);
     assert.equal(result.body.currency, "USD");
+    const defaultResult = await post({ json: async () => ({ amount: 1000 }) });
+    assert.equal(defaultResult.body.currency, "USD");
     assert.equal((await post({ json: async () => ({ amount: 1025, currency: "XYZ" }) })).status, 400);
     assert.equal((await post({ json: async () => ({ amount: 99, currency: "USD" }) })).status, 400);
 });
