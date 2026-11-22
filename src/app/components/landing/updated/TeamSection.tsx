@@ -70,7 +70,7 @@ export function TeamBreathingSection({ isDark = true }: TeamBreathingSectionProp
                 isDark ? "text-white" : "text-slate-900"
               )}
             >
-              Presented to you by Laxenta LLC.
+              Presented to you by The Laxenta Team.
             </span>
             <span
               className={cn(
