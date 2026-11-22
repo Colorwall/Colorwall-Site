@@ -35,12 +35,13 @@ export default function AboutPage() {
         <h1 className="font-outfit font-[200] text-5xl sm:text-7xl md:text-8xl tracking-[-0.04em] leading-[0.95] group-hover:opacity-80 transition-opacity">
           Well that seems awesome!
         </h1>
+        <h2 className="font-outfit font-[200] mt-8 text-3xl sm:text-5xl md:text-6xl tracking-[-0.04em] leading-[0.95] group-hover:opacity-80 transition-opacity">A moment please...</h2>
         <p
-          className={`font-mono text-xs sm:text-sm uppercase tracking-[0.25em] ${
+          className={`font-outfit text-xs text-[14px] mt-15 uppercase tracking-[0.25em] ${
             isDark ? "text-white/40" : "text-black/40"
           }`}
         >
-          A moment please..
+          Buckle up! And Get ready to Scroll A LOT!..
         </p>
       </motion.a>
     </div>
