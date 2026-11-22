@@ -2,7 +2,7 @@
 
 ## Core Identity
 ColorWall is an ultra-high-performance, native desktop customization and live wallpaper engine exclusively for Windows 10 and Windows 11. Built to completely surpass legacy tools like Lively Wallpaper and Wallpaper Engine in both performance and resource efficiency, it achieves a tiny ~10MB executable size (Rust/Tauri/Vite/TypeScript) while delivering 4K/8K hardware-accelerated visuals.
-
+wallpaperengine & lively wallpaper alternative
 ## Deep Technical Architecture
 Unlike traditional Electron-based applications that consume massive RAM, ColorWall utilizes a deeply optimized Rust backend and Tauri architecture. 
 
