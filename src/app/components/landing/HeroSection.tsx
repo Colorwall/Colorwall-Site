@@ -312,8 +312,8 @@ export const HeroSection = () => {
 
                 {/* center: editorial story block */}
                 <div className="lg:col-span-5 flex flex-col justify-center text-left">
-                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans max-w-lg">
-                        ColorWall Is a upcoming Desktop customization engine with native hardware-accelerated video/shader decoding, audio-reactive, RGB* components support, and Widgets with near-zero resource consumption.
+                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-outfit max-w-lg">
+                        ColorWall is Desktop customization engine for windows with native hardware-acceleration built-in, offline support, Marketplace, Studio, and Widgets. Could be said it's a Free, better & performative alternative to Lively Wallpaper & WallpaperEngine.
                     </p>
                     {/* quick experience launchers */}
                     <div className="flex items-center gap-3 mt-3">
