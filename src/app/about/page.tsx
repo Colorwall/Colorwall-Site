@@ -37,7 +37,7 @@ export default function AboutPage() {
         </h1>
         <h2 className="font-outfit font-[200] mt-8 text-3xl sm:text-5xl md:text-6xl tracking-[-0.04em] leading-[0.95] group-hover:opacity-80 transition-opacity">A moment please...</h2>
         <p
-          className={`font-outfit text-xs text-[14px] mt-15 uppercase tracking-[0.25em] ${
+          className={`font-outfit text-xs text-[14px] mt-12 uppercase tracking-[0.25em] ${
             isDark ? "text-white/40" : "text-black/40"
           }`}
         >
