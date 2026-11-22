@@ -22,10 +22,10 @@ type HeroVideo = {
 
 // hero background video rotation with verified webm files (initals.webm is kept exclusive to fluid gallery)
 const HERO_VIDEOS: HeroVideo[] = [
+    { src: "/videos/13861364_3840_2160_30fps.webm", type: "video/webm", poster: "/videos/posters/13861364_3840_2160_30fps.webp" },
     { src: "/videos/lifeandeath.webm", type: "video/webm", poster: "/videos/posters/lifeandeath.webp" },
     { src: "/videos/fkingaura_ofbirb_60fps.webm", type: "video/webm", poster: "/videos/posters/fkingaura_ofbirb_60fps.webp" },
     { src: "/videos/12868344_2560_1440_30fps.webm", type: "video/webm", poster: "/videos/posters/12868344_2560_1440_30fps.webp" },
-    { src: "/videos/13861364_3840_2160_30fps.webm", type: "video/webm", poster: "/videos/posters/13861364_3840_2160_30fps.webp" },
     { src: "/videos/11906941_3840_2160_24fps.webm", type: "video/webm", poster: "/videos/posters/11906941_3840_2160_24fps.webp" },
     { src: "/videos/Arylin_Forest_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Arylin_Forest_Live_Wallpaper.webp" },
     { src: "/videos/Sacred_Tree_Falling_Leaves_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Sacred_Tree_Falling_Leaves_Live_Wallpaper.webp" },
