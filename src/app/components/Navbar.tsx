@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
-import { Users, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Wallpaper } from "lucide-react";
+import { Coffee, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Wallpaper } from "lucide-react";
 import GooeyNav from "./ui/GooeyNav";
 
 const SunIcon = () => (
@@ -102,7 +102,7 @@ export const Navbar = () => {
         { name: "Changelog", href: "/changelog", icon: FileText },
         { name: "Wallpapers", href: "/wallpapers", icon: Wallpaper },
         { name: "Feedback", href: "/feedback", icon: MessageSquare },
-        { name: "About", href: "/about", icon: Users },
+        { name: "Support", href: "/about", icon: Coffee },
     ];
 
     const handleNavClick = (
