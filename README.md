@@ -39,6 +39,33 @@ ColorWall is developed entirely by the awsome team of Colorwall ([@Colorwall](ht
 
 If you want to support the continued development of the ColorWall ecosystem (including Colorwall Linux, ArchiveWalls, and more), consider supporting on [Patreon](https://patron.colorwall.xyz) or joining the [Discord](https://discord.gg/QYwhay7r2V).
 
+<br />
+
+## Security & Domain Hardening
+
+The frontend includes enterprise grade web security headers configured in `next.config.ts` and an rfc 9116 disclosure file.
+
+### HTTP Response Headers
+- `Strict-Transport-Security`: `max-age=63072000; includeSubDomains; preload` (enforces https across root and subdomains with browser preload eligibility).
+- `X-Frame-Options`: `SAMEORIGIN` (prevents clickjacking by blocking unauthorized iframe embedding).
+- `X-Content-Type-Options`: `nosniff` (stops mime-type sniffing attacks).
+- `Referrer-Policy`: `strict-origin-when-cross-origin` (protects privacy on outbound link navigation).
+- `Permissions-Policy`: `camera=(), microphone=(), geolocation=(), browsing-topics=()` (disables unused browser hardware and tracking apis).
+- `Cross-Origin-Opener-Policy`: `same-origin-allow-popups` (isolates browsing context while supporting external popups like discord and github).
+- `Cross-Origin-Resource-Policy`: `cross-origin` (guarantees tauri desktop app and subdomains can fetch apis and assets without cors or corp blocking).
+- `Content-Security-Policy`: tailored whitelist for clarity, google tag, webgl workers, and razorpay.
+- `poweredByHeader`: `false` (removes next.js fingerprint from headers).
+
+### Security Disclosure
+- `/.well-known/security.txt`: rfc 9116 compliant contact info pointing to `mailto:contact@laxenta.com`.
+
+### Recommended DNS Records (Registrar / Cloudflare)
+Whenever you want to harden email and dns at your domain registrar:
+- **SPF (TXT)**: `v=spf1 -all` (blocks spammers from forging emails from @colorwall.xyz).
+- **DMARC (TXT)** on `_dmarc.colorwall.xyz`: `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s;` (instructs receiving mail servers to drop fake emails).
+- **CAA (CAA)**: `0 issue "letsencrypt.org"` and `0 issuewild "letsencrypt.org"`.
+- **DNSSEC**: enable via one-click toggle in your registrar or cloudflare dashboard.
+
 ---
 <div align="center">
   <sub>Built out of boredom by the Colorwall Team.</sub>

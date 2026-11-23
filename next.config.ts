@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://*.clarity.ms https://www.google-analytics.com https://api.razorpay.com https://raw.githubusercontent.com https://*.githubusercontent.com https://patron.colorwall.xyz",
+              "connect-src 'self' https://*.clarity.ms https://www.google-analytics.com https://api.razorpay.com https://raw.githubusercontent.com https://*.githubusercontent.com https://patron.colorwall.xyz  https://api.github.com",
               "frame-src 'self' https://api.razorpay.com https://patron.colorwall.xyz",
               "media-src 'self' blob: data: https:",
               "worker-src 'self' blob:",
