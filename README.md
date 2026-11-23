@@ -53,7 +53,6 @@ The frontend includes enterprise grade web security headers configured in `next.
 - `Permissions-Policy`: `camera=(), microphone=(), geolocation=(), browsing-topics=()` (disables unused browser hardware and tracking apis).
 - `Cross-Origin-Opener-Policy`: `same-origin-allow-popups` (isolates browsing context while supporting external popups like discord and github).
 - `Cross-Origin-Resource-Policy`: `cross-origin` (guarantees tauri desktop app and subdomains can fetch apis and assets without cors or corp blocking).
-- `Content-Security-Policy`: tailored whitelist for clarity, google tag, webgl workers, and razorpay.
 - `poweredByHeader`: `false` (removes next.js fingerprint from headers).
 
 ### Security Disclosure
