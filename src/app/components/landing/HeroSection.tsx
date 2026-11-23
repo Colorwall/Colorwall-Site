@@ -22,6 +22,7 @@ type HeroVideo = {
 
 // hero background video rotation with verified webm files (initals.webm is kept exclusive to fluid gallery)
 const HERO_VIDEOS: HeroVideo[] = [
+    { src: "/videos/Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper.webp" },
     { src: "/videos/13861364_3840_2160_30fps.webm", type: "video/webm", poster: "/videos/posters/13861364_3840_2160_30fps.webp" },
     { src: "/videos/lifeandeath.webm", type: "video/webm", poster: "/videos/posters/lifeandeath.webp" },
     { src: "/videos/fkingaura_ofbirb_60fps.webm", type: "video/webm", poster: "/videos/posters/fkingaura_ofbirb_60fps.webp" },
@@ -31,7 +32,6 @@ const HERO_VIDEOS: HeroVideo[] = [
     { src: "/videos/Sacred_Tree_Falling_Leaves_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Sacred_Tree_Falling_Leaves_Live_Wallpaper.webp" },
     { src: "/videos/laxenta.webm", type: "video/webm", poster: "/videos/posters/laxenta.webp" },
     { src: "/videos/Uncle_Panda_Remnant_Tale.webm", type: "video/webm", poster: "/videos/posters/Uncle_Panda_Remnant_Tale.webp" },
-    { src: "/videos/Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Windmills_Battlefield_1_Dawn_of_War_Live_Wallpaper.webp" },
     { src: "/videos/GTRRARI.webm", type: "video/webm", poster: "/videos/posters/GTRRARI.webp" },
     { src: "/videos/Ajitani_Hifumi_Train_Ride_Blue_Archive_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Ajitani_Hifumi_Train_Ride_Blue_Archive_Live_Wallpaper.webp" },
     { src: "/videos/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webm", type: "video/webm", poster: "/videos/posters/Anime_Angel_Girl_and_Astronaut_in_Space_Live_Wallpaper.webp" },
@@ -39,10 +39,11 @@ const HERO_VIDEOS: HeroVideo[] = [
 ];
 
 const HeroBackground = React.memo(() => (
-    <div 
+    <div
         className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: `
+        dangerouslySetInnerHTML={{
+            __html: `
             <img id="hero-poster" src="${HERO_VIDEOS[0].poster}" alt="Background Poster" fetchpriority="high" class="object-cover absolute inset-0 z-0 w-full h-full opacity-100 transition-opacity duration-1000 ease-in-out" />
             <video id="hero-video" src="${HERO_VIDEOS[0].src}" autoplay muted loop playsinline preload="none" class="absolute inset-0 z-[1] w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out"></video>
             <script>
@@ -118,7 +119,7 @@ const HeroRippleCanvas = React.memo(() => {
 
     useEffect(() => {
         // synchronize webgl texture source with pre-hydration poster to prevent redundant network fetches
-        const cachedPoster = 
+        const cachedPoster =
             (typeof window !== "undefined" && (window as Window & { __HERO_POSTER__?: string }).__HERO_POSTER__) ||
             document.getElementById('hero-poster')?.getAttribute('src') ||
             HERO_VIDEOS[0].poster;
@@ -149,7 +150,7 @@ const HeroRippleCanvas = React.memo(() => {
     if (!mounted) return null;
 
     return (
-        <div 
+        <div
             className="absolute inset-0 z-[2] overflow-hidden pointer-events-none transition-opacity duration-1000 opacity-100"
         >
             <RippleDistortion
@@ -190,7 +191,7 @@ export const HeroSection = () => {
                     const video = document.getElementById("hero-video") as HTMLVideoElement | null;
                     if (!video) return;
                     if (entry.isIntersecting) {
-                        video.play().catch(() => {});
+                        video.play().catch(() => { });
                     } else {
                         video.pause();
                     }
@@ -233,9 +234,9 @@ export const HeroSection = () => {
             <HeroRippleCanvas />
 
             {/* subtle cinematic vignette overlay for optimal typography contrast */}
-            <div 
-                aria-hidden="true" 
-                className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20" 
+            <div
+                aria-hidden="true"
+                className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-t from-black/90 via-black/35 to-black/20"
             />
 
             {/* top row: ambient sound status indicator and quick actions */}
@@ -270,11 +271,11 @@ export const HeroSection = () => {
                 </div> */}
 
                 {/* massive editorial headline */}
-                <h1 
+                <h1
                     className={`text-white text-left ${outfit.className} uppercase tracking-[-0.04em] leading-[0.94] drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]`}
-                    style={{ 
-                        fontWeight: 300, 
-                        fontSize: "clamp(2.4rem, 6.2vw, 5.75rem)", 
+                    style={{
+                        fontWeight: 300,
+                        fontSize: "clamp(2.4rem, 6.2vw, 5.75rem)",
                     }}
                 >
                     THE DESKTOP CUSTOMIZATION
