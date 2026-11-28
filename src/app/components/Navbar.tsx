@@ -1,30 +1,31 @@
 "use client";
+
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
-import { Coffee, MessageSquare, FileText, Menu, X, Home, Download, Loader2, Wallpaper } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Coffee,
+    MessageSquare,
+    Menu,
+    X,
+    Home,
+    Download,
+    Loader2,
+    Wallpaper,
+    ChevronDown,
+    AtSign,
+    Sparkles,
+    Layers,
+    UserCheck,
+    Link2,
+    ArrowRight,
+    Sun,
+    Moon,
+} from "lucide-react";
 import GooeyNav from "./ui/GooeyNav";
-
-const SunIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="4" />
-        <line x1="12" y1="2" x2="12" y2="4" />
-        <line x1="12" y1="20" x2="12" y2="22" />
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-        <line x1="2" y1="12" x2="4" y2="12" />
-        <line x1="20" y1="12" x2="22" y2="12" />
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
-);
-
-const MoonIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-);
+import { cn } from "@/lib/utils";
 
 const GithubIcon = () => (
     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -39,24 +40,66 @@ const DiscordIcon = () => (
 );
 
 const XIcon = () => (
-    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+    <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
 );
 
+const NAV_LINKS = [
+    { name: "Home", href: "/", icon: Home },
+    { name: "Download", href: "/download", icon: Download },
+    { name: "Wallpapers", href: "/wallpapers", icon: Wallpaper },
+    { name: "Feedback", href: "/feedback", icon: MessageSquare },
+    { name: "Support", href: "/about", icon: Coffee },
+];
+
+const CREATOR_ITEMS = [
+    {
+        title: "Reserve Handle",
+        desc: "Claim your colorwall.xyz/@handle before launch",
+        href: "/creators",
+        icon: AtSign,
+    },
+    {
+        title: "Creator Workshop",
+        desc: "Publish Live2D scenes, widgets, and WebGL shaders",
+        href: "/creators#workshop",
+        icon: Layers,
+    },
+    {
+        title: "Verified Waitlist",
+        desc: "Unlock the verified publisher badge across listings",
+        href: "/creators#waitlist",
+        icon: Sparkles,
+    },
+    {
+        title: "Desktop App Sync",
+        desc: "Link your handle directly to the ColorWall app",
+        href: "/creators#sync",
+        icon: Link2,
+    },
+];
+
+// floating translucent navbar pairing gooeynav physics with a gpu-composited creators dropdown
 export const Navbar = () => {
     const { theme, toggleTheme } = useTheme();
     const pathname = usePathname();
     const router = useRouter();
     const isDark = theme === "dark";
+
     const [isVisible, setIsVisible] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isCreatorsOpen, setIsCreatorsOpen] = useState(false);
     const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
     const [isCinematicActive, setIsCinematicActive] = useState(false);
+
     const lastScrollY = useRef(0);
     const isHovered = useRef(false);
+    const headerRef = useRef<HTMLElement>(null);
+    const openedByHoverRef = useRef(false);
+    const creatorsCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // listen for cinematic-change events to unmount global navbar during active 3d webgl scene
+    // unmount navbar when 3d webgl cinematic mode is active to prevent accidental route triggers
     useEffect(() => {
         const handleCinematicChange = () => {
             const active =
@@ -71,6 +114,7 @@ export const Navbar = () => {
         return () => window.removeEventListener("cinematic-change", handleCinematicChange);
     }, []);
 
+    // hide navbar on scroll down, restore on scroll up or top
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
@@ -79,6 +123,7 @@ export const Navbar = () => {
             } else if (!isHovered.current) {
                 setIsVisible(false);
                 setIsMobileMenuOpen(false);
+                setIsCreatorsOpen(false);
             }
             lastScrollY.current = currentScrollY;
         };
@@ -87,23 +132,41 @@ export const Navbar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // close creators dropdown on outside click or escape key
+    useEffect(() => {
+        if (!isCreatorsOpen) return;
+
+        const handleOutsideClick = (e: globalThis.MouseEvent) => {
+            if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+                setIsCreatorsOpen(false);
+                openedByHoverRef.current = false;
+            }
+        };
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setIsCreatorsOpen(false);
+                openedByHoverRef.current = false;
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        window.addEventListener("keydown", handleKey);
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+            window.removeEventListener("keydown", handleKey);
+        };
+    }, [isCreatorsOpen]);
+
     useEffect(() => {
         setLoadingRoute(null);
-        // ensure navbar is always visible whenever navigating away from immersive landing host
+        setIsCreatorsOpen(false);
+        setIsMobileMenuOpen(false);
+        openedByHoverRef.current = false;
         if (pathname !== "/") {
             setIsCinematicActive(false);
             setIsVisible(true);
         }
     }, [pathname]);
-
-    const navLinks = [
-        { name: "Home", href: "/", icon: Home },
-        { name: "Download", href: "/download", icon: Download },
-        { name: "Changelog", href: "/changelog", icon: FileText },
-        { name: "Wallpapers", href: "/wallpapers", icon: Wallpaper },
-        { name: "Feedback", href: "/feedback", icon: MessageSquare },
-        { name: "Support", href: "/about", icon: Coffee },
-    ];
 
     const handleNavClick = (
         event: MouseEvent<HTMLAnchorElement>,
@@ -114,8 +177,14 @@ export const Navbar = () => {
         if (closeMobileMenu) {
             setIsMobileMenuOpen(false);
         }
+        setIsCreatorsOpen(false);
+        openedByHoverRef.current = false;
 
         if (isExternal || pathname === href) {
+            return;
+        }
+
+        if (href.includes("#") && pathname === href.split("#")[0]) {
             return;
         }
 
@@ -124,21 +193,43 @@ export const Navbar = () => {
         setTimeout(() => router.push(href), 50);
     };
 
-    const base = isDark
-        ? "bg-[#0a0a0a]/50 border-white/10 text-white/80"
-        : "bg-white/50 border-black/10 text-black/80";
-    const iconBtn = isDark
-        ? "hover:text-white hover:bg-white/8 text-white/50"
-        : "hover:text-black hover:bg-black/8 text-black/50";
+    const openCreatorsByHover = () => {
+        if (creatorsCloseTimer.current) clearTimeout(creatorsCloseTimer.current);
+        if (!isCreatorsOpen) {
+            openedByHoverRef.current = true;
+            setIsCreatorsOpen(true);
+        }
+    };
 
-    // safely unmount header during active cinematic webgl mode to prevent accidental route triggers
+    const closeCreatorsDelayed = () => {
+        creatorsCloseTimer.current = setTimeout(() => {
+            setIsCreatorsOpen(false);
+            openedByHoverRef.current = false;
+        }, 140);
+    };
+
+    // ensure clicking creators always opens or keeps open on first click, then toggles cleanly
+    const handleCreatorsClick = () => {
+        if (creatorsCloseTimer.current) clearTimeout(creatorsCloseTimer.current);
+        if (isCreatorsOpen && openedByHoverRef.current) {
+            openedByHoverRef.current = false;
+            return;
+        }
+        openedByHoverRef.current = false;
+        setIsCreatorsOpen((prev) => !prev);
+    };
+
     if (isCinematicActive) {
         return null;
     }
 
+    const activeGooeyIndex = NAV_LINKS.findIndex((l) => l.href === pathname);
+    const isCreatorsRoute = pathname.startsWith("/creators");
+
     return (
-        <div
-            className="fixed top-2 md:top-4 z-[100] w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-6xl left-1/2 -translate-x-1/2 transition-all duration-300"
+        <header
+            ref={headerRef}
+            className="fixed top-2 md:top-4 z-[100] w-[calc(100%-1.5rem)] md:w-[calc(100%-2rem)] max-w-7xl left-1/2 -translate-x-1/2 transition-all duration-300"
             style={{
                 transform: !isVisible ? "translateY(-150%)" : "translateY(0)",
                 opacity: isVisible ? 1 : 0,
@@ -150,52 +241,86 @@ export const Navbar = () => {
             }}
             onMouseLeave={() => {
                 isHovered.current = false;
+                closeCreatorsDelayed();
             }}
         >
+            {/* primary translucent glass bar */}
             <div
-                className={`backdrop-blur-xl shadow-xl border rounded-[20px] overflow-hidden transition-all duration-300 ${base}`}
+                className={cn(
+                    "backdrop-blur-xl shadow-xl border rounded-[20px] transition-colors duration-300",
+                    isDark
+                        ? "bg-[#0a0a0a]/50 border-white/10 text-white"
+                        : "bg-white/55 border-black/10 text-slate-900"
+                )}
             >
-                <div className="flex items-center justify-between h-14 md:h-16 px-2 sm:px-4 md:px-6 gap-1 sm:gap-2">
-                    <Link href="/" className="hidden sm:flex group items-center opacity-90 hover:opacity-100 transition-opacity shrink-0 relative">
+                <div className="flex items-center justify-between h-14 md:h-16 px-3 sm:px-5 lg:px-6 gap-2">
+                    {/* brand logo */}
+                    <Link
+                        href="/"
+                        className="hidden sm:flex group items-center gap-2.5 opacity-95 hover:opacity-100 transition-opacity shrink-0"
+                    >
                         <img src="/colorwall.png" alt="ColorWall logo" className="h-6 md:h-7 object-contain" />
-                        <span className={`absolute left-[76px] top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-widest uppercase whitespace-nowrap opacity-0 group-hover:opacity-100 shadow-xl transition-all pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]
-              ${isDark ? "bg-[#0a0a0a]/90 border border-white/10 text-white" : "bg-white/90 border border-black/10 text-black"} hidden md:block`}>
+                        <span className="hidden lg:inline font-outfit text-[15px] font-medium tracking-tight">
                             ColorWall
                         </span>
                     </Link>
 
-                    <nav className="hidden md:flex items-center justify-center flex-1 mx-1">
+                    {/* desktop center: gooeynav + clean creators trigger */}
+                    <div className="hidden md:flex items-center justify-center flex-1 gap-1 lg:gap-2">
                         <GooeyNav
-                            items={navLinks.map(l => ({ label: l.name, href: l.href, icon: l.icon }))}
-                            initialActiveIndex={Math.max(0, navLinks.findIndex(l => l.href === pathname))}
+                            items={NAV_LINKS.map((l) => ({ label: l.name, href: l.href, icon: l.icon }))}
+                            initialActiveIndex={Math.max(0, activeGooeyIndex)}
                             particleCount={12}
                             particleDistances={[60, 10]}
                             particleR={80}
                             animationTime={500}
                             timeVariance={200}
-                            colors={[1, 2, 3, 1, 2, 3, 1, 4]} // These map to custom CSS variables if needed
+                            colors={[1, 2, 3, 1, 2, 3, 1, 4]}
                             isDark={isDark}
                         />
-                    </nav>
 
-                    {/* Mobile standard nav mapping */}
+                        <button
+                            type="button"
+                            onMouseEnter={openCreatorsByHover}
+                            onClick={handleCreatorsClick}
+                            className={cn(
+                                "outline-none py-[0.6em] px-[1em] inline-flex items-center gap-2 text-xs font-mono font-semibold tracking-widest uppercase transition-colors duration-150 shrink-0 cursor-pointer",
+                                isCreatorsOpen || isCreatorsRoute
+                                    ? "text-[#00a4ff]"
+                                    : isDark
+                                        ? "text-white hover:text-[#00a4ff]"
+                                        : "text-black hover:text-[#00a4ff]"
+                            )}
+                        >
+                            <UserCheck size={16} strokeWidth={2} />
+                            <span>Creators</span>
+                            <ChevronDown
+                                size={14}
+                                strokeWidth={2}
+                                className={cn(
+                                    "transition-transform duration-200",
+                                    isCreatorsOpen && "rotate-180"
+                                )}
+                            />
+                        </button>
+                    </div>
+
+                    {/* mobile compact icon nav */}
                     <nav className="flex md:hidden items-center justify-evenly gap-1 flex-1 mx-1">
-                        {navLinks.slice(0, 4).map((link) => {
+                        {NAV_LINKS.slice(0, 4).map((link) => {
                             const isActive = pathname === link.href;
-                            const isExternal = link.href.startsWith("http");
                             return (
                                 <Link
                                     key={link.name}
                                     href={link.href}
-                                    target={isExternal ? "_blank" : undefined}
-                                    rel={isExternal ? "noopener noreferrer" : undefined}
-                                    onClick={(event) => handleNavClick(event, link.href, isExternal)}
+                                    onClick={(e) => handleNavClick(e, link.href, false)}
                                     title={link.name}
-                                    className={`p-2.5 rounded-xl transition-all duration-200 flex items-center
-                                        ${isActive
-                                            ? (isDark ? "bg-white/10 text-white" : "bg-black/10 text-black")
-                                            : (isDark ? "text-white/60 hover:text-white hover:bg-white/7" : "text-black/60 hover:text-black hover:bg-black/7")
-                                        }`}
+                                    className={cn(
+                                        "p-2.5 rounded-xl transition-all duration-200 flex items-center",
+                                        isActive
+                                            ? isDark ? "bg-white/15 text-white" : "bg-black/10 text-black"
+                                            : isDark ? "text-white/75 hover:text-white hover:bg-white/10" : "text-black/70 hover:text-black hover:bg-black/5"
+                                    )}
                                 >
                                     {loadingRoute === link.href ? (
                                         <Loader2 size={18} strokeWidth={2} className="animate-spin" />
@@ -207,93 +332,215 @@ export const Navbar = () => {
                         })}
                     </nav>
 
-                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                        {/* Desktop-only Socials */}
-                        <div className="hidden md:flex items-center gap-0.5">
-                            <a href="https://github.com/colorwall/colorwall" target="_blank" rel="noopener noreferrer"
-                                aria-label="GitHub" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
+                    {/* right utilities */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <div className="hidden lg:flex items-center gap-0.5">
+                            <a
+                                href="https://github.com/colorwall/colorwall"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="GitHub"
+                                className={cn(
+                                    "p-2 rounded-lg transition-colors",
+                                    isDark ? "text-white/70 hover:text-white hover:bg-white/10" : "text-slate-600 hover:text-slate-900 hover:bg-black/5"
+                                )}
+                            >
                                 <GithubIcon />
                             </a>
-                            <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer"
-                                aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 ${isDark ? "text-white/50" : "text-black/50"} hover:text-[#5865F2] hover:bg-[#5865F2]/10`}>
+                            <a
+                                href="https://discord.gg/QYwhay7r2V"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Discord"
+                                className={cn(
+                                    "p-2 rounded-lg transition-colors",
+                                    isDark ? "text-white/70 hover:text-[#5865F2] hover:bg-[#5865F2]/10" : "text-slate-600 hover:text-[#5865F2] hover:bg-[#5865F2]/10"
+                                )}
+                            >
                                 <DiscordIcon />
                             </a>
-                            <a href="https://x.com/colorwall_xyz" target="_blank" rel="noopener noreferrer"
-                                aria-label="X (Twitter)" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
+                            <a
+                                href="https://x.com/colorwall_xyz"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="X"
+                                className={cn(
+                                    "p-2 rounded-lg transition-colors",
+                                    isDark ? "text-white/70 hover:text-white hover:bg-white/10" : "text-slate-600 hover:text-slate-900 hover:bg-black/5"
+                                )}
+                            >
                                 <XIcon />
                             </a>
-                            <div className={`w-px h-5 mx-1.5 ${isDark ? "bg-white/10" : "bg-black/10"}`} />
+                            <div className={cn("w-px h-5 mx-1.5", isDark ? "bg-white/15" : "bg-black/15")} />
                         </div>
-                        
-                        {/* Always-visible Utilities */}
-                        <button onClick={toggleTheme}
-                            className={`p-2.5 sm:p-3 md:p-2 rounded-xl md:rounded-lg transition-all duration-200 ${iconBtn}`}
-                            aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
-                            title="Toggle theme">
-                            {isDark ? <SunIcon /> : <MoonIcon />}
-                        </button>
+
                         <button
+                            type="button"
+                            onClick={toggleTheme}
+                            aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+                            className={cn(
+                                "p-2.5 sm:p-2 rounded-xl transition-colors",
+                                isDark ? "text-white/80 hover:text-white hover:bg-white/10" : "text-slate-700 hover:text-slate-900 hover:bg-black/5"
+                            )}
+                        >
+                            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                        </button>
+
+                        <Link
+                            href="/creators"
+                            onClick={(e) => handleNavClick(e, "/creators", false)}
+                            className={cn(
+                                "hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-150 shadow-sm",
+                                isDark
+                                    ? "bg-white text-black hover:bg-[#00a4ff] hover:text-white"
+                                    : "bg-slate-900 text-white hover:bg-[#00a4ff]"
+                            )}
+                        >
+                            <AtSign className="w-3.5 h-3.5" />
+                            <span>Claim Handle</span>
+                        </Link>
+
+                        <button
+                            type="button"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-                            className={`md:hidden p-2.5 sm:p-3 rounded-xl transition-all duration-200 ${iconBtn}`}
+                            className={cn(
+                                "md:hidden p-2.5 rounded-xl transition-colors",
+                                isDark ? "text-white/80 hover:text-white hover:bg-white/10" : "text-slate-700 hover:text-slate-900 hover:bg-black/5"
+                            )}
                         >
                             {isMobileMenuOpen ? <X size={20} strokeWidth={2} /> : <Menu size={20} strokeWidth={2} />}
                         </button>
                     </div>
                 </div>
-                {isMobileMenuOpen && (
-                    <div
-                        className="md:hidden overflow-hidden transition-all duration-200"
-                        style={{
-                            maxHeight: "500px",
-                            opacity: 1,
-                        }}
-                    >
-                        <div className={`px-2 pb-2 pt-1 flex flex-col gap-0.5 border-t ${isDark ? "border-white/10" : "border-black/10"}`}>
-                            {navLinks.map((link) => {
-                                const isActive = pathname === link.href;
-                                const isExternal = link.href.startsWith("http");
-                                return (
-                                    <Link
-                                        key={link.name}
-                                        href={link.href}
-                                        target={isExternal ? "_blank" : undefined}
-                                        rel={isExternal ? "noopener noreferrer" : undefined}
-                                        onClick={(event) => handleNavClick(event, link.href, isExternal, true)}
-                                        prefetch={['/download', '/about'].includes(link.href) ? undefined : false}
-                                        className={`px-4 py-3 sm:py-4 rounded-xl text-xs sm:text-sm font-mono font-semibold tracking-widest uppercase transition-all duration-200 flex items-center gap-3
-                        ${isActive
-                                            ? (isDark ? "bg-white/10 text-white" : "bg-black/10 text-black")
-                                            : (isDark ? "text-white/70 hover:text-white hover:bg-white/7" : "text-black/70 hover:text-black hover:bg-black/7")
-                                        }`}
-                                    >
-                                        {loadingRoute === link.href ? (
-                                            <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-                                        ) : (
-                                            <link.icon size={18} strokeWidth={2} />
-                                        )}
-                                        {link.name}
-                                    </Link>
-                                );
-                            })}
-                            <div className={`flex items-center gap-2 px-3 pt-1.5 mt-0.5 border-t ${isDark ? "border-white/10" : "border-black/10"}`}>
-                                <a href="https://github.com/colorwall/colorwall" target="_blank" rel="noopener noreferrer"
-                                    aria-label="GitHub" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
-                                    <GithubIcon />
-                                </a>
-                                <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer"
-                                    aria-label="Discord" className={`p-2 rounded-lg transition-all duration-200 ${isDark ? "text-white/50" : "text-black/50"} hover:text-[#5865F2] hover:bg-[#5865F2]/10`}>
-                                    <DiscordIcon />
-                                </a>
-                                <a href="https://x.com/colorwall_xyz" target="_blank" rel="noopener noreferrer"
-                                    aria-label="X (Twitter)" className={`p-2 rounded-lg transition-all duration-200 ${iconBtn}`}>
-                                    <XIcon />
-                                </a>
+
+                {/* mobile drawer */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.16 }}
+                            className="md:hidden"
+                        >
+                            <div className={cn("px-3 pb-4 pt-2 flex flex-col gap-1 border-t", isDark ? "border-white/10" : "border-black/10")}>
+                                {NAV_LINKS.map((link) => {
+                                    const isActive = pathname === link.href;
+                                    return (
+                                        <Link
+                                            key={link.name}
+                                            href={link.href}
+                                            onClick={(e) => handleNavClick(e, link.href, false, true)}
+                                            className={cn(
+                                                "px-4 py-3 rounded-xl text-xs font-mono font-semibold tracking-widest uppercase transition-all flex items-center gap-3",
+                                                isActive
+                                                    ? isDark ? "bg-white/15 text-white" : "bg-black/10 text-black"
+                                                    : isDark ? "text-white/80 hover:text-white hover:bg-white/10" : "text-slate-700 hover:text-black hover:bg-black/5"
+                                            )}
+                                        >
+                                            {loadingRoute === link.href ? (
+                                                <Loader2 size={17} strokeWidth={2} className="animate-spin text-[#00a4ff]" />
+                                            ) : (
+                                                <link.icon size={17} strokeWidth={2} />
+                                            )}
+                                            {link.name}
+                                        </Link>
+                                    );
+                                })}
+
+                                <div className={cn("mt-2 pt-2 border-t", isDark ? "border-white/10" : "border-black/10")}>
+                                    <div className="px-4 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[#00a4ff] font-semibold">
+                                        Creators
+                                    </div>
+                                    {CREATOR_ITEMS.map((item) => (
+                                        <Link
+                                            key={item.title}
+                                            href={item.href}
+                                            onClick={(e) => handleNavClick(e, item.href, false, true)}
+                                            className={cn(
+                                                "px-4 py-2.5 rounded-xl text-xs font-mono font-semibold tracking-wider uppercase flex items-center gap-3 transition-colors",
+                                                isDark ? "text-white/85 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-black hover:bg-black/5"
+                                            )}
+                                        >
+                                            <item.icon className="w-4 h-4 text-[#00a4ff]" />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+
+                                <div className={cn("flex items-center gap-2 px-3 pt-2 mt-1 border-t", isDark ? "border-white/10" : "border-black/10")}>
+                                    <a href="https://github.com/colorwall/colorwall" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="p-2 opacity-75 hover:opacity-100">
+                                        <GithubIcon />
+                                    </a>
+                                    <a href="https://discord.gg/QYwhay7r2V" target="_blank" rel="noopener noreferrer" aria-label="Discord" className="p-2 opacity-75 hover:opacity-100 hover:text-[#5865F2]">
+                                        <DiscordIcon />
+                                    </a>
+                                    <a href="https://x.com/colorwall_xyz" target="_blank" rel="noopener noreferrer" aria-label="X" className="p-2 opacity-75 hover:opacity-100">
+                                        <XIcon />
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
-        </div>
+
+            {/* separate gpu-composited mega-dropdown panel below navbar to eliminate blur resize lag */}
+            <AnimatePresence>
+                {isCreatorsOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.985 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.985 }}
+                        transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                        onMouseEnter={openCreatorsByHover}
+                        onMouseLeave={closeCreatorsDelayed}
+                        className={cn(
+                            "hidden md:grid mt-2 rounded-[20px] border backdrop-blur-xl shadow-2xl px-6 lg:px-10 py-6 grid-cols-12 gap-8 items-start will-change-transform",
+                            isDark
+                                ? "bg-[#0a0a0a]/65 border-white/10 text-white shadow-black/50"
+                                : "bg-white/75 border-black/10 text-slate-900 shadow-slate-900/10"
+                        )}
+                    >
+                        <div className="col-span-3 flex flex-col gap-2 pt-0.5">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#00a4ff] font-semibold">
+                                Creators
+                            </span>
+                            <p className={cn("text-xs leading-relaxed", isDark ? "text-white/70" : "text-slate-600")}>
+                                Reserve your vanity URL and publish directly to the ColorWall Marketplace.
+                            </p>
+                        </div>
+
+                        <div className="col-span-9 grid grid-cols-2 gap-2.5">
+                            {CREATOR_ITEMS.map((item) => (
+                                <Link
+                                    key={item.title}
+                                    href={item.href}
+                                    onClick={(e) => handleNavClick(e, item.href, false)}
+                                    className={cn(
+                                        "group flex items-center justify-between gap-4 px-4 py-3 rounded-xl transition-colors duration-150",
+                                        isDark ? "hover:bg-white/[0.07]" : "hover:bg-black/[0.04]"
+                                    )}
+                                >
+                                    <div className="flex items-start gap-3 min-w-0">
+                                        <item.icon className="w-4 h-4 text-[#00a4ff] mt-0.5 shrink-0" />
+                                        <div className="min-w-0">
+                                            <div className="font-outfit text-sm font-medium tracking-tight">
+                                                {item.title}
+                                            </div>
+                                            <div className={cn("text-xs mt-0.5 leading-snug", isDark ? "text-white/65" : "text-slate-600")}>
+                                                {item.desc}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ArrowRight className="w-4 h-4 text-[#00a4ff] opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0" />
+                                </Link>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </header>
     );
 };
