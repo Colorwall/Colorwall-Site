@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { reserveCreatorHandle } from "@/lib/creators";
-import { getSessionUser, verifyToken, type SessionUser } from "@/lib/auth";
+import { getSessionUser, setSessionCookie, verifyToken, type SessionUser } from "@/lib/auth";
 
-// handle reservation endpoint enforcing verified httponly session on web and supporting app tokens
+// handle reservation endpoint enforcing verified httponly session on web and caching handle in cookie
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -10,9 +10,10 @@ export async function POST(req: Request) {
 
         let verifiedEmail = typeof body?.email === "string" ? body.email : "";
         let verifiedName = typeof body?.displayName === "string" ? body.displayName : undefined;
+        let sessionUser: SessionUser | null = null;
 
         if (!isAppSource) {
-            const sessionUser = await getSessionUser();
+            sessionUser = await getSessionUser();
             if (!sessionUser) {
                 return NextResponse.json(
                     { success: false, error: "Sign in required before reserving a handle." },
@@ -47,6 +48,18 @@ export async function POST(req: Request) {
                 { success: false, error: result.error || "Unable to reserve handle." },
                 { status: result.status || 400 }
             );
+        }
+
+        // persist claimed handle inside httponly session cookie so /api/auth/me needs zero db hits
+        if (sessionUser && result.creator) {
+            await setSessionCookie({
+                uid: sessionUser.uid,
+                email: sessionUser.email,
+                name: sessionUser.name,
+                avatar: sessionUser.avatar,
+                provider: sessionUser.provider,
+                creatorHandle: result.creator.handle,
+            });
         }
 
         return NextResponse.json(

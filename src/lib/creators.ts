@@ -4,8 +4,13 @@ import {
     validateHandle,
     type PublicCreatorProfile,
 } from "@/lib/creator-types";
+import { getRedis } from "@/lib/redis";
 
 export { normalizeHandle, validateHandle, type PublicCreatorProfile };
+
+const REDIS_HANDLES_SET = "creators:handles";
+const REDIS_EMAIL_TO_HANDLE = "creators:email_to_handle";
+const redisProfileKey = (handle: string) => `creators:profile:${handle}`;
 
 interface StoredCreatorRecord extends PublicCreatorProfile {
     emailHash: string;
@@ -14,7 +19,7 @@ interface StoredCreatorRecord extends PublicCreatorProfile {
     portfolioUrl?: string;
 }
 
-// in-memory fallback store used when running locally without MONGODB_URI
+// in-memory fallback store used when running locally without MONGODB_URI or REDIS_URL
 const localByHandle = new Map<string, StoredCreatorRecord>();
 const localHandleByEmailHash = new Map<string, string>();
 
@@ -52,7 +57,7 @@ function toPublicProfile(record: StoredCreatorRecord): PublicCreatorProfile {
     };
 }
 
-// open short-lived mongodb client against colorwall database when configured
+// open short-lived mongodb client against ColorWall database when configured
 async function withCreatorsCollection<T>(
     fn: (col: import("mongodb").Collection<StoredCreatorRecord>) => Promise<T>
 ): Promise<T | null> {
@@ -71,7 +76,23 @@ async function withCreatorsCollection<T>(
     }
 }
 
-// check whether a normalized handle is valid and unclaimed across web and app registrations
+async function cacheCreatorInRedis(profile: PublicCreatorProfile, emailHash?: string) {
+    const redis = getRedis();
+    if (!redis) return;
+    try {
+        const pipeline = redis.pipeline();
+        pipeline.sadd(REDIS_HANDLES_SET, profile.handle);
+        pipeline.set(redisProfileKey(profile.handle), JSON.stringify(profile), "EX", 3600);
+        if (emailHash) {
+            pipeline.hset(REDIS_EMAIL_TO_HANDLE, emailHash, profile.handle);
+        }
+        await pipeline.exec();
+    } catch {
+        // non-fatal redis cache write failure
+    }
+}
+
+// check whether a normalized handle is valid and unclaimed (redis o(1) set first, then mongodb)
 export async function checkHandleAvailability(rawHandle: string): Promise<{
     available: boolean;
     handle: string;
@@ -84,12 +105,25 @@ export async function checkHandleAvailability(rawHandle: string): Promise<{
 
     const { handle } = validation;
 
+    const redis = getRedis();
+    if (redis) {
+        try {
+            const inRedis = await redis.sismember(REDIS_HANDLES_SET, handle);
+            if (inRedis === 1) {
+                return { available: false, handle, reason: `@${handle} is already claimed.` };
+            }
+        } catch {
+            // fallback to mongodb when redis is unreachable
+        }
+    }
+
     try {
         const dbExisting = await withCreatorsCollection(async (col) => {
-            return col.findOne({ handle }, { projection: { handle: 1 } });
+            return col.findOne({ handle });
         });
 
         if (dbExisting) {
+            await cacheCreatorInRedis(toPublicProfile(dbExisting), dbExisting.emailHash);
             return { available: false, handle, reason: `@${handle} is already claimed.` };
         }
     } catch (err) {
@@ -103,7 +137,7 @@ export async function checkHandleAvailability(rawHandle: string): Promise<{
     return { available: true, handle };
 }
 
-// reserve a vanity @handle enforcing one claim per email hash across web and desktop app
+// reserve a vanity @handle enforcing one claim per email hash with redis pre-check + unique db indexes
 export async function reserveCreatorHandle(input: {
     handle: string;
     email: string;
@@ -130,6 +164,35 @@ export async function reserveCreatorHandle(input: {
 
     const handle = validation.handle;
     const emailHash = crypto.createHash("sha256").update(email).digest("hex");
+
+    // fast redis guard: reject duplicate claims or taken handles before touching mongodb
+    const redis = getRedis();
+    if (redis) {
+        try {
+            const [existingHandle, handleTaken] = await Promise.all([
+                redis.hget(REDIS_EMAIL_TO_HANDLE, emailHash),
+                redis.sismember(REDIS_HANDLES_SET, handle),
+            ]);
+
+            if (existingHandle) {
+                return {
+                    success: false,
+                    error: `You already own @${existingHandle}. Limit 1 handle per account.`,
+                    status: 409,
+                };
+            }
+            if (handleTaken === 1) {
+                return {
+                    success: false,
+                    error: `@${handle} is already claimed. Try another handle.`,
+                    status: 409,
+                };
+            }
+        } catch {
+            // proceed to mongodb atomic check if redis fails
+        }
+    }
+
     const encryptedEmail = encryptEmail(email);
     const displayName = (input.displayName || handle).trim().slice(0, 48) || handle;
     const source: "App" | "Web" = input.source === "App" ? "App" : "Web";
@@ -158,14 +221,16 @@ export async function reserveCreatorHandle(input: {
 
             const existingByEmail = await col.findOne({ emailHash });
             if (existingByEmail) {
+                await cacheCreatorInRedis(toPublicProfile(existingByEmail), emailHash);
                 return {
                     conflict: true as const,
-                    error: `This email already reserved @${existingByEmail.handle}. Limit 1 handle per email.`,
+                    error: `You already own @${existingByEmail.handle}. Limit 1 handle per account.`,
                 };
             }
 
             const existingByHandle = await col.findOne({ handle });
             if (existingByHandle) {
+                await cacheCreatorInRedis(toPublicProfile(existingByHandle), existingByHandle.emailHash);
                 return {
                     conflict: true as const,
                     error: `@${handle} is already claimed. Try another handle.`,
@@ -180,7 +245,9 @@ export async function reserveCreatorHandle(input: {
             if (dbOutcome.conflict) {
                 return { success: false, error: dbOutcome.error, status: 409 };
             }
-            return { success: true, creator: toPublicProfile(record), status: 201 };
+            const publicProfile = toPublicProfile(record);
+            await cacheCreatorInRedis(publicProfile, emailHash);
+            return { success: true, creator: publicProfile, status: 201 };
         }
     } catch (err) {
         console.warn("mongodb reserveCreatorHandle fallback:", (err as Error).message);
@@ -190,7 +257,7 @@ export async function reserveCreatorHandle(input: {
     if (existingLocalHandle) {
         return {
             success: false,
-            error: `This email already reserved @${existingLocalHandle}. Limit 1 handle per email.`,
+            error: `You already own @${existingLocalHandle}. Limit 1 handle per account.`,
             status: 409,
         };
     }
@@ -200,20 +267,38 @@ export async function reserveCreatorHandle(input: {
 
     localByHandle.set(handle, record);
     localHandleByEmailHash.set(emailHash, handle);
+    const publicProfile = toPublicProfile(record);
+    await cacheCreatorInRedis(publicProfile, emailHash);
 
-    return { success: true, creator: toPublicProfile(record), status: 201 };
+    return { success: true, creator: publicProfile, status: 201 };
 }
 
-// fetch public creator profile by normalized handle for /@handle vanity route
+// fetch public creator profile by normalized handle (redis first, mongodb fallback)
 export async function getCreatorByHandle(rawHandle: string): Promise<PublicCreatorProfile | null> {
     const handle = normalizeHandle(rawHandle);
     if (!handle) return null;
+
+    const redis = getRedis();
+    if (redis) {
+        try {
+            const cached = await redis.get(redisProfileKey(handle));
+            if (cached) {
+                return JSON.parse(cached) as PublicCreatorProfile;
+            }
+        } catch {
+            // fallback to mongodb
+        }
+    }
 
     try {
         const found = await withCreatorsCollection(async (col) => {
             return col.findOne({ handle });
         });
-        if (found) return toPublicProfile(found);
+        if (found) {
+            const profile = toPublicProfile(found);
+            await cacheCreatorInRedis(profile, found.emailHash);
+            return profile;
+        }
     } catch (err) {
         console.warn("mongodb getCreatorByHandle fallback:", (err as Error).message);
     }
@@ -222,18 +307,35 @@ export async function getCreatorByHandle(rawHandle: string): Promise<PublicCreat
     return local ? toPublicProfile(local) : null;
 }
 
-// lookup existing creator reservation by verified account email hash for one-time onboarding redirect
+// lookup existing creator reservation by verified account email hash (redis first, mongodb fallback)
 export async function getCreatorByEmail(rawEmail: string): Promise<PublicCreatorProfile | null> {
     const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
     if (!email) return null;
 
     const emailHash = crypto.createHash("sha256").update(email).digest("hex");
 
+    const redis = getRedis();
+    if (redis) {
+        try {
+            const cachedHandle = await redis.hget(REDIS_EMAIL_TO_HANDLE, emailHash);
+            if (cachedHandle) {
+                const profile = await getCreatorByHandle(cachedHandle);
+                if (profile) return profile;
+            }
+        } catch {
+            // fallback to mongodb
+        }
+    }
+
     try {
         const found = await withCreatorsCollection(async (col) => {
             return col.findOne({ emailHash });
         });
-        if (found) return toPublicProfile(found);
+        if (found) {
+            const profile = toPublicProfile(found);
+            await cacheCreatorInRedis(profile, emailHash);
+            return profile;
+        }
     } catch (err) {
         console.warn("mongodb getCreatorByEmail fallback:", (err as Error).message);
     }

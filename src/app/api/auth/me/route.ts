@@ -1,15 +1,31 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, setSessionCookie } from "@/lib/auth";
 import { getCreatorByEmail } from "@/lib/creators";
 
-// returns current verified user and their claimed creator handle if onboarded
+// returns current verified user from httponly cookie with zero db hits once creatorHandle is cached in session
 export async function GET() {
     const user = await getSessionUser();
     if (!user) {
         return NextResponse.json({ authenticated: false, user: null });
     }
 
-    const existingCreator = await getCreatorByEmail(user.email);
+    let creatorHandle = user.creatorHandle || null;
+
+    // only check redis/mongodb if session cookie does not yet have a claimed handle
+    if (!creatorHandle) {
+        const existingCreator = await getCreatorByEmail(user.email);
+        if (existingCreator?.handle) {
+            creatorHandle = existingCreator.handle;
+            await setSessionCookie({
+                uid: user.uid,
+                email: user.email,
+                name: user.name,
+                avatar: user.avatar,
+                provider: user.provider,
+                creatorHandle,
+            });
+        }
+    }
 
     return NextResponse.json({
         authenticated: true,
@@ -19,7 +35,7 @@ export async function GET() {
             name: user.name,
             avatar: user.avatar,
             provider: user.provider,
-            creatorHandle: existingCreator?.handle || null,
+            creatorHandle,
         },
     });
 }

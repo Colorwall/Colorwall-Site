@@ -11,6 +11,7 @@ export interface SessionUser {
     name: string;
     avatar: string;
     provider: "google" | "discord";
+    creatorHandle?: string | null;
     exp: number;
 }
 
