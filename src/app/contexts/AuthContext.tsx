@@ -41,8 +41,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
+    // run immediately on auth-gated routes, defer via requestIdleCallback on public pages
     useEffect(() => {
-        refresh();
+        const path = typeof window !== "undefined" ? window.location.pathname : "/";
+        const isAuthRoute = path.startsWith("/creators") || path.startsWith("/login");
+
+        if (isAuthRoute) {
+            refresh();
+            return;
+        }
+
+        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            const idleId = window.requestIdleCallback(() => refresh(), { timeout: 2500 });
+            return () => window.cancelIdleCallback(idleId);
+        }
+
+        const timer = setTimeout(() => refresh(), 400);
+        return () => clearTimeout(timer);
     }, [refresh]);
 
     const logout = useCallback(async () => {
