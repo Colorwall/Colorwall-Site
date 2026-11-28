@@ -1,17 +1,9 @@
-// shared client-safe constants, types, and handle validation used by both ui and api routes
-
-export const CREATOR_SPECIALTIES = [
-    "WebGL Shaders",
-    "Desktop Widgets",
-    "Live2D & Scenes",
-    "4K / 8K Video",
-] as const;
+// shared client-safe types and handle validation used by both ui and api routes
 
 export interface PublicCreatorProfile {
     creatorId: string;
     handle: string;
     displayName: string;
-    specialty: string;
     source: "App" | "Web";
     verified: boolean;
     profileUrl: string;

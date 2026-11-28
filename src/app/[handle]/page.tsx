@@ -53,7 +53,7 @@ export default async function CreatorHandlePage({
                                 )}
                             </div>
                             <p className="text-sm text-white/60 mt-1">
-                                {creator.displayName} · {creator.specialty}
+                                {creator.displayName}
                             </p>
                         </div>
 

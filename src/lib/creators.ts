@@ -1,12 +1,11 @@
 import crypto from "crypto";
 import {
-    CREATOR_SPECIALTIES,
     normalizeHandle,
     validateHandle,
     type PublicCreatorProfile,
 } from "@/lib/creator-types";
 
-export { CREATOR_SPECIALTIES, normalizeHandle, validateHandle, type PublicCreatorProfile };
+export { normalizeHandle, validateHandle, type PublicCreatorProfile };
 
 interface StoredCreatorRecord extends PublicCreatorProfile {
     emailHash: string;
@@ -45,7 +44,6 @@ function toPublicProfile(record: StoredCreatorRecord): PublicCreatorProfile {
         creatorId: record.creatorId,
         handle: record.handle,
         displayName: record.displayName,
-        specialty: record.specialty,
         source: record.source,
         verified: record.verified,
         profileUrl: record.profileUrl,
@@ -110,7 +108,6 @@ export async function reserveCreatorHandle(input: {
     handle: string;
     email: string;
     displayName?: string;
-    specialty?: string;
     source?: "App" | "Web";
     deviceId?: string;
     portfolioUrl?: string;
@@ -135,7 +132,6 @@ export async function reserveCreatorHandle(input: {
     const emailHash = crypto.createHash("sha256").update(email).digest("hex");
     const encryptedEmail = encryptEmail(email);
     const displayName = (input.displayName || handle).trim().slice(0, 48) || handle;
-    const specialty = (input.specialty || CREATOR_SPECIALTIES[0]).trim().slice(0, 48);
     const source: "App" | "Web" = input.source === "App" ? "App" : "Web";
     const creatorId = `CW-CR-${crypto.createHash("sha256").update(`${handle}:${emailHash}`).digest("hex").slice(0, 6).toUpperCase()}`;
     const createdAt = new Date().toISOString();
@@ -144,7 +140,6 @@ export async function reserveCreatorHandle(input: {
         creatorId,
         handle,
         displayName,
-        specialty,
         source,
         verified: false,
         profileUrl: `https://colorwall.xyz/@${handle}`,

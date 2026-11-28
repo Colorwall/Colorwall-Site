@@ -37,7 +37,6 @@ export async function POST(req: Request) {
             handle: body?.handle,
             email: verifiedEmail,
             displayName: verifiedName,
-            specialty: body?.specialty,
             source: isAppSource ? "App" : "Web",
             deviceId: body?.deviceId,
             portfolioUrl: body?.portfolioUrl,
