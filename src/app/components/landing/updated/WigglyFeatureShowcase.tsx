@@ -109,7 +109,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Refresh Target", val: "Up to 360Hz" },
       { label: "Available?", val: "Well technically yes!" },
     ],
-    image: "/INTERACTIVES.webp",
+    image: "/studio.webp",
   },
 ];
 
