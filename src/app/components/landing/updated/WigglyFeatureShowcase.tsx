@@ -96,7 +96,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Game Detection", val: "Auto Pauses <3" },
       { label: "VRAM Usage?", val: "Maybe 1-5%" },
     ],
-    image: "/colorwall-hardware.webp",
+    image: "/colorwall-perf.webp",
   },
   {
     id: "shaders",
