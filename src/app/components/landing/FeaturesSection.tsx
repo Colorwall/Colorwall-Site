@@ -38,8 +38,8 @@ const showcaseFeatures = [
         subtitle: "HTML5 Desktop Overlay Engine",
         description: "Desktop widgets powered by modern web technology. Add live calendars, clocks, or custom system information directly onto your desktop.",
         badge: "HTML · JS · Pinned",
-        thumbnailSrc: "/widgets.webp",
-        imageSrcs: ["/widgets.webp"],
+        thumbnailSrc: "/widgets.webp?v=2",
+        imageSrcs: ["/widgets.webp?v=2"],
         techSpecs: [
             { label: "Runtime", value: "WebView2 / Chromium" },
             { label: "Input Latency", value: "< 1.2ms input delay" },
@@ -53,8 +53,8 @@ const showcaseFeatures = [
         subtitle: "Offline-First Asset Manager",
         description: "Your personal collection. Completely offline-first with automatic thumbnails and instant previews. Link local files or save directly from the store.",
         badge: "Local · Offline · Instant",
-        thumbnailSrc: "/Library.webp",
-        imageSrcs: ["/Library.webp"],
+        thumbnailSrc: "/Library.webp?v=2",
+        imageSrcs: ["/Library.webp?v=2"],
         techSpecs: [
             { label: "Database", value: "SQLite local cache" },
             { label: "Indexing", value: "Async thumbnail thread" },
@@ -69,7 +69,7 @@ const showcaseFeatures = [
         description: "Unmatched performance and deep desktop control. Style your Windows taskbar with acrylic blur, configure multi-monitor setups, and tweak renderer presets.",
         badge: "Rust · Tauri · Low Overhead",
         thumbnailSrc: "/PEAKmodalpreview.webp",
-        imageSrcs: ["/multi.webp", "/PEAKmodalpreview.webp", "/taskbar.webp", "/perf.webp"],
+        imageSrcs: ["/multi.webp?v=2", "/PEAKmodalpreview.webp", "/taskbar.webp?v=2", "/perf.webp"],
         techSpecs: [
             { label: "Core", value: "Tauri v2 / Rust native" },
             { label: "Compositor", value: "DirectX 11 swapchain" },
@@ -83,8 +83,8 @@ const showcaseFeatures = [
         subtitle: "Unified Community Repository",
         description: "Access thousands of wallpapers curated from 8+ sources through one unified search bar. Discover infinite inspiration without needing an account.",
         badge: "8 Sources · 4K/8K · Unified",
-        thumbnailSrc: "/STORE.webp",
-        imageSrcs: ["/STORE.webp", "/modal.webp"],
+        thumbnailSrc: "/STORE.webp?v=2",
+        imageSrcs: ["/STORE.webp?v=2", "/modal.webp"],
         techSpecs: [
             { label: "Catalog", value: "8 aggregated registries" },
             { label: "Resolution", value: "Up to native 8K masters" },
@@ -98,8 +98,8 @@ const showcaseFeatures = [
         subtitle: "Node Graph Scene Authoring",
         description: "Build your own native scene wallpapers using our visual node editor. Combine image layers, video, real-time audio-reactive shaders, and particle systems effortlessly.",
         badge: "Node-Based · D3D11 · Particles",
-        thumbnailSrc: "/studio.webp",
-        imageSrcs: ["/studio.webp"],
+        thumbnailSrc: "/studio.webp?v=2",
+        imageSrcs: ["/studio.webp?v=2"],
         techSpecs: [
             { label: "Graph Engine", value: "Acyclic node evaluation" },
             { label: "Audio Reactive", value: "WASAPI loopback FFT 128-band" },

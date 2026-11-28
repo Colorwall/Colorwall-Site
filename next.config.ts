@@ -53,13 +53,13 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // heavily cache WebP images in the root directory (like LxColorWall.webp)
+      // cache root webp assets for 1 week in browser and 1 month on cdn edge with background revalidation
       {
         source: '/:file.webp',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            value: 'public, max-age=604800, s-maxage=2592000, stale-while-revalidate=2592000'
           }
         ]
       },
@@ -224,6 +224,12 @@ const nextConfig: NextConfig = {
   },
 
   images: {
+    // allow local public assets with version query params (e.g. ?v=2) for cache busting
+    localPatterns: [
+      {
+        pathname: '/**',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',

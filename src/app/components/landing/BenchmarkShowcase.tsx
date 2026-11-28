@@ -24,7 +24,7 @@ const entries: BenchmarkEntry[] = [
     {
         app: "ColorWall",
         tab: "Processes",
-        src: "/colorwall-perf.webp",
+        src: "/colorwall-perf.webp?v=2",
         alt: "ColorWall processes in Task Manager - 3.6% CPU, 20.9% GPU Video Decode",
         gpu: "24%",
         verdict: "Barely a whisper.",
@@ -176,7 +176,7 @@ export const BenchmarkShowcase = ({ theme, isDownloadPage = false }: BenchmarkSh
                     group-hover:shadow-2xl group-hover:scale-[1.01]
                     ${isDark ? "border-white/10 group-hover:border-white/20" : "border-black/10 group-hover:border-black/15"}`}>
                     <Image
-                        src="/colorwall-perf.webp"
+                        src="/colorwall-perf.webp?v=2"
                         alt="ColorWall benchmark - click to view full comparison"
                         fill
                         className="object-cover object-left-top"

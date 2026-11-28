@@ -23,35 +23,35 @@ const features: Feature[] = [
         title: "STORE",
         description: "Access thousands of wallpapers from 8+ sources. One unified search bar, infinite inspiration — no account needed.",
         badge: "8 SOURCES · 4K · UNIFIED",
-        imageSrcs: ["/STORE.webp", "/modal.webp"]
+        imageSrcs: ["/STORE.webp?v=2", "/modal.webp"]
     },
     {
         id: "library",
         title: "LIBRARY",
         description: "Your personal collection. Offline-first with automatic thumbnails and instant previews. Upload your own, link local files, or save from the store.",
         badge: "LOCAL · OFFLINE · CUTE",
-        imageSrcs: ["/Library.webp"]
+        imageSrcs: ["/Library.webp?v=2"]
     },
     {
         id: "customise",
         title: "CUSTOMISE",
         description: "unmatched performance and control. built on rust & tauri for near-zero impact. style your taskbar with blur/acrylic effects, control multi-monitor setups, and tweak renderer presets.",
         badge: "RUST · TAURI · LOW OVERHEAD",
-        imageSrcs: ["/PEAKmodalpreview.webp", "/multi.webp", "/taskbar.webp", "/ADV.webp", "/perf.webp"]
+        imageSrcs: ["/PEAKmodalpreview.webp", "/multi.webp?v=2", "/taskbar.webp?v=2", "/ADV.webp", "/perf.webp"]
     },
     {
         id: "widgets",
         title: "WIDGETS",
         description: "desktop widgets powered by modern web tech. add calendars, clocks, or custom information directly to your desktop. clean, fast, and fully customizable.",
         badge: "HTML · JS · PINNED",
-        imageSrcs: ["/widgets.webp"]
+        imageSrcs: ["/widgets.webp?v=2"]
     },
     {
         id: "studio",
         title: "STUDIO",
         description: "build your own native scene wallpapers using our built-in node editor. combine images, video layers, real-time audio-reactive shaders, and particle systems effortlessly.",
         badge: "NODE-BASED · D3D11 · PARTICLES",
-        imageSrcs: ["/studio.webp"]
+        imageSrcs: ["/studio.webp?v=2"]
     },
     {
         id: "interactive",

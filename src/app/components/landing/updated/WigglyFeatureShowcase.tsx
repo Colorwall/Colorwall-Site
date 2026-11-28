@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThingsCardsShowcase } from "./ThingsCardsShowcase";
 import { TeamBreathingSection } from "./TeamSection";
@@ -31,7 +32,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Registries", val: "8 Sources" },
       { label: "Account", val: "0 Required" },
     ],
-    image: "/STORE.webp",
+    image: "/STORE.webp?v=2",
   },
   {
     id: "widgets",
@@ -44,7 +45,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Input Delay", val: "< 1.2ms" },
       { label: "RAM Impact", val: "~15MB Idle" },
     ],
-    image: "/widgets.webp",
+    image: "/widgets.webp?v=2",
   },
   {
     id: "library",
@@ -57,7 +58,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Formats", val: "MP4 · WebM · Shaders" },
       { label: "Telemetry", val: "Zero Tracking" },
     ],
-    image: "/Library.webp",
+    image: "/Library.webp?v=2",
   },
   {
     id: "displays",
@@ -70,7 +71,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Displays", val: "Up to 8 Monitors, or any number works!" },
       // { label: "Color Space", val: "10-bit HDR10" },
     ],
-    image: "/multi.webp",
+    image: "/multi.webp?v=2",
   },
   {
     id: "taskbar",
@@ -83,7 +84,7 @@ const FEATURES: FeatureItem[] = [
       // { label: "Docking", val: "Centered & Floating" },
       // { label: "Hook Type", val: "Direct DWM Injection" },
     ],
-    image: "/taskbar.webp",
+    image: "/taskbar.webp?v=2",
   },
   {
     id: "performance",
@@ -96,7 +97,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Game Detection", val: "Auto Pauses <3" },
       { label: "VRAM Usage?", val: "Maybe 1-5%" },
     ],
-    image: "/colorwall-perf.webp",
+    image: "/colorwall-perf.webp?v=2",
   },
   {
     id: "shaders",
@@ -109,7 +110,7 @@ const FEATURES: FeatureItem[] = [
       { label: "Refresh Target", val: "Up to 360Hz" },
       { label: "Available?", val: "Well technically yes!" },
     ],
-    image: "/studio.webp",
+    image: "/studio.webp?v=2",
   },
 ];
 
@@ -175,6 +176,8 @@ interface WigglyFeatureShowcaseProps {
 export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseProps) {
   const isDark = theme === "dark";
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalIndex, setModalIndex] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -374,6 +377,54 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
     window.scrollBy({ top: 520, behavior: "smooth" });
   };
 
+  // open modal initialized to currently selected active feature index
+  const handleOpenModal = () => {
+    setModalIndex(activeIndex);
+    setIsModalOpen(true);
+  };
+
+  // close modal and release viewport scroll lock
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // navigate through showcase images inside modal while syncing threejs shader state
+  const handleModalNavigate = (nextIdx: number) => {
+    const clamped = (nextIdx + FEATURES.length) % FEATURES.length;
+    setModalIndex(clamped);
+    handleSelectFeature(clamped);
+  };
+
+  // lock body scroll while modal lightbox is visible to prevent background drift
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen]);
+
+  // keyboard shortcuts for intuitive power-user navigation (esc to close, arrows to step)
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleCloseModal();
+      } else if (e.key === "ArrowLeft") {
+        handleModalNavigate(modalIndex - 1);
+      } else if (e.key === "ArrowRight") {
+        handleModalNavigate(modalIndex + 1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen, modalIndex]);
+
   return (
     <section
       className={cn(
@@ -456,12 +507,19 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">
             {/* left half: prominently sized interactive wiggly threejs canvas */}
             <div
+              onClick={handleOpenModal}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              className="lg:col-span-7 relative w-full aspect-[16/10] flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
+              className="lg:col-span-7 relative w-full aspect-[16/10] flex items-center justify-center overflow-hidden cursor-pointer group/canvas rounded-2xl sm:rounded-3xl border border-white/5 bg-black/20"
             >
               {/* threejs canvas rendering fluid wave ripples */}
               <canvas ref={canvasRef} className="w-full h-full block" />
+
+              {/* hover indicator hinting that the canvas expands into an un-distorted view */}
+              <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/80 opacity-0 group-hover/canvas:opacity-100 transition-opacity duration-200 pointer-events-none text-xs font-mono">
+                <Maximize2 className="w-3.5 h-3.5 text-[#00a4ff]" />
+                <span>Expand</span>
+              </div>
             </div>
 
             {/* right half: navigable feature deck with breathy thin typography */}
@@ -560,6 +618,98 @@ export function WigglyFeatureShowcase({ theme = "dark" }: WigglyFeatureShowcaseP
         </div>
 
       </div>
+
+      {/* simple editorial floaty rect modal taking up most of the viewport */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleCloseModal}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-xl"
+          >
+            {/* floaty rect container sized to maximize un-distorted screenshot legibility */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-[94vw] max-w-[1520px] h-[86vh] rounded-2xl sm:rounded-3xl bg-[#07080f] border border-white/10 shadow-2xl shadow-black/90 overflow-hidden"
+            >
+              {/* un-distorted full-bleed screenshot without shader deformation */}
+              <Image
+                src={FEATURES[modalIndex].image}
+                alt={FEATURES[modalIndex].title}
+                fill
+                sizes="94vw"
+                className="object-contain p-2 sm:p-4"
+                priority
+              />
+
+              {/* floating editorial close button */}
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                aria-label="Close modal"
+                className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-white/70 hover:text-white border border-white/10 backdrop-blur-md transition-all duration-150"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* floating previous arrow */}
+              <button
+                type="button"
+                onClick={() => handleModalNavigate(modalIndex - 1)}
+                aria-label="Previous screenshot"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-black/80 text-white/70 hover:text-white border border-white/10 backdrop-blur-md transition-all duration-150"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* floating next arrow */}
+              <button
+                type="button"
+                onClick={() => handleModalNavigate(modalIndex + 1)}
+                aria-label="Next screenshot"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-black/80 text-white/70 hover:text-white border border-white/10 backdrop-blur-md transition-all duration-150"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* minimal floating editorial caption */}
+              <div className="absolute bottom-4 left-5 z-20 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-white/10 pointer-events-none">
+                <span className="font-mono text-[11px] text-[#00a4ff]">
+                  {FEATURES[modalIndex].num}
+                </span>
+                <span className="font-outfit text-xs sm:text-sm font-light text-white/90">
+                  {FEATURES[modalIndex].title}
+                </span>
+              </div>
+
+              {/* minimal floating pagination dots */}
+              <div className="absolute bottom-4 right-5 z-20 hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/55 backdrop-blur-md border border-white/10">
+                {FEATURES.map((feat, idx) => (
+                  <button
+                    key={feat.id}
+                    type="button"
+                    onClick={() => handleModalNavigate(idx)}
+                    aria-label={`View ${feat.title}`}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-200",
+                      idx === modalIndex
+                        ? "w-5 bg-[#00a4ff]"
+                        : "w-1.5 bg-white/30 hover:bg-white/60"
+                    )}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
