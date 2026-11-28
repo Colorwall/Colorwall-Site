@@ -21,6 +21,7 @@ import {
     Layers,
     UserCheck,
     Link2,
+    LogIn,
     ArrowRight,
     Sun,
     Moon,
@@ -226,7 +227,43 @@ export const Navbar = () => {
     }
 
     const activeGooeyIndex = NAV_LINKS.findIndex((l) => l.href === pathname);
-    const isCreatorsRoute = pathname.startsWith("/creators");
+    const isCreatorsRoute = pathname.startsWith("/creators") || pathname.startsWith("/@");
+    const creatorsPrimaryHref = user?.creatorHandle ? `/@${user.creatorHandle}` : "/creators";
+
+    // only show real, working creator destinations instead of dead hash links
+    const creatorDropdownItems = user?.creatorHandle
+        ? [
+              {
+                  title: `@${user.creatorHandle}`,
+                  desc: "Open your reserved ColorWall Creator profile",
+                  href: `/@${user.creatorHandle}`,
+                  icon: AtSign,
+                  isExternal: false,
+              },
+              {
+                  title: "Connect Desktop App",
+                  desc: "Launch ColorWall and link your creator handle",
+                  href: `colorwall://creator?handle=${encodeURIComponent(user.creatorHandle)}`,
+                  icon: Link2,
+                  isExternal: true,
+              },
+          ]
+        : [
+              {
+                  title: "Reserve Handle",
+                  desc: "Claim your colorwall.xyz/@handle before launch",
+                  href: "/creators",
+                  icon: AtSign,
+                  isExternal: false,
+              },
+              {
+                  title: "Sign In",
+                  desc: "Continue with Google or Discord to unlock Creator access",
+                  href: "/login",
+                  icon: LogIn,
+                  isExternal: false,
+              },
+          ];
 
     return (
         <header
@@ -281,10 +318,10 @@ export const Navbar = () => {
                             isDark={isDark}
                         />
 
-                        <button
-                            type="button"
+                        <Link
+                            href={creatorsPrimaryHref}
                             onMouseEnter={openCreatorsByHover}
-                            onClick={handleCreatorsClick}
+                            onClick={(e) => handleNavClick(e, creatorsPrimaryHref, false)}
                             className={cn(
                                 "outline-none py-[0.6em] px-[1em] inline-flex items-center gap-2 text-xs font-mono font-semibold tracking-widest uppercase transition-colors duration-150 shrink-0 cursor-pointer",
                                 isCreatorsOpen || isCreatorsRoute
@@ -304,7 +341,7 @@ export const Navbar = () => {
                                     isCreatorsOpen && "rotate-180"
                                 )}
                             />
-                        </button>
+                        </Link>
                     </div>
 
                     {/* mobile compact icon nav */}
@@ -469,11 +506,11 @@ export const Navbar = () => {
                                     <div className="px-4 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[#00a4ff] font-semibold">
                                         Creators
                                     </div>
-                                    {CREATOR_ITEMS.map((item) => (
+                                    {creatorDropdownItems.map((item) => (
                                         <Link
                                             key={item.title}
                                             href={item.href}
-                                            onClick={(e) => handleNavClick(e, item.href, false, true)}
+                                            onClick={(e) => handleNavClick(e, item.href, item.isExternal, true)}
                                             className={cn(
                                                 "px-4 py-2.5 rounded-xl text-xs font-mono font-semibold tracking-wider uppercase flex items-center gap-3 transition-colors",
                                                 isDark ? "text-white/85 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-black hover:bg-black/5"
@@ -529,11 +566,11 @@ export const Navbar = () => {
                         </div>
 
                         <div className="col-span-9 grid grid-cols-2 gap-2.5">
-                            {CREATOR_ITEMS.map((item) => (
+                            {creatorDropdownItems.map((item) => (
                                 <Link
                                     key={item.title}
                                     href={item.href}
-                                    onClick={(e) => handleNavClick(e, item.href, false)}
+                                    onClick={(e) => handleNavClick(e, item.href, item.isExternal)}
                                     className={cn(
                                         "group flex items-center justify-between gap-4 px-4 py-3 rounded-xl transition-colors duration-150",
                                         isDark ? "hover:bg-white/[0.07]" : "hover:bg-black/[0.04]"
