@@ -22,6 +22,7 @@ import {
     UserCheck,
     Link2,
     LogIn,
+    LogOut,
     ArrowRight,
     Sun,
     Moon,
@@ -85,7 +86,7 @@ const CREATOR_ITEMS = [
 // floating translucent navbar pairing gooeynav physics with a gpu-composited creators dropdown
 export const Navbar = () => {
     const { theme, toggleTheme } = useTheme();
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const isDark = theme === "dark";
@@ -93,6 +94,7 @@ export const Navbar = () => {
     const [isVisible, setIsVisible] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCreatorsOpen, setIsCreatorsOpen] = useState(false);
+    const [isAccountOpen, setIsAccountOpen] = useState(false);
     const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
     const [isCinematicActive, setIsCinematicActive] = useState(false);
 
@@ -127,6 +129,7 @@ export const Navbar = () => {
                 setIsVisible(false);
                 setIsMobileMenuOpen(false);
                 setIsCreatorsOpen(false);
+                setIsAccountOpen(false);
             }
             lastScrollY.current = currentScrollY;
         };
@@ -135,19 +138,21 @@ export const Navbar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // close creators dropdown on outside click or escape key
+    // close dropdowns on outside click or escape key
     useEffect(() => {
-        if (!isCreatorsOpen) return;
+        if (!isCreatorsOpen && !isAccountOpen) return;
 
         const handleOutsideClick = (e: globalThis.MouseEvent) => {
             if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
                 setIsCreatorsOpen(false);
+                setIsAccountOpen(false);
                 openedByHoverRef.current = false;
             }
         };
         const handleKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
                 setIsCreatorsOpen(false);
+                setIsAccountOpen(false);
                 openedByHoverRef.current = false;
             }
         };
@@ -158,11 +163,12 @@ export const Navbar = () => {
             document.removeEventListener("mousedown", handleOutsideClick);
             window.removeEventListener("keydown", handleKey);
         };
-    }, [isCreatorsOpen]);
+    }, [isCreatorsOpen, isAccountOpen]);
 
     useEffect(() => {
         setLoadingRoute(null);
         setIsCreatorsOpen(false);
+        setIsAccountOpen(false);
         setIsMobileMenuOpen(false);
         openedByHoverRef.current = false;
         if (pathname !== "/") {
@@ -425,33 +431,101 @@ export const Navbar = () => {
                             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
 
-                        <Link
-                            href={user ? (user.creatorHandle ? `/@${user.creatorHandle}` : "/creators") : "/login"}
-                            onClick={(e) => handleNavClick(e, user ? (user.creatorHandle ? `/@${user.creatorHandle}` : "/creators") : "/login", false)}
-                            className={cn(
-                                "hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-150 shadow-sm",
-                                isDark
-                                    ? "bg-white text-black hover:bg-[#00a4ff] hover:text-white"
-                                    : "bg-slate-900 text-white hover:bg-[#00a4ff]"
-                            )}
-                        >
-                            {user ? (
-                                <>
+                        {user ? (
+                            <div className="relative hidden sm:block">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsCreatorsOpen(false);
+                                        setIsAccountOpen((prev) => !prev);
+                                    }}
+                                    aria-label="Account menu"
+                                    className={cn(
+                                        "cursor-pointer w-8 h-8 rounded-full overflow-hidden border transition-transform hover:scale-105 flex items-center justify-center shrink-0",
+                                        isDark ? "border-white/20 bg-white/10" : "border-black/15 bg-black/5"
+                                    )}
+                                >
                                     {user.avatar ? (
                                         /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img src={user.avatar} alt={user.name} className="w-4 h-4 rounded-full object-cover" />
+                                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <AtSign className="w-3.5 h-3.5" />
+                                        <span className="font-mono text-xs font-semibold">
+                                            {user.name.charAt(0).toUpperCase()}
+                                        </span>
                                     )}
-                                    <span className="max-w-[90px] truncate">{user.name}</span>
-                                </>
-                            ) : (
-                                <>
-                                    <AtSign className="w-3.5 h-3.5" />
-                                    <span>Sign in</span>
-                                </>
-                            )}
-                        </Link>
+                                </button>
+
+                                <AnimatePresence>
+                                    {isAccountOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                                            transition={{ duration: 0.14 }}
+                                            className={cn(
+                                                "absolute right-0 top-full mt-3 w-56 rounded-2xl border backdrop-blur-xl shadow-2xl p-2 z-50",
+                                                isDark
+                                                    ? "bg-[#0c0d16]/95 border-white/15 text-white shadow-black/70"
+                                                    : "bg-white/95 border-black/10 text-slate-900 shadow-slate-900/15"
+                                            )}
+                                        >
+                                            <div className={cn("px-3 py-2 border-b mb-1", isDark ? "border-white/10" : "border-black/10")}>
+                                                <div className="font-outfit text-sm font-medium truncate">{user.name}</div>
+                                                <div className={cn("font-mono text-[11px] truncate", isDark ? "text-white/50" : "text-slate-500")}>
+                                                    {user.email}
+                                                </div>
+                                            </div>
+
+                                            {user.creatorHandle && (
+                                                <Link
+                                                    href={`/@${user.creatorHandle}`}
+                                                    onClick={(e) => {
+                                                        setIsAccountOpen(false);
+                                                        handleNavClick(e, `/@${user.creatorHandle}`, false);
+                                                    }}
+                                                    className={cn(
+                                                        "w-full px-3 py-2 rounded-xl text-xs font-mono flex items-center gap-2 transition-colors",
+                                                        isDark ? "text-[#00a4ff] hover:bg-white/10" : "text-[#00a4ff] hover:bg-black/5"
+                                                    )}
+                                                >
+                                                    <AtSign className="w-3.5 h-3.5" />
+                                                    <span>{user.creatorHandle}</span>
+                                                </Link>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={async () => {
+                                                    setIsAccountOpen(false);
+                                                    await logout();
+                                                }}
+                                                className={cn(
+                                                    "cursor-pointer w-full px-3 py-2 rounded-xl text-xs font-mono flex items-center gap-2 transition-colors text-left",
+                                                    isDark ? "text-rose-400 hover:bg-white/10" : "text-rose-600 hover:bg-black/5"
+                                                )}
+                                            >
+                                                <LogOut className="w-3.5 h-3.5" />
+                                                <span>Sign out</span>
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        ) : (
+                            <Link
+                                href="/login"
+                                onClick={(e) => handleNavClick(e, "/login", false)}
+                                className={cn(
+                                    "hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-150 shrink-0",
+                                    isDark
+                                        ? "bg-white text-black hover:bg-[#00a4ff] hover:text-white"
+                                        : "bg-slate-900 text-white hover:bg-[#00a4ff]"
+                                )}
+                            >
+                                <LogIn className="w-3.5 h-3.5" />
+                                <span>Sign in</span>
+                            </Link>
+                        )}
 
                         <button
                             type="button"
