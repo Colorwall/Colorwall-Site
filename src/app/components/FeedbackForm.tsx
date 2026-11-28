@@ -193,7 +193,7 @@ export function FeedbackForm({ defaultUsername, defaultSource = 'Web', appVersio
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
                                 maxLength={64}
-                                placeholder="Your handle (e.g. oliver)"
+                                placeholder="Your handle (e.g. angrychud)"
                                 className={cn(
                                     "w-full bg-transparent text-sm font-outfit outline-none border-b py-1.5 transition-colors",
                                     isDark

@@ -140,7 +140,7 @@ export function CreatorsClient({
         }
     };
 
-    const normalizedPreview = handleInput.trim().replace(/^@+/, "").toLowerCase() || "oliver";
+    const normalizedPreview = handleInput.trim().replace(/^@+/, "").toLowerCase() || "angrychud";
     const textColor = isDark ? "text-white" : "text-black";
     const borderColor = isDark ? "border-white/15" : "border-black/15";
     const mutedText = isDark ? "text-white/60" : "text-black/60";
