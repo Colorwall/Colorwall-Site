@@ -204,6 +204,24 @@ const nextConfig: NextConfig = {
             value: 'Content-Type'
           }
         ],
+      },
+      // cors headers allowing the tauri desktop app to check and reserve creator handles directly
+      {
+        source: '/api/creators/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization'
+          }
+        ],
       }
     ];
   },

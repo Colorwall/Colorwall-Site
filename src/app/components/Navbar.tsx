@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/app/contexts/ThemeContext";
+import { useAuth } from "@/app/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Coffee,
@@ -83,6 +84,7 @@ const CREATOR_ITEMS = [
 // floating translucent navbar pairing gooeynav physics with a gpu-composited creators dropdown
 export const Navbar = () => {
     const { theme, toggleTheme } = useTheme();
+    const { user } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const isDark = theme === "dark";
@@ -387,17 +389,31 @@ export const Navbar = () => {
                         </button>
 
                         <Link
-                            href="/creators"
-                            onClick={(e) => handleNavClick(e, "/creators", false)}
+                            href={user ? "/creators" : "/login"}
+                            onClick={(e) => handleNavClick(e, user ? "/creators" : "/login", false)}
                             className={cn(
-                                "hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-150 shadow-sm",
+                                "hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-150 shadow-sm",
                                 isDark
                                     ? "bg-white text-black hover:bg-[#00a4ff] hover:text-white"
                                     : "bg-slate-900 text-white hover:bg-[#00a4ff]"
                             )}
                         >
-                            <AtSign className="w-3.5 h-3.5" />
-                            <span>Claim Handle</span>
+                            {user ? (
+                                <>
+                                    {user.avatar ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img src={user.avatar} alt={user.name} className="w-4 h-4 rounded-full object-cover" />
+                                    ) : (
+                                        <AtSign className="w-3.5 h-3.5" />
+                                    )}
+                                    <span className="max-w-[90px] truncate">{user.name}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <AtSign className="w-3.5 h-3.5" />
+                                    <span>Sign in</span>
+                                </>
+                            )}
                         </Link>
 
                         <button

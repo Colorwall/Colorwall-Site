@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Geist, Geist_Mono, Quicksand, Spline_Sans, Outfit } 
 import "./globals.css";
 
 import { ThemeProvider } from "@/app/contexts/ThemeContext";
+import { AuthProvider } from "@/app/contexts/AuthContext";
 import { Navbar } from "@/app/components/Navbar";
 import { SmoothScroller } from "@/app/components/SmoothScroller";
 import { CustomScrollbar } from "@/app/components/CustomScrollbar";
@@ -266,6 +267,7 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${splineSans.variable} ${outfit.variable} antialiased min-h-screen bg-transparent text-[var(--text-primary)] font-jakarta overflow-x-clip`}
       >
         <ThemeProvider>
+          <AuthProvider>
           <GlobalLoadingCurtain />
           <AmbientProvider>
             {/* page wide global atmospheric sky background with stars, celestial bodies, and floating clouds */}
@@ -285,6 +287,7 @@ export default function RootLayout({
             </div>
             {/* <Analytics /> */}
           </AmbientProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
