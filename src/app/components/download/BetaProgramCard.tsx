@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 import { enrollBetaTester } from "@/app/actions/beta";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 // google play store styled flask illustration with geometric floating shapes
 const PlayStoreFlask = () => (
@@ -69,7 +71,8 @@ const PlayStoreFlask = () => (
 );
 
 export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
-    const [email, setEmail] = useState("");
+    const { user, loading: authLoading } = useAuth();
+    const router = useRouter();
     const [status, setStatus] = useState<"idle" | "joining" | "enrolled">("idle");
     const [testerId, setTesterId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -91,10 +94,10 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
         }
     }, []);
 
-    const handleJoin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email || !email.includes("@")) {
-            setError("Please enter a valid Gmail address.");
+    // enroll using verified global session email or redirect to /login if unauthenticated
+    const handleJoin = async () => {
+        if (!user) {
+            router.push("/login?returnTo=/download");
             return;
         }
 
@@ -102,14 +105,12 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
         setStatus("joining");
 
         try {
-            const data = await enrollBetaTester(email);
+            const data = await enrollBetaTester(user.email);
 
             if (data.success) {
-                // No one shall know, js modifying this to trigger redeploy on the hosting lmao
                 setTimeout(() => {
                     setStatus("enrolled");
                     setTesterId(data.testerId || null);
-                    setEmail("");
                     try {
                         localStorage.setItem(
                             "colorwall_beta_tester",
@@ -118,7 +119,7 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
                     } catch {
                         // ignore storage errors
                     }
-                }, 1200);
+                }, 800);
             } else {
                 setStatus("idle");
                 setError(data.error || "Unable to join beta. Try again.");
@@ -132,7 +133,6 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
     const handleLeave = () => {
         setStatus("idle");
         setTesterId(null);
-        setEmail("");
         setError(null);
         setShowDetails(false);
         try {
@@ -178,32 +178,45 @@ export function BetaProgramCard({ isDark = true }: { isDark?: boolean }) {
                                 : "Try new features before they're officially released and give feedback to the developers. All builds are completely safe and community-verified."}
                     </p>
 
-                    {/* enrollment input when idle */}
+                    {/* session-backed enrollment action when idle */}
                     {status === "idle" && (
-                        <div className="space-y-1.5 pt-1">
-                            <form onSubmit={handleJoin} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 max-w-md">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your Gmail to join"
-                                    required
-                                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm border outline-none transition-colors ${
-                                        isDark 
-                                            ? "bg-black/40 border-white/15 text-white placeholder-white/35 focus:border-emerald-500/60" 
-                                            : "bg-black/5 border-black/15 text-black placeholder-black/40 focus:border-emerald-600"
-                                    }`}
-                                />
+                        <div className="space-y-2 pt-1">
+                            {authLoading ? (
                                 <button
-                                    type="submit"
-                                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm transition-colors cursor-pointer shrink-0"
+                                    type="button"
+                                    disabled
+                                    className="px-5 py-2 rounded-xl bg-emerald-500/40 text-black/60 font-semibold text-xs sm:text-sm inline-flex items-center gap-2 cursor-wait"
                                 >
-                                    Join
+                                    <Loader2 size={14} className="animate-spin" />
+                                    <span>Checking session...</span>
                                 </button>
-                            </form>
-                            <p className={`text-[10px] italic sm:text-[9px] font-mono leading-relaxed ${isDark ? "text-white/40" : "text-black/40"}`}>
-                                *Your Gmail isn&apos;t stored as plain text and is encrypted end-to-end using AES-256-GCM.
-                            </p>
+                            ) : user ? (
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleJoin}
+                                        className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                                    >
+                                        Join as {user.name}
+                                    </button>
+                                    <span className={`text-[11px] font-mono ${isDark ? "text-white/45" : "text-black/45"}`}>
+                                        {user.email}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleJoin}
+                                        className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                                    >
+                                        Sign in to join
+                                    </button>
+                                    <span className={`text-[11px] font-mono ${isDark ? "text-white/45" : "text-black/45"}`}>
+                                        Not signed in yet
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     )}
 

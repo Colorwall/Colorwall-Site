@@ -51,3 +51,27 @@ export async function checkRateLimit(key: string, maxRequests: number, windowSec
         return true;
     }
 }
+
+// permanent lifetime counter check (no ttl) used to cap handle claims per ip forever
+export async function getLifetimeCount(key: string): Promise<number> {
+    const redis = await getRedis();
+    if (!redis) return 0;
+
+    try {
+        const val = await redis.get(key);
+        return val ? parseInt(val, 10) || 0 : 0;
+    } catch {
+        return 0;
+    }
+}
+
+export async function incrementLifetimeCount(key: string): Promise<void> {
+    const redis = await getRedis();
+    if (!redis) return;
+
+    try {
+        await redis.incr(key);
+    } catch {
+        // non-fatal redis counter error
+    }
+}

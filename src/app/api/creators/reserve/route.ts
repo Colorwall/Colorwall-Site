@@ -2,17 +2,32 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { reserveCreatorHandle } from "@/lib/creators";
 import { getSessionUser, setSessionCookie, verifyToken, type SessionUser } from "@/lib/auth";
-import { checkRateLimit } from "@/lib/redis";
+import { checkRateLimit, getLifetimeCount, incrementLifetimeCount } from "@/lib/redis";
 
-// handle reservation endpoint requiring either a valid web session cookie or a signed app bearer token
+// permanent cap of 2 successful handle reservations per ip forever (blocks multi-gmail hoarding)
+const MAX_CLAIMS_PER_IP_FOREVER = 2;
+
+// handle reservation endpoint requiring verified web cookie or signed app bearer token
+// env checklist for vercel: MONGODB_URI, REDIS_URL, ENCRYPTION_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET
 export async function POST(req: Request) {
     try {
         const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
         const ipHash = crypto.createHash("sha256").update(ip).digest("hex").slice(0, 16);
-        const allowed = await checkRateLimit(`rl:creators:reserve:${ipHash}`, 8, 60);
-        if (!allowed) {
+
+        // short burst guard (5 attempts/min) + permanent lifetime cap (2 claims per ip forever)
+        const burstAllowed = await checkRateLimit(`rl:creators:burst:${ipHash}`, 5, 60);
+        if (!burstAllowed) {
             return NextResponse.json(
                 { success: false, error: "Too many attempts. Please wait a minute." },
+                { status: 429 }
+            );
+        }
+
+        const lifetimeKey = `claims:ip:${ipHash}`;
+        const lifetimeClaims = await getLifetimeCount(lifetimeKey);
+        if (lifetimeClaims >= MAX_CLAIMS_PER_IP_FOREVER) {
+            return NextResponse.json(
+                { success: false, error: "Handle reservation limit reached for this network." },
                 { status: 429 }
             );
         }
@@ -69,6 +84,9 @@ export async function POST(req: Request) {
                 { status: result.status || 400 }
             );
         }
+
+        // only consume a lifetime ip slot once the reservation actually succeeds
+        await incrementLifetimeCount(lifetimeKey);
 
         // persist claimed handle inside httponly session cookie so /api/auth/me needs zero db hits
         if (sessionUser && result.creator) {

@@ -8,6 +8,38 @@ import { getRedis } from "@/lib/redis";
 
 export { normalizeHandle, validateHandle, type PublicCreatorProfile };
 
+/*
+ * creator storage and caching architecture reference
+ *
+ * 1. mongodb (database: "ColorWall")
+ *    - collection "ColorWall.users":
+ *      { uid, emailHash, name, avatar, provider ("google"|"discord"), lastLoginAt, createdAt }
+ *    - collection "ColorWall.creators" (unique indexes on handle and emailHash):
+ *      {
+ *        creatorId: "CW-CR-XXXXXX",
+ *        handle: "oliver",
+ *        displayName: "Oliver",
+ *        source: "Web" | "App",
+ *        verified: false,
+ *        profileUrl: "https://colorwall.xyz/@oliver",
+ *        deepLinkUrl: "colorwall://creator?handle=oliver&id=CW-CR-XXXXXX",
+ *        emailHash: "<sha256 hex>",
+ *        encryptedEmail: "<ivHex>:<authTagHex>:<aes256gcmHex>",
+ *        createdAt: "<iso timestamp>"
+ *      }
+ *
+ * 2. upstash redis (fast ram shield in front of mongodb)
+ *    - "creators:handles" (set): all claimed handles (sismember in ~2ms)
+ *    - "creators:email_to_handle" (hash): emailHash -> handle (1 handle per account)
+ *    - "creators:profile:<handle>" (string, 1h ttl): cached PublicCreatorProfile json
+ *    - "claims:ip:<ipHash>" (string, no ttl): permanent lifetime cap of 2 claims per ip
+ *
+ * 3. future management
+ *    - verify creator: set verified: true in ColorWall.creators, then DEL creators:profile:<handle> in redis
+ *    - release handle: delete doc in ColorWall.creators, then SREM creators:handles <h>, HDEL creators:email_to_handle <emailHash>, DEL creators:profile:<h>
+ *    - reset ip cap: DEL claims:ip:<ipHash> in upstash redis data browser
+ */
+
 const REDIS_HANDLES_SET = "creators:handles";
 const REDIS_EMAIL_TO_HANDLE = "creators:email_to_handle";
 const redisProfileKey = (handle: string) => `creators:profile:${handle}`;
