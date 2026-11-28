@@ -4,14 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { RustIcon, TauriIcon } from "@/app/components/icons/TechIcons";
 import { AmbientPlayer } from "./AmbientPlayer";
-import { Outfit } from "next/font/google";
 import { HeroInteractive } from "./HeroInteractive";
 import { HeroTypewriter } from "./HeroTypewriter";
 import { useAmbient } from "@/app/contexts/AmbientContext";
 
 import RippleDistortion from "../ui/sexyripples";
-
-const outfit = Outfit({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500"] });
 
 
 type HeroVideo = {
@@ -272,7 +269,7 @@ export const HeroSection = () => {
 
                 {/* massive editorial headline */}
                 <h1
-                    className={`text-white text-left ${outfit.className} uppercase tracking-[-0.04em] leading-[0.94] drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]`}
+                    className="text-white text-left font-outfit uppercase tracking-[-0.04em] leading-[0.94] drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
                     style={{
                         fontWeight: 300,
                         fontSize: "clamp(2.4rem, 6.2vw, 5.75rem)",
