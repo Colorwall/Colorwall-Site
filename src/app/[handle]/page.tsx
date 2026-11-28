@@ -37,9 +37,8 @@ export default async function CreatorHandlePage({
                 {creator ? (
                     <div className="flex flex-col gap-6">
                         <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00a4ff]/15 text-[#00a4ff] border border-[#00a4ff]/30 font-mono text-[11px]">
-                                <Sparkles className="w-3 h-3" />
-                                Reserved Handle
+                            <span className="inline-flex items-center py-1 rounded-full text-[#00a4ff] font-outfit text-[15px]">
+                                This handle is reserved to you, how cool!!!
                             </span>
                             <span className="font-mono text-xs text-white/40">{creator.creatorId}</span>
                         </div>
