@@ -8,6 +8,7 @@ export interface AuthUser {
     name: string;
     avatar: string;
     provider: "google" | "discord";
+    creatorHandle?: string | null;
 }
 
 interface AuthContextType {

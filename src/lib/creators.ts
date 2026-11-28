@@ -227,6 +227,28 @@ export async function getCreatorByHandle(rawHandle: string): Promise<PublicCreat
     return local ? toPublicProfile(local) : null;
 }
 
+// lookup existing creator reservation by verified account email hash for one-time onboarding redirect
+export async function getCreatorByEmail(rawEmail: string): Promise<PublicCreatorProfile | null> {
+    const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+    if (!email) return null;
+
+    const emailHash = crypto.createHash("sha256").update(email).digest("hex");
+
+    try {
+        const found = await withCreatorsCollection(async (col) => {
+            return col.findOne({ emailHash });
+        });
+        if (found) return toPublicProfile(found);
+    } catch (err) {
+        console.warn("mongodb getCreatorByEmail fallback:", (err as Error).message);
+    }
+
+    const localHandle = localHandleByEmailHash.get(emailHash);
+    if (!localHandle) return null;
+    const local = localByHandle.get(localHandle);
+    return local ? toPublicProfile(local) : null;
+}
+
 // fetch aggregate reservation count and recent public creator handles
 export async function getCreatorStats(limit = 8): Promise<{
     totalReserved: number;

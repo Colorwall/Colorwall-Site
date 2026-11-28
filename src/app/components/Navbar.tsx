@@ -389,8 +389,8 @@ export const Navbar = () => {
                         </button>
 
                         <Link
-                            href={user ? "/creators" : "/login"}
-                            onClick={(e) => handleNavClick(e, user ? "/creators" : "/login", false)}
+                            href={user ? (user.creatorHandle ? `/@${user.creatorHandle}` : "/creators") : "/login"}
+                            onClick={(e) => handleNavClick(e, user ? (user.creatorHandle ? `/@${user.creatorHandle}` : "/creators") : "/login", false)}
                             className={cn(
                                 "hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-150 shadow-sm",
                                 isDark
