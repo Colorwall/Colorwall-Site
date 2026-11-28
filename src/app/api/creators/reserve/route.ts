@@ -1,15 +1,27 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { reserveCreatorHandle } from "@/lib/creators";
 import { getSessionUser, setSessionCookie, verifyToken, type SessionUser } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/redis";
 
-// handle reservation endpoint enforcing verified httponly session on web and caching handle in cookie
+// handle reservation endpoint requiring either a valid web session cookie or a signed app bearer token
 export async function POST(req: Request) {
     try {
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const ipHash = crypto.createHash("sha256").update(ip).digest("hex").slice(0, 16);
+        const allowed = await checkRateLimit(`rl:creators:reserve:${ipHash}`, 8, 60);
+        if (!allowed) {
+            return NextResponse.json(
+                { success: false, error: "Too many attempts. Please wait a minute." },
+                { status: 429 }
+            );
+        }
+
         const body = await req.json();
         const isAppSource = body?.source === "App";
 
-        let verifiedEmail = typeof body?.email === "string" ? body.email : "";
-        let verifiedName = typeof body?.displayName === "string" ? body.displayName : undefined;
+        let verifiedEmail = "";
+        let verifiedName: string | undefined = typeof body?.displayName === "string" ? body.displayName : undefined;
         let sessionUser: SessionUser | null = null;
 
         if (!isAppSource) {
@@ -23,15 +35,23 @@ export async function POST(req: Request) {
             verifiedEmail = sessionUser.email;
             verifiedName = verifiedName || sessionUser.name;
         } else {
-            // optional bearer token verification when desktop app passes handoff jwt
+            // require a signed bearer token from colorwall://auth so attackers cannot spoof source=App
             const authHeader = req.headers.get("authorization");
-            if (authHeader?.startsWith("Bearer ")) {
-                const tokenUser = verifyToken<SessionUser>(authHeader.slice(7));
-                if (tokenUser?.email) {
-                    verifiedEmail = tokenUser.email;
-                    verifiedName = verifiedName || tokenUser.name;
-                }
+            if (!authHeader?.startsWith("Bearer ")) {
+                return NextResponse.json(
+                    { success: false, error: "App authentication token required." },
+                    { status: 401 }
+                );
             }
+            const tokenUser = verifyToken<SessionUser>(authHeader.slice(7));
+            if (!tokenUser?.email) {
+                return NextResponse.json(
+                    { success: false, error: "Invalid or expired app token." },
+                    { status: 401 }
+                );
+            }
+            verifiedEmail = tokenUser.email;
+            verifiedName = verifiedName || tokenUser.name;
         }
 
         const result = await reserveCreatorHandle({
